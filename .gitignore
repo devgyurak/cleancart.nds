@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0
+# Shared agent config is part of the repo even though the global gitignore
+# excludes .claude/; only machine-local settings stay out.
+!/.claude/
+/.claude/settings.local.json
+# Emulator harness output, Python caches, ROMs and saves.
+/out/
+__pycache__/
+*.nds
+*.sav
