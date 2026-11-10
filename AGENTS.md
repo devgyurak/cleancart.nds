@@ -19,6 +19,12 @@ This file is the single source of truth for both Claude Code and Codex.
 - Don't commit or push unless asked. Never commit ROMs or build output.
 - Commit summaries, PR titles and branch names start with one prefix
   (`ADD:` `FIX:` `REF:` `DEL:` `DOCS:` `UPT:`); see skill `commit`.
+- Branch flow: work branch → PR into `develop` (squash); a new game or game version
+  is released by a PR `develop` → `main` (merge commit) and a `<game>-v<x.y.z>` tag
+  on main. Direct pushes to `develop`/`main` are blocked (`.github/rulesets/`,
+  applied by `.github/scripts/setup-rulesets.sh`). PRs need an approval from the
+  code owner @devgyurak (`.github/CODEOWNERS`); the maintainer merges their own PRs
+  through the admin bypass.
 
 ## Languages and toolchain
 
@@ -88,6 +94,8 @@ tools/melonds/                melonDS config + GDB/keyboard verification helpers
 scripts/sync_agents.py        regenerate .codex/agents from .claude/agents
 scripts/mklogo.py             regenerate the repository logo in docs/logo/
 .github/workflows/release.yml tag <game>-v<x.y.z> → `<game>/build.sh release` → artifacts + GitHub Release
+.github/workflows/pr-guard.yml required PR check: title prefix (develop), head = develop (main)
+.github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 <game>/                       one game: Makefile, build.sh, Dockerfile, sources, docs
 ```
 

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Every PR into develop or main needs an approval from the maintainer
+# (require_code_owner_review in .github/rulesets/). The maintainer is the only
+# repository admin and merges their own PRs through the admin bypass.
+* @devgyurak
