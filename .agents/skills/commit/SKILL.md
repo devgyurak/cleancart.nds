@@ -112,10 +112,25 @@ docs/corvane-gallery
 upt/blocksds-1.26
 ```
 
-## 6. PR title
+## 6. Branch flow and PR titles
 
-Same as the commit summary: `FIX: Corvane boot hang in EEPROM busy wait`.
-PRs target `main`.
+```
+<prefix>/<summary>  --PR, squash-->  develop  --release PR, merge commit-->  main  --tag-->  release
+```
+
+- `develop` and `main` reject direct pushes (rulesets in `.github/rulesets/`).
+  Branch off `develop`, push the work branch, open a PR **into `develop`**.
+- The PR title is the commit summary (`FIX: Corvane boot hang in EEPROM busy wait`);
+  the squash merge uses it as the commit title and the PR body as the message.
+  The required check `pr-guard` rejects titles without a prefix.
+- **Release** (a new game or a new game version): PR `develop` → `main`, titled
+  `Release <game> v<x.y.z>`, merged with a merge commit (squash/rebase are off for
+  main; `pr-guard` rejects any head other than `develop`). Then tag the merge
+  commit on main: `git tag <game>-v<x.y.z> origin/main && git push origin <game>-v<x.y.z>`.
+  The release workflow refuses tags that are not on main.
+- PRs need an approval from the code owner @devgyurak (`.github/CODEOWNERS`);
+  the maintainer merges their own PRs through the admin bypass.
+- Only admins can create tags (tag ruleset). Open, merge or tag only when the user asks.
 
 ## 7. Before committing
 

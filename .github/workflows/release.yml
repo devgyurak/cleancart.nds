@@ -44,6 +44,15 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      # Releases come from main only (develop is merged into main by a release PR).
+      - name: Check tag is on main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME points at a commit that is not on main. Merge the release PR first, then tag main."
+            exit 1
+          fi
 
       - name: Check game folder
         env:

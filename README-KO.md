@@ -44,14 +44,25 @@ cd corvane
 
 세이브 칩 변형, 데모 하나만 빌드하기, 조작법은 각 게임의 README를 보세요.
 
-## 릴리스
+## 브랜치와 릴리스
+
+`develop`과 `main`은 풀 리퀘스트로만 바뀝니다.
+
+```
+<접두사>/<요약>  ──PR──▶  develop  ──릴리스 PR──▶  main  ──태그 <게임>-v<x.y.z>──▶  Releases
+```
+
+작업은 `develop`에서 딴 브랜치에서 하고, 제목이 커밋 접두사(`ADD:`, `FIX:` …)로 시작하는
+PR로 `develop`에 머지합니다. 새 게임이나 게임의 새 버전은 `develop` → `main` PR(머지 커밋)로
+내보낸 뒤 main에 태그를 붙여 릴리스합니다. 기여자의 PR은 메인테이너의 승인
+([CODEOWNERS](.github/CODEOWNERS)) 후 머지됩니다.
 
 `<게임>-v<버전>` 형식의 태그를 푸시하면 GitHub Actions
 ([`release.yml`](.github/workflows/release.yml))가 해당 게임을 빌드해
 [Releases](https://github.com/devgyurak/cleancart.nds/releases) 페이지에 ROM을 올립니다.
 
 ```sh
-git tag corvane-v0.1.0
+git tag corvane-v0.1.0 origin/main
 git push origin corvane-v0.1.0
 ```
 
@@ -79,7 +90,7 @@ tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS)
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
 docs/logo/        저장소 로고 (scripts/mklogo.py가 생성)
-.github/          릴리스 워크플로 (태그 <게임>-v<버전> → GitHub Release)
+.github/          워크플로(릴리스, PR 검사), ruleset, PR 템플릿
 AGENTS.md         코딩 에이전트용 프로젝트 규칙 (Claude Code는 CLAUDE.md로 읽음)
 ```
 
