@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Required status check "pr-guard" (.github/rulesets/*-protection.json):
+#   PR into develop: title starts with a commit prefix (skill `commit`), so a
+#                    squash merge leaves a well-formed commit on develop.
+#   PR into main:    head must be develop (releases only), merged as a merge commit.
+
+name: PR guard
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-guard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check branch flow and title
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          fail=0
+          if [ "$BASE" = main ]; then
+            if [ "$HEAD" != develop ] || [ "$HEAD_REPO" != "$REPO" ]; then
+              echo "::error::main only takes release PRs from develop (got $HEAD_REPO:$HEAD). Open the PR against develop."
+              fail=1
+            fi
+          else
+            if ! printf '%s\n' "$TITLE" | grep -Eq '^(ADD|FIX|REF|DEL|DOCS|UPT): [^ ]'; then
+              echo "::error::PR title must start with ADD:, FIX:, REF:, DEL:, DOCS: or UPT: (see .agents/skills/commit/SKILL.md). Got: $TITLE"
+              fail=1
+            fi
+            if ! printf '%s\n' "$HEAD" | grep -Eq '^(add|fix|ref|del|docs|upt)/[a-z0-9._-]+$'; then
+              echo "::warning::Branch name '$HEAD' doesn't follow <prefix>/<summary-in-kebab-case>."
+            fi
+          fi
+          exit "$fail"
