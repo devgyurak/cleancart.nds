@@ -1,6 +1,6 @@
 # cleancart.nds
 
-Original Nintendo DS homebrew games, one per top-level folder (first: `corvane/`).
+Original Nintendo DS homebrew games, one per top-level folder (`corvane/`, `hushwell/`).
 Everything that ships in a ROM must be licence-clean: our own code and our own
 generated assets, plus clearly noticed third-party runtime libraries.
 
@@ -79,6 +79,8 @@ so builds stay reproducible (two clean builds must give the same SHA-256).
 | — | melonDS pause / fast-forward / frame step | P / Tab (hold) / N |
 
 QA shortcuts in corvane: title + Select = start-stage select; pause + hold L+R + A = clear stage.
+Hushwell maps the same keys to its own actions (walk, examine, run, flashlight, map/recorder,
+hush, flare, swap screens); see `hushwell/AGENTS.md`. Its QA shortcuts are the same.
 `tools/melonds/set_keys.py` writes this mapping (see skill `melonds-mac`).
 
 ## Repository layout
@@ -97,6 +99,7 @@ scripts/mklogo.py             regenerate the repository logo in docs/logo/
 .github/workflows/pr-guard.yml required PR check: title prefix (develop), head = develop (main)
 .github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 <game>/                       one game: Makefile, build.sh, Dockerfile, sources, docs
+                              (corvane/, hushwell/)
 ```
 
 ## Rules (read before editing matching files)
