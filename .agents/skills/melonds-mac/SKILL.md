@@ -34,6 +34,30 @@ Facts behind the script: values are Qt key codes; **arrow keys need
 modifiers too). If the user's Korean input source swallows letter keys, suggest
 switching to ABC while playing. Remind them to click the window for focus.
 
+## Headless melonDS (pictures, sound and memory without a screen)
+
+`tools/melonds/mds.sh` runs ROMs on the melonDS 1.1 core in Docker (same core
+as the app: software renderer, FreeBIOS, generated firmware, no JIT, direct
+boot, save type picked from the header like the app). In the corvane QA its
+demo result blocks matched the app (read over GDB) byte for byte.
+
+```sh
+tools/melonds/mds.sh demos corvane/build/release/demos      # RESULT + SAVE per demo
+tools/melonds/mds.sh run corvane/corvane.nds 900 out/mds/boot "60:A,200:A" 150,450
+SAV=out/mds/x.sav TRACE=<addr>:<len> TRACE_EVERY=60 SHOT_EVERY=600 \
+  tools/melonds/mds.sh run corvane/corvane.nds 20000 out/mds/run @out/mds/events.txt
+```
+
+- Events and screenshots work like `tools/emu/` (`FRAME:KEY[:HOLD]`, `Tx/y`, plus
+  `LID`); `@file` reads a long list. Other switches are documented at the top
+  of `tools/melonds/headless/mdsrun.cpp` (POKE, PEEK, WAV at 48 kHz, RTC, PM0).
+- A crash prints `CPU9 cpsr` and `REG9`: mode 0x17 is a data abort, R14 is
+  8 bytes past the faulting instruction, `sys_lr` the caller.
+- melonDS attaches no save chip to the game code `####` and an 8 KB EEPROM to
+  any code it doesn't know; a `.sav` file can't change that.
+- Still say "headless melonDS 1.1 core" in reports: it is not the app, and
+  sound is measured from the WAV, not listened to.
+
 ## Verify input without seeing the screen
 
 The terminal can't screenshot (no Screen Recording permission) and `osascript`
