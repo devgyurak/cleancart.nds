@@ -420,7 +420,9 @@ static void monster_update(Monster *m)
             }
             break;
         case MS_CHASE:
-            m->speed = W.chase ? F(0.050) : F(0.040);
+            // In the chase it is a little slower than you running: turns cost
+            // you ground, a clean line keeps you ahead.
+            m->speed = W.chase ? F(0.044) : F(0.040);
             m->tx = px;
             m->ty = py;
             if (sees)
@@ -443,7 +445,7 @@ static void monster_update(Monster *m)
             m->speed = F(0.040);
             if (--m->timer <= 0)
             {
-                monster_set(m, MS_WANDER, 0);
+                monster_set(m, W.chase ? MS_CHASE : MS_WANDER, 0);
                 random_cell(&m->tx, &m->ty, m->tx, m->ty, 4);
             }
             break;
@@ -490,15 +492,20 @@ static void monster_update(Monster *m)
         m->growl = 300 + rng_range(0, 400);
     }
 
-    if (d < F(0.55) && !m->attack_cool && m->state != MS_STUN && !p->dead)
+    // Only a creature that is after you strikes. Wandering into you makes
+    // it notice you; backing off (stunned or retreating) it passes by.
+    if (d < F(0.9) && m->state == MS_WANDER && !p->dead)
+    {
+        monster_set(m, MS_CHASE, 0);
+        snd_sfx(CV_SFX_GROWL, 127, pan_of(m->pos));
+    }
+    if (d < F(0.55) && !m->attack_cool && (m->state == MS_HUNT || m->state == MS_CHASE) && !p->dead)
     {
         player_hurt();
         m->attack_cool = 180;
-        if (!W.chase)
-        {
-            monster_set(m, MS_RETREAT, 200);
-            random_cell(&m->tx, &m->ty, px, py, 8);
-        }
+        // It staggers back after a strike; in the chase only briefly.
+        monster_set(m, MS_RETREAT, W.chase ? 70 : 200);
+        random_cell(&m->tx, &m->ty, px, py, W.chase ? 4 : 8);
     }
 }
 

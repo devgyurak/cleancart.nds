@@ -173,6 +173,7 @@ void particle(CvVec pos, CvVec vel, u16 color, int life, int32_t size, int kind)
 // render.c
 void render_init(void);
 void render_world(void);
+void render_set_rear(bool rear);   // draw the view behind the player
 void render_camera(CvVec eye, int yaw, int pitch);
 int  render_cells_drawn(void);
 void render_creature(const Monster *m, bool visitor);

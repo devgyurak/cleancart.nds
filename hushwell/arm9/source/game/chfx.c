@@ -493,13 +493,11 @@ void chfx_dual_draw(void)
     }
     else
     {
-        int yaw = W.pl.yaw;
-        W.pl.yaw = (yaw + 16384) & 0x7FFF;
-        bool light = W.pl.light;
-        W.pl.light = false;
+        // The view behind, without the flashlight. The player state is left
+        // alone: rendering may run past a video frame.
+        render_set_rear(true);
         render_world();
-        W.pl.light = light;
-        W.pl.yaw = yaw;
+        render_set_rear(false);
     }
     g3_flush(W.wbuffer);
 }

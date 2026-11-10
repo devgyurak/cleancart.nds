@@ -152,6 +152,14 @@ replace melonDS QA.
   switching extended palettes as the creature closes in, the recorder's REC (sound capture into
   RAM) then REV (reversed through the stream channel) revealing the code, and PHOTO / VIEW PHOTO.
   The replay check was repeated after the mic level joined the input log: still identical.
-- Not covered by the smoke tests: finishing every chapter by hand without RAM writes, the
+- Full playthrough without RAM writes: an input bot (buttons and touches only; it reads RAM
+  to know where the player is, like looking at the screen) played from the title through the
+  prologue and chapters 1-5, picked up all five tapes, opened every door, set the chapter 3
+  dial by touch, used flares on the creature, took the well ending and sat through the staff
+  roll to the records screen, in about 44,000 frames. It died twice (chapters 1 and 2) and
+  carried on from the chapter start each time. The run found three bugs, all fixed: a
+  retreating creature could still strike, the chase creature was nearly as fast as running
+  with no pause after a hit, and the dual-screen rear view briefly rewrote the player's yaw.
+- Not covered by the smoke tests: the
   swarm polygon overflow (DeSmuME reports 0), what the reversed recording actually sounds like
   and the microphone (headless runs have no audio input), and anything in melonDS.

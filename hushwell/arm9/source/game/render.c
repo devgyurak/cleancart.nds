@@ -45,6 +45,7 @@ static CvVec lamps[MAX_LAMPS];
 static int nlamps;
 
 static CvVec cam_eye, cam_fwd, beam_dir;
+static bool rear_view;   // dual-screen chase: looking back, no flashlight
 static int light_r, light_g, light_b;   // flashlight colour (0-31)
 
 int render_cells_drawn(void)
@@ -105,7 +106,7 @@ static u16 light_at(int32_t x, int32_t y, int32_t z)
         b += near;
     }
 
-    bool beam = W.pl.light && cv_game.battery > 0 && !W.pl.flicker && !W.peek;
+    bool beam = W.pl.light && !rear_view && cv_game.battery > 0 && !W.pl.flicker && !W.peek;
     if (beam)
     {
         int32_t zz = (dx * beam_dir.x + dy * beam_dir.y + dz * beam_dir.z) >> 12;
@@ -419,7 +420,7 @@ static void set_model_lights(void)
     // view space: light 0 is the flashlight pointing into the screen.
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    bool beam = W.pl.light && cv_game.battery > 0 && !W.pl.flicker && !W.debug_lights;
+    bool beam = W.pl.light && !rear_view && cv_game.battery > 0 && !W.pl.flicker && !W.debug_lights;
     glLight(0, beam ? RGB15(light_r, light_g, light_b) : RGB15(2, 2, 2), 0, 0, -floattov10(0.99));
     glLight(1, nlamps ? RGB15(10 - (W.lamp_flicker ? 6 : 0), 1, 1) : RGB15(1, 1, 2),
             0, -floattov10(0.99), 0);
@@ -799,11 +800,18 @@ void render_shaft(CvVec eye, int yaw, int f)
     (void)f;
 }
 
+void render_set_rear(bool rear)
+{
+    rear_view = rear;
+}
+
 void render_world(void)
 {
     Player *p = &W.pl;
     CvVec eye = W.peek ? W.peek_eye : p->pos;
     int yaw = W.peek ? W.peek_yaw : p->yaw;
+    if (rear_view)
+        yaw = (yaw + 16384) & 0x7FFF;
     // Hit: the view jolts for a moment.
     if (p->hurt > 30)
         yaw += (p->hurt & 2) ? 300 : -300;
