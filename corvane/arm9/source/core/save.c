@@ -12,7 +12,8 @@
 //
 // melonDS gives a game code it doesn't know an 8 KB EEPROM whatever the build
 // asked for, and its addresses wrap at 0x2000. The EEPROM and FRAM builds
-// detect that wrap and move the replay area below it (see probe_small_chip).
+// detect that wrap and move the replay area below it (see probe_small_chip);
+// the FLASH build shortens the replay when the chip has no JEDEC ID.
 
 #include <nds.h>
 #include <stddef.h>
@@ -46,8 +47,16 @@
 #define REPLAY_AT  0x8000
 #endif
 
-// 8 KB chips (2-byte addresses only): slots as above, replay area after them.
+// FLASH build on a chip without a JEDEC ID: if it is an EEPROM it takes our
+// 3-byte addresses as 2-byte ones (plus one data byte), so the slots land at
+// 0x0000/0x0100 and the replay at 0x0200, and an 8 KB chip wraps at 0x2000.
+// Keeping the replay below that wrap leaves the slots intact either way.
+#define FOLD_REPLAY_MAX  (0x2000 - (REPLAY_AT >> 8) - 1 - 4)
+
+// 8 KB chips (2-byte addresses only): slots as above, replay area after them,
+// 32-byte write pages (a real 8 KB EEPROM wraps longer writes in the page).
 #define SMALL_CHIP       0x2000
+#define SMALL_PAGE       32
 #define SMALL_REPLAY_AT  0x0800
 #define SMALL_REPLAY_MAX (SMALL_CHIP - SMALL_REPLAY_AT - 4)
 // Free byte in every layout, used to look for the 8 KB address wrap.
@@ -65,6 +74,10 @@ _Static_assert(SLOT_B + sizeof(CvSave) <= PROBE_AT || ADDR_BYTES == 3,
 CvSave cv_save;
 static bool chip_ok = true;
 static bool size_known;
+#if CV_SAVE_TYPE == 2
+static bool flash_unconfirmed;
+#endif
+static u32 page = PAGE;
 static u32 replay_at = REPLAY_AT;
 static u32 replay_max = CV_REPLAY_MAX;
 
@@ -129,15 +142,7 @@ static bool wait_ready(int budget)
     {
         if (!chip_ok)
             return false;
-        u8 s = read_status();
-        if (s == 0xFF)
-        {
-            // Open bus: no chip (or a different kind) is answering. Without
-            // this a missing FLASH chip kept the game busy for many seconds.
-            chip_ok = false;
-            return false;
-        }
-        if (!(s & 1))
+        if (!(read_status() & 1))
             return true;
     }
     chip_ok = false;
@@ -168,7 +173,7 @@ static void spi_write(u32 addr, const u8 *src, u32 len)
 #endif
     while (len && chip_ok)
     {
-        u32 chunk = PAGE - (addr % PAGE);
+        u32 chunk = page - (addr % page);
         if (chunk > len)
             chunk = len;
         write_enable();
@@ -191,11 +196,28 @@ static void spi_write(u32 addr, const u8 *src, u32 len)
 int save_detected_type(void)
 {
     // Probe: a chip answers RDSR with something other than an open bus.
+    // Without one, saving is switched off here; otherwise every write would
+    // poll the missing chip's busy bit until its timeout (many seconds).
     bool owner = cart_bus_claim();
     u8 s = read_status();
+#if CV_SAVE_TYPE == 2
+    // A FLASH chip also answers RDID with its JEDEC manufacturer ID (libnds
+    // tells FLASH from EEPROM the same way). DeSmuME doesn't implement RDID,
+    // and an EEPROM (what melonDS emulates for our game code) answers 0xFF.
+    if (chip_ok && s != 0xFF)
+    {
+        spi_select();
+        spi_xfer(0x9F);
+        u8 id = spi_last(0);
+        flash_unconfirmed = id == 0xFF || id == 0x00;
+    }
+#endif
     cart_bus_release(owner);
     if (!chip_ok || s == 0xFF)
+    {
+        chip_ok = false;
         return -1;
+    }
     return CV_SAVE_TYPE;
 }
 
@@ -208,7 +230,8 @@ bool save_available(void)
 // also be two blank areas, so then one free byte is flipped and looked for
 // through the wrap (and put back). A 64 KB/32 KB layout never writes 0x2000
 // with a copy of slot A, so a valid slot A seen there settles it without a
-// write. The bus must be claimed by the caller.
+// write. The FLASH build only caps its replay (FOLD_REPLAY_MAX). The bus must
+// be claimed by the caller.
 static void probe_small_chip(void)
 {
 #if ADDR_BYTES == 2
@@ -235,11 +258,15 @@ static void probe_small_chip(void)
             small = chip_ok && m == t;
         }
     }
-    if (small && REPLAY_AT + 4 + CV_REPLAY_MAX > SMALL_CHIP)
+    if (small)
     {
+        page = SMALL_PAGE;
         replay_at = SMALL_REPLAY_AT;
         replay_max = SMALL_REPLAY_MAX;
     }
+#else
+    if (flash_unconfirmed)
+        replay_max = FOLD_REPLAY_MAX;
 #endif
     size_known = chip_ok;
 }
