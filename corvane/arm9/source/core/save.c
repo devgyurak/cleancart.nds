@@ -9,6 +9,10 @@
 //   FRAM 32 KB   : same commands, no page limit or busy time
 //   FLASH 256 KB : READ 03 a24, WREN 06, SECTOR ERASE D8 a24,
 //                  PAGE PROGRAM 02 a24 (256-byte pages)
+//
+// melonDS gives a game code it doesn't know an 8 KB EEPROM whatever the build
+// asked for, and its addresses wrap at 0x2000. The EEPROM and FRAM builds
+// detect that wrap and move the replay area below it (see probe_small_chip).
 
 #include <nds.h>
 #include <stddef.h>
@@ -42,6 +46,16 @@
 #define REPLAY_AT  0x8000
 #endif
 
+// 8 KB chips (2-byte addresses only): slots as above, replay area after them.
+#define SMALL_CHIP       0x2000
+#define SMALL_REPLAY_AT  0x0800
+#define SMALL_REPLAY_MAX (SMALL_CHIP - SMALL_REPLAY_AT - 4)
+// Free byte in every layout, used to look for the 8 KB address wrap.
+#define PROBE_AT         0x07FF
+
+_Static_assert(SLOT_B + sizeof(CvSave) <= PROBE_AT || ADDR_BYTES == 3,
+               "the wrap probe byte must not overlap slot B");
+
 #define AUXSPICNT  (*(vu16 *)0x040001A0)
 #define AUXSPIDATA (*(vu8 *)0x040001A2)
 #define SPI_ON     (0x8000 | 0x2000)   // slot enable + SPI mode
@@ -50,6 +64,9 @@
 
 CvSave cv_save;
 static bool chip_ok = true;
+static bool size_known;
+static u32 replay_at = REPLAY_AT;
+static u32 replay_max = CV_REPLAY_MAX;
 
 const char *save_type_name(void)
 {
@@ -112,7 +129,15 @@ static bool wait_ready(int budget)
     {
         if (!chip_ok)
             return false;
-        if (!(read_status() & 1))
+        u8 s = read_status();
+        if (s == 0xFF)
+        {
+            // Open bus: no chip (or a different kind) is answering. Without
+            // this a missing FLASH chip kept the game busy for many seconds.
+            chip_ok = false;
+            return false;
+        }
+        if (!(s & 1))
             return true;
     }
     chip_ok = false;
@@ -179,6 +204,55 @@ bool save_available(void)
     return chip_ok;
 }
 
+// On an 8 KB chip, 0x2000 reads the same bytes as 0x0000. Equal bytes can
+// also be two blank areas, so then one free byte is flipped and looked for
+// through the wrap (and put back). A 64 KB/32 KB layout never writes 0x2000
+// with a copy of slot A, so a valid slot A seen there settles it without a
+// write. The bus must be claimed by the caller.
+static void probe_small_chip(void)
+{
+#if ADDR_BYTES == 2
+    static u8 a[32], b[32];
+    bool small = false;
+    spi_read(SLOT_A, a, sizeof(a));
+    spi_read(SLOT_A + SMALL_CHIP, b, sizeof(b));
+    if (chip_ok && memcmp(a, b, sizeof(a)) == 0)
+    {
+        u32 magic;
+        memcpy(&magic, a, 4);
+        if (magic == SAVE_MAGIC)
+        {
+            small = true;
+        }
+        else
+        {
+            u8 v, t, m;
+            spi_read(PROBE_AT, &v, 1);
+            t = (u8)~v;
+            spi_write(PROBE_AT, &t, 1);
+            spi_read(PROBE_AT + SMALL_CHIP, &m, 1);
+            spi_write(PROBE_AT, &v, 1);
+            small = chip_ok && m == t;
+        }
+    }
+    if (small && REPLAY_AT + 4 + CV_REPLAY_MAX > SMALL_CHIP)
+    {
+        replay_at = SMALL_REPLAY_AT;
+        replay_max = SMALL_REPLAY_MAX;
+    }
+#endif
+    size_known = chip_ok;
+}
+
+static void probe_once(void)
+{
+    if (size_known || !chip_ok)
+        return;
+    bool owner = cart_bus_claim();
+    probe_small_chip();
+    cart_bus_release(owner);
+}
+
 static u16 crc_of(const CvSave *s)
 {
     return swiCRC16(0xFFFF, s, offsetof(CvSave, crc));
@@ -227,6 +301,7 @@ bool save_load(void)
         save_defaults();
         return false;
     }
+    probe_once();
     bool va = read_slot(SLOT_A, &a);
     bool vb = read_slot(SLOT_B, &b);
 
@@ -263,13 +338,14 @@ bool save_write(void)
 
 bool save_replay(const void *blob, u32 size)
 {
-    if (!chip_ok || size > CV_REPLAY_MAX)
+    probe_once();
+    if (!chip_ok || size > replay_max)
         return false;
     static u32 buf[(CV_REPLAY_MAX + 4) / 4];
     buf[0] = size;
     memcpy(buf + 1, blob, size);
     bool owner = cart_bus_claim();
-    spi_write(REPLAY_AT, (const u8 *)buf, size + 4);
+    spi_write(replay_at, (const u8 *)buf, size + 4);
     cart_bus_release(owner);
     return chip_ok;
 }
@@ -277,12 +353,13 @@ bool save_replay(const void *blob, u32 size)
 u32 save_load_replay(void *buf, u32 max)
 {
     u32 size = 0;
+    probe_once();
     if (!chip_ok)
         return 0;
     bool owner = cart_bus_claim();
-    spi_read(REPLAY_AT, (u8 *)&size, 4);
-    if (size > 0 && size <= max && size <= CV_REPLAY_MAX)
-        spi_read(REPLAY_AT + 4, buf, size);
+    spi_read(replay_at, (u8 *)&size, 4);
+    if (size > 0 && size <= max && size <= replay_max)
+        spi_read(replay_at + 4, buf, size);
     else
         size = 0;
     cart_bus_release(owner);
