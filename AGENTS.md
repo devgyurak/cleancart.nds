@@ -1,4 +1,4 @@
-# nds_games_license_free
+# cleancart.nds
 
 Original Nintendo DS homebrew games, one per top-level folder (first: `corvane/`).
 Everything that ships in a ROM must be licence-clean: our own code and our own

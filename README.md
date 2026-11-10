@@ -1,10 +1,10 @@
-# nds_games_license_free
+# cleancart.nds
 
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#play)
 [![Built with BlocksDS](https://img.shields.io/badge/built%20with-BlocksDS%20v1.25.0-blue)](https://blocksds.skylyrac.net/)
 [![Languages: C · Python](https://img.shields.io/badge/languages-C%20%C2%B7%20Python-informational)](AGENTS.md)
 [![Build: Docker](https://img.shields.io/badge/build-Docker-2496ED?logo=docker&logoColor=white)](#build)
-[![Last commit](https://img.shields.io/github/last-commit/devgyurak/nds_games_license_free)](https://github.com/devgyurak/nds_games_license_free/commits/main)
+[![Last commit](https://img.shields.io/github/last-commit/devgyurak/cleancart.nds)](https://github.com/devgyurak/cleancart.nds/commits/main)
 
 [한국어](README-KO.md)
 
@@ -37,7 +37,7 @@ See the game's README for build options (save-chip variants, single demos) and c
 
 Pushing a tag named `<game>-v<version>` builds that game on GitHub Actions
 ([`release.yml`](.github/workflows/release.yml)) and publishes the ROMs on the
-[Releases](https://github.com/devgyurak/nds_games_license_free/releases) page:
+[Releases](https://github.com/devgyurak/cleancart.nds/releases) page:
 
 ```sh
 git tag corvane-v0.1.0
