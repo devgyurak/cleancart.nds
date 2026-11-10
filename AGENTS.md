@@ -17,6 +17,8 @@ This file is the single source of truth for both Claude Code and Codex.
 - Code, comments, commit messages, `AGENTS.md`/skills/rules: English only (no `-KO` twin).
 - The user tests in **melonDS on macOS** (Korean 2-set input source is the default).
 - Don't commit or push unless asked. Never commit ROMs or build output.
+- Commit summaries, PR titles and branch names start with one prefix
+  (`ADD:` `FIX:` `REF:` `DEL:` `DOCS:` `UPT:`); see skill `commit`.
 
 ## Languages and toolchain
 
@@ -109,6 +111,7 @@ Claude Code loads these automatically by path. Codex: open the matching file you
 | `melonds-mac` | installing/configuring melonDS, key mapping, verifying input in melonDS |
 | `nds-license-audit` | before finishing any change that adds files, assets or libraries |
 | `nds-new-game` | starting another game folder from the corvane template |
+| `commit` | writing a commit message, PR title or branch name (prefix rules) |
 
 ## Subagents
 
