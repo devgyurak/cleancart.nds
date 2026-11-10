@@ -71,6 +71,25 @@ void snd_stream_start(const void *pcm8, u32 bytes, u32 rate, int vol)
     fifoSendAddress(CV_FIFO_SND, &stream_desc);
 }
 
+void snd_record(void *buf, u32 bytes, u32 rate)
+{
+    // The capture unit writes main RAM behind the cache: drop stale lines
+    // now and again before reading the result (snd_record_fetch).
+    static CvRecordDesc rec __attribute__((aligned(32)));
+    rec.magic = CV_REC_MAGIC;
+    rec.buf = buf;
+    rec.words = bytes / 4;
+    rec.rate = rate;
+    DC_FlushRange(&rec, sizeof(rec));
+    DC_InvalidateRange(buf, bytes);
+    fifoSendAddress(CV_FIFO_SND, &rec);
+}
+
+void snd_record_stop(void)
+{
+    send(CV_SND_REC_STOP, 0);
+}
+
 void snd_stream_stop(void)
 {
     send(CV_SND_STREAM_STOP, 0);

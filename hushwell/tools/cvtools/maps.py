@@ -301,8 +301,8 @@ def build(ch):
 #   u32 magic 'CVRP', u32 seed, u16 run count, u16 reserved, then the start
 #   state: u8 chapter, u8 RTC hour, u8 health, u8 flares, u8 radio (0xFF =
 #   chapter start), u8 keys, u8 battery, u8 tapes, u32 taken lo, u32 taken hi,
-#   u8 options (bit 0 touch look, bits 1-2 night visit mode), 3 pad bytes;
-#   then runs of { u16 frames, u16 keys, u8 touch_x, u8 touch_y, u8 flags, u8 pad }
+#   u8 options (bit 0 touch look, bits 1-2 night visit mode, bit 3 mic), 3 pad bytes;
+#   then runs of { u16 frames, u16 keys, u8 touch_x, u8 touch_y, u8 flags, u8 mic }
 
 REPLAY_MAGIC = 0x50525643  # 'CVRP'
 K_A, K_B, K_SELECT, K_START, K_RIGHT, K_LEFT, K_UP, K_DOWN, K_R, K_L, K_X, K_Y = \

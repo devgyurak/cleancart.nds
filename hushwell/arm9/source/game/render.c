@@ -278,6 +278,8 @@ static CvTex wall_tex(void)
 {
     if (W.map.flags & MF_WATER)
         return TEX_TILES;
+    if (W.chapter == 3)
+        return TEX_WOOD;   // panelled stacks; the archive layout has no 4x4 slot
     return TEX_WALL;
 }
 
@@ -507,7 +509,8 @@ static void draw_objects(void)
                 draw_model_at(MDL_BED, at, (o->x & 1) ? 8192 : 0, TEX_COUNT, 4, 0);
                 break;
             case O_CAR:
-                draw_model_at(MDL_CAR, at, 0, TEX_COUNT, 4, 0);
+                if (W.intro != 1)   // you are sitting in it
+                    draw_model_at(MDL_CAR, at, 0, TEX_COUNT, 4, 0);
                 break;
             case O_PEW:
                 draw_model_at(MDL_PEW, at, 0, TEX_WOOD, 5, W.chapter == 4 ? POLY_TOON_HIGHLIGHT : 0);
@@ -716,6 +719,16 @@ static void draw_sprites(void)
         oam_add(ENG_MAIN, 184, 8, SPR_64x64, CV_PHOTO_TILE, 15, 0,
                 SPRF_BITMAP | (W.fear > 40 ? SPRF_MOSAIC : 0), 0);
     }
+    if (W.chapter == 3 && W.fear > 30)
+    {
+        // A patient's portrait flickers in at the edge of the view; the
+        // same 8bpp tiles through four extended OBJ palettes: as taken,
+        // faded, wrong, negative, worse the closer the creature is.
+        int pal = W.fear < 45 ? 0 : (W.fear < 60 ? 1 : (W.fear < 80 ? 2 : 3));
+        if ((W.frame & 31) < 26 || pal < 2)
+            oam_add(ENG_MAIN, 12, 10, SPR_32x32, CV_PORTRAIT_TILE, pal, 0,
+                    SPRF_8BPP | (pal == 3 ? SPRF_MOSAIC : 0), 0);
+    }
     if ((W.map.flags & MF_WELL) && W.swarm_count > 200)
     {
         // Bugs crawling over the lens: many sprites on the same lines run
@@ -730,6 +743,61 @@ static void draw_sprites(void)
 }
 
 // ---------------------------------------------------------------------------
+
+// Chapter 5 opening: a round brick shaft with iron rungs, seen while
+// climbing down it. Rings are drawn one world unit at a time so every
+// vertex stays inside the 4.12 range of the current matrix.
+void render_shaft(CvVec eye, int yaw, int f)
+{
+    set_model_lights();
+    render_camera(eye, yaw, 2400);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    g3_texture_bind(TEX_WALL);
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(1) | POLY_FOG);
+    const int32_t r = F(0.62);
+    for (int k = -1; k < 9; k++)
+    {
+        glPushMatrix();
+        glTranslatef32(eye.x, CV_FXI(k), eye.z);
+        GXP_BEGIN = GX_QUADS;
+        for (int s = 0; s < 10; s++)
+        {
+            int a0 = s * 3277, a1 = (s + 1) * 3277;
+            int32_t x0 = CV_FXMUL(r, m_cos(a0)), z0 = CV_FXMUL(r, m_sin(a0));
+            int32_t x1 = CV_FXMUL(r, m_cos(a1)), z1 = CV_FXMUL(r, m_sin(a1));
+            for (int v = 0; v < 4; v++)
+            {
+                int32_t vy = (v == 1 || v == 2) ? F(1) : 0;
+                int32_t dy = m_abs(CV_FXI(k) + vy - eye.y);
+                // The flashlight pool slides down the bricks with you.
+                int l = 17 - (dy >> 10) * 3 - ((s * 7 + k * 3) & 3);
+                l = l < 1 ? 1 : l;
+                GXP_COLOR = RGB15(l, l * 3 / 4, l * 3 / 5);
+                GXP_TEXCOORD = tc(v == 2 || v == 3 ? 32 : 0, vy ? 0 : 64);
+                vtx(v == 2 || v == 3 ? x1 : x0, vy, v == 2 || v == 3 ? z1 : z0);
+            }
+        }
+        GXP_END = 0;
+        // Iron rungs on one side.
+        g3_texture_bind(TEX_COUNT);
+        for (int q = 0; q < 3; q++)
+        {
+            int32_t ry = q * F(0.33);
+            GXP_BEGIN = GX_QUADS;
+            GXP_COLOR = RGB15(10, 6, 4);
+            vtx(-F(0.2), ry, -F(0.55));
+            vtx(F(0.2), ry, -F(0.55));
+            vtx(F(0.2), ry + F(0.03), -F(0.45));
+            vtx(-F(0.2), ry + F(0.03), -F(0.45));
+            GXP_END = 0;
+        }
+        g3_texture_bind(TEX_WALL);
+        glPopMatrix(1);
+    }
+    (void)f;
+}
 
 void render_world(void)
 {

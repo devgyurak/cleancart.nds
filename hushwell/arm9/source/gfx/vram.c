@@ -71,6 +71,19 @@ void vram_layout(CvVramLayout layout)
             vram_set(VB_H, 1, 0);   // sub BG (32 KB)
             vram_set(VB_I, 2, 0);   // sub OBJ (16 KB)
             break;
+        case VL_ARCHIVE:
+            // Chapter 3: textures in A only (no 4x4 textures), main OBJ in B
+            // so bank F is free for the extended OBJ palettes.
+            vram_set(VB_A, 3, 0);
+            vram_set(VB_B, 2, 0);   // main OBJ 0x06400000 (128 KB)
+            vram_set(VB_C, 0, 0);
+            vram_set(VB_D, 0, 0);
+            vram_set(VB_E, 1, 0);
+            vram_set(VB_F, 5, 0);   // main OBJ extended palettes
+            vram_set(VB_G, 3, 0);
+            vram_set(VB_H, 1, 0);
+            vram_set(VB_I, 2, 0);
+            break;
         case VL_TERRAIN:
         case VL_SKY:
         case VL_CORRIDOR:

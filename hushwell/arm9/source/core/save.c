@@ -193,6 +193,7 @@ void save_defaults(void)
     cv_save.sfx_volume = 127;
     cv_save.language = PersonalData->language;
     cv_save.brightness = 1;
+    cv_save.mic_on = 1;
     cv_save.seed = 0x48555348u;   // first run; each new game advances it
 }
 

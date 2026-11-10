@@ -94,6 +94,8 @@ typedef struct {
 static PsgSfx psg_sfx[16];
 
 static bool echo_on;
+static bool rec_on;
+static s8 rec_silence[64] __attribute__((aligned(4)));
 static s16 echo_left[4096] __attribute__((aligned(4)));
 static s16 echo_right[4096] __attribute__((aligned(4)));
 
@@ -388,6 +390,8 @@ static void stream_start(const CvStreamDesc *desc)
 static void echo_set(bool on)
 {
     CAP0_CNT = 0;
+    if (on)
+        rec_on = false;
     CAP1_CNT = 0;
     ch_stop(1);
     ch_stop(3);
@@ -422,6 +426,40 @@ static void echo_set(bool on)
     CH_CNT(3) = CNT_START | CNT_PCM16 | CNT_LOOP | CNT_VOL(56) | CNT_PAN(127);
     CAP0_CNT = 0x80;
     CAP1_CNT = 0x80;
+    leaveCriticalSection(old);
+}
+
+// ---------------------------------------------------------------------------
+// Recording through capture unit 0 (the recorder's REC button).
+
+static void record_stop(void)
+{
+    CAP0_CNT = 0;
+    if (rec_on)
+        ch_stop(1);
+    rec_on = false;
+}
+
+static void record_start(const CvRecordDesc *d)
+{
+    if (echo_on)
+        echo_set(false);
+    record_stop();
+    if (!d->words || d->words > 0xFFFF)
+        return;
+    // The capture unit samples at channel 1's rate, so channel 1 loops a
+    // silent buffer at the recording rate while the capture runs.
+    CH_SAD(1) = (u32)rec_silence;
+    CH_TMR(1) = TIMER_FOR_RATE(d->rate);
+    CH_PNT(1) = 0;
+    CH_LEN(1) = sizeof(rec_silence) / 4;
+    CAP0_DAD = (u32)d->buf;
+    CAP0_LEN = (u16)d->words;
+    rec_on = true;
+    int old = enterCriticalSection();
+    CH_CNT(1) = CNT_START | CNT_PCM8 | CNT_LOOP | CNT_VOL(0) | CNT_PAN(0);
+    // Source: left mixer; one shot; PCM8.
+    CAP0_CNT = 0x80 | 0x08 | 0x04;
     leaveCriticalSection(old);
 }
 
@@ -474,7 +512,7 @@ static void sfx_play(u32 arg)
 
     // PCM: pick a free channel, else round robin. Channels 1/3 are busy
     // while the echo runs.
-    int count = echo_on ? 2 : 4;
+    int count = (echo_on || rec_on) ? 2 : 4;
     int ch = -1;
     for (int i = 0; i < count; i++)
     {
@@ -570,6 +608,7 @@ static void snd_value_handler(u32 value, void *userdata)
                     ch_stop(ch);
             break;
         case CV_SND_BGM_MASK:   bgm_mask = (u8)arg; break;
+        case CV_SND_REC_STOP:   record_stop(); break;
         default: break;
     }
 }
@@ -581,6 +620,8 @@ static void snd_address_handler(void *address, void *userdata)
 
     if (*p == CV_BANK_MAGIC)
         bank = address;
+    else if (*p == CV_REC_MAGIC)
+        record_start(address);
     else
         stream_start(address);
 }

@@ -235,6 +235,15 @@ def sprite_sheet():
             cross[i][7] = cross[i][8] = 7
     items.append(('cross', 16, 16, cross))
     items.append(('spark', 8, 8, _circle(8, 0.8, 2.2, 6, 7)))
+    # Wiper blade from the sprite centre to the right edge; it turns about
+    # the centre as an affine sprite.
+    wiper = blank(64, 64)
+    for x in range(32, 63):
+        for dy in (-1, 0, 1):
+            wiper[31 + dy][x] = 5 if dy else 4
+        if x % 3 == 0:
+            wiper[33][x] = 4
+    items.append(('wiper', 64, 64, wiper))
 
     out = bytearray()
     index = {}
@@ -436,6 +445,27 @@ def rain_layer():
     pal = [(0, 0, 0), (200, 215, 240), (150, 170, 205), (110, 125, 160), (80, 90, 120)]
     pal += [(0, 0, 0)] * (16 - len(pal))
     return uniq, u16s(idx), palette_bytes(pal)
+
+
+CAUSTIC_PAL_BASE = 200
+
+
+def caustic_tiles():
+    """64x64 8bpp light caustics (palette 200-215) as 64 tiles for an affine
+    BG over the chapter 2 water. Index 0 stays transparent."""
+    pix = blank(64, 64)
+    for y in range(64):
+        for x in range(64):
+            v = (math.sin(x * 0.29 + math.sin(y * 0.21) * 2.1)
+                 + math.sin(y * 0.33 + math.sin(x * 0.17) * 1.7)) * 0.5
+            v = 1 - abs(v)
+            if v > 0.78:
+                pix[y][x] = CAUSTIC_PAL_BASE + min(15, int((v - 0.78) * 70))
+    return tiles_8bpp(pix, 64, 64)
+
+
+def caustic_palette():
+    return palette_bytes(ramp((40, 90, 100), (190, 240, 240), 16))
 
 
 # Map tiles for the bottom-screen map (8bpp affine BG, palette 128+).

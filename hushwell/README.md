@@ -57,7 +57,8 @@ holds no binary assets. Build output (`build/`, `*.nds`) is never committed.
 | R (hold) + A | Aim and fire a flare (stuns the creature) | W, X |
 | Start | Pause (Select: quit, R: advance one frame, X/Y/B: debug views) | Return |
 | Select | Swap the screens | Backspace |
-| Touch | Map: drop or lift memo pins · Recorder: pick a tape, PLAY / REVERSE / STOP · Dial lock: turn the digits | mouse |
+| Touch | Map: drop or lift memo pins · Recorder: pick a tape, PLAY / REC / REV / STOP, PHOTO / VIEW PHOTO · Dial lock: turn the digits | mouse |
+| Microphone | Breathing or talking loudly is a sound the creature hears (settings: MIC LISTENS) | — |
 | Close lid | Auto pause and sleep — when you open it, the creature has come closer | C |
 
 QA shortcuts: on the title, Select picks the starting chapter. While paused, hold
@@ -77,12 +78,12 @@ to reach the exit. Collect all five tapes and the well offers a second ending.
 
 | Chapter | Place | Scare | Hardware at its centre |
 |---|---|---|---|
-| Prologue | Rainy mountain road | Static on the radio, a shape crossing the road in a lightning flash | HBlank-DMA rain layer, distance fog, streamed BGM, direct geometry port writes, W-buffer |
+| Prologue | Rainy mountain road, in the car | The radio breaking up inside the car, a shape crossing beyond the sweeping wipers | HBlank-DMA rain layer, distance fog, streamed BGM, direct geometry port writes, W-buffer, windshield as WIN0 with affine wiper sprites |
 | 1 Lobby and ward | Narrow halls and wards | The dark outside the beam, a shadow crossing the end of the hall | Four lights (flashlight, emergency lamps, lightning, flares), WIN0/WIN1 vision mask, shadow polygon, Z-buffer, near-plane clipping, 4x4-compressed walls and floors, keyhole peek through an OBJ window |
-| 2 Flooded hydrotherapy | Flooded baths and boiler room | Afterimages when it is close, footsteps ringing off the tiles | Translucent water, display-capture afterimage, HBlank ripple of the 3D layer, VCount mid-frame split, alpha-only fog, sound-capture reverb |
-| 3 Records archive | Stacks and projection room | A damaged film, a voice heard only when the tape runs backwards | Main-memory display FIFO film, 16bpp bitmap OBJ photograph, BG/OBJ mosaic film grain, windowed vignette, reversed tape and touch dial lock |
+| 2 Flooded hydrotherapy | Flooded baths and boiler room | Afterimages when it is close, footsteps ringing off the tiles | Translucent water, display-capture afterimage, an affine caustics layer bent into ripples by HBlank DMA, VCount mid-frame split, alpha-only fog, sound-capture reverb |
+| 3 Records archive | Stacks and projection room | A damaged film, a voice heard only when the tape runs backwards, a portrait that changes | Main-memory display FIFO film, 16bpp bitmap OBJ photograph, extended OBJ palettes (one portrait: fresh, faded, wrong, negative), BG/OBJ mosaic film grain, windowed vignette, the recorder's sound-capture recording played back reversed, touch dial lock |
 | 4 Chapel and garden | Night garden, roofless chapel | Between midnight and four (RTC), a visitor that is only an outline | RTC, toon shading (stained-glass bands), edge marking, alpha-tested branches, W-buffer outdoors, rear-plane bitmap sky |
-| 5 The well | Tunnels under the sanatorium | A chase on both screens, a screen that goes black | Dual-screen 3D through display capture (ahead / behind), polygon RAM overflow from a bug swarm, OBJ line limit, box-test hits, master brightness per engine, anti-aliasing, 16 channels |
+| 5 The well | The vertical shaft and the tunnels under the sanatorium | The climb down the shaft, a chase on both screens, a screen that goes black | Dual-screen 3D through display capture (ahead / behind), polygon RAM overflow from a bug swarm, OBJ line limit, box-test hits, master brightness per engine, anti-aliasing, 16 channels |
 
 Everything shared by every chapter: the engine-B map and recorder, ARM9↔ARM7 IPC,
 touch, and saving at the emergency radios. The firmware user settings also play a
@@ -140,11 +141,11 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
 | | Sprites (normal, affine, bitmap, 1D/2D, priority, mosaic, line limit) | map arrow and pins, meter needle and recorder reels, photograph, bug swarm | `game/hud.c`, `game/render.c` |
 | | Extended palettes (BG and OBJ) | radio illustrations, portrait colour variants (demos) | `game/scenes.c`, `demo/demo.c` |
 | | VRAM banks A–I | one layout per scene (`VL_GAME`, `VL_CORE`, `VL_DUAL3D`, …) | `gfx/vram.c` |
-| | Display capture, display modes | afterimage, dual-screen chase and endings, boot logo, projector film | `game/chfx.c`, `game/ending.c` |
+| | Display capture, display modes | afterimage, dual-screen chase and endings, the recorder's photos, boot logo, projector film | `game/chfx.c`, `game/ending.c` |
 | 3D | Geometry FIFO (DMA lists + direct port writes) | props and the creature as display lists, the grid world by port writes | `gfx/gl3d.c`, `game/render.c` |
 | | Matrix stack, lights, clipping, 7 texture formats, polygon attributes, toon/highlight, edge marking, fog, AA/alpha test, Z/W buffer, rear-plane bitmap, tests, compositing, polygon limit | see the chapter table | `game/render.c`, `game/chfx.c` |
-| Sound | 16 channels, PCM8/16/ADPCM, PSG square and noise, capture reverb, streaming | footsteps, the creature, static, tapes, music | `arm7/source/sound7.c`, `core/snd.c` |
-| Cart and peripherals | NitroFS, save chip, firmware user settings, RTC, touch, power | maps and art, progress, name/birthday/colour, night visitor, map pins and dial, lid sleep | `core/*`, `game/*` |
+| Sound | 16 channels, PCM8/16/ADPCM, PSG square and noise, capture reverb and recording, streaming | footsteps, the creature, static, tapes, the recorder's REC/REV, music | `arm7/source/sound7.c`, `core/snd.c` |
+| Cart and peripherals | NitroFS, save chip, firmware user settings, RTC, touch, microphone, power | maps and art, progress, name/birthday/colour, night visitor, map pins and dial, breath, lid sleep | `core/*`, `game/*` |
 
 ## QA
 
@@ -190,7 +191,7 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
 | How assets are made | all generated by code (no CC0 collection) |
 | Real-hardware QA | not yet — emulator smoke tests only |
 | Language support | game text in English only (own 5x7 font); the firmware language is read and shown in settings |
-| Microphone (the creature hears your breath) | not included (the ARM7 core has no microphone path yet) |
+| Microphone (the creature hears your breath) | included: the ARM7 core samples the microphone every frame; loud breath is a sound the creature can hear (MIC LISTENS in settings, on by default) |
 | Violence / gore level and warning text | no gore on screen (strikes are shown as a jolt, a sound and a narrowing view); boot warning about flashing lights, loud sounds and violence |
 
 ## Licence

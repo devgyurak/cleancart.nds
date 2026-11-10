@@ -15,6 +15,8 @@ static volatile bool exit_loop;
 static uint16_t frame_seq;
 static rtcTimeAndDate rtc_now;
 static bool lid_was_closed;
+static uint8_t mic_hist[8];
+static int mic_pos;
 
 static void power_button_callback(void)
 {
@@ -55,6 +57,25 @@ static void send_input(void)
     pkt.second = rtc_now.seconds;
     pkt.seq = frame_seq;
     pkt.battery = (uint16_t)getBatteryLevel();
+
+    // Microphone level: a few samples spread over ~0.7 ms each frame, and
+    // the spread over the last eight frames. All four ARM7 timers belong to
+    // the sound engine, so the mic is sampled here rather than by a timer.
+    int lo = 255, hi = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        int v = micReadData8();
+        lo = v < lo ? v : lo;
+        hi = v > hi ? v : hi;
+        swiDelay(700);
+    }
+    mic_hist[mic_pos] = (uint8_t)(hi - lo);
+    mic_pos = (mic_pos + 1) & 7;
+    int peak = 0;
+    for (int i = 0; i < 8; i++)
+        peak = mic_hist[i] > peak ? mic_hist[i] : peak;
+    pkt.mic = (uint8_t)(peak > 127 ? 127 : peak);
+    pkt.pad = 0;
 
     fifoSendDatamsg(CV_FIFO_INPUT, sizeof(pkt), (u8 *)&pkt);
 
@@ -111,6 +132,7 @@ int main(int argc, char *argv[])
     irqInit();
     fifoInit();
     touchInit();
+    micOn();
 
     // libnds system services: power management, sleep, card access for
     // NitroFS (FIFO_STORAGE) and firmware reads. No sound/wifi FIFO.

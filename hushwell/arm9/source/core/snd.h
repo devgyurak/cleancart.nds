@@ -17,6 +17,9 @@ void snd_bgm_stop(void);
 void snd_bgm_mask(u8 mask);
 void snd_stream_start(const void *pcm8, u32 bytes, u32 rate, int vol);
 void snd_stream_stop(void);
+// Records the left mixer (PCM8) into `buf` (main RAM, 32-byte aligned).
+void snd_record(void *buf, u32 bytes, u32 rate);
+void snd_record_stop(void);
 void snd_echo(bool on);
 void snd_master(int vol);
 void snd_speaker(bool on);

@@ -21,6 +21,7 @@
 #include "game/world.h"
 #include "gfx/oam.h"
 #include "gfx/text.h"
+#include "gfx/vram.h"
 
 // Sub BG VRAM (bank H, 32 KB):
 //   0x0000 4bpp font + UI tiles      0x4000 8bpp map tiles
@@ -40,6 +41,14 @@ static int noise_show;
 static int tape_sel = 1;
 static int last_mode = -1;
 static bool held;           // touch latch
+
+// Recorder: two seconds of the left mixer captured by the sound hardware,
+// and the same recording reversed for playback through the stream channel.
+#define REC_RATE  8192
+#define REC_BYTES 16384
+static u8 rec_buf[REC_BYTES] __attribute__((aligned(32)));
+static u8 rev_buf[REC_BYTES] __attribute__((aligned(32)));
+static bool photo_shown;
 
 static const char *const tape_lines[6][2] = {
     { "", "" },
@@ -78,6 +87,7 @@ void hud_init(void)
     last_mode = -1;
     reel_angle = 0;
     held = false;
+    photo_shown = false;
 }
 
 static int map_tile(int x, int y)
@@ -215,21 +225,32 @@ static void draw_recorder(void)
         text_printf(&txt, 3, 2 + i, i == tape_sel ? TP_YELLOW : (have ? TP_WHITE : TP_GRAY),
                     "%c TAPE %d %s", i == tape_sel ? '>' : ' ', i, have ? "" : "(MISSING)");
     }
-    text_put(&txt, 2, 13, TP_CYAN, "[ PLAY ]  [ REVERSE ]  [ STOP ]");
-    if (W.tape_playing)
+    text_put(&txt, 1, 13, TP_CYAN, "[PLAY] [REC] [REV] [STOP]");
+    text_put(&txt, 1, 15, W.have_photo ? TP_CYAN : TP_GRAY, "[PHOTO]       [VIEW PHOTO]");
+    if (W.rec_frames)
+        text_put(&txt, 22, 11, TP_RED, "* REC");
+    else if (W.have_rec)
+        text_put(&txt, 20, 11, TP_GRAY, "RECORDED");
+    if (W.rev_frames)
     {
-        const char *const *l = (W.tape_reverse && tape_sel == 3) ? tape3_reversed : tape_lines[tape_sel];
-        if (W.tape_reverse && tape_sel != 3)
+        // The recording runs backwards: a tape that was itself reversed
+        // comes out the right way round.
+        if (W.rev_tape == 3)
         {
-            text_put(&txt, 1, 16, TP_GRAY, "...(BACKWARDS MURMURING)...");
+            text_put(&txt, 1, 17, TP_WHITE, tape3_reversed[0]);
+            text_put(&txt, 1, 18, TP_WHITE, tape3_reversed[1]);
         }
         else
         {
-            text_put(&txt, 1, 16, TP_WHITE, l[0]);
-            text_put(&txt, 1, 17, TP_WHITE, l[1]);
+            text_put(&txt, 1, 17, TP_GRAY, W.rev_tape ? "...(A VOICE, BACKWARDS)..." : "...(THE ROOM, BACKWARDS)...");
         }
     }
-    text_put(&txt, 1, 22, TP_GRAY, "TOUCH A TAPE, THEN A BUTTON");
+    else if (W.tape_playing)
+    {
+        text_put(&txt, 1, 17, TP_WHITE, tape_lines[tape_sel][0]);
+        text_put(&txt, 1, 18, TP_WHITE, tape_lines[tape_sel][1]);
+    }
+    text_put(&txt, 1, 22, TP_GRAY, "REC A TAPE, THEN PLAY IT REVERSED");
     text_put(&txt, 1, 23, TP_GRAY, "X: BACK TO THE MAP");
 }
 
@@ -258,8 +279,55 @@ static void play_tape(bool reverse)
         return;
     }
     W.tape_reverse = reverse;
-    W.tape_playing = 200;
-    snd_sfx(reverse ? CV_SFX_TAPEREV : CV_SFX_TAPE, 120, 64);
+    W.tape_playing = 150;
+    // Tape 3 was recorded backwards: forwards it is the reversed voice.
+    snd_sfx(tape_sel == 3 ? CV_SFX_TAPEREV : CV_SFX_TAPE, 120, 64);
+}
+
+static void rec_start(void)
+{
+    if (W.rec_frames || W.rev_frames)
+        return;
+    W.rec_tape = W.tape_playing ? tape_sel : 0;
+    W.rec_frames = REC_BYTES * 60 / REC_RATE + 4;
+    snd_record(rec_buf, REC_BYTES, REC_RATE);
+}
+
+static void rev_start(void)
+{
+    if (!W.have_rec || W.rec_frames)
+    {
+        snd_sfx(CV_SFX_LOCKED, 80, 64);
+        return;
+    }
+    for (int i = 0; i < REC_BYTES; i++)
+        rev_buf[i] = rec_buf[REC_BYTES - 1 - i];
+    W.rev_tape = W.rec_tape;
+    W.rev_frames = REC_BYTES * 60 / REC_RATE;
+    W.tape_playing = 0;
+    snd_stream_start(rev_buf, REC_BYTES, REC_RATE, 120);
+}
+
+static void photo_view(bool on)
+{
+    // The photo lives in bank D: map it as engine B's OBJ memory and tile
+    // the screen with twelve 64x64 bitmap sprites; bank I steps aside.
+    if (on == photo_shown)
+        return;
+    photo_shown = on;
+    if (on)
+    {
+        vram_off(VB_I);
+        vram_set(VB_D, 4, 0);
+        REG_DISPCNT_SUB = MODE_0_2D | DISPLAY_BG0_ACTIVE | DISPLAY_SPR_ACTIVE | DISPLAY_SPR_2D_BMP_256;
+    }
+    else
+    {
+        vram_set(VB_D, 0, 0);
+        vram_set(VB_I, 2, 0);
+        REG_DISPCNT_SUB = MODE_1_2D | DISPLAY_BG0_ACTIVE | DISPLAY_BG3_ACTIVE | DISPLAY_SPR_ACTIVE
+                        | DISPLAY_SPR_1D;
+    }
 }
 
 void hud_touch(void)
@@ -274,18 +342,38 @@ void hud_touch(void)
         return;
     held = true;
     int tx = cv_in.tx, ty = cv_in.ty;
+    if (W.photo_view)
+    {
+        W.photo_view = false;
+        return;
+    }
     if (W.recorder)
     {
         if (ty >= 24 && ty < 72)
             tape_sel = m_clamp((ty - 24) / 8 + 1, 1, 5);
         else if (ty >= 100 && ty < 112)
         {
-            if (tx < 80)
+            if (tx < 56)
                 play_tape(false);
-            else if (tx < 184)
-                play_tape(true);
+            else if (tx < 104)
+                rec_start();
+            else if (tx < 152)
+                rev_start();
             else
+            {
                 W.tape_playing = 0;
+                if (W.rev_frames)
+                {
+                    W.rev_frames = 1;
+                }
+            }
+        }
+        else if (ty >= 116 && ty < 128)
+        {
+            if (tx < 64)
+                W.photo_req = true;
+            else if (W.have_photo)
+                W.photo_view = true;
         }
         snd_sfx(CV_SFX_CURSOR, 80, 64);
         return;
@@ -347,7 +435,20 @@ void hud_touch(void)
 
 void hud_frame(void)
 {
-    int mode = W.code_mode ? 2 : (W.recorder ? 1 : 0);
+    if (W.photo_view && !W.recorder)
+        W.photo_view = false;
+    photo_view(W.photo_view && chfx_photo_ok());
+    int mode = photo_shown ? 3 : (W.code_mode ? 2 : (W.recorder ? 1 : 0));
+    if (W.rec_frames && --W.rec_frames == 0)
+    {
+        DC_InvalidateRange(rec_buf, REC_BYTES);
+        W.have_rec = true;
+    }
+    if (W.rev_frames && --W.rev_frames == 0)
+    {
+        snd_stream_stop();
+        chfx_stream_resume();
+    }
     if (W.pl.noise > noise_show)
         noise_show = W.pl.noise;
     else if ((W.frame & 7) == 0 && noise_show > 0)
@@ -367,8 +468,13 @@ void hud_frame(void)
             REG_DISPCNT_SUB &= ~DISPLAY_BG3_ACTIVE;
             if (mode == 1)
                 draw_recorder();
-            else
+            else if (mode == 2)
                 draw_dial();
+            else
+            {
+                text_clear(&txt);
+                text_put(&txt, 1, 23, TP_WHITE, "PHOTO   TOUCH: BACK");
+            }
         }
         last_mode = mode;
     }
@@ -397,11 +503,22 @@ void hud_frame(void)
             if (cv_game.keys & (1 << k))
                 oam_add(ENG_SUB, 4 + k * 16, 120, SPR_16x16, CV_SPR_KEY, 0, 0, 0, 0);
     }
+    else if (mode == 3)
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            int x = (i % 4) * 64, y = (i / 4) * 64;
+            oam_add(ENG_SUB, x, y, SPR_64x64, (x / 8) + (y / 8) * 32, 15, 1, SPRF_BITMAP, 0);
+        }
+    }
     else if (mode == 1)
     {
-        // Recorder reels: affine sprites turning while a tape plays.
-        if (W.tape_playing)
-            reel_angle += W.tape_reverse ? -600 : 600;
+        // Recorder reels: affine sprites, forwards while a tape plays or
+        // records, backwards during reversed playback.
+        if (W.tape_playing || W.rec_frames)
+            reel_angle += 600;
+        if (W.rev_frames)
+            reel_angle -= 600;
         oam_affine(ENG_SUB, 2, reel_angle & 0x7FFF, 256, 256);
         oam_affine(ENG_SUB, 3, (reel_angle + 5000) & 0x7FFF, 256, 256);
         oam_add(ENG_SUB, 72, 146, SPR_32x32, CV_SPR_REEL, 0, 0, SPRF_AFFINE, 2);

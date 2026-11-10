@@ -19,9 +19,10 @@ Hushwell의 그래픽, 폰트, 3D 모델, 효과음, 목소리, 음악, 맵은 �
 |---|---|---|---|
 | `cv_font_tiles` | 5x7 픽셀 폰트(ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS`(문자열로 그린 글리프) | 창작, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | 창 테두리와 게이지 타일 | `images.ui_tiles()` | 창작, Apache-2.0 |
-| `cv_sprite_tiles`, `cv_sprite_pal` | 지도 화살표, 메모 핀, 녹음기 릴, 미터 눈금과 바늘, 열쇠구멍 마스크, 먼지, 빗방울, 벌레, 열쇠/테이프/신호탄/배터리 아이콘, 조준점, 불똥 | `images.sprite_sheet()` | 창작, Apache-2.0 |
+| `cv_sprite_tiles`, `cv_sprite_pal` | 지도 화살표, 메모 핀, 녹음기 릴, 미터 눈금과 바늘, 열쇠구멍 마스크, 먼지, 빗방울, 벌레, 열쇠/테이프/신호탄/배터리 아이콘, 조준점, 불똥, 와이퍼 날 | `images.sprite_sheet()` | 창작, Apache-2.0 |
 | `cv_portrait_tiles`, `cv_portrait_extpal` | 8bpp 환자 초상화 + 확장 OBJ 팔레트 4개(원래, 바램, 뒤틀림, 반전) | `images.portrait_8bpp()`, `portrait_palettes()` | 창작, Apache-2.0 |
 | `cv_photo_bitmap` | 64x64 16bpp 찢어진 사진(비트맵 OBJ) | `images.photo_bitmap()` | 창작, Apache-2.0 |
+| `cv_caustic_tiles`, `cv_caustic_pal` | 2장 어파인 레이어용 8bpp 물빛(커스틱) | `images.caustic_tiles()`, `caustic_palette()` | 창작, Apache-2.0 |
 | `cv_map_tiles`, `cv_map_pal` | 어파인 지도용 8bpp 연필 그림 타일 | `images.map_tiles()`, `map_palette()` | 창작, Apache-2.0 |
 | `cv_logo_lz`, `cv_logo_pal` | HUSHWELL 로고(폰트를 키운 8bpp 비트맵, 흘러내리는 모서리) | `images.logo_bitmap()` | 창작, Apache-2.0 |
 | `cv_tex_flame` | A3I5 텍스처(타는 신호탄) | `images.textures()` | 창작, Apache-2.0 |

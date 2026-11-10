@@ -896,6 +896,18 @@ static void player_update(void)
             interact();
     }
 
+    // Breathing into the microphone is a sound like any other (the level is
+    // part of the input log, so replays hear it too).
+    if (W.mic_on && cv_in.mic >= 3 && (W.frame & 15) == 0)
+    {
+        hear(cv_in.mic + 3);
+        if (!W.mic_warned && W.mo.active && W.mo.state != MS_GONE)
+        {
+            world_message("IT HEARD YOUR BREATH.", 90);
+            W.mic_warned = true;
+        }
+    }
+
     // Battery drains while the light is on; low batteries flicker. The
     // flicker interval comes straight from the timer 0 counter (display only).
     if (p->light && (W.frame % 90) == 0 && cv_game.battery > 0)
@@ -988,6 +1000,7 @@ static void world_init(int chapter, const CvMap *map)
     memset(&W, 0, sizeof(W));
     W.look_touch = (run_options & RUN_OPT_LOOK_TOUCH) != 0;
     W.night_mode = (run_options >> RUN_OPT_NIGHT_SHIFT) & 3;
+    W.mic_on = (run_options & RUN_OPT_MIC) != 0;
     W.map = *map;
     W.chapter = chapter;
     cv_game.chapter_frames = 0;
@@ -1068,6 +1081,112 @@ bool world_load_demo(int chapter)
     return true;
 }
 
+// ---------------------------------------------------------------------------
+// Scripted openings. Input is read live and not logged (a replay starts
+// after them), and the world is put back exactly as it was.
+
+static void intro_frame_end(void)
+{
+    oam_commit();
+    sys_vsync();
+    input_update();
+}
+
+static bool intro_skip(int f)
+{
+    return f > 30 && (cv_in.pressed & (KEY_A | KEY_START));
+}
+
+static void intro_car(void)
+{
+    // Inside the car: rain on the windshield, the wipers, the radio breaking
+    // up, and a shape crossing the road in the headlights.
+    Player saved = W.pl;
+    Monster mo = W.mo;
+    W.intro = 1;
+    W.pl.pos = m_vec(F(5.5), F(0.44), F(12.62));
+    W.pl.yaw = 0;
+    W.pl.light = true;   // the headlights
+    u16 backdrop = CV_PAL_BG_MAIN[0];
+    CV_PAL_BG_MAIN[0] = 0;
+    // The windshield is WIN0; outside it only the text layer shows: the
+    // dark cabin with the radio's words.
+    fx_win_rect(0, 18, 14, 238, 142);
+    REG_WININ = 0x3F;
+    REG_WINOUT = 0x02;
+    REG_DISPCNT |= DISPLAY_WIN0_ON;
+    world_message("...SURVEY TEAM TWO... THE WELL IS OPEN... DO NOT COME...", 170);
+    snd_sfx(CV_SFX_STATIC, 100, 64);
+    snd_sfx(CV_SFX_VOICE, 90, 64);
+    for (int f = 0; f < 330; f++)
+    {
+        W.frame++;
+        if (W.message_timer)
+            W.message_timer--;
+        if (f == 150)
+        {
+            W.mo.active = true;
+            W.mo.state = MS_PASS;
+            W.mo.pos = m_vec(F(9.5), 0, F(7.5));
+            W.lightning = 14;
+            snd_sfx(CV_SFX_THUNDER, 127, 64);
+        }
+        if (f == 200)
+            world_message("YOU STOP THE CAR. THE GATE IS AHEAD.", 130);
+        monster_update(&W.mo);
+        if (W.lightning)
+            W.lightning--;
+        chfx_frame();
+        render_world();
+        g3_flush(W.wbuffer);
+        // Two wiper blades sweeping over the windshield (affine OBJs).
+        int sweep = 1200 + (((m_sin(f * 420) + 4096) * 6800) >> 13);
+        oam_affine(ENG_MAIN, 1, sweep & 0x7FFF, 512, 512);
+        oam_affine(ENG_MAIN, 2, (sweep + 2200) & 0x7FFF, 512, 512);
+        oam_add(ENG_MAIN, 66 - 64, 140 - 64, SPR_64x64, CV_SPR_WIPER, 0, 0, SPRF_AFFINE | SPRF_DOUBLE, 1);
+        oam_add(ENG_MAIN, 156 - 64, 140 - 64, SPR_64x64, CV_SPR_WIPER, 0, 0, SPRF_AFFINE | SPRF_DOUBLE, 2);
+        intro_frame_end();
+        if (intro_skip(f))
+            break;
+    }
+    REG_DISPCNT &= ~DISPLAY_WIN0_ON;
+    REG_WININ = REG_WINOUT = 0;
+    CV_PAL_BG_MAIN[0] = backdrop;
+    W.pl = saved;
+    W.mo = mo;
+    W.intro = 0;
+    W.frame = 0;
+    W.lightning = 0;
+    W.message_timer = 0;
+}
+
+static void intro_shaft(void)
+{
+    // Chapter 5 begins with the climb down the vertical shaft under the
+    // sanatorium, then the tunnels.
+    W.intro = 2;
+    world_message("THE SHAFT UNDER THE WELL HOUSE GOES DOWN AND DOWN.", 200);
+    oam_clear(ENG_MAIN);
+    int start_yaw = W.pl.yaw;
+    for (int f = 0; f < 260; f++)
+    {
+        if (W.message_timer)
+            W.message_timer--;
+        chfx_text();
+        int32_t y = F(7.0) - (int32_t)((int64_t)F(6.45) * f / 260);
+        render_shaft(m_vec(W.pl.pos.x, y, W.pl.pos.z), (start_yaw + f * 50) & 0x7FFF, f);
+        g3_flush(W.wbuffer);
+        if (f > 230)
+            fx_bright(FX_MAIN, -(f - 230) / 2);
+        intro_frame_end();
+        if (intro_skip(f))
+            break;
+    }
+    fx_bright(FX_MAIN, 0);
+    W.intro = 0;
+    W.message_timer = 0;
+}
+
 static void console_lines(u32 render_us)
 {
     hud_console_print(0, "F%5lu %4luUS C%3d", (unsigned long)W.frame, (unsigned long)render_us,
@@ -1134,7 +1253,8 @@ CvScene scene_chapter(void)
             .battery = (u8)cv_game.battery, .tapes = cv_game.tapes,
             .taken_lo = cv_game.taken_lo, .taken_hi = cv_game.taken_hi,
             .options = (u8)((cv_save.look_touch ? RUN_OPT_LOOK_TOUCH : 0)
-                          | ((cv_save.night_mode & 3) << RUN_OPT_NIGHT_SHIFT)),
+                          | ((cv_save.night_mode & 3) << RUN_OPT_NIGHT_SHIFT)
+                          | (cv_save.mic_on ? RUN_OPT_MIC : 0)),
         };
         run_options = st.options;
         replay_record_start(seed, &st);
@@ -1157,6 +1277,18 @@ CvScene scene_chapter(void)
         world_message("Y: FLASHLIGHT  A: EXAMINE  X: MAP/RECORDER", 240);
     else
         world_message("L: HUSH  B: RUN  R+A: FLARE", 200);
+
+    // Openings at a chapter start (not in demos or replays).
+    if (!replaying && cv_game.radio < 0 && (n == 0 || n == 5))
+    {
+        replay_suspend(true);
+        fx_bright(FX_BOTH, 0);
+        if (n == 0)
+            intro_car();
+        else
+            intro_shaft();
+        replay_suspend(false);
+    }
 
     for (int f = 0; f < 16; f++)
     {

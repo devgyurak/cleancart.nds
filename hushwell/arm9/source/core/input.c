@@ -27,7 +27,7 @@ typedef struct {
     u16 keys;
     u8 tx, ty;
     u8 flags;
-    u8 pad;
+    u8 mic;      // microphone level 0-7
 } ReplayRun;
 
 CvInput cv_in;
@@ -49,8 +49,9 @@ static struct {
 
 static u16 repeat_timer;
 
-static void read_live(u16 *keys, bool *touch, int *tx, int *ty, bool *lid)
+static void read_live(u16 *keys, bool *touch, int *tx, int *ty, bool *lid, int *mic)
 {
+    *mic = cv_arm7.mic >> 4;
     u16 k = ~REG_KEYINPUT & 0x03FF;
     u16 xy = cv_arm7.keyxy;
     if (!(xy & CV_KEYXY_X))
@@ -68,7 +69,7 @@ void input_update(void)
 {
     u16 keys;
     bool touch, lid;
-    int tx, ty;
+    int tx, ty, mic;
 
     if (mode == R_PLAY)
     {
@@ -79,7 +80,7 @@ void input_update(void)
                 finished = true;
                 keys = 0;
                 touch = lid = false;
-                tx = ty = 0;
+                tx = ty = mic = 0;
                 goto apply;
             }
             play_left = play_runs[play_index].frames;
@@ -91,11 +92,12 @@ void input_update(void)
         lid = (r->flags & RF_LID) != 0;
         tx = r->tx;
         ty = r->ty;
+        mic = r->mic;
         play_left--;
     }
     else
     {
-        read_live(&keys, &touch, &tx, &ty, &lid);
+        read_live(&keys, &touch, &tx, &ty, &lid, &mic);
         if (mode == R_REC && !suspended)
         {
             u8 flags = (touch ? RF_TOUCH : 0) | (lid ? RF_LID : 0);
@@ -103,7 +105,7 @@ void input_update(void)
             u16 n = rec.hdr.count;
             ReplayRun *last = n ? &rec.runs[n - 1] : NULL;
             if (last && last->keys == keys && last->flags == flags
-                && last->tx == bx && last->ty == by && last->frames < 0xFFFF)
+                && last->tx == bx && last->ty == by && last->mic == mic && last->frames < 0xFFFF)
             {
                 last->frames++;
             }
@@ -115,7 +117,7 @@ void input_update(void)
                 r->tx = bx;
                 r->ty = by;
                 r->flags = flags;
-                r->pad = 0;
+                r->mic = (u8)mic;
                 rec.hdr.count = n + 1;
             }
         }
@@ -132,6 +134,7 @@ apply:
         cv_in.ty = ty;
     }
     cv_in.lid = lid;
+    cv_in.mic = mic;
 
     // Auto-repeat for menus: first after 18 frames, then every 5.
     if (cv_in.pressed)

@@ -47,12 +47,13 @@ pause + X lights on, Y vision mask off, B developer console, R frame step.
 
 ## Chapter → technique
 
-0 road: HBlank-DMA rain BG, fog, streamed BGM, W-buffer ·
+0 road: in-car opening (WIN0 windshield, affine wipers), HBlank-DMA rain BG, fog, streamed BGM, W-buffer ·
 1 lobby: WIN0/WIN1 vision mask, lamps, shadow volume, Z-buffer, 4x4 walls, keyhole OBJ window ·
-2 hydro: translucent water, capture afterimage (bank D), HBlank ripple on BG0, VCount split, alpha-only fog, echo ·
-3 archive: main-memory display film, bitmap OBJ photo, mosaic grain, windowed vignette, reversed tape + dial ·
+2 hydro: translucent water, capture afterimage (bank C), affine caustics BG2 rippled by HBlank DMA on BG2X, VCount split, alpha-only fog, echo ·
+3 archive (`VL_ARCHIVE`: OBJ in B, ext OBJ palettes in F): film, bitmap OBJ photo, portrait in 4 ext palettes, mosaic grain, vignette, capture recording played reversed + dial ·
 4 chapel: RTC visitor (edge marking), toon table, alpha-test branches, W-buffer, rear-plane sky (`VL_CORE`) ·
-5 well: dual-screen 3D chase (`VL_DUAL3D`), swarm polygon overflow, OBJ line limit, per-engine blackouts, AA.
+5 well: shaft descent opening, dual-screen 3D chase (`VL_DUAL3D`), swarm polygon overflow, OBJ line limit, per-engine blackouts, AA.
+Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM7 capture 0 timed by channel 1), REV streams it reversed, PHOTO captures the screen into bank D (not in chapter 4 or the chase). The ARM7 samples the microphone each VBlank (`CvInputPacket.mic`).
 
 ## Contracts other code depends on
 
@@ -65,8 +66,8 @@ pause + X lights on, Y vision mask off, B developer console, R frame step.
   as in corvane. Progress (`cont_*`) is written at every radio and chapter start.
 - **Replay header** (32 bytes): magic `CVRP`, seed, run count, then the run start state
   (`CvRunStart`: chapter, RTC hour, health, flares, radio, keys, battery, tapes, taken bits,
-  options = touch-look and night-visit settings). Paused frames are not logged
-  (`replay_suspend`).
+  options = touch-look, night-visit and mic settings); each run entry carries the mic level.
+  Paused frames and the scripted openings are not logged (`replay_suspend`).
   Change C (`core/input.c`) and Python (`tools/cvtools/maps.py`) together.
 - **Determinism**: gameplay may only use `rng_*` (seed from the save or the replay), input
   via `cv_in`, RTC via `input_rtc_hour()`. Timers drive only display/sound (heartbeat,

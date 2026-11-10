@@ -41,7 +41,7 @@
 #define SUB_BG   ((u8 *)0x06200000)
 #define MAIN_OBJ ((u8 *)0x06400000)
 #define SUB_OBJ  ((u8 *)0x06600000)
-#define PORTRAIT_TILE 192   // 32-byte units, after the sprite sheet
+#define PORTRAIT_TILE 224   // 32-byte units, after the sprite sheet
 
 static CvText con;
 static u32 demo_id;
@@ -921,8 +921,8 @@ static void d_2d_vram(void)
 {
     con_2d();
     demo_title("2D-VRAM");
-    static const char *const names[] = { "MENU", "GAME", "TERRAIN", "SKY", "SPACE", "CORRIDOR",
-                                         "CORE", "DUAL3D", "MMEM" };
+    static const char *const names[] = { "MENU", "GAME", "ARCHIVE", "TERRAIN", "SKY", "SPACE",
+                                         "CORRIDOR", "CORE", "DUAL3D", "MMEM" };
     u32 sum = 0;
     for (int l = 0; l <= VL_MMEM; l++)
     {

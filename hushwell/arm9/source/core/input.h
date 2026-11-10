@@ -17,6 +17,7 @@ typedef struct {
     bool touching;
     int tx, ty;
     bool lid;
+    int mic;        // microphone level 0-7 (logged with the input)
 } CvInput;
 
 extern CvInput cv_in;
@@ -37,6 +38,7 @@ typedef struct {
 
 #define RUN_OPT_LOOK_TOUCH  1   // touch drag turns the view
 #define RUN_OPT_NIGHT_SHIFT 1   // bits 1-2: night visit mode (0 RTC, 1 always, 2 never)
+#define RUN_OPT_MIC         8   // the creature hears the microphone
 
 // Replay logs. Recording keeps runs in RAM (replay_blob()).
 void replay_record_start(u32 seed, const CvRunStart *start);

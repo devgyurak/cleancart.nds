@@ -7,6 +7,7 @@
 //            A        B        C        D        E       F       G        H       I
 // MENU     BG0      BG1      subBG    subOBJ   mOBJ    BGext   OBJext   subBGx  subOBJx
 // GAME     tex0     tex1     LCDC     LCDC     mBG     mOBJ    texpal   subBG   subOBJ
+// ARCHIVE  tex0     mOBJ     LCDC     LCDC     mBG     OBJext  texpal   subBG   subOBJ
 // TERRAIN  tex0     tex1     subBG    subOBJ   mBG     mOBJ    texpal   subBGx  subOBJx
 // SKY      tex0     tex1     subBG    subOBJ   mBG     mOBJ    texpal   subBGx  subOBJx
 // SPACE    BG0      BG1      BG2      LCDC     mOBJ    OBJext  texpal   subBG   subOBJ
@@ -21,6 +22,7 @@
 typedef enum {
     VL_MENU,
     VL_GAME,
+    VL_ARCHIVE,
     VL_TERRAIN,
     VL_SKY,
     VL_SPACE,

@@ -40,10 +40,12 @@ enum {
     CV_SND_RAW_PSG,      // a = ch(4) | duty(3)<<4 | vol(7)<<7 | note(7)<<14
     CV_SND_RAW_STOP,     // a = channel mask (16 bits)
     CV_SND_BGM_MASK,     // a = BGM track mute mask (sound test)
+    CV_SND_REC_STOP,     // stop a capture recording
 };
 
 // Addresses sent on CV_FIFO_SND (fifoSendAddress):
 //   first address after boot  -> CvSoundBank* (sample + song tables)
+//   CvRecordDesc* (magic)     -> record the left mixer into main RAM
 //   later addresses           -> CvStreamDesc* (start a streamed BGM)
 
 typedef struct {
@@ -78,6 +80,17 @@ typedef struct {
     uint32_t      volume;  // 0..127
 } CvStreamDesc;
 
+// Recording: capture unit 0 writes the left mixer output (PCM8, one shot)
+// to main RAM at `rate` Hz, timed by channel 1, which plays silence meanwhile.
+typedef struct {
+    uint32_t magic;    // CV_REC_MAGIC
+    void    *buf;      // main RAM, 32-byte aligned
+    uint32_t words;    // length in 32-bit words (<= 65535)
+    uint32_t rate;     // Hz
+} CvRecordDesc;
+
+#define CV_REC_MAGIC 0x43455243u  // "CREC"
+
 // Streaming ring buffer inside shared WRAM (ARM7-owned while streaming).
 #define CV_STREAM_RING   8192u
 #define CV_STREAM_HALF   (CV_STREAM_RING / 2)
@@ -111,6 +124,8 @@ typedef struct {
     uint8_t  year, month, day, hour, minute, second;
     uint16_t seq;       // ARM7 frame counter
     uint16_t battery;
+    uint8_t  mic;       // microphone level this frame (0-127)
+    uint8_t  pad;
 } CvInputPacket;
 
 #define CV_KEYXY_X    (1 << 0)

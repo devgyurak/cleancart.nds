@@ -30,7 +30,7 @@ typedef struct {
     u8 brightness;      // 0..4 brightness correction
     u8 look_touch;      // 1 = touch drag turns the view
     u8 night_mode;      // 0 RTC, 1 always night, 2 never (debug)
-    u8 pad0;
+    u8 mic_on;          // the creature hears the microphone
     // Progress, written at the emergency radios
     u8 cont_chapter;    // 0 = nothing to continue, else chapter + 1
     u8 cont_radio;      // object index of the radio used (0xFF = start)

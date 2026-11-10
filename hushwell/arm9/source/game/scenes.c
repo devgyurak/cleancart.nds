@@ -654,14 +654,14 @@ CvScene scene_settings(void)
 {
     scene_menu_setup();
     int sel = 0;
-    enum { ROWS = 7 };
+    enum { ROWS = 8 };
     for (;;)
     {
         CvText *t = &main_text;
         text_clear(t);
         text_center(t, 1, TP_YELLOW, "SETTINGS");
         const char *rows[ROWS] = { "VOLUME", "EFFECTS", "BRIGHTNESS", "LOOK", "SCREEN SWAP",
-                                   "NIGHT VISIT", "BACK" };
+                                   "NIGHT VISIT", "MIC LISTENS", "BACK" };
         for (int i = 0; i < ROWS; i++)
             text_put(t, 2, 4 + i * 2, i == sel ? TP_YELLOW : TP_WHITE, rows[i]);
         text_gauge(t, 17, 4, 10, cv_save.volume, 127, TP_CYAN);
@@ -671,6 +671,7 @@ CvScene scene_settings(void)
         text_put(t, 17, 12, TP_WHITE, cv_save.hud_swap ? "3D BELOW" : "3D ABOVE");
         static const char *const night[3] = { "BY THE RTC", "ALWAYS", "NEVER" };
         text_put(t, 17, 14, TP_WHITE, night[cv_save.night_mode % 3]);
+        text_put(t, 17, 16, TP_WHITE, cv_save.mic_on ? "ON (BREATHE SOFTLY)" : "OFF");
 
         // Firmware user settings (read-only).
         const PERSONAL_DATA *pd = PersonalData;
@@ -716,6 +717,7 @@ CvScene scene_settings(void)
                 case 3: cv_save.look_touch ^= 1; break;
                 case 4: cv_save.hud_swap ^= 1; break;
                 case 5: cv_save.night_mode = (cv_save.night_mode + 3 + dir) % 3; break;
+                case 6: cv_save.mic_on ^= 1; break;
             }
         }
         if ((cv_in.pressed & KEY_B) || (sel == ROWS - 1 && (cv_in.pressed & KEY_A)))

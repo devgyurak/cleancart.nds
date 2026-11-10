@@ -21,9 +21,10 @@ and they are not in the ROM.
 |---|---|---|---|
 | `cv_font_tiles` | 5x7 pixel font (ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS` (glyphs drawn as strings) | original, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
-| `cv_sprite_tiles`, `cv_sprite_pal` | map arrow, memo pin, recorder reel, meter dial and needle, keyhole mask, dust mote, rain drop, bug, key/tape/flare/battery icons, crosshair, spark | `images.sprite_sheet()` | original, Apache-2.0 |
+| `cv_sprite_tiles`, `cv_sprite_pal` | map arrow, memo pin, recorder reel, meter dial and needle, keyhole mask, dust mote, rain drop, bug, key/tape/flare/battery icons, crosshair, spark, wiper blade | `images.sprite_sheet()` | original, Apache-2.0 |
 | `cv_portrait_tiles`, `cv_portrait_extpal` | 8bpp patient portrait + 4 extended OBJ palettes (fresh, faded, wrong, negative) | `images.portrait_8bpp()`, `portrait_palettes()` | original, Apache-2.0 |
 | `cv_photo_bitmap` | 64x64 16bpp torn photograph (bitmap OBJ) | `images.photo_bitmap()` | original, Apache-2.0 |
+| `cv_caustic_tiles`, `cv_caustic_pal` | 8bpp water caustics for the chapter 2 affine layer | `images.caustic_tiles()`, `caustic_palette()` | original, Apache-2.0 |
 | `cv_map_tiles`, `cv_map_pal` | 8bpp pencil-on-paper map tiles for the affine map | `images.map_tiles()`, `map_palette()` | original, Apache-2.0 |
 | `cv_logo_lz`, `cv_logo_pal` | HUSHWELL wordmark (8bpp bitmap of the scaled-up font, dripping edges) | `images.logo_bitmap()` | original, Apache-2.0 |
 | `cv_tex_flame` | A3I5 texture (burning flare) | `images.textures()` | original, Apache-2.0 |

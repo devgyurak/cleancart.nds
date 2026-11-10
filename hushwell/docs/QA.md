@@ -57,7 +57,7 @@ melonDS version: ______  Tester: ______  Date: ______
 | 2d-window | top: only two rectangles bright; bottom: HUD seen through a keyhole OBJ window | WININ, WINOUT, WINOUT_SUB | |
 | 2d-blend | every 30 frames: alpha / brighten / darken / semi-transparent OBJ | BLDCNT, BLDALPHA | |
 | 2d-brightness | top fades to white, bottom to black, independently | MASTER_BRIGHT ×2 | |
-| 2d-vram | table of VRAMCNT A–I for the 9 layouts | table hash | |
+| 2d-vram | table of VRAMCNT A–I for the 10 layouts | table hash | |
 | 2d-capture | 3D on both screens (escape ending: car on the road / the well) | DISPCAPCNT (no console) | |
 | 2d-display | 0–59 VRAM display, 60+ main-memory FIFO display | pixel values | |
 | 3d-fifo | the chapter 1 ward turning in place: walls by port writes, radio and flare box by DMA lists | polygon/vertex count, radio list size, map loaded | |
@@ -100,7 +100,13 @@ melonDS version: ______  Tester: ______  Date: ______
 | Hearing | walking near the creature is safe, running or wading makes it come; L (hush) in the dark lets it pass | |
 | Flares | R+A at the creature stuns it (it glows and shakes); flares run out | |
 | Keyhole | A at a locked door shows the view through the keyhole | |
-| Chapter 3 | the projector plays a film (main-memory display); the reversed tape gives the dial code 4-1-7 | |
+| Prologue opening | new game: you sit in the car, wipers sweep, the radio breaks up, a shape crosses the road; A skips | |
+| Chapter 2 | caustic light ripples over the view (affine BG + HBlank DMA), stronger below mid-screen | |
+| Chapter 3 | the projector plays a film (main-memory display); PLAY tape 3 and REC it, then REV: the code 4-1-7 appears and the voice speaks forwards; the dial opens the door | |
+| Chapter 3 portrait | as the creature comes close a portrait flickers top-left: normal → faded → wrong → negative | |
+| Recorder photo | PHOTO, then VIEW PHOTO shows the captured view on the bottom screen (not in chapter 4 or the chase) | |
+| Microphone | breathe or speak into the mic near the creature: it hears you (MIC LISTENS off: it doesn't) | |
+| Chapter 5 opening | the climb down the shaft before the tunnels; A skips | |
 | Chapter 4 night visitor | set NIGHT VISIT to ALWAYS (or play between 0:00 and 4:59): an outlined figure follows and drains the battery | |
 | Chapter 5 chase | taking the last key: both screens show 3D (ahead / behind); near the swarm the polygon count overflows | |
 | Lid | close during play → sleep → open: game is paused, the creature is hunting you | |
@@ -141,5 +147,11 @@ replace melonDS QA.
   - replay: a chapter 1 run (walk, turn, the creature's strike) and its replay from the
     records screen have identical chapter state at chapter frames 300 and 500, except the
     map heap pointers and the on-screen message pointer/timer.
+- New features, same harness: the in-car opening (windshield window, sweeping wipers, the shape
+  crossing), the chapter 5 shaft descent, the chapter 2 caustics ripple, the chapter 3 portrait
+  switching extended palettes as the creature closes in, the recorder's REC (sound capture into
+  RAM) then REV (reversed through the stream channel) revealing the code, and PHOTO / VIEW PHOTO.
+  The replay check was repeated after the mic level joined the input log: still identical.
 - Not covered by the smoke tests: finishing every chapter by hand without RAM writes, the
-  swarm polygon overflow (DeSmuME reports 0), and anything in melonDS. Check them there.
+  swarm polygon overflow (DeSmuME reports 0), what the reversed recording actually sounds like
+  and the microphone (headless runs have no audio input), and anything in melonDS.

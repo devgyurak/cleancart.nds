@@ -139,7 +139,20 @@ typedef struct {
     int lamp_flicker;
     bool look_touch;          // from the run start (settings or replay)
     int night_mode;
+    bool mic_on;
+    bool mic_warned;
+    int intro;                // scripted opening: 1 in the car, 2 down the shaft
+    // Recorder: capture recording and reversed playback, photos.
+    int rec_frames;           // recording in progress
+    int rec_tape;             // tape that was playing while recording
+    bool have_rec;
+    int rev_frames;           // reversed playback in progress
+    int rev_tape;
+    bool photo_req, have_photo, photo_view;
 } CvWorld;
+
+// Main OBJ VRAM in chapter 3 (bank B): the 8bpp portrait after the photo.
+#define CV_PORTRAIT_TILE 512
 
 extern CvWorld W;
 
@@ -163,6 +176,7 @@ void render_world(void);
 void render_camera(CvVec eye, int yaw, int pitch);
 int  render_cells_drawn(void);
 void render_creature(const Monster *m, bool visitor);
+void render_shaft(CvVec eye, int yaw, int f);     // chapter 5 descent
 
 // chfx.c: per-chapter hardware set-up
 void chfx_setup(int chapter);
@@ -172,6 +186,8 @@ bool chfx_dual(void);                 // chapter 5 chase: both screens 3D
 void chfx_dual_draw(void);            // render the next view (after the update)
 void chfx_dual_regs(void);            // right after VBlank: routing + capture
 void chfx_pause(void);                // entering pause: stop the afterimage
+void chfx_stream_resume(void);        // restart the chapter stream after a recording
+bool chfx_photo_ok(void);             // a capture bank is free for a photo
 void chfx_film(void);                 // chapter 3 projector
 void chfx_text(void);                 // redraw the message line
 

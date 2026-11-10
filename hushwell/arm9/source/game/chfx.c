@@ -47,24 +47,28 @@ static CvText msg_text;
 static const char *shown_msg;
 static u16 line_table[192] __attribute__((aligned(32)));
 static void *stream_buf;
+static u32 stream_len;
 static bool capture_on;
 static bool dual_on;
 static bool drawn_top;       // dual-screen chase: last view rendered
 static int rain_v;
 
-static int evy_base;
+static u32 ripple_table[192] __attribute__((aligned(32)));
+static bool photo_layout_ok;
+
+#define CAUSTIC_EVA 4
 
 static void chfx_vblank(void)
 {
     dma_hblank_rearm();
     if (W.chapter == 2)
-        REG_BLDY = evy_base;
+        REG_BLDALPHA = CAUSTIC_EVA | (16 << 8);
 }
 
 static void vcount_split(void)
 {
-    // Chapter 2: below the waterline the darkness gets murkier.
-    REG_BLDY = evy_base + 4 > 16 ? 16 : evy_base + 4;
+    // Chapter 2: below the waterline the caustics shine through stronger.
+    REG_BLDALPHA = (CAUSTIC_EVA + 3) | (16 << 8);
 }
 
 static void load_obj(void)
@@ -148,6 +152,7 @@ void chfx_setup(int chapter)
     dual_on = false;
     drawn_top = false;
     lcdMainOnTop();
+    photo_layout_ok = chapter != 4;   // chapter 4 maps C/D as rear-plane textures
     u32 disp = MODE_0_3D | DISPLAY_BG1_ACTIVE | DISPLAY_SPR_ACTIVE | DISPLAY_SPR_1D
              | DISPLAY_SPR_1D_BMP;
 
@@ -166,28 +171,55 @@ void chfx_setup(int chapter)
             fx_alpha(FX_MAIN, BLD_BG2, BLD_BG0 | BLD_BD, 7, 16);
             u32 size;
             stream_buf = nitro_load("stream.pcm", &size);
+            stream_len = size & ~(CV_STREAM_HALF - 1);
             if (stream_buf)
-                snd_stream_start(stream_buf, size & ~(CV_STREAM_HALF - 1), CV_STREAM_RATE, 64);
+                snd_stream_start(stream_buf, stream_len, CV_STREAM_RATE, 64);
             break;
         }
         case 2:
             setup_3d(VL_GAME, true);
             load_text_layer();
             // Capture source B reads the VRAM block named in DISPCNT: point it
-            // at bank D before the first afterimage frame.
-            disp |= CV_DISP_VRAM_BLOCK(3);
+            // at bank C (the afterimage buffer) before the first frame.
+            disp |= CV_DISP_VRAM_BLOCK(2);
             glEnable(GL_FOG_ONLY_ALPHA);
-            for (int y = 0; y < 192; y++)
-                line_table[y] = 0;
-            dma_hblank_start(line_table, &REG_BG0HOFS, 1);
+            {
+                // Mode 2: BG2 is an affine layer of light caustics blended
+                // over the 3D; HBlank DMA rewrites its X reference on every
+                // line, which bends it into ripples.
+                disp = (disp & ~7u) | 2 | DISPLAY_BG2_ACTIVE;
+                REG_BG2CNT = 0 | (1 << 2) | (31 << 8) | BIT(13) | (1 << 14);
+                swiFastCopy(cv_caustic_tiles, MAIN_BG + 0x4000, CV_CAUSTIC_TILES_SIZE / 4);
+                swiCopy(cv_caustic_pal, CV_PAL_BG_MAIN + CV_CAUSTIC_PAL_BASE,
+                        (CV_CAUSTIC_PAL_SIZE / 2) | COPY_MODE_HWORD);
+                vu16 *map = (vu16 *)(MAIN_BG + 31 * 2048);
+                for (int i = 0; i < 32 * 32 / 2; i++)
+                {
+                    int x = (i * 2) & 31, y = (i * 2) >> 5;
+                    map[i] = ((y & 7) * 8 + (x & 7)) | (((y & 7) * 8 + ((x + 1) & 7)) << 8);
+                }
+                REG_BG2PA = 256; REG_BG2PB = 0; REG_BG2PC = 0; REG_BG2PD = 256;
+                REG_BG2X = 0; REG_BG2Y = 0;
+                for (int y = 0; y < 192; y++)
+                    ripple_table[y] = 0;
+                dma_hblank_start((const u16 *)ripple_table, &REG_BG2X, 2);
+                fx_alpha(FX_MAIN, BLD_BG2, BLD_BG0 | BLD_BD, CAUSTIC_EVA, 16);
+            }
             irq_set_vcount(128, vcount_split);
             snd_echo(true);
             snd_sfx(CV_SFX_HUM, 50, 64);
             break;
         case 3:
-            setup_3d(VL_GAME, true);
+            // Archive layout: bank F holds the extended OBJ palettes of the
+            // portrait (fresh, faded, wrong, negative); no 4x4 textures.
+            setup_3d(VL_ARCHIVE, false);
             load_text_layer();
             load_grain_layer(15, true);
+            disp |= DISPLAY_SPR_EXT_PALETTE;
+            swiFastCopy(cv_portrait_tiles, MAIN_OBJ + CV_PORTRAIT_TILE * 32, CV_PORTRAIT_TILES_SIZE / 4);
+            vram_set(VB_F, 0, 0);
+            swiFastCopy(cv_portrait_extpal, (void *)0x06890000, CV_PORTRAIT_EXTPAL_SIZE / 4);
+            vram_set(VB_F, 5, 0);
             disp |= DISPLAY_BG2_ACTIVE;
             fx_alpha(FX_MAIN, BLD_BG2, BLD_BG0 | BLD_BD, 3, 16);
             break;
@@ -303,6 +335,8 @@ void chfx_text(void)
 
 static void vision_mask(void)
 {
+    if (W.intro)
+        return;   // the openings set their own windows
     // Darkness around the flashlight: two overlapping windows (WIN0 wide,
     // WIN1 tall) keep the centre clear; outside them the 3D layer is
     // darkened by the colour-effect unit. Wounds close the view in.
@@ -314,15 +348,16 @@ static void vision_mask(void)
             fx_blend_off(FX_MAIN);
         return;
     }
-    if (W.chapter == 3)
+    if (W.chapter == 2 || W.chapter == 3)
     {
-        // Archive: outside the windows only the film grain remains.
+        // Archive: outside the windows only the film grain remains. Hydro:
+        // only the text (the colour unit blends the caustics instead).
         int shrink = (CV_MAX_HEALTH - cv_game.health) * 10 + (W.pl.light ? 0 : 24);
         shrink = shrink > 56 ? 56 : shrink;   // keep x0 < x1
         fx_win_rect(0, 20 + shrink, 14 + shrink / 2, 236 - shrink, 178 - shrink / 2);
         fx_win_rect(1, 60 + shrink, 0, 196 - shrink, 192);
         REG_WININ = 0x3F3F;
-        REG_WINOUT = 0x0016 | 0x20;   // BG1, BG2, OBJ + effects
+        REG_WINOUT = W.chapter == 3 ? 0x0016 | 0x20 : 0x0002;   // archive: BG1, BG2, OBJ + effects
         REG_DISPCNT |= DISPLAY_WIN0_ON | DISPLAY_WIN1_ON;
         return;
     }
@@ -335,8 +370,7 @@ static void vision_mask(void)
     REG_WININ = 0x1F1F;               // inside: every layer, no effect
     REG_WINOUT = 0x1F | 0x20;         // outside: every layer + darken
     REG_DISPCNT |= DISPLAY_WIN0_ON | DISPLAY_WIN1_ON;
-    evy_base = W.pl.hurt ? 12 : 9;
-    fx_darken(FX_MAIN, BLD_BG0 | BLD_BD | BLD_OBJ, evy_base);
+    fx_darken(FX_MAIN, BLD_BG0 | BLD_BD | BLD_OBJ, W.pl.hurt ? 12 : 9);
 }
 
 void chfx_frame(void)
@@ -371,20 +405,24 @@ void chfx_frame(void)
             break;
         case 2:
         {
-            // Wading: the 3D layer ripples line by line.
+            // Caustics drift with the view; each line's X reference sways
+            // (stronger while wading).
             bool wet = world_cell(W.pl.pos.x >> 12, W.pl.pos.z >> 12) == CELL_WATER;
+            int amp = wet ? 10 : 4;
+            int32_t base = ((W.pl.yaw >> 5) + f * 2) << 8;
             for (int y = 0; y < 192; y++)
-                line_table[y] = wet ? (u16)(m_sin(y * 1100 + f * 700) >> 11) : 0;
+                ripple_table[y] = (u32)(base + ((m_sin(y * 1300 + f * 900) * amp) >> 4));
+            REG_BG2Y = (f << 7) - (W.pl.pitch << 2);
             // Afterimage while the creature is close: capture (graphics +
-            // previous capture) into bank D and show bank D.
+            // previous capture) into bank C and show bank C.
             bool want = W.fear > 55 || W.pl.hurt;
             if (want)
             {
                 REG_DISPCAPCNT = CV_CAP_ENABLE | CV_CAP_SRC_BLEND | CV_CAP_SIZE_256x192
-                               | CV_CAP_BANK(3) | CV_CAP_EVA(10) | CV_CAP_EVB(8);
+                               | CV_CAP_BANK(2) | CV_CAP_EVA(10) | CV_CAP_EVB(8);
                 if (capture_on)
                     REG_DISPCNT = (REG_DISPCNT & ~(3u << 16) & ~(3u << 18))
-                                | CV_DISP_MODE_VRAM | CV_DISP_VRAM_BLOCK(3);
+                                | CV_DISP_MODE_VRAM | CV_DISP_VRAM_BLOCK(2);
                 capture_on = true;
             }
             else if (capture_on)
@@ -466,11 +504,34 @@ void chfx_dual_draw(void)
     g3_flush(W.wbuffer);
 }
 
+bool chfx_photo_ok(void)
+{
+    // Photos go to bank D, which is free (LCDC) in the GAME and ARCHIVE
+    // layouts unless the chase uses it.
+    return photo_layout_ok && !dual_on;
+}
+
 void chfx_dual_regs(void)
 {
-    // Runs in VBlank. 3D output lags one frame, so the view drawn in the
-    // last iteration is the one shown now: route engine A to its screen and
-    // capture it into the bank engine B shows on that screen next frame.
+    // Runs in VBlank. A photo request captures the next frame (3D and 2D
+    // as shown) into bank D for the recorder.
+    if (W.photo_req)
+    {
+        W.photo_req = false;
+        if (chfx_photo_ok() && !capture_on)
+        {
+            REG_DISPCAPCNT = CV_CAP_ENABLE | CV_CAP_BANK(3) | CV_CAP_SIZE_256x192;
+            W.have_photo = true;
+            world_message("CLICK. THE PHOTO IS IN THE RECORDER.", 90);
+        }
+        else
+        {
+            world_message("THE CAMERA WON'T TAKE A PICTURE HERE.", 90);
+        }
+    }
+    // 3D output lags one frame, so the view drawn in the last iteration is
+    // the one shown now: route engine A to its screen and capture it into
+    // the bank engine B shows on that screen next frame.
     if (!dual_on)
         return;
     if (drawn_top)
@@ -487,6 +548,12 @@ void chfx_dual_regs(void)
         vram_set(VB_D, 4, 0);   // sub OBJ shows the last forward view
         REG_DISPCAPCNT = CV_CAP_ENABLE | CV_CAP_BANK(2) | CV_CAP_SIZE_256x192 | CV_CAP_SRCA_3D;
     }
+}
+
+void chfx_stream_resume(void)
+{
+    if (stream_buf)
+        snd_stream_start(stream_buf, stream_len, CV_STREAM_RATE, 64);
 }
 
 void chfx_pause(void)
