@@ -128,6 +128,18 @@ replace melonDS QA.
 - Chapter 5 dual-screen chase, forced by writing `W.chase` in RAM: forward view on the
   top screen, unlit rear view on the bottom, pausing mid-chase keeps both screens intact.
 - Two clean builds give the same SHA-256 for `hushwell.nds`.
-- Not covered by the smoke tests: finishing every chapter by hand, the well ending, the
-  chapter 3 dial and film, the chapter 4 visitor, the swarm polygon overflow, lid sleep,
-  and replay determinism. Check them in melonDS.
+- Scenario runs with a test harness that also writes RAM (player position, tapes) to skip
+  walking:
+  - chapter 3: the projector film plays through the main-memory display and ends, the
+    torn photo and scratched code appear; the dial lock set to 4-1-7 by touch opens the door;
+  - chapter 4: NIGHT VISIT = ALWAYS in settings is saved; the visitor appears as a black
+    figure with a glowing outline, follows at about two cells and drains the battery;
+  - chapter 5: with all five tapes the well asks "go down / climb out"; A gives the well
+    ending (sky circle shrinking above, faces below) and the credits show ENDING: THE WELL;
+    B gives the escape ending;
+  - lid: closing it sleeps, opening it shows the pause screen, START resumes;
+  - replay: a chapter 1 run (walk, turn, the creature's strike) and its replay from the
+    records screen have identical chapter state at chapter frames 300 and 500, except the
+    map heap pointers and the on-screen message pointer/timer.
+- Not covered by the smoke tests: finishing every chapter by hand without RAM writes, the
+  swarm polygon overflow (DeSmuME reports 0), and anything in melonDS. Check them there.

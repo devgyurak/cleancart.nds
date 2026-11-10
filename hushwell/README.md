@@ -171,7 +171,9 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
   radio → every chapter (walking, map, recorder, flashlight, flare), the creature hearing,
   hunting, striking and retreating, death → retry, QA chapter clear → dual-screen ending →
   credits → record saved, records/settings/sound test screens, attract-mode demo play, the
-  chapter 5 dual-screen chase, and all 65 demos reaching their checkpoint. See `docs/QA.md`.
+  chapter 5 dual-screen chase, the chapter 3 film and dial, the chapter 4 night visitor, the
+  well ending, lid sleep, a recorded run matching its replay, and all 65 demos reaching
+  their checkpoint. See `docs/QA.md`.
 - Two clean builds give the same SHA-256 for `hushwell.nds` (reproducible build).
 - **melonDS QA has not been done yet.** The design document's primary goal (finishing the
   game in melonDS) still has to be checked with the `docs/QA.md` sheet. DeSmuME doesn't

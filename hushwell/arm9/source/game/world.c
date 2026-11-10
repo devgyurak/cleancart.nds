@@ -1050,6 +1050,7 @@ static void world_init(int chapter, const CvMap *map)
     W.night = (W.map.flags & MF_NIGHT)
            && (W.night_mode == 1 || (W.night_mode == 0 && hour >= 0 && hour < 5));
     W.visitor.active = W.night;
+    W.visitor.state = MS_WANDER;   // MS_GONE (0) would hide it from the renderer
     W.code_digits[0] = W.code_digits[1] = W.code_digits[2] = 0;
 }
 

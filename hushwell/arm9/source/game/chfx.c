@@ -515,38 +515,41 @@ static void film_vblank(void)
 
 static void film_frame(int f)
 {
+    // Drawn in 4x4 blocks (64x48 cells) so a frame costs well under one
+    // video frame of CPU time.
     u32 h = 0x1234567u + (u32)f * 2654435761u;
     int jitter = (h >> 28) & 3;
-    for (int y = 0; y < 192; y += 2)
+    bool numbers = (f / 30) % 3 == 2;
+    int fw = 1 + f / 40, fh = 5 + f / 8;
+    for (int by = 0; by < 48; by++)
     {
-        u16 *row0 = film + y * 256;
-        u16 *row1 = row0 + 256;
-        for (int x = 0; x < 256; x += 2)
+        u32 *row = (u32 *)(film + by * 4 * 256);
+        for (int bx = 0; bx < 64; bx++)
         {
-            int dx = x - 128, dy = y - 96 + jitter;
-            int v = 18 - ((dx * dx + dy * dy) >> 11);
+            int dx = bx - 32, dy = by - 24 + jitter;
+            int v = 18 - ((dx * dx + dy * dy) >> 7);
             // A doorway and a figure that comes closer frame by frame.
-            if (dx > -30 && dx < 30 && dy > -60 && dy < 70)
+            if (dx > -8 && dx < 8 && dy > -15 && dy < 18)
                 v -= 8;
-            int fw = 4 + f / 30, fh = 20 + f / 6;
-            if (dx > -fw && dx < fw && dy > 50 - fh && dy < 60)
+            if (dx > -fw && dx < fw && dy > 13 - fh && dy < 15)
                 v = 1;
-            if ((f / 40) % 3 == 2 && dy > -20 && dy < 20)
-            {
-                // The scratched numbers 4 1 7 flash on screen.
-                int digit = dx < -20 ? 4 : (dx < 20 ? 1 : 7);
-                (void)digit;
-                if (((dx + 64) / 8) % 5 == 0 || (dy / 6) % 3 == 0)
-                    v += (dx > -60 && dx < 60) ? 10 : 0;
-            }
+            // The scratched digits flash as bright bars.
+            if (numbers && dy > -5 && dy < 5 && (dx == -12 || dx == -11 || dx == 0 || dx == 12 || dx == 13
+                                                 || ((dy == -4) && dx > 8 && dx < 15)))
+                v = 30;
             h = h * 1103515245u + 12345u;
-            if ((h >> 25) == 0)
+            if ((h >> 26) == 0)
                 v = 28;
-            if (((x + f * 13) % 97) == 0)
+            if (((bx + f * 3) % 37) == 0)
                 v = 3;
             v = v < 0 ? 0 : (v > 31 ? 31 : v);
-            u16 c = 0x8000 | RGB15(v, v * 7 / 8, v * 5 / 8);
-            row0[x] = row0[x + 1] = row1[x] = row1[x + 1] = c;
+            u32 c = 0x8000 | RGB15(v, v * 7 / 8, v * 5 / 8);
+            u32 pair = c | (c << 16);
+            for (int k = 0; k < 4; k++)
+            {
+                row[k * 128 + bx * 2] = pair;
+                row[k * 128 + bx * 2 + 1] = pair;
+            }
         }
     }
     DC_FlushRange(film, 256 * 192 * 2);
@@ -562,7 +565,7 @@ void chfx_film(void)
     REG_DISPCNT = MODE_FIFO;
     irq_add_vblank(film_vblank);
     snd_sfx(CV_SFX_TAPE, 90, 64);
-    for (int f = 0; f < 200; f++)
+    for (int f = 0; f < 150; f++)
     {
         film_frame(f);
         if ((f & 7) == 0)

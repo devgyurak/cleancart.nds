@@ -57,6 +57,13 @@ CvVec m_norm(CvVec v, int32_t len)
     int32_t l = m_len(v);
     if (l == 0)
         return m_vec(0, 0, -len);
+    // The divide below works in 1/64 steps: scale tiny vectors (such as the
+    // cross product of a camera looking almost straight up) first.
+    while ((l >> 6) == 0)
+    {
+        v = m_vec(v.x << 6, v.y << 6, v.z << 6);
+        l = m_len(v);
+    }
     return m_vec(m_div((int32_t)(((int64_t)v.x * len) >> 6), l >> 6),
                  m_div((int32_t)(((int64_t)v.y * len) >> 6), l >> 6),
                  m_div((int32_t)(((int64_t)v.z * len) >> 6), l >> 6));

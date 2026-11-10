@@ -91,7 +91,7 @@ static void draw_top(int f)
     {
         // Looking up the shaft: the circle of sky shrinks.
         glClearColor(0, 0, 0, 31);
-        g3_camera(m_vec(0, 0, 0), m_vec(0, F(4), F(0.01)), 60, F(40));
+        g3_camera(m_vec(0, 0, 0), m_vec(0, F(4), F(0.4)), 60, F(40));
         int32_t r = F(1.4) - (f > 400 ? F(1.3) : f * F(1.3) / 400);
         glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(3));
         GFX_COLOR = RGB15(12, 13, 15);
@@ -131,7 +131,7 @@ static void draw_bottom(int f)
     else
     {
         // Looking down: pale faces rising out of the dark water.
-        g3_camera(m_vec(0, F(3), 0), m_vec(0, 0, F(0.01)), 60, F(40));
+        g3_camera(m_vec(0, F(3), 0), m_vec(0, 0, F(0.3)), 60, F(40));
         for (int i = 0; i < 6; i++)
         {
             int a = i * 5461 + f * 40;
