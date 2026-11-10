@@ -1,4 +1,11 @@
-# cleancart.nds
+<div align="center">
+
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo/cleancart-lockup-dark.svg">
+    <img src="docs/logo/cleancart-lockup.svg" alt="cleancart.nds" width="420">
+  </picture>
+</h1>
 
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#플레이)
 [![Built with BlocksDS](https://img.shields.io/badge/built%20with-BlocksDS%20v1.25.0-blue)](https://blocksds.skylyrac.net/)
@@ -7,6 +14,8 @@
 [![Last commit](https://img.shields.io/github/last-commit/devgyurak/cleancart.nds)](https://github.com/devgyurak/cleancart.nds/commits/main)
 
 [English](README.md)
+
+</div>
 
 [BlocksDS](https://blocksds.skylyrac.net/)로 만든 닌텐도 DS 오리지널 홈브루 게임 모음입니다.
 라이선스를 깨끗하게 유지합니다. 코드는 직접 작성하고, 에셋은 이 저장소의 코드로
@@ -66,7 +75,8 @@ macOS에서 키가 먹지 않으면 melonDS의 키보드 매핑이 비어 있을
 corvane/          게임 하나: 소스, build.sh, Dockerfile, 문서, 라이선스
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS)
-scripts/          유지보수 스크립트 (에이전트 설정 동기화)
+scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
+docs/logo/        저장소 로고 (scripts/mklogo.py가 생성)
 .github/          릴리스 워크플로 (태그 <게임>-v<버전> → GitHub Release)
 AGENTS.md         코딩 에이전트용 프로젝트 규칙 (Claude Code는 CLAUDE.md로 읽음)
 ```
