@@ -16,12 +16,14 @@
 #include "core/input.h"
 #include "core/irq.h"
 #include "core/nitro.h"
+#include "core/qa.h"
 #include "core/rng.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
 #include "core/timer.h"
 #include "game/game.h"
+#include "game/qa_tune.h"
 #include "game/world.h"
 #include "gfx/fx.h"
 #include "gfx/gl3d.h"
@@ -356,7 +358,7 @@ static void player_hurt(void)
     Player *p = &W.pl;
     if (p->dead || cv_game.health <= 0)
         return;
-    cv_game.health--;
+    cv_game.health -= qa_tune()->hurt_damage;
     p->hurt = 40;
     snd_sfx(CV_SFX_HIT, 120, 64);
     snd_sfx(CV_SFX_SCREAM, 110, pan_of(W.mo.pos));
@@ -1215,7 +1217,7 @@ CvScene scene_chapter(void)
 
     // Input log first: playback replays the RTC hour and the start state.
     bool replaying = cv_game.attract || cv_game.playback;
-    u32 seed = cv_save.seed ^ ((u32)n * 7919u);
+    u32 seed = (qa_tune()->seed ? qa_tune()->seed : cv_save.seed) ^ ((u32)n * 7919u);
     if (cv_game.attract)
     {
         u32 size;

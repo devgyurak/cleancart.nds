@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "assets.h"
+#include "core/qa.h"
 #include "core/cvmath.h"
 #include "core/dma.h"
 #include "core/hw.h"
@@ -321,6 +322,16 @@ CvScene scene_title(void)
         title_logo(f);
         title_rain(f);
         frame_end();
+        if (qa_title_poll())
+        {
+            // Hidden auto QA mode (core/qa.h): a normal new game from the prologue.
+            start_chapter = 0;
+            fx_transition_out(20);
+            game_new();
+            cv_save.run_seconds = 0;
+            game_start_chapter(0);
+            return SC_RADIO;
+        }
         if (cv_in.pressed || cv_in.touching)
             idle = 0;
         if (++idle > 20 * 60)

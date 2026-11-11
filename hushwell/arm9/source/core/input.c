@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/input.h"
+#include "core/qa.h"
 #include "core/sys.h"
 
 #define REPLAY_MAGIC 0x50525643u  // "CVRP"
@@ -98,6 +99,17 @@ void input_update(void)
     else
     {
         read_live(&keys, &touch, &tx, &ty, &lid, &mic);
+        QaInput qin;
+        if (qa_autopilot(&qin))
+        {
+            // Auto QA: the autopilot replaces the buttons and the pen, like a replay.
+            keys = qin.keys;
+            touch = qin.touch;
+            tx = qin.tx;
+            ty = qin.ty;
+            lid = false;
+            mic = 0;
+        }
         if (mode == R_REC && !suspended)
         {
             u8 flags = (touch ? RF_TOUCH : 0) | (lid ? RF_LID : 0);
@@ -159,7 +171,7 @@ int input_rtc_hour(void)
         return play_hdr->start.hour;
     if (mode == R_REC)
         return rec.hdr.start.hour;
-    return cv_arm7.hour;
+    return qa_active() ? qa_rtc_hour() : cv_arm7.hour;
 }
 
 void replay_record_start(u32 seed, const CvRunStart *start)
@@ -168,7 +180,7 @@ void replay_record_start(u32 seed, const CvRunStart *start)
     rec.hdr.magic = REPLAY_MAGIC;
     rec.hdr.seed = seed;
     rec.hdr.start = *start;
-    rec.hdr.start.hour = cv_arm7.hour;
+    rec.hdr.start.hour = qa_active() ? qa_rtc_hour() : cv_arm7.hour;
     mode = R_REC;
     finished = false;
 }
