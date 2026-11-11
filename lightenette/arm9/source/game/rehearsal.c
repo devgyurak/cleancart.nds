@@ -65,6 +65,19 @@ static const Act5Step act5_script[] = {
 };
 #define ACT5_END 400
 
+#define SCRIPT_GETTER(N)                                                       \
+    const Act##N##Step *rehearsal_act##N##_script(int *n, int *end)           \
+    {                                                                          \
+        *n = (int)(sizeof(act##N##_script) / sizeof(act##N##_script[0]));      \
+        *end = ACT##N##_END;                                                   \
+        return act##N##_script;                                                \
+    }
+SCRIPT_GETTER(1)
+SCRIPT_GETTER(2)
+SCRIPT_GETTER(3)
+SCRIPT_GETTER(4)
+SCRIPT_GETTER(5)
+
 static void tick(void)
 {
     oam_commit();

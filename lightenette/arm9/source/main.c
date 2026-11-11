@@ -8,6 +8,7 @@
 #include "core/cart.h"
 #include "core/input.h"
 #include "core/nitro.h"
+#include "core/qa.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
@@ -42,9 +43,13 @@ int main(int argc, char *argv[])
     g3_init();
 #endif
 
+    static const char *const scene_names[] = {
+        "title", "judge", "act1", "act2", "act3", "act4", "act5", "menu", "rehearsal", "credits" };
     LtScene scene = SC_TITLE;
     for (;;)
     {
+        qa_scene(scene, (unsigned)scene < sizeof(scene_names) / sizeof(*scene_names)
+                            ? scene_names[scene] : "?");
         switch (scene)
         {
             case SC_JUDGE: scene = scene_judge(); break;

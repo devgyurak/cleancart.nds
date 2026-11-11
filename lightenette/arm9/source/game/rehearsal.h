@@ -49,10 +49,24 @@
 
 #include <nds.h>
 
+#include "game/act1.h"
+#include "game/act2.h"
+#include "game/act3.h"
+#include "game/act4.h"
+#include "game/act5.h"
+
 #define REHEARSAL_ID 0x4C454852u  // "RHEL"
 
 // Runs the rehearsal (blocking) and leaves the result block filled.
 void rehearsal_run(void);
+
+// The rehearsal's input scripts (the auto QA run plays the same ones through the
+// normal scenes). `*end` is the frame the rehearsal gives each act up at.
+const Act1Step *rehearsal_act1_script(int *n, int *end);
+const Act2Step *rehearsal_act2_script(int *n, int *end);
+const Act3Step *rehearsal_act3_script(int *n, int *end);
+const Act4Step *rehearsal_act4_script(int *n, int *end);
+const Act5Step *rehearsal_act5_script(int *n, int *end);
 
 // Keeps the final screen forever (rehearsal ROM).
 void __attribute__((noreturn)) rehearsal_idle(void);

@@ -10,6 +10,7 @@
 #include "core/hw.h"
 #include "core/input.h"
 #include "core/nitro.h"
+#include "core/qa.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
@@ -60,7 +61,17 @@ LtScene scene_title(void)
         // Blink the prompt.
         text_center(&main_text, 21, (f / 30) & 1 ? TP_GRAY : TP_WHITE, "PRESS START");
         scene_frame_end();
-        if (cv_in.pressed & (KEY_START | KEY_SELECT | KEY_X))
+        if (qa_title_poll())
+        {
+            // Hidden auto QA mode (core/qa.h): the normal flow from act 1, left like Start.
+            snd_sfx(CV_SFX_CHIME, 100, 64);
+            snd_bgm_stop();
+            return SC_ACT1;
+        }
+        // X opens the credits, but L+R+X is the start of the QA combo: with L or R
+        // held X is left alone (press L and R first, then X).
+        u16 menu_keys = KEY_START | KEY_SELECT | ((cv_in.held & (KEY_L | KEY_R)) ? 0 : KEY_X);
+        if (cv_in.pressed & menu_keys)
         {
             snd_sfx(CV_SFX_CHIME, 100, 64);
             snd_bgm_stop();

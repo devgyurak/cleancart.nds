@@ -20,7 +20,8 @@ Log formats understood:
 Malformed lines are skipped (with a warning on stderr).
 
 Block words: w0 magic, w1 item id, w2 frame, w3.. values[0..60]. The item id
-selects the boot ("rehearsal", "acc-stage"); --boot must agree with it.
+selects the boot ("rehearsal", "acc-stage", "qa" = the release ROM's auto QA run,
+which uses the rehearsal's layout); --boot must agree with it.
 
 Each expected item is graded OK / NG. Items whose source is "unconfirmed" are
 informational: they print INFO and never fail the run. An item can name the
