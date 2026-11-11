@@ -45,7 +45,9 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
   written at frame 120. The last 4 KB of the ARM9 heap is reserved for it (`reduceHeapSize(4096)`).
 - **Save layout** (`core/save.c`): two copies (seq + BIOS CRC16) at 0x0000/0x0400
   (FLASH: 0x0000/0x10000), replay area at 0x8000 / 0x20000 / 0x0800 (EEPROM/FLASH/FRAM),
-  max 30000 bytes. `tools/replay.py dump x.sav` reads it.
+  max 30000 bytes. On an 8 KB chip (what melonDS emulates for our header game
+  code `CRVN`) the EEPROM/FRAM builds detect the 0x2000 address wrap and keep the
+  replay at 0x0800, max 6140 bytes. `tools/replay.py dump x.sav` reads all of them.
 - **Replay header** (16 bytes): magic `CVRP`, seed, run count, stage, RTC hour, lives, bombs.
   Change C (`core/input.c`) and Python (`tools/cvtools/stages.py`) together.
 - **Stage file** format is documented at the top of `tools/cvtools/stages.py`.
