@@ -149,7 +149,7 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
 - **Tools**: `tools/stage_editor.py show 1` (ASCII preview), `export`/`import` for JSON
   editing → when `tools/stages/stageN.json` exists the build uses that stage.
 
-### Verification status (as of the session that created this repository, 2026-11-10)
+### Verification status (updated 2026-11-11)
 
 - With BlocksDS v1.25.0 (pinned digest) the main build, both save variants and all 65
   demos build without warnings.
@@ -159,10 +159,15 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
   boot → intro → title → briefing → stages 1–5 → bosses → results → ending → staff roll
   → records, every menu, all 65 demos reaching their checkpoint, EEPROM/FLASH/FRAM save
   write and reload, and bit-identical game-state memory between a recorded run and its replay.
-- **Full melonDS QA has not been done yet.** Check the design document's primary goal
-  (finishing the game in melonDS) with the `docs/QA.md` sheet. DeSmuME doesn't report the
-  polygon RAM usage register or the overflow flag, so `3d-limits` needs checking in melonDS.
-- No testing on real hardware.
+- **melonDS 1.1 QA** (2026-11-11, issue #3; record in [`docs/QA.md`](docs/QA.md#melonds-qa-record-2026-11-11)):
+  - It found eight bugs that DeSmuME hid. On v0.1.0 the game stopped after the stage 1
+    briefing, nothing could be saved in melonDS, seven demos hung and more reported wrong values.
+  - With the fixes (#14–#20, #22), all 65 demos reach their checkpoint in melonDS and every
+    item of the main checklist passes. That includes a full run from boot to the records,
+    saves and their reload, and an identical replay.
+  - The QA was scripted on the melonDS core (`tools/melonds/mds.sh`) and checked against
+    melonDS.app over its GDB stub. No person has played it through or listened yet.
+- No testing on real hardware, DSi or flashcart loaders.
 
 ## Choices for the design document's open questions
 
