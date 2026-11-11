@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
-// Rehearsal: act 1 played from a fixed touch script and act 2 from a fixed key
-// script embedded in the ROM, then the accuracy judge, with one result block at the end. It reads no pen, uses
+// Rehearsal: act 1 played from a fixed touch script and acts 2 and 3 from fixed
+// key scripts embedded in the ROM, then the accuracy judge, with one result block
+// at the end. It reads no pen, uses
 // no save chip and no NitroFS, so it runs the same on any cart kernel.
 //
 // Result block (CvResult at CV_RESULT_ADDR, magic CV_RESULT_MAGIC once filled):
@@ -18,6 +19,12 @@
 //   values[15]  act 2 edge-marking pixels around the plinths
 //   values[16]  act 2 frame of the clear (counted from the act's start)
 //   values[17]  1 if the act 2 display capture finished
+//   values[18]  act 3 cleared (1 = yes)
+//   values[19]  act 3 marks found (0-3)
+//   values[20..22]  act 3 lantern pixel with BLDCNT 0100 / 0140 / 01C1
+//   values[23..24]  act 3 backdrop pixel outside the lantern, no effect / darkened
+//   values[25]  1 if the act 3 display captures finished
+//   values[26]  act 3 frame of the clear (counted from the act's start)
 
 #ifndef LT_REHEARSAL_H
 #define LT_REHEARSAL_H

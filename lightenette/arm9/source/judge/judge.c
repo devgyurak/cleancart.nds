@@ -102,6 +102,11 @@ static void acc_make_lamp(void)
         CV_PAL_OBJ_MAIN[15 * 16 + i] = RGB15(i * 2, i * 3 / 2, i / 2);
 }
 
+void judge_lamp_load(void)
+{
+    acc_make_lamp();
+}
+
 static void acc_blend(int mode)
 {
     // The lantern is a semi-transparent OBJ. GBATEK: such an OBJ alpha-blends

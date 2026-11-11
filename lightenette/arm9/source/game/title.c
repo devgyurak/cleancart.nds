@@ -73,11 +73,11 @@ LtScene scene_title(void)
     }
 }
 
-// Test menu: the accuracy judge, act 2 and the rehearsal.
+// Test menu: the accuracy judge, acts 2 and 3 and the rehearsal.
 LtScene scene_menu(void)
 {
-    static const char *const items[] = { "ACCURACY JUDGE", "ACT 2: TURN THE DOLLS", "REHEARSAL: ACTS 1-2" };
-    static const LtScene targets[] = { SC_JUDGE, SC_ACT2, SC_REHEARSAL };
+    static const char *const items[] = { "ACCURACY JUDGE", "ACT 2: TURN THE DOLLS", "ACT 3: FIND THE MARKS", "REHEARSAL: ACTS 1-3" };
+    static const LtScene targets[] = { SC_JUDGE, SC_ACT2, SC_ACT3, SC_REHEARSAL };
     enum { N = sizeof(items) / sizeof(items[0]) };
 
     display_reset();
