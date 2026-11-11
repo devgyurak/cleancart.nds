@@ -83,6 +83,10 @@ newly passing items. A reviewer reported that melonDS master `4ce2188` already f
 **not** verified that. If it is true, the GL profiles report the three lantern items as NEWLY PASSING
 and exit 1 until the profile is updated.
 
+The three `*-lantern-equal` items also require the lantern pixel to differ from the backdrop pixel
+(`unlike` in `expected.json`): a lantern that is not drawn at all would otherwise give three identical
+backdrop pixels and pass as "all equal".
+
 Gating items: `seam-uv`, `act2-seam`, `act5-seam` are qualitative (source `report:melonDS#2008`): rows 0 and 1
 must show no cut line and row 2 (the uncompensated reverse) must show one. The exact `0/0/18`
 (18 = the card height) is an emulator measurement, so it is graded only as the informational
