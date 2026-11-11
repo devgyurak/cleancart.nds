@@ -43,6 +43,7 @@
 #include <ctime>
 #include <chrono>
 #include <condition_variable>
+#include <filesystem>
 #include <map>
 #include <mutex>
 #include <string>
@@ -490,6 +491,22 @@ int main(int argc, char** argv)
             memcpy(cargs.SRAM.get(), sav.data(), sav.size());
             cargs.SRAMLength = sav.size();
         }
+    }
+    // SDDIR: attach a DLDI SD card whose contents mirror this host directory
+    // (read at boot, written back when the run ends). melonDS only gives an SD
+    // card to homebrew ROMs (game code "####"), so the in-memory copy of the
+    // ROM gets that game code; the file on disk is untouched. A homebrew cart
+    // has no save chip: the SD run checks the SD mirror, not the chip.
+    if (const char* sd = getenv("SDDIR"); sd && *sd) {
+        if (rom.size() < 0x200) { fprintf(stderr, "ERROR ROM too small for SDDIR\n"); return 1; }
+        memcpy(&rom[0x0C], "####", 4);
+        std::filesystem::create_directories(sd);
+        FATStorageArgs sdargs {};
+        sdargs.Filename = std::string(sd) + ".img";
+        sdargs.Size = 0;
+        sdargs.ReadOnly = false;
+        sdargs.SourceDir = std::string(sd);
+        cargs.SDCard = std::move(sdargs);
     }
     auto cart = NDSCart::ParseROM(rom.data(), rom.size(), nullptr, std::move(cargs));
     if (!cart) { fprintf(stderr, "ParseROM failed\n"); return 1; }

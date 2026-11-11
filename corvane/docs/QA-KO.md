@@ -19,6 +19,12 @@ melonDS 버전·데모 이름·기대 화면 설명을 남깁니다.
 0x0237F00C u32 values[13] (데모마다 아래 표의 값)
 ```
 
+- QA 로그 결과 블록(`io-qalog`와 이어지는 자동 QA 모드): 주소와 배치는 같고 `demo_id` = `QARN`
+  (0x4E524151). `values[0]` 판정(1 PASS, 2 FAIL), `[1]` 로그 줄 수, `[2]` SD 플래그,
+  `[3]` 마지막 체크포인트 해시, `[4]` 체크포인트 수, `[5]` 랙 프레임, `[6]` 세이브 플래그
+  (bit0 칩 쓰기 검증, bit1 SD 미러 읽기 검증), `[7..12]` 게임별.
+  로그 자체는 SD 카드의 `<드라이브>cleancart/<게임>/qa-<날짜>-<시각>.log`이고
+  `tools/qa/parse_log.py`로 검사합니다.
 - 입력이 필요한 데모(sys-keys, io-touch, io-power, io-rtc, io-firmware)는 체크포인트 뒤에도
   화면을 계속 갱신합니다.
 
@@ -80,6 +86,7 @@ melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Cla
 | snd-capture | 스테이지 3 곡 + 메아리 | 1 | ✅ `1` 곡 + 에코, 끊김 없음 |
 | snd-stream | 끊김 없는 앰비언트 패드 | 크기, 샘플레이트 | ✅ `2b000 2b11` 176,128바이트, 11,025 Hz, 끊김 없음 |
 | io-cart | NitroFS 파일 크기 목록, 카트 DMA OK, 스테이지 3 정보 | 합계, 로드 성공, 카트 DMA, 스폰 수 | ✅ `61c4c 1 1 2d` NitroFS 마운트, 파일 전부 OK, 카트 DMA OK. v0.1.0에서 데이터 어보트(#6), #14로 수정 |
+| io-qalog | QA 로그를 씀(RAM 링버퍼, 카트에 SD가 있으면 SD에도), 세이브 이미지를 미러링, `QARN` 결과 블록을 씀. 헤드리스 실행에는 SD 이미지가 필요(`SDDIR=… tools/melonds/mds.sh`) | `values[]`는 아래 QARN 배치대로: 판정 1, 줄 수, SD 플래그(bit0 SD에 로그, bit1 읽기 검증 OK), … | ✅ melonDS(SD 이미지) `1 2f 3 …` SD에 로그, 읽기 검증 OK, `tools/qa/parse_log.py` 통과. SD 없이는 `1 2f 0`(RAM만) |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | 쓰기, 재로드, seq 증가 1, 칩 응답 | ✅ eeprom `1 1 1 1`; flash `1 1 1 2`; fram `1 1 1 3`. melonDS는 모든 빌드에 8 KB EEPROM을 붙임. v0.1.0은 세이브 칩 없음(#8), #16으로 수정 |
 | io-firmware | 이름, 선호 색 → 기체 색, 언어, 생일, 터치 보정값 | 색, 언어, 이름 길이, 기체 색 | ✅ `0 1 7 4e0c` 이름 MELONDS, 색 0, 영어, 01/01, 보정값 표시 |
 | io-rtc | 날짜·시각이 매초 갱신, 스테이지 2 낮/밤 | 연, 월, 일, 시 | ✅ `1a b a f` 날짜·시각 갱신, 스테이지 2 하늘 DAY |

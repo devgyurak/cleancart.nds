@@ -25,7 +25,7 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
 |---|---|
 | `common/cv_ipc.h` | ARM9↔ARM7 protocol: IPCSYNC values, FIFO channels (user 01–03), sound command words, input packet |
 | `arm7/source/` | own ARM7 core: input/RTC/power via libnds, register-level sound engine (`sound7.c`) |
-| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA) |
+| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA), qalog (QA log on the SD card + `QARN` result block) |
 | `arm9/source/gfx/` | vram (bank plan table), oam, text, fx, gl3d, models, terrain |
 | `arm9/source/game/` | scenes, stage loop, boss, stagefx (per-stage hardware showcase), hud, ending |
 | `arm9/source/demo/demo.c` | feature demos (`make DEMO=…`) |
@@ -43,6 +43,15 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
 
 - **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
   written at frame 120. The last 4 KB of the ARM9 heap is reserved for it (`reduceHeapSize(4096)`).
+- **QA log** (`core/qalog.c`, `tools/qa/`): RAM ring of `<frame> <scene> <event> key=val` lines,
+  flushed to `<drive>cleancart/corvane/qa-<date>-<time>.log` only at checkpoints, scene changes,
+  pause and the end (never inside a save transaction; every flush claims the slot-1 bus and
+  closes the file). Ends with `RESULT PASS|FAIL`; the RAM result block reuses `0x0237F000`
+  with id `QARN`. `tools/qa/parse_log.py` validates a log, `tools/qa/lint.py` keeps `qa*`
+  symbols out of `gfx/`, `core/save.c`, `judge/`, `capture.c`. Headless SD:
+  `SDDIR=out/mds/x tools/melonds/mds.sh run …` (melonDS gives an SD card only to homebrew
+  ROMs, so the runner patches the in-memory game code; the ROM on disk is unchanged and the
+  run has no save chip).
 - **Save layout** (`core/save.c`): two copies (seq + BIOS CRC16) at 0x0000/0x0400
   (FLASH: 0x0000/0x10000), replay area at 0x8000 / 0x20000 / 0x0800 (EEPROM/FLASH/FRAM),
   max 30000 bytes. On an 8 KB chip (what melonDS emulates for our header game
