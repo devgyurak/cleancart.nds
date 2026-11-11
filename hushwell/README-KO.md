@@ -97,7 +97,7 @@ QA 단축키: 타이틀에서 Select로 시작 챕터를 고릅니다. 일시정
 <tr><td align="center">3 기록 보관실</td><td align="center">4 예배당과 정원</td><td align="center">5 우물</td></tr>
 </table>
 
-<sub>빌드한 ROM을 헤드리스 DeSmuME 0.9.12(`tools/emu/`)로 찍은 화면입니다. melonDS나 실기가 아닙니다. 위는 3D 화면, 아래는 지도 화면이고, 5장 추격에서는 양쪽 화면 모두 3D(앞/뒤)입니다. DeSmuME의 기본 펌웨어 색이 초록이라 손전등 빛과 그것이 초록빛을 띱니다.</sub>
+<sub>빌드한 ROM을 헤드리스 DeSmuME 0.9.12(`tools/emu/`)로 찍은 화면입니다. melonDS나 실기가 아닙니다. 위 화면(3D)만 최근접 이웃 2배로 실었고, 5장 추격에서는 양쪽 화면이 모두 3D라 위 화면의 앞쪽 시야를 실었습니다. DeSmuME의 기본 펌웨어 색이 초록이라 손전등 빛과 그것이 초록빛을 띱니다.</sub>
 
 ## 게임 흐름
 

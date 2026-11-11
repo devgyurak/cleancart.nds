@@ -99,7 +99,7 @@ on your birthday, and the flashlight takes on your favourite colour.
 <tr><td align="center">3 Records archive</td><td align="center">4 Chapel and garden</td><td align="center">5 The well</td></tr>
 </table>
 
-<sub>Captured from the built ROM in headless DeSmuME 0.9.12 (`tools/emu/`), not melonDS or real hardware. Top screen (3D) over bottom screen (map); in chapter 5 the chase puts 3D on both screens (ahead / behind). DeSmuME's default firmware colour is green, which tints the flashlight and the creature.</sub>
+<sub>Captured from the built ROM in headless DeSmuME 0.9.12 (`tools/emu/`), not melonDS or real hardware. Top (3D) screen at 2x nearest-neighbour; in chapter 5 the chase puts 3D on both screens and the top one shows the view ahead. DeSmuME's default firmware colour is green, which tints the flashlight and the creature.</sub>
 
 ## Game flow
 
