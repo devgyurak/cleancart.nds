@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
-// Rehearsal: act 1 played from a fixed touch script and acts 2 and 3 from fixed
+// Rehearsal: act 1 played from a fixed touch script and acts 2 to 5 from fixed
 // key scripts embedded in the ROM, then the accuracy judge, with one result block
 // at the end. It reads no pen, uses
 // no save chip and no NitroFS, so it runs the same on any cart kernel.
@@ -25,6 +25,20 @@
 //   values[23..24]  act 3 backdrop pixel outside the lantern, no effect / darkened
 //   values[25]  1 if the act 3 display captures finished
 //   values[26]  act 3 frame of the clear (counted from the act's start)
+//   values[27]  act 4 cleared (1 = yes)
+//   values[28]  act 4 frame of the clear
+//   values[29]  act 4 horizontal thread pixels (line polygon, information only)
+//   values[30]  act 4 diagonal thread pixels (line polygon, information only)
+//   values[31]  1 if the act 4 display capture finished
+//   values[32]  act 5 cleared (1 = yes)
+//   values[33]  act 5 frame of the clear
+//   values[34]  act 5 cut-line pixels per doll (u8x3, expected 0/0/18)
+//   values[35..37]  act 5 edge pixels of the three plinth colours
+//   values[38]  act 5 string line-polygon pixels (information only)
+//   values[39..41]  act 5 lantern pixel with BLDCNT 0100 / 0140 / 01C1
+//   values[42..43]  act 5 backdrop pixel outside the lantern, no effect / darkened
+//   values[44]  1 if the act 5 display captures finished
+//   The whole block is 64 words (CvResult.values[61]).
 
 #ifndef LT_REHEARSAL_H
 #define LT_REHEARSAL_H

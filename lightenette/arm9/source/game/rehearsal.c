@@ -8,6 +8,8 @@
 #include "game/act1.h"
 #include "game/act2.h"
 #include "game/act3.h"
+#include "game/act4.h"
+#include "game/act5.h"
 #include "game/rehearsal.h"
 #include "gfx/oam.h"
 #include "judge/judge.h"
@@ -42,6 +44,27 @@ static const Act3Step act3_script[] = {
 
 #define ACT3_END 400
 
+// Act 4 keys: the strings start on pegs 1,3,0,2 (0-based). Swap pegs 0 and 1,
+// then 1 and 3, then 2 and 3; the cursor starts on peg 0.
+static const Act4Step act4_script[] = {
+    { 10, KEY_A }, { 14, KEY_RIGHT }, { 18, KEY_A },
+    { 28, KEY_A }, { 32, KEY_RIGHT }, { 36, KEY_RIGHT }, { 40, KEY_A },
+    { 50, KEY_A }, { 54, KEY_LEFT }, { 58, KEY_A },
+};
+#define ACT4_END 240
+
+// Act 5 keys: the lantern starts over doll B (centre 128,96) and moves 2 px per
+// frame. Lift it onto the dolls' row, light B in place, go left to doll A, turn
+// it to its back, go right to doll C, turn it to its back (the stitched doll).
+static const Act5Step act5_script[] = {
+    { 0, 8, KEY_UP },
+    { 20, 36, KEY_LEFT },
+    { 50, 1, KEY_R },
+    { 75, 72, KEY_RIGHT },
+    { 140, 1, KEY_R },
+};
+#define ACT5_END 400
+
 static void tick(void)
 {
     oam_commit();
@@ -61,6 +84,10 @@ void rehearsal_run(void)
     Act3Outcome o3 = { false, -1, false, 0, { 0, 0, 0 }, 0, 0 };
     act3_replay(act3_script, sizeof(act3_script) / sizeof(act3_script[0]), ACT3_END, &o3);
 
+    Act4Outcome o4 = { false, -1, false, 0, 0 };
+    act4_replay(act4_script, sizeof(act4_script) / sizeof(act4_script[0]), ACT4_END, &o4);
+    Act5Outcome o5 = { false, -1, false, 0, { 0, 0, 0 }, 0, { 0, 0, 0 }, 0, 0 };
+    act5_replay(act5_script, sizeof(act5_script) / sizeof(act5_script[0]), ACT5_END, &o5);
     judge_run(NULL);
 
     char line[33];
@@ -74,6 +101,12 @@ void rehearsal_run(void)
              o3.lamp[0], o3.lamp[1], o3.lamp[2]);
     judge_text(23, o3.cleared ? TP_GREEN : TP_RED, line);
 
+    snprintf(line, sizeof(line), "ACT4 %s F%d H%lu D%lu", o4.cleared ? "OK" : "NG", o4.clear_frame,
+             (unsigned long)o4.hline, (unsigned long)o4.dline);
+    judge_text(13, o4.cleared ? TP_GREEN : TP_RED, line);
+    snprintf(line, sizeof(line), "ACT5 %s F%d %lu/%lu/%lu", o5.cleared ? "OK" : "NG", o5.clear_frame,
+             o5.seam & 255, o5.seam >> 8 & 255, o5.seam >> 16 & 255);
+    judge_text(14, o5.cleared ? TP_GREEN : TP_RED, line);
     volatile CvResult *r = CV_RESULT;
     r->demo_id = REHEARSAL_ID;
     r->frame = cv_frame;
@@ -95,6 +128,24 @@ void rehearsal_run(void)
     r->values[24] = o3.out_dark;
     r->values[25] = o3.measured;
     r->values[26] = (u32)o3.clear_frame;
+    r->values[27] = o4.cleared;
+    r->values[28] = (u32)o4.clear_frame;
+    r->values[29] = o4.hline;
+    r->values[30] = o4.dline;
+    r->values[31] = o4.measured;
+    r->values[32] = o5.cleared;
+    r->values[33] = (u32)o5.clear_frame;
+    r->values[34] = o5.seam;
+    r->values[35] = o5.edge[0];
+    r->values[36] = o5.edge[1];
+    r->values[37] = o5.edge[2];
+    r->values[38] = o5.lines;
+    r->values[39] = o5.lamp[0];
+    r->values[40] = o5.lamp[1];
+    r->values[41] = o5.lamp[2];
+    r->values[42] = o5.out_none;
+    r->values[43] = o5.out_dark;
+    r->values[44] = o5.measured;
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 

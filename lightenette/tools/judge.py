@@ -8,13 +8,13 @@
 Reads the run logs (stdin if no file) and uses the last result block found.
 Two log formats are understood:
 
-  RESULT w0 w1 ... w31      32 (or at least 8) hex words of the block at
+  RESULT w0 w1 ... w63      64 (or at least 8) hex words of the block at
                             0x0237F000: melonDS headless runner (mds.sh run),
-                            DeSmuME harness (emu.sh run, RESULT_WORDS=32).
-  PEEK 0237f000 b0 b1 ...   at least 64 hex bytes of the block, little endian
-                            (melonDS runner with PEEK=0237f000:64).
+                            DeSmuME harness (emu.sh run, RESULT_WORDS=64).
+  PEEK 0237f000 b0 b1 ...   at least 256 hex bytes of the block, little endian
+                            (melonDS runner with PEEK=0237f000:256).
 
-Block words: w0 magic, w1 item id, w2 frame, w3.. values[0..28]. The item id
+Block words: w0 magic, w1 item id, w2 frame, w3.. values[0..60]. The item id
 selects the boot ("rehearsal", "acc-stage") unless --boot is given.
 
 Each expected item is graded OK / NG. Items whose source is "unconfirmed" are
@@ -31,7 +31,7 @@ import os
 import re
 import sys
 
-BLOCK_WORDS = 32
+BLOCK_WORDS = 64
 
 
 def parse_words(text):
@@ -71,6 +71,9 @@ def grade(item, vals):
     if check == 'gt':
         want = item['expect']
         return got[0] > want - tol, '%d' % got[0], '> %d' % want
+    if check == 'all_gt':
+        want = item['expect']
+        return min(got) > want - tol, '/'.join('%d' % g for g in got), 'all > %d' % want
     if check == 'range':
         lo, hi = item['min'], item['max']
         return lo - tol <= got[0] <= hi + tol, '%d' % got[0], '%d..%d' % (lo, hi)
@@ -126,7 +129,7 @@ def main(argv):
         try:
             ok, got, want = grade(item, vals)
         except IndexError:
-            print('%-5s %-22s value not in the log (use 32 result words)' % ('MISS', item['id']))
+            print('%-5s %-22s value not in the log (use 64 result words)' % ('MISS', item['id']))
             missing += 1
             continue
         tag = ('INFO' if ok else 'INFO-NG') if info else ('OK' if ok else 'NG')

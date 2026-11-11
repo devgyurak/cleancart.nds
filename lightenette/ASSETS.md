@@ -25,6 +25,7 @@ are not in the ROM.
 | `cv_smp_*`, `cv_song_*`, `cv_sound_bank`, `cv_sample_names`, `cv_song_names` | sound effects and music | `cvtools/audio.py` | original, Apache-2.0 |
 | (runtime) act 2 doll card texture | 64x16 direct-colour paper doll card with cut lines (same layout as the judge's card) | drawn at run time by `arm9/source/game/act2.c` (`make_card`) | original, Apache-2.0 |
 | (runtime) act 3 | nothing new: the stage and marks are untextured 3D polygons; the lantern is the judge's 64x64 glow, loaded through `judge_lamp_load()` | `arm9/source/game/act3.c` | original, Apache-2.0 |
+| (runtime) acts 4 and 5 | nothing new beyond act 2's doll card, redrawn at run time in act 5 (`make_card()`, same pixels): act 4 is untextured line polygons and quads, act 5 reuses the judge's lantern glow through `judge_lamp_load()` | `arm9/source/game/act4.c`, `act5.c` | original, Apache-2.0 |
 | (runtime) judge card texture and lantern sprite | 64x16 direct-colour paper card with cut lines; 64x64 4bpp radial glow | drawn at run time by `arm9/source/judge/judge.c` (`acc_make_card`, `acc_make_lamp`) | original, Apache-2.0 |
 | `cv_tex_paper` | 32x32 direct-colour paper (cream, fibres, darker rim) for the marionette cut-outs | `images.textures()` `paper` | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |

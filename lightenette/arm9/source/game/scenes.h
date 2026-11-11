@@ -12,6 +12,8 @@ typedef enum {
     SC_ACT1,
     SC_ACT2,
     SC_ACT3,
+    SC_ACT4,
+    SC_ACT5,
     SC_MENU,
     SC_REHEARSAL,
 } LtScene;
@@ -24,6 +26,8 @@ LtScene scene_judge(void);
 LtScene scene_act1(void);
 LtScene scene_act2(void);
 LtScene scene_act3(void);
+LtScene scene_act4(void);
+LtScene scene_act5(void);
 LtScene scene_menu(void);
 LtScene scene_rehearsal(void);
 

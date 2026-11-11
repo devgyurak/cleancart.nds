@@ -39,7 +39,7 @@ typedef struct {
     u32 magic;     // CV_RESULT_MAGIC once filled
     u32 demo_id;   // hash of the demo name
     u32 frame;     // frame the checkpoint was taken
-    u32 values[29];   // 32 words in all; layouts in judge.h, rehearsal.h
+    u32 values[61];   // 64 words in all; layouts in judge.h, rehearsal.h
 } CvResult;
 
 #define CV_RESULT_ADDR  0x0237F000u
