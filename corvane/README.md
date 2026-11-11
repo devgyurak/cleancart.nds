@@ -173,7 +173,7 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
 
 | Question | Choice |
 |---|---|
-| Save chip for the main build | EEPROM 64 KB; FLASH and FRAM as variant builds. melonDS picks the chip from the header game code (`CRVN`) and emulates an 8 KB EEPROM for every build; the game detects it and keeps a shorter replay there (6140 bytes) |
+| Save chip for the main build | EEPROM 64 KB; FLASH and FRAM as variant builds. melonDS picks the chip from the header game code (`CRVN`) and emulates an 8 KB EEPROM for every build; the game detects it and keeps a shorter replay there (6140 bytes; a longer run is cut) |
 | How assets are made | all made directly in code (no CC0 collection) |
 | Language support | game text in English only (own 5x7 font); the firmware language setting is read and shown on the settings screen |
 | Real-hardware QA | undecided — emulator smoke tests only for now |

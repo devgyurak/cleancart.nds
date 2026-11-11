@@ -56,7 +56,8 @@ int  save_insert_record(const CvRecord *r);  // rank 0-4 or -1
 // The last stage's input log, kept in its own area of the chip so a run can
 // be replayed (and pulled out of a .sav with tools/replay.py).
 #define CV_REPLAY_MAX 30000
-bool save_replay(const void *blob, u32 size);
+u32  save_replay_capacity(void);   // bytes the replay area holds (0: no chip)
+bool save_replay(const void *blob, u32 size);   // too big: clears the area
 u32  save_load_replay(void *buf, u32 max);
 
 #endif // CV_SAVE_H

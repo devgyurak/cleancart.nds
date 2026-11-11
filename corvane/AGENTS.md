@@ -47,7 +47,9 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
   (FLASH: 0x0000/0x10000), replay area at 0x8000 / 0x20000 / 0x0800 (EEPROM/FLASH/FRAM),
   max 30000 bytes. On an 8 KB chip (what melonDS emulates for our header game
   code `CRVN`) the EEPROM/FRAM builds detect the 0x2000 address wrap and keep the
-  replay at 0x0800, max 6140 bytes. `tools/replay.py dump x.sav` reads all of them.
+  replay at 0x0800, max 6140 bytes; the FLASH build there keeps it at 0x0201
+  (folded), max 7675. A longer run is cut to fit (playback ends early), never
+  dropped in favour of an older one. `tools/replay.py dump x.sav` reads all of them.
 - **Replay header** (16 bytes): magic `CVRP`, seed, run count, stage, RTC hour, lives, bombs.
   Change C (`core/input.c`) and Python (`tools/cvtools/stages.py`) together.
 - **Stage file** format is documented at the top of `tools/cvtools/stages.py`.

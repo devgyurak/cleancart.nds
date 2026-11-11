@@ -51,6 +51,8 @@
 // 3-byte addresses as 2-byte ones (plus one data byte), so the slots land at
 // 0x0000/0x0100 and the replay at 0x0200, and an 8 KB chip wraps at 0x2000.
 // Keeping the replay below that wrap leaves the slots intact either way.
+// Such a chip only sees contiguous data within one command, so spi_write()
+// doesn't split writes into pages then and the replay is read in one command.
 #define FOLD_REPLAY_MAX  (0x2000 - (REPLAY_AT >> 8) - 1 - 4)
 
 // 8 KB chips (2-byte addresses only): slots as above, replay area after them,
@@ -64,6 +66,8 @@
 
 _Static_assert(SLOT_B + sizeof(CvSave) <= PROBE_AT || ADDR_BYTES == 3,
                "the wrap probe byte must not overlap slot B");
+_Static_assert(ADDR_BYTES == 2 || 1 + sizeof(CvSave) <= 0x100,
+               "folded FLASH slots (0x0000 and 0x0100, one byte late) must not overlap");
 
 #define AUXSPICNT  (*(vu16 *)0x040001A0)
 #define AUXSPIDATA (*(vu8 *)0x040001A2)
@@ -174,6 +178,14 @@ static void spi_write(u32 addr, const u8 *src, u32 len)
     while (len && chip_ok)
     {
         u32 chunk = page - (addr % page);
+#if CV_SAVE_TYPE == 2
+        // No JEDEC ID: possibly an EEPROM taking our 3-byte addresses as
+        // 2-byte ones (melonDS). Each new command would start one byte after
+        // the previous one (0x20100 -> 0x0201), overwriting it, so the whole
+        // write goes out as one command (the folded areas fit below 0x2000).
+        if (flash_unconfirmed)
+            chunk = len;
+#endif
         if (chunk > len)
             chunk = len;
         write_enable();
@@ -363,11 +375,27 @@ bool save_write(void)
     return read_slot(addr, &verify) && verify.seq == cv_save.seq;
 }
 
+u32 save_replay_capacity(void)
+{
+    probe_once();
+    return chip_ok ? replay_max : 0;
+}
+
 bool save_replay(const void *blob, u32 size)
 {
     probe_once();
-    if (!chip_ok || size > replay_max)
+    if (!chip_ok)
         return false;
+    if (size > replay_max)
+    {
+        // Don't leave an older run behind to be offered as the last one.
+        static u32 none;
+        none = 0;
+        bool owner = cart_bus_claim();
+        spi_write(replay_at, (const u8 *)&none, 4);
+        cart_bus_release(owner);
+        return false;
+    }
     static u32 buf[(CV_REPLAY_MAX + 4) / 4];
     buf[0] = size;
     memcpy(buf + 1, blob, size);
@@ -383,14 +411,27 @@ u32 save_load_replay(void *buf, u32 max)
     probe_once();
     if (!chip_ok)
         return 0;
+    // Size and log in one READ: a second command at replay_at + 4 would land
+    // back on replay_at on a chip that drops the low address byte (FLASH
+    // build on an EEPROM, see FOLD_REPLAY_MAX).
+    u8 *dst = buf;
     bool owner = cart_bus_claim();
-    spi_read(replay_at, (u8 *)&size, 4);
-    if (size > 0 && size <= max && size <= replay_max)
-        spi_read(replay_at + 4, buf, size);
+    spi_select();
+    spi_cmd_addr(0x03, replay_at, false);
+    for (u32 i = 0; i < 4 && chip_ok; i++)
+        ((u8 *)&size)[i] = spi_xfer(0);
+    if (chip_ok && size > 0 && size <= max && size <= replay_max)
+    {
+        for (u32 i = 0; i < size && chip_ok; i++)
+            dst[i] = i + 1 == size ? spi_last(0) : spi_xfer(0);
+    }
     else
+    {
+        spi_last(0);
         size = 0;
+    }
     cart_bus_release(owner);
-    return size;
+    return chip_ok ? size : 0;
 }
 
 int save_insert_record(const CvRecord *r)

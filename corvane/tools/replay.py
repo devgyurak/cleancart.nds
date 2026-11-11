@@ -27,7 +27,9 @@ from cvtools import stages  # noqa: E402
 KEYS = ['A', 'B', 'SELECT', 'START', 'RIGHT', 'LEFT', 'UP', 'DOWN', 'R', 'L', 'X', 'Y']
 HDR = stages.REPLAY_HEADER
 HDR_SIZE = struct.calcsize(HDR)
-SAVE_AREAS = [0x8000, 0x20000, 0x0800]   # EEPROM, FLASH, FRAM
+# EEPROM, FLASH, FRAM; 0x0201: FLASH build on an 8 KB EEPROM (melonDS), which
+# takes the 3-byte address 0x020000 as 0x0200 plus one data byte.
+SAVE_AREAS = [0x8000, 0x20000, 0x0800, 0x0201]
 
 
 def keys_to_str(k):
