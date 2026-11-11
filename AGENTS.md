@@ -34,6 +34,7 @@ This file is the single source of truth for both Claude Code and Codex.
 | Build-time tools (asset generators, stage editor, replay tool) | Python 3, **stdlib only**, deterministic |
 | Build | BlocksDS v1.25.0 in Docker, image pinned by digest (`<game>/Dockerfile`), driven by `<game>/build.sh` → `make` |
 | Smoke tests | headless DeSmuME (`tools/emu/`), Docker `--platform linux/amd64` |
+| melonDS checks without a screen | headless melonDS 1.1 core (`tools/melonds/mds.sh`, C++ runner in Docker) |
 | Manual play / QA | melonDS 1.1 (`~/Applications/melonDS.app`) |
 
 Never install a toolchain on the host for builds; always go through `build.sh`
@@ -90,7 +91,7 @@ AGENTS.md / CLAUDE.md         this guidance (CLAUDE.md imports AGENTS.md)
 .claude/agents/*.md           Claude Code subagents
 .codex/agents/*.toml          Codex custom agents (generated: scripts/sync_agents.py)
 tools/emu/                    headless DeSmuME harness (run, demos, montage)
-tools/melonds/                melonDS config + GDB/keyboard verification helpers
+tools/melonds/                melonDS config, GDB/keyboard helpers, headless melonDS runner (mds.sh)
 scripts/sync_agents.py        regenerate .codex/agents from .claude/agents
 scripts/mklogo.py             regenerate the repository logo in docs/logo/
 .github/workflows/release.yml tag <game>-v<x.y.z> → `<game>/build.sh release` → artifacts + GitHub Release
@@ -136,5 +137,7 @@ Claude definitions are canonical (`.claude/agents/`). After editing one, run
 
 1. `./build.sh` (and `./build.sh demos` if shared code changed) with zero warnings.
 2. Smoke test in the headless emulator for the scenes you touched; look at the screenshots.
+   DeSmuME has no MPU and skips some DMA modes: check MPU, DMA, cart and save changes
+   in headless melonDS (`tools/melonds/mds.sh`) too.
 3. Licence audit passes (SPDX headers, ASSETS.md, notices).
 4. Report honestly what was verified where (DeSmuME ≠ melonDS ≠ hardware).

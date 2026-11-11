@@ -115,9 +115,23 @@ void g3_setup_lights(int scheme)
     }
 }
 
+static int flushed_polys, flushed_verts;
+
 void g3_flush(bool wbuffer)
 {
     glFlush(GL_TRANS_MANUALSORT | (wbuffer ? GL_WBUFFERING : 0));
+}
+
+void g3_flush_measured(bool wbuffer)
+{
+    // Let the geometry engine drain the FIFO first, or the counts miss the
+    // last commands (a lone quad still read 0). The game doesn't use this:
+    // the wait could make a heavy frame miss its VBlank.
+    while (GFX_STATUS & (1 << 27))
+        ;
+    flushed_polys = GFX_POLYGON_RAM_USAGE;
+    flushed_verts = GFX_VERTEX_RAM_USAGE;
+    g3_flush(wbuffer);
 }
 
 // ---------------------------------------------------------------------------
@@ -277,6 +291,16 @@ CvVec g3_vec_test(int32_t x, int32_t y, int32_t z)
 int g3_poly_count(void)
 {
     return GFX_POLYGON_RAM_USAGE;
+}
+
+int g3_flushed_poly_count(void)
+{
+    return flushed_polys;
+}
+
+int g3_flushed_vert_count(void)
+{
+    return flushed_verts;
 }
 
 int g3_vert_count(void)

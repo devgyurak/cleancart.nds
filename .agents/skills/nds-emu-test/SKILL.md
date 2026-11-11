@@ -44,6 +44,15 @@ cycles the start stage), briefing needs A/START per line.
 
 ## Known DeSmuME limits
 
-Polygon RAM usage/overflow read 0 (verify `3d-limits` in melonDS); everything
-else used by corvane behaved like melonDS so far. Always say which emulator a
-result came from.
+Found in the corvane melonDS QA; DeSmuME passes all of these where hardware and
+melonDS don't:
+
+- no MPU: ARM9 accesses outside every MPU region (shared WRAM at 0x03000000
+  in DS mode) don't abort;
+- polygon RAM usage/overflow read 0 (`3d-limits`);
+- write-only registers (BGxPA-PD, MOSAIC) read back what was written;
+- line-start (display sync) DMA does nothing; the save chip comes from
+  `SAVETYPE`, not from the header game code.
+
+Re-check such code in headless melonDS (`tools/melonds/mds.sh`, skill
+`melonds-mac`). Always say which emulator a result came from.

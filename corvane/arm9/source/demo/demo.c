@@ -334,10 +334,10 @@ static void d_sys_dma_gfx(void)
     for (int f = 0; f < CHECKPOINT; f++)
     {
         spin_cube(f, TEX_HULL, F(1.2));
-        g3_flush(false);
+        g3_flush_measured(false);
         vsync();
     }
-    finish(cv_models[MDL_CUBE].words, g3_poly_count(), 0, 0);
+    finish(cv_models[MDL_CUBE].words, g3_flushed_poly_count(), 0, 0);
 }
 
 static u16 *mmem_frame;
@@ -560,6 +560,9 @@ static void d_2d_affine(void)
     const u16 *lp = (const u16 *)cv_logo_pal;
     for (int i = 2; i < 19; i++)
         CV_PAL_BG_MAIN[i + 0] = i == 2 ? CV_PAL_BG_MAIN[2] : lp[i];
+    // BGxPA..PD are write-only (they read back as 0 on hardware and in
+    // melonDS), so the checkpoint reports the last values written.
+    int32_t last_bg2pa = 0, last_bg3pa = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         int a = f * 200;
@@ -572,9 +575,11 @@ static void d_2d_affine(void)
         REG_BG3PA = inv; REG_BG3PB = 0; REG_BG3PC = 0; REG_BG3PD = inv;
         REG_BG3X = (128 << 8) - inv * 128;
         REG_BG3Y = (128 << 8) - inv * 96;
+        last_bg2pa = c;
+        last_bg3pa = inv;
         vsync();
     }
-    finish(REG_BG2PA & 0xFFFF, REG_BG3PA & 0xFFFF, 0, 0);
+    finish(last_bg2pa & 0xFFFF, last_bg3pa & 0xFFFF, 0, 0);
 }
 
 static int bitmap_stage;
@@ -641,16 +646,18 @@ static void d_2d_mosaic(void)
     swiCopy(cv_sprite_pal, CV_PAL_OBJ_MAIN, 16 | COPY_MODE_HWORD);
     for (int i = 0; i < 20; i++)
         con_printf("MOSAIC MOSAIC MOSAIC MOSAIC\n");
+    int m = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
-        int m = (f / 8) % 16;
+        m = (f / 8) % 16;
         fx_mosaic(FX_MAIN, m, m);
         oam_clear(ENG_MAIN);
         for (int i = 0; i < 8; i++)
             oam_add(ENG_MAIN, 20 + i * 28, 150, SPR_16x16, CV_SPR_EXPLODE2, 0, 0, SPRF_MOSAIC, 0);
         vsync();
     }
-    finish(REG_MOSAIC, 0, 0, 0);
+    // MOSAIC is write-only: report the value fx_mosaic() last wrote.
+    finish((u32)m * 0x1111, 0, 0, 0);
 }
 
 static void obj_setup_main(void)
@@ -1000,10 +1007,10 @@ static void d_3d_fifo(void)
         g3_push_at(m_vec(0, F(2.5), -f * F(0.05)));
         g3_draw(&cv_models[MDL_PLAYER]);
         g3_pop();
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(g3_poly_count(), g3_vert_count(), cv_models[MDL_PLAYER].words, 0);
+    finish(g3_flushed_poly_count(), g3_flushed_vert_count(), cv_models[MDL_PLAYER].words, 0);
 }
 
 static void d_3d_matrix(void)
@@ -1025,10 +1032,10 @@ static void d_3d_matrix(void)
         memset(S.bu, 0, sizeof(S.bu));
         g3_camera(m_vec(F(3), F(4), F(5)), boss_pos(), 60, F(48));
         boss_draw();
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(boss_hp_max(), g3_poly_count(), 0, 0);
+    finish(boss_hp_max(), g3_flushed_poly_count(), 0, 0);
 }
 
 static void d_3d_light(void)
@@ -1053,10 +1060,10 @@ static void d_3d_light(void)
         glRotateYi(f * 60);
         g3_draw(&cv_models[MDL_STATION]);
         glPopMatrix(1);
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(g3_poly_count(), 0, 0, 0);
+    finish(g3_flushed_poly_count(), 0, 0, 0);
 }
 
 static void d_3d_clip(void)
@@ -1075,10 +1082,10 @@ static void d_3d_clip(void)
         int32_t x = CV_FXMUL(F(3.2), m_sin(f * 300));
         g3_camera(m_vec(x, F(1.5), z), m_vec(-x, F(2), z - F(4)), 70, F(30));
         terrain_draw(z, 14, false);
-        g3_flush(false);
+        g3_flush_measured(false);
         vsync();
     }
-    finish(g3_poly_count(), g3_vert_count(), 0, 0);
+    finish(g3_flushed_poly_count(), g3_flushed_vert_count(), 0, 0);
 }
 
 static void tex_demo(CvTex tex, const char *name)
@@ -1109,10 +1116,10 @@ static void tex_demo(CvTex tex, const char *name)
         glTexCoord2t16(0, inttot16(ts * 2));   glVertex3v16(F(-1.2), F(1.2), 0);
         glEnd();
         glPopMatrix(1);
-        g3_flush(false);
+        g3_flush_measured(false);
         vsync();
     }
-    finish(tex, ts, g3_poly_count(), 0);
+    finish(tex, ts, g3_flushed_poly_count(), 0);
 }
 
 static void d_3d_poly(void)
@@ -1148,10 +1155,10 @@ static void d_3d_poly(void)
         CvVec pp = m_vec(CV_FXMUL(F(1.5), m_sin(f * 200)), F(1.3), F(1.5));
         g3_push_at(pp); g3_draw(&cv_models[MDL_PLAYER]); g3_pop();
         shadow_volume(pp, F(0.5), 0);
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(g3_poly_count(), 0, 0, 0);
+    finish(g3_flushed_poly_count(), 0, 0, 0);
 }
 
 static void station_demo(const char *name, bool highlight_half, bool edge)
@@ -1185,10 +1192,10 @@ static void station_demo(const char *name, bool highlight_half, bool edge)
             g3_draw(&cv_models[MDL_DRONE]);
             g3_pop();
         }
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(GFX_CONTROL, g3_poly_count(), 0, 0);
+    finish(GFX_CONTROL, g3_flushed_poly_count(), 0, 0);
 }
 
 static void d_3d_fog(void)
@@ -1216,10 +1223,10 @@ static void d_3d_fog(void)
         g3_camera(m_vec(0, F(3), z), m_vec(0, F(1.5), z - F(5)), 60, F(40));
         g3_texture_bind(TEX_TERRAIN);
         terrain_draw(z, 28, true);
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(GFX_CONTROL, g3_poly_count(), 0, 0);
+    finish(GFX_CONTROL, g3_flushed_poly_count(), 0, 0);
 }
 
 static void d_3d_aa(void)
@@ -1241,10 +1248,10 @@ static void d_3d_aa(void)
         glTexCoord2t16(inttot16(96), inttot16(96)); glVertex3v16(F(2), F(1.5), F(1.2));
         glTexCoord2t16(0, inttot16(96)); glVertex3v16(F(-2), F(1.5), F(1.2));
         glEnd();
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
-    finish(GFX_CONTROL, g3_poly_count(), 0, 0);
+    finish(GFX_CONTROL, g3_flushed_poly_count(), 0, 0);
 }
 
 static void d_3d_depth(void)
@@ -1277,10 +1284,10 @@ static void d_3d_depth(void)
             g3_draw(&cv_models[MDL_CUBE]);
             g3_pop();
         }
-        g3_flush(w);
+        g3_flush_measured(w);
         vsync();
     }
-    finish(GFX_CONTROL, g3_poly_count(), 0, 0);
+    finish(GFX_CONTROL, g3_flushed_poly_count(), 0, 0);
 }
 
 static void d_3d_test(void)
@@ -1307,7 +1314,7 @@ static void d_3d_test(void)
         text_printf(&con, 0, 4, TP_WHITE, "POS %6ld %6ld %6ld %6ld", (long)clip[0], (long)clip[1],
                     (long)clip[2], (long)clip[3]);
         text_printf(&con, 0, 5, TP_WHITE, "VEC %6ld %6ld %6ld", (long)v.x, (long)v.y, (long)v.z);
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
     }
     finish(inside, (u32)clip[3], (u32)v.x, (u32)v.z);
@@ -1342,7 +1349,7 @@ static void d_3d_compose(void)
         for (int i = 0; i < 12; i++)
             oam_add(ENG_MAIN, 20 + i * 18, 96 + (sinLerp(i * 3000 + f * 400) >> 8), SPR_8x8,
                     CV_SPR_BULLET, 0, 0, 0, 0);
-        g3_flush(false);
+        g3_flush_measured(false);
         vsync();
     }
     finish(REG_BG0CNT, REG_BG2CNT, 0, 0);
@@ -1362,19 +1369,22 @@ static void d_3d_limits(void)
         int count = 600 + f * 20;  // passes 2048 polygons along the way
         for (int i = 0; i < count; i++)
         {
-            int x = (i % 48) - 24, y = (i / 48) - 24;
+            // 64 columns 0.12 apart keep every row on screen (the view is
+            // about +-3.4 high at z = 0): clipped triangles never reach
+            // polygon RAM, and a wider grid peaked at ~1700 polygons.
+            int x = (i % 64) - 32, y = (i / 64) - 24;
             GFX_COLOR = RGB15(i & 31, (i >> 3) & 31, 16);
             glBegin(GL_TRIANGLES);
-            glVertex3v16(x * F(0.2), y * F(0.2), 0);
-            glVertex3v16(x * F(0.2) + F(0.18), y * F(0.2), 0);
-            glVertex3v16(x * F(0.2), y * F(0.2) + F(0.18), 0);
+            glVertex3v16(x * F(0.12), y * F(0.12), 0);
+            glVertex3v16(x * F(0.12) + F(0.1), y * F(0.12), 0);
+            glVertex3v16(x * F(0.12), y * F(0.12) + F(0.1), 0);
             glEnd();
         }
         // Polygon RAM counts the list being built: read it before the flush.
         poly = g3_poly_count();
         if (g3_overflowed() || poly >= 2048)
             overflow_frames++;
-        g3_flush(true);
+        g3_flush_measured(true);
         vsync();
         text_printf(&con, 0, 3, TP_WHITE, "SUBMITTED %4d  RAM %4d  ", count, poly);
         text_printf(&con, 0, 4, overflow_frames ? TP_RED : TP_GREEN, "OVERFLOW FRAMES %3lu",

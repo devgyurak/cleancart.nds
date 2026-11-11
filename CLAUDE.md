@@ -9,4 +9,5 @@
   after editing one so Codex's `.codex/agents/*.toml` stay in sync.
 - The terminal has Accessibility trust but no Screen Recording or Automation
   permission: `screencapture` and `osascript` System Events don't work. Use the
-  headless emulator for pictures and `tools/melonds/` for melonDS input checks.
+  headless emulators for pictures (DeSmuME `tools/emu/`, melonDS core
+  `tools/melonds/mds.sh`) and the `tools/melonds/` GDB helpers for checks in the app.
