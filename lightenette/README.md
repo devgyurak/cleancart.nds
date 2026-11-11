@@ -6,14 +6,18 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"></p>
+
 An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
 marionette show with the touch screen. It is also built to judge itself: the ROM
 captures its own display, counts pixels of fixed colours and reports pass/fail for
 cases where emulators have disagreed with hardware, so other emulators can use it as
 a regression test.
 
-**Status: work in progress.** The title screen runs; the stages and the judging module
-land stage by stage.
+**Status: work in progress.** The title screen, the accuracy judge (title + Select) and a
+prototype of act 1 (title + Start) run; the other acts land stage by stage. Act 1: drag the
+four sliders on the touch screen to swing the paper marionette's limbs until they cover the
+shadow on the top screen (silhouette overlap 85% or more).
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)

@@ -66,6 +66,8 @@ LtScene scene_title(void)
         // Blink the prompt.
         text_center(&main_text, 21, (f / 30) & 1 ? TP_GRAY : TP_WHITE, "PRESS START");
         frame_end();
+        if (cv_in.pressed & KEY_START)
+            return SC_ACT1;
         if (cv_in.pressed & KEY_SELECT)
             return SC_JUDGE;
     }

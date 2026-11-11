@@ -348,6 +348,8 @@ static const TexDesc tex_desc[TEX_COUNT] = {
                       GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
     [TEX_FLARE]   = { cv_tex_flare, cv_tex_flare_pal, CV_TEX_FLARE_PAL_SIZE, GL_RGB8_A5, 32,
                       TEXGEN_TEXCOORD },
+    [TEX_PAPER]   = { cv_tex_paper, NULL, 0, GL_RGBA, 32,
+                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
 };
 
 static int tex_name[TEX_COUNT];

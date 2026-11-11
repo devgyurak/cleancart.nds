@@ -631,6 +631,21 @@ def textures():
             row.append((160, 170, 180, 1) if wire else (0, 0, 0, 0))
         rgba.append(row)
     t['mesh'] = (tex_direct(rgba), b'', 32, 32)
+    # Direct colour 32x32: paper for the marionette cut-outs (cream, fibres,
+    # a darker rim like a hand-cut edge).
+    rgba = []
+    for y in range(32):
+        row = []
+        for x in range(32):
+            n = fbm(x / 5, y / 5, 91, 3)
+            fib = fbm(x / 1.5, y / 9, 92, 2)
+            c = mix((214, 196, 160), (240, 226, 190), n)
+            c = mix(c, (190, 170, 130), max(0.0, fib - 0.55))
+            if x in (0, 31) or y in (0, 31):
+                c = mix(c, (120, 95, 70), 0.6)
+            row.append((*c, 1))
+        rgba.append(row)
+    t['paper'] = (tex_direct(rgba), b'', 32, 32)
     # 4x4 compressed 128x128 terrain.
     rgb = []
     for y in range(128):

@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
         switch (scene)
         {
             case SC_JUDGE: scene = scene_judge(); break;
+            case SC_ACT1:  scene = scene_act1(); break;
             case SC_TITLE:
             default:       scene = scene_title(); break;
         }
