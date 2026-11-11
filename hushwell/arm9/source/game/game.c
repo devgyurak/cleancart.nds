@@ -4,6 +4,7 @@
 #include <nds.h>
 #include <string.h>
 
+#include "core/qa.h"
 #include "core/save.h"
 #include "core/sys.h"
 #include "game/game.h"
@@ -99,7 +100,7 @@ void game_checkpoint(int radio)
     cv_save.cont_keys = cv_game.keys;
     cv_save.cont_taken = cv_game.taken_lo;
     cv_save.cont_taken_hi = cv_game.taken_hi;
-    save_write();
+    qa_save_written(save_write());
 }
 
 void game_record(void)
@@ -124,7 +125,7 @@ void game_record(void)
     cv_save.cont_chapter = 0;
     cv_save.run_seconds = 0;
     cv_save.seed = cv_save.seed * 1664525u + 1013904223u;
-    save_write();
+    qa_save_written(save_write());
 }
 
 void game_init_firmware(void)

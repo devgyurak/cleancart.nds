@@ -23,6 +23,22 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 - Demos that need input (sys-keys, io-touch, io-power, io-rtc, io-firmware) keep
   updating the screen after the checkpoint.
 
+## Auto QA run
+
+Hidden mode, same ROM as the release: on the title screen hold **L+R+X+Y for 120 frames**. The game
+walks the prologue and chapters 1-5 by itself (creature hits cost no health; everything else as shipped),
+opens the doors, dials the chapter 3 code, collects every tape, takes the well ending, plays the credits
+and stops on the records screen. Log: `cleancart/hushwell/qa-<date>-<time>.log` on the SD card, result
+block `QARN` at `0x0237F000`. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run hushwell/hushwell.nds
+40000 out/mds/x "700:L:140,700:R:140,700:X:140,700:Y:140"`, then `tools/qa/parse_log.py`.
+
+| Where | Result (2026-11-11, build from this tree) |
+|---|---|
+| melonDS 1.1 headless, software renderer, SD image | ✅ `RESULT PASS reason=credits` at frame 23,644, 6 chapter checkpoints, all tapes (`3e`), ending 2 (the well), 7 save mirrors read back identical (`chip_type=-1`: homebrew run, no save chip) |
+| Same ROM, second run | ✅ all 6 checkpoint hashes identical (`tools/qa/compare.py`) |
+| DeSmuME headless (no SD) | ✅ `QARN` block verdict 1, 6 chapters, tapes `3e`, last state hash `fea01683` = melonDS (lag differs, not compared) |
+| Real DS Lite + R4 | not run yet |
+
 ## QA record
 
 melonDS version: ______  Tester: ______  Date: ______

@@ -35,12 +35,13 @@ pause + X lights on, Y vision mask off, B developer console, R frame step.
 |---|---|
 | `common/cv_ipc.h` | ARM9↔ARM7 protocol (from corvane) |
 | `arm7/source/` | own ARM7 core: input/RTC/power via libnds, register-level sound engine |
-| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath, rng, input+replay, snd, save (direct SPI), nitro, cart |
+| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath, rng, input+replay, snd, save (direct SPI), nitro, cart, qa + qalog (auto QA mode, SD log; copies of corvane's) |
 | `arm9/source/gfx/` | vram (layout table incl. `VL_GAME`), oam, text, fx, gl3d (textures), models (creature + props), terrain (billboards, shadow volume) |
 | `arm9/source/game/world.c` | map loading, player, creature AI (hearing/sight/BFS paths), items, doors, radios, flares, pause, `scene_chapter` |
 | `arm9/source/game/render.c` | grid renderer (direct port writes, software per-corner lighting), props, creature hierarchy, particles, main-screen sprites |
 | `arm9/source/game/chfx.c` | per-chapter hardware set-up (table at the top), vision mask, film, dual-screen chase |
 | `arm9/source/game/hud.c` | bottom screen: affine map, meter, recorder, dial lock, pins, console lines |
+| `arm9/source/game/qa_game.c`, `qa_tune.h` | auto QA: tune, BFS autopilot, run judge |
 | `arm9/source/game/scenes.c`, `ending.c`, `game.c` | 2D scenes, endings, run state and save mapping |
 | `arm9/source/demo/demo.c` | feature demos (`make DEMO=…`) |
 | `tools/` | `mkassets.py` + `cvtools/` (`maps.py` ASCII maps + replay logs, `images.py`, `audio.py`, codecs) |
@@ -60,6 +61,14 @@ Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM
 - **Map file** format is documented at the top of `tools/cvtools/maps.py`; the build
   checks that every chapter's exit, keys, tapes and radios are reachable. Objects are
   addressed by index (sorted), and `taken` bits (`cv_game.taken_lo/hi`) use those indices.
+- **Auto QA mode** (skill `nds-qa-mode`; `core/qa.*`, `core/qalog.*` identical to corvane's): title,
+  hold **L+R+X+Y for 120 frames**. The pilot reads the loaded map: BFS to tapes and keys, the chase key
+  last, opens doors it holds the key for, sets the chapter 3 dial lock on the touch screen, takes the
+  exit (the well in chapter 5, with all five tapes: ending "The Well"), taps A through the other scenes.
+  Numbers only: creature hits cost no health (`qa_tune()->hurt_damage`), fixed run seed, RTC hour 12,
+  mic 0. Ends on the records screen with `RESULT PASS` (fails on death, a missing full ending,
+  an unexpected scene or a stuck pilot). Saves run as shipped (chapter starts, radios, records) and
+  are mirrored to the SD card; the cart's own save is restored at the end.
 - **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
   written at frame 120. The last 4 KB of the ARM9 heap is reserved for it.
 - **Save layout** (`core/save.c`, magic `HWSV`): two copies (seq + BIOS CRC16) at
