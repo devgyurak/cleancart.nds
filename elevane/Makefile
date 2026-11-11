@@ -98,7 +98,7 @@ assets: $(STAMP)
 
 # Build-time asset tools (Python, stdlib only). Everything they emit is
 # generated from source code in tools/; see ASSETS.md.
-$(STAMP): $(wildcard tools/*.py tools/cvtools/*.py licenses/*) LICENSE THIRD_PARTY_NOTICES
+$(STAMP): $(wildcard tools/*.py tools/cvtools/*.py tools/evpuzzle/*.py tools/puzzles/*.txt licenses/*) LICENSE THIRD_PARTY_NOTICES
 	@echo "  ASSETS  tools/mkassets.py"
 	@mkdir -p $(GEN) $(NITRO)/licenses
 	@$(PYTHON) tools/mkassets.py $(GEN) $(NITRO)

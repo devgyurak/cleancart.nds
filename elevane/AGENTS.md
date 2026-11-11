@@ -45,6 +45,16 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   `cap_done()` (bank D is the capture target).
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.
 - `tools/mkassets.py`, `tools/cvtools/`: asset generators (Python 3, stdlib only).
+- `tools/evpuzzle/` + `tools/puzzles/ch*.txt` + `tools/puzzle_check.py`: puzzle tools. A puzzle is the maker's
+  structure (voxel cells in a W x D x H grid, each at most 8) in a text file; the order is derived from it
+  (`model.py`: front view (x, z) = any block along y, plan view (x, y) = any block in the column; support rule:
+  every block reaches z = 0 through face-adjacent blocks). `solve.py` finds the minimum block count ("par"):
+  `stack` mode (chapters 1-3, piles from the floor) in closed form, `layers` mode (chapters 4-5, arches) by
+  iterative deepening search with a node limit instead of a clock; past the limit the maker's count becomes the
+  reference and the puzzle is flagged. `pack.py` writes the ROM blob `cv_puzzles` (layout in its docstring).
+  `python3 tools/puzzle_check.py [--chapter N] [--json] [--pack OUT]`; unit tests:
+  `python3 -m unittest discover -s tools/tests`. The build stops when a puzzle fails the checker. Output is
+  deterministic. To add a puzzle: append it to the chapter file, run the checker, read par.
 
 ## Controls (melonDS keys in brackets)
 

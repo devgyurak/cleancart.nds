@@ -13,7 +13,7 @@ Elevane의 모든 그래픽, 글꼴, 3D 모델, 효과음, 음악은 **빌드 �
 `docs/images/`의 PNG(있다면)는 빌드한 ROM에서 찍은 README 스크린샷입니다. 에셋이 아니라
 문서이며, 빌드가 읽지 않고 ROM에도 들어가지 않습니다.
 
-지금은 골격 단계입니다. 퍼즐 데이터와 복셀 모델은 퍼즐 도구와 함께 들어오며 이 표에 행이 추가됩니다.
+1장 퍼즐 8개가 들어 있고, 2~5장 퍼즐 파일은 이후에 추가됩니다.
 
 | 파일 (출력) | 내용 | 생성기 | 출처 / 라이선스 |
 |---|---|---|---|
@@ -22,5 +22,6 @@ Elevane의 모든 그래픽, 글꼴, 3D 모델, 효과음, 음악은 **빌드 �
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플 (`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 자체 제작, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | 곡 두 개 `lantern`, `puppets` (크레딧은 `lantern` 재생), 코드로 작곡 | `cvtools/audio.py` `SONGS`, `compose()` | 자체 제작, Apache-2.0 |
 | `cv_tex_paper` | 32x32 다이렉트 컬러 종이 질감. ROM에 링크되는 유일한 텍스처 | `images.textures()` `paper` | 자체 제작, Apache-2.0 |
+| `cv_puzzles` | 퍼즐 주문서(정면도·평면도), 기준 블록 수, 퍼즐마다 최소 해 하나. `tools/evpuzzle/pack.py`가 묶음 | `tools/puzzles/ch*.txt`(제작자 구조물을 높이맵이나 층으로 손으로 씀)를 `tools/puzzle_check.py`가 읽음 | 자체 제작, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 검사가 읽는 CRC 고정 2 KB 파일 | `tools/mkassets.py` | 자체 제작, Apache-2.0 |
 | 배너 아이콘 (`icon.bmp`) | 32x32 4bpp 아이콘 | `images.icon()` | 자체 제작, Apache-2.0 |
