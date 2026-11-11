@@ -55,9 +55,8 @@ GEN      := build/gen
 NITRO    := build/nitrofs
 STAMP    := $(GEN)/.stamp
 
-# Feature/accuracy demo ROMs (none yet; the judge scene arrives with the
-# accuracy module).
-DEMOS :=
+# Demo ROMs: the judge scene as its own ROM (names: arm9/source/demo/demo.c).
+DEMOS := acc-stage
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))

@@ -101,6 +101,10 @@ void vram_layout(CvVramLayout layout)
             vram_off(VB_H);
             vram_off(VB_I);
             break;
+        case VL_JUDGE:
+            main_3d();
+            vram_set(VB_D, 0, 0);   // LCDC: display-capture target
+            break;
         case VL_MMEM:
             vram_set(VB_A, 0, 0);   // LCDC (boot logo framebuffer)
             vram_off(VB_B);

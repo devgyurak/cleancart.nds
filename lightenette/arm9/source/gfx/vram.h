@@ -5,6 +5,7 @@
 // directly; the table below is the whole plan.
 //
 //            A        B        C        D        E       F       G        H       I
+// JUDGE    tex0     tex1     subBG    LCDC     mBG     mOBJ    texpal   subBGx  subOBJx
 // MENU     BG0      BG1      subBG    subOBJ   mOBJ    BGext   OBJext   subBGx  subOBJx
 // TERRAIN  tex0     tex1     subBG    subOBJ   mBG     mOBJ    texpal   subBGx  subOBJx
 // SKY      tex0     tex1     subBG    subOBJ   mBG     mOBJ    texpal   subBGx  subOBJx
@@ -17,6 +18,9 @@
 #ifndef CV_VRAM_H
 #define CV_VRAM_H
 
+// JUDGE: texture atlas in A/B (the card texture is the only one) and bank D
+// left in LCDC mode as the display-capture target (256x192 at 0x06860000).
+// Nothing else may map D or the judge reads garbage.
 typedef enum {
     VL_MENU,
     VL_TERRAIN,
@@ -26,6 +30,7 @@ typedef enum {
     VL_CORE,
     VL_DUAL3D,
     VL_MMEM,
+    VL_JUDGE,
 } CvVramLayout;
 
 void vram_layout(CvVramLayout layout);

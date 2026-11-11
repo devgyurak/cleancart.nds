@@ -40,10 +40,14 @@ to both).
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`.
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `judge_scene.c`.
+- `arm9/source/judge/`: accuracy judge (`judge.h` documents the result block at
+  `CV_RESULT_ADDR`). Needs bank D free as the capture target (`VL_JUDGE` in `gfx/vram.h`).
+- `arm9/source/demo/`: `make DEMO=acc-stage` builds the judge as its own ROM.
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.
 - `tools/mkassets.py`, `tools/cvtools/`: asset generators (Python 3, stdlib only).
 
 ## Controls (melonDS keys in brackets)
 
-Start (Return) starts. More actions are listed here as scenes land.
+Start (Return) starts. Title + Select (Backspace) opens the judge; there A (X) cycles BLDCNT,
+B (Z) / Start returns. More actions are listed here as scenes land.
