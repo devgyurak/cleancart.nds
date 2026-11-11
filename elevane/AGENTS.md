@@ -15,8 +15,9 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 
 1. Playable to the end on any emulator: the 2D grid alone solves every puzzle.
 2. Judging happens in the ROM (display capture, fixed colours, a result block at a
-   fixed main-RAM address), like lightenette. `tools/judge.py` and `expected.json`
-   arrive with the rehearsal stage.
+   fixed main-RAM address), like lightenette: the rehearsal ROM (`make DEMO=rehearsal`) plays the first
+   puzzle of every chapter with puzzles from a fixed script through the live play scene, then both
+   showcase presets, and `tools/judge.py` grades its block against `expected.json`.
 3. Judging and rehearsal modes work without NitroFS (see `nitro_ok()` in `core/nitro.c`).
 4. No third-party trademarks in code or ROM strings.
 
@@ -26,7 +27,7 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 ./build.sh                  # elevane.nds
 ./build.sh SAVE=flash|fram  # save-chip variants
 ./build.sh DEMO=<name>      # one demo (names: Makefile DEMOS; none yet)
-./build.sh -j8 release      # build/release/{rom,demos} (tag elevane-vX.Y.Z runs this in CI)
+./build.sh -j8 release      # build/release/{rom,demos,judge} (tag elevane-vX.Y.Z runs this in CI)
 ./build.sh clean
 ```
 
@@ -44,6 +45,18 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them
   identical to corvane's/lightenette's). Title: hold **L+R+X+Y for 120 frames** (press L and R
   before X). The run is title → credits → title → `RESULT PASS`.
+- `arm9/source/game/rehearsal.c/.h` (+ `demo/demo.c`): the rehearsal. A per-frame hook (`ev_play_hook`) replaces the
+  input with a script derived from each puzzle's stored solution (cursor to the next short column, A until it
+  reaches its height, wait, A delivers, Start leaves). The block (id `EVRH`, layout in `rehearsal.h`, 18 values) holds
+  the flags, front/plan clear-colour pixels per capture bank (`gfx/dual.c` probe: reads every 8th line inside the
+  VBlank, a full bank read takes a frame and the picture is stale afterwards), cross-contamination, showcase polygon /
+  vertex counts and overflow flags, preset 1 hole counts, composite left/right opaque pixels and hash, preset 2 captured
+  pixels. Keep `rehearsal.h`, `expected.json` and `tools/judge.py` in step.
+- `expected.json` + `tools/judge.py` (grader, exit 0 pass, 1 NG / profile mismatch, 2 no usable result) +
+  `tools/compare.py` (1x screenshots of a renderer against the same emulator's software renderer, consecutive frames,
+  limits in `expected.json` "screens"). Items from GBATEK / reports / `rom` gate, `unconfirmed` ones are informational
+  until hardware values exist (stage 8). `known` has one profile per emulator version and renderer, re-measure all of
+  them after changing the ROM (`judge.py --profile NAME`). DeSmuME has no polygon counters: those items are n/a there.
 - `arm9/source/judge/capture.*`: every display capture goes through `cap_start()` and
   `cap_done()` (bank D is the capture target).
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.

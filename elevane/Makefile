@@ -57,7 +57,7 @@ STAMP    := $(GEN)/.stamp
 
 # Demo ROMs (names: arm9/source/demo/demo.c). None yet: the judge and the rehearsal
 # ROMs arrive with the rehearsal stage.
-DEMOS :=
+DEMOS := rehearsal
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
@@ -149,8 +149,9 @@ demos:
 	@for d in $(DEMOS); do $(MAKE) --no-print-directory DEMO=$$d || exit 1; done
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
-# build/release/rom (game + save variants) and build/release/demos,
-# each with the licence texts and notices a binary distribution has to carry.
+# build/release/rom (game + save variants), build/release/demos and build/release/judge
+# (the rehearsal ROM, expected.json, judge.py, compare.py), each with the licence texts
+# and notices a binary distribution has to carry.
 RELEASE := build/release
 
 release:
@@ -165,6 +166,10 @@ release:
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/$$d/ || exit 1; done
 	@cp elevane.nds elevane-save-flash.nds elevane-save-fram.nds $(RELEASE)/rom/
 	@for d in $(DEMOS); do cp elevane-$$d.nds $(RELEASE)/demos/ || exit 1; done
+	@# The emulator-test kit: the rehearsal ROM with the files that grade it.
+	@mkdir -p $(RELEASE)/judge && \
+		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py tools/compare.py $(RELEASE)/judge/ && \
+		cp elevane-rehearsal.nds $(RELEASE)/judge/
 
 clean:
 	@echo "  CLEAN"

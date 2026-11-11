@@ -283,30 +283,100 @@ static void print_info(int call)
     text_center(&info, 21, TP_GRAY, "A: PRESET   B: BACK");
 }
 
+// One call of the showcase: routing for the frame now due, then this call's pass.
+static void show_call(const PzGrid *g, const PzPart *p, int c)
+{
+    int s = c - SHOW_LATENCY;
+    if (s >= 0)
+        route(s);
+    bool right = hdma_p(c) == (preset == PRESET_HDMA);   // hdma: even = right pass; rear: even = left
+    glClearColor(0, 0, 0, 0);
+    if (preset == PRESET_REAR)
+        glEnable(GL_CLEAR_BMP);   // latched with the polygon list
+    world(g, p, right);
+    g3_flush_measured(false);
+    int slot = right ? 1 : 0;
+    polys[slot] = g3_flushed_poly_count();
+    verts[slot] = g3_flushed_vert_count();
+    over[slot] = g3_overflowed();
+    scene_frame_end();
+}
+
+// Runs one preset for `frames` calls without input and fills the numbers the
+// rehearsal block carries. The pile is the player's (play_grid()).
+void showcase_run(int which, int frames, ShowStats *st)
+{
+    const PzGrid *g = play_grid();
+    const PzPart *p = play_part();
+    preset = which;
+    setup();
+    fx_bright(FX_BOTH, 0);
+    memset(st, 0, sizeof(*st));
+    for (int c = 0; c < frames; c++)
+    {
+        show_call(g, p, c);
+        if (preset == PRESET_HDMA && c >= 8 && (c & 3) == 0)
+        {
+            u32 h = count_holes();
+            if (hdma_p(c - SHOW_LATENCY))
+                holes_p = h;
+            else
+                holes_q = h;
+        }
+        if (c == frames - 1)
+        {
+            if (preset == PRESET_HDMA)
+            {
+                // The composite engine B shows now: opaque pixels left and right of the
+                // split. Only every 8th line is read (24 of 192): the read has to finish
+                // inside this VBlank, the picture is stale a frame later.
+                u32 hash = 2166136261u;
+                for (int y = 0; y < 192; y += 8)
+                    for (int x = 0; x < 256; x++)
+                    {
+                        u16 v = SUB_C[y * 256 + x];
+                        hash = (hash ^ v) * 16777619u;
+                        if (v & 0x8000)
+                        {
+                            if (x < SPLIT_X)
+                                st->left++;
+                            else
+                                st->right++;
+                        }
+                    }
+                st->hash = hash;
+            }
+            else
+            {
+                // Banks A and C hold one pass each; the one in LCDC mode right now is readable.
+                const vu16 *b = ((frames - 1 - SHOW_LATENCY) & 1) ? LCDC_C : LCDC_A;
+                u32 n = 0;
+                for (int i = 0; i < 256 * 192; i += 12)
+                    n += b[i] >> 15;
+                st->left = n;
+            }
+        }
+    }
+    for (int k = 0; k < 2; k++)
+    {
+        st->polys[k] = polys[k];
+        st->verts[k] = verts[k];
+        st->over[k] = over[k];
+    }
+    st->holes_p = holes_p;
+    st->holes_q = holes_q;
+    teardown();
+}
+
 EvScene scene_showcase(void)
 {
     const PzGrid *g = play_grid();
     const PzPart *p = play_part();
     setup();
     fx_bright(FX_BOTH, 0);
-
     for (int c = 0;; c++)
     {
-        int s = c - SHOW_LATENCY;
-        if (s >= 0)
-            route(s);
-        bool right = hdma_p(c) == (preset == PRESET_HDMA);   // hdma: even = right pass; rear: even = left
-        glClearColor(0, 0, 0, 0);
-        if (preset == PRESET_REAR)
-            glEnable(GL_CLEAR_BMP);   // latched with the polygon list
-        world(g, p, right);
-        g3_flush_measured(false);
-        int slot = right ? 1 : 0;
-        polys[slot] = g3_flushed_poly_count();
-        verts[slot] = g3_flushed_vert_count();
-        over[slot] = g3_overflowed();
-
-        scene_frame_end();
+        show_call(g, p, c);
         if (preset == PRESET_HDMA && c >= 8 && (c & 3) == 0)
         {
             // The frame that just ended ran route(c - latency).

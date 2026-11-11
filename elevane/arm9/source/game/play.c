@@ -33,6 +33,7 @@
 #define HOLD_CLEAR    30   // frames of touch that empty a column
 
 int ev_chapter = 1, ev_index = 1;
+void (*ev_play_hook)(void);
 bool ev_view3d = true;
 
 static PzPuzzle pz;
@@ -127,7 +128,7 @@ static void draw_front_view(void)
     int32_t u = cell_u(), S = u * (part->w > part->d ? part->w : part->d);
     int32_t cx = part->w * u / 2, zc = part->d * u / 2;
     int32_t cy = S * 2 / 5;
-    glClearColor(3, 4, 10, 31);
+    glClearColor(3, 4, 10, 31);   // DUAL_FRONT_CLEAR
     ortho_camera(m_vec(cx, cy, zc + F(6)), m_vec(cx, cy, zc), 0, F(1), 0);
     // The order: a blueprint wall behind the structure. Cells nobody has filled stay blue.
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(2));
@@ -152,7 +153,7 @@ static void draw_plan_view(void)
 {
     int32_t u = cell_u();
     int32_t cx = part->w * u / 2, zc = part->d * u / 2;
-    glClearColor(4, 3, 8, 31);
+    glClearColor(4, 3, 8, 31);    // DUAL_PLAN_CLEAR
     ortho_camera(m_vec(cx, F(6), zc), m_vec(cx, 0, zc), 0, 0, F(-1));
     // Floor: the order is the lit tiles.
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(2));
@@ -427,6 +428,9 @@ static void load_puzzle(void)
 
 const PzGrid *play_grid(void) { return &grid; }
 const PzPart *play_part(void) { return part; }
+void play_cursor(int *x, int *y) { *x = cur_x; *y = cur_y; }
+bool play_matched(void) { return matched; }
+bool play_delivered(void) { return delivered; }
 
 EvScene scene_play(void)
 {
@@ -461,6 +465,8 @@ EvScene scene_play(void)
             dual_end_call();
         }
         scene_frame_end();
+        if (ev_play_hook)
+            ev_play_hook();   // the rehearsal drives the input
         bool was_delivered = delivered;
         handle_input();
         if (ev_view3d != in3d)

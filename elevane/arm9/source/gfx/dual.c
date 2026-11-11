@@ -9,6 +9,9 @@
 #include "gfx/oam.h"
 #include "gfx/vram.h"
 
+DualProbe dual_probe;
+static bool probing;
+
 static unsigned calls;      // calls so far; the view of call c is (c & 1)
 static int map_top, map_bottom;
 
@@ -36,6 +39,7 @@ void dual_begin(int top_map, int bottom_map)
     map_top = top_map;
     map_bottom = bottom_map;
     calls = 0;
+    dual_probe.front_d = dual_probe.cross_d = dual_probe.plan_c = dual_probe.cross_c = 0;
     vram_layout(VL_DUAL3D);
     REG_DISPCAPCNT = 0;
     sub_bitmap_setup();
@@ -70,10 +74,45 @@ static void route(bool top)
     }
 }
 
+void dual_probe_enable(bool on)
+{
+    probing = on;
+}
+
+// Every 8th line only: the read has to end inside the VBlank (a full bank takes a frame).
+static u32 count_clear(const vu16 *bank, u16 colour)
+{
+    u32 n = 0;
+    for (int y = 0; y < 192; y += 8)
+        for (int x = 0; x < 256; x++)
+            n += (bank[y * 256 + x] & 0x7FFF) == colour;
+    return n;
+}
+
 bool dual_begin_call(void)
 {
     if (calls > 0)
-        route(((calls - 1) & 1) == 0);
+    {
+        bool top = ((calls - 1) & 1) == 0;
+        route(top);
+        if (probing)
+        {
+            // This frame's capture target is the bank in LCDC mode: it still holds the
+            // previous capture of the same kind.
+            if (top)
+            {
+                const vu16 *d = (const vu16 *)0x06860000;
+                dual_probe.front_d = count_clear(d, DUAL_FRONT_CLEAR);
+                dual_probe.cross_d = count_clear(d, DUAL_PLAN_CLEAR);
+            }
+            else
+            {
+                const vu16 *c = (const vu16 *)0x06840000;
+                dual_probe.plan_c = count_clear(c, DUAL_PLAN_CLEAR);
+                dual_probe.cross_c = count_clear(c, DUAL_FRONT_CLEAR);
+            }
+        }
+    }
     return (calls & 1) == 0;
 }
 
