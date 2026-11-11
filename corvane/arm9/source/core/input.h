@@ -38,6 +38,8 @@ int  replay_stage(void);
 int  replay_lives(void);
 int  replay_bombs(void);
 bool replay_peek(const void *blob, u32 size, int *stage);
-const void *replay_blob(u32 *size);
+// The recorded log, cut to its first runs so it fits `max` bytes (the save
+// chip's replay area; playback then ends where the log ends).
+const void *replay_blob(u32 max, u32 *size);
 
 #endif // CV_INPUT_H
