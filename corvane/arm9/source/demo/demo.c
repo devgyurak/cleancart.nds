@@ -560,6 +560,9 @@ static void d_2d_affine(void)
     const u16 *lp = (const u16 *)cv_logo_pal;
     for (int i = 2; i < 19; i++)
         CV_PAL_BG_MAIN[i + 0] = i == 2 ? CV_PAL_BG_MAIN[2] : lp[i];
+    // BGxPA..PD are write-only (they read back as 0 on hardware and in
+    // melonDS), so the checkpoint reports the last values written.
+    int32_t last_bg2pa = 0, last_bg3pa = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         int a = f * 200;
@@ -572,9 +575,11 @@ static void d_2d_affine(void)
         REG_BG3PA = inv; REG_BG3PB = 0; REG_BG3PC = 0; REG_BG3PD = inv;
         REG_BG3X = (128 << 8) - inv * 128;
         REG_BG3Y = (128 << 8) - inv * 96;
+        last_bg2pa = c;
+        last_bg3pa = inv;
         vsync();
     }
-    finish(REG_BG2PA & 0xFFFF, REG_BG3PA & 0xFFFF, 0, 0);
+    finish(last_bg2pa & 0xFFFF, last_bg3pa & 0xFFFF, 0, 0);
 }
 
 static int bitmap_stage;
@@ -641,16 +646,18 @@ static void d_2d_mosaic(void)
     swiCopy(cv_sprite_pal, CV_PAL_OBJ_MAIN, 16 | COPY_MODE_HWORD);
     for (int i = 0; i < 20; i++)
         con_printf("MOSAIC MOSAIC MOSAIC MOSAIC\n");
+    int m = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
-        int m = (f / 8) % 16;
+        m = (f / 8) % 16;
         fx_mosaic(FX_MAIN, m, m);
         oam_clear(ENG_MAIN);
         for (int i = 0; i < 8; i++)
             oam_add(ENG_MAIN, 20 + i * 28, 150, SPR_16x16, CV_SPR_EXPLODE2, 0, 0, SPRF_MOSAIC, 0);
         vsync();
     }
-    finish(REG_MOSAIC, 0, 0, 0);
+    // MOSAIC is write-only: report the value fx_mosaic() last wrote.
+    finish((u32)m * 0x1111, 0, 0, 0);
 }
 
 static void obj_setup_main(void)
