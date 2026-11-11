@@ -24,7 +24,7 @@
 
 #define F CV_FX
 
-static void sub_bitmap_setup(void)
+void ending_sub_bitmap_setup(void)
 {
     REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG3_ACTIVE | DISPLAY_SPR_ACTIVE
                     | DISPLAY_SPR_2D_BMP_256;
@@ -125,7 +125,7 @@ void ending_dual_begin(void)
     glDisable(GL_FOG | GL_FOG_ONLY_ALPHA | GL_CLEAR_BMP | GL_OUTLINE);
     glEnable(GL_ANTIALIAS);
     REG_DISPCNT = MODE_0_3D;
-    sub_bitmap_setup();
+    ending_sub_bitmap_setup();
     oam_flush_now();
 }
 
