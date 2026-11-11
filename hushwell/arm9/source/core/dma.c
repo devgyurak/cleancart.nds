@@ -89,7 +89,8 @@ void dma_hblank_start(const u16 *table, volatile void *reg, int units)
 void dma_hblank_rearm(void)
 {
     const int ch = CV_DMA_CH_HBLANK;
-    if (!hb_table)
+    // The display FIFO stream (dma_mmem_start) owns the channel meanwhile.
+    if (!hb_table || mmem_frame)
         return;
     CNT(ch) = 0;
     DC_FlushRange(hb_table, 192 * hb_units * 2);
@@ -122,7 +123,7 @@ void dma_gxfifo(const u32 *list, u32 words)
 
 void dma_mmem_start(const u16 *frame)
 {
-    const int ch = CV_DMA_CH_VBLANK;
+    const int ch = CV_DMA_CH_MMEM;
     mmem_frame = frame;
     DC_FlushRange(frame, 256 * 192 * 2);
     dma_stop(ch);
@@ -137,7 +138,7 @@ void dma_mmem_start(const u16 *frame)
 void dma_mmem_stop(void)
 {
     mmem_frame = NULL;
-    dma_stop(CV_DMA_CH_VBLANK);
+    dma_stop(CV_DMA_CH_MMEM);
 }
 
 void dma_line_start(const u16 *table, volatile u16 *reg)
