@@ -4,7 +4,9 @@
 #include <nds.h>
 #include <string.h>
 
+#include "core/qa.h"
 #include "core/save.h"
+#include "game/qa_tune.h"
 #include "core/sys.h"
 #include "game/game.h"
 
@@ -48,8 +50,8 @@ void game_new(void)
     cv_game.ship_color = color;
     read_firmware();
     cv_game.stage = 1;
-    cv_game.lives = 3;
-    cv_game.bombs = 2;
+    cv_game.lives = qa_tune()->lives;
+    cv_game.bombs = qa_tune()->bombs;
 }
 
 void game_resume_from_save(void)
@@ -76,7 +78,7 @@ void game_autosave(void)
     {
         cv_save.continue_stage = 0;
     }
-    save_write();
+    qa_save_written(save_write());
 }
 
 void game_record(void)
@@ -96,7 +98,7 @@ void game_record(void)
     read_firmware();
     strcpy(r.name, cv_game.pilot);
     save_insert_record(&r);
-    save_write();
+    qa_save_written(save_write());
 }
 
 void game_init_firmware(void)

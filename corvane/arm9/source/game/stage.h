@@ -175,6 +175,7 @@ void boss_radar(void);
 int  boss_hp(void);
 int  boss_hp_max(void);
 CvVec boss_pos(void);
+bool boss_aim_point(CvVec *out);   // first part a shot can hurt; false if none
 
 // Stage visuals (stagefx.c)
 void sfx_setup(int stage);

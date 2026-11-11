@@ -27,7 +27,7 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
 | `arm7/source/` | own ARM7 core: input/RTC/power via libnds, register-level sound engine (`sound7.c`) |
 | `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA), qalog (QA log on the SD card + `QARN` result block) |
 | `arm9/source/gfx/` | vram (bank plan table), oam, text, fx, gl3d, models, terrain |
-| `arm9/source/game/` | scenes, stage loop, boss, stagefx (per-stage hardware showcase), hud, ending |
+| `arm9/source/game/` | scenes, stage loop, boss, stagefx (per-stage hardware showcase), hud, ending, qa_game (auto QA: tune, autopilot, run judge) |
 | `arm9/source/demo/demo.c` | feature demos (`make DEMO=…`) |
 | `tools/` | `mkassets.py` + `cvtools/`, `stage_editor.py`, `replay.py`, `stages/*.json` overrides |
 
@@ -43,6 +43,14 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AG
 
 - **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
   written at frame 120. The last 4 KB of the ARM9 heap is reserved for it (`reduceHeapSize(4096)`).
+- **Auto QA mode** (`core/qa.c`, `game/qa_game.c`, `game/qa_tune.h`): same ROM as the release.
+  Title screen, hold **L+R+X+Y for 120 frames** (nothing is drawn). The game then plays stages
+  1-5, the ending and the credits by itself and ends with `RESULT PASS|FAIL` in the QA log and the
+  `QARN` block. Only numbers change (`qa_tune()`: boss HP x0.1, hits cost no life, 9 lives,
+  9 bombs); effects, sound, rendering, scene flow and saves run as shipped. The pilot enters
+  through `core/input.c` like a replay (never while a replay plays), RTC hour is fixed to 12.
+  Same ROM twice gives the same checkpoint hashes (`tools/qa/compare.py`). No `qa*` symbol
+  in `gfx/`, `core/save.c` (`tools/qa/lint.py`). Skill `nds-qa-mode`.
 - **QA log** (`core/qalog.c`, `tools/qa/`): RAM ring of `<frame> <scene> <event> key=val` lines,
   flushed to `<drive>cleancart/corvane/qa-<date>-<time>.log` only at checkpoints, scene changes,
   pause and the end (never inside a save transaction; every flush claims the slot-1 bus and

@@ -29,6 +29,23 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 - Demos that need input (sys-keys, io-touch, io-power, io-rtc, io-firmware) keep
   updating the screen after the checkpoint.
 
+## Auto QA run
+
+Hidden mode (same ROM as the release): on the title screen hold **L+R+X+Y for 120 frames**. The
+game plays all five stages, the ending and the credits by itself (boss HP x0.1, hits cost no
+life, weak numbers only; effects, sound and saves are unchanged) and finishes on the records
+screen. The save the cart had (settings slots and the last-run replay area) is restored at the end. On a flash cart with an SD card it writes
+`cleancart/corvane/qa-<date>-<time>.log` and `save-<n>.bin`; every run also fills the `QARN`
+result block. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run corvane/corvane.nds 20000 out/mds/x
+"60:A,200:A,500:L:140,500:R:140,500:X:140,500:Y:140"`, then `tools/qa/parse_log.py` on the log.
+
+| Where | Result (2026-11-11, build from this tree) |
+|---|---|
+| melonDS 1.1 headless, software renderer, SD image | ✅ `RESULT PASS reason=credits` at frame 13,725, 5 stage checkpoints, 6 save mirrors read back identical (`chip_type=-1`: homebrew run has no save chip) |
+| Same ROM, second run | ✅ all checkpoint hashes identical (`tools/qa/compare.py`) |
+| DeSmuME headless (no SD) | ✅ `QARN` block verdict 1, last state hash `37db96a8` = melonDS (lag differs, not compared) |
+| Real DS Lite + R4 | not run yet |
+
 ## QA record
 
 melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code, automated (see [melonDS QA record](#melonds-qa-record-2026-11-11))  Date: 2026-11-10/11
