@@ -22,6 +22,8 @@
 #include "core/snd.h"
 #include "core/sys.h"
 #include "core/timer.h"
+#include "core/qa.h"
+#include "game/qa_tune.h"
 #include "game/game.h"
 #include "game/hud.h"
 #include "game/stage.h"
@@ -334,7 +336,7 @@ static void player_hit(void)
     blast_spawn(p->pos, 2);
     debris_burst(p->pos, 12);
     snd_sfx(CV_SFX_BIGBOOM, 127, 64);
-    cv_game.lives--;
+    cv_game.lives -= qa_tune()->lives_lost_per_hit;
     cv_game.bombs = 2;
     p->invuln = 150;
     p->charge = 0;

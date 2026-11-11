@@ -8,6 +8,7 @@
 #include "core/cart.h"
 #include "core/input.h"
 #include "core/nitro.h"
+#include "core/qa.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
@@ -40,9 +41,14 @@ int main(int argc, char *argv[])
     demo_main(CV_DEMO);
 #endif
 
+    static const char *const scene_names[] = {
+        "boot", "intro", "title", "briefing", "stage", "result", "continue",
+        "ending", "credits", "records", "settings", "soundtest", "demoplay" };
     CvScene scene = SC_BOOT;
     for (;;)
     {
+        qa_scene(scene, (unsigned)scene < sizeof(scene_names) / sizeof(*scene_names)
+                            ? scene_names[scene] : "?");
         switch (scene)
         {
             case SC_BOOT:      scene = scene_boot(); break;
