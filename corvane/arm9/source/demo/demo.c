@@ -19,6 +19,7 @@
 #include "core/input.h"
 #include "core/irq.h"
 #include "core/nitro.h"
+#include "core/qalog.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
@@ -1544,6 +1545,32 @@ static void d_io_save(void)
     finish(w, r, cv_save.seq - seq, (u32)save_detected_type());
 }
 
+static void d_io_qalog(void)
+{
+    con_2d();
+    demo_title("IO-QALOG");
+    bool sd = qalog_open("corvane", 0x1234);
+    con_printf("SD LOG: %s\n", sd ? "OPEN" : "NO SD CARD (RAM ONLY)");
+    con_printf("ERRNO %d\n", qalog_errno());
+    qalog_line("demo", "start", "name=io-qalog");
+    for (int i = 0; i < 40; i++)
+    {
+        qalog_line("demo", "tick", "i=%d sq=%d", i, i * i);
+        vsync();
+    }
+    bool chip = save_write();
+    bool mirror = qalog_save_mirror(&cv_save, sizeof(cv_save), chip);
+    con_printf("SAVE CHIP: %s  SD MIRROR: %s\n", chip ? "OK" : "NONE", mirror ? "OK" : "NO");
+    qalog_checkpoint("demo", "mid", qalog_fnv(QALOG_FNV_INIT, "io-qalog", 8), 0);
+    while (cv_frame < CHECKPOINT)
+        vsync();
+    u32 game[1] = { (u32)chip };
+    qalog_finish(true, "demo", game, 1);
+    con_printf("RESULT BLOCK QARN WRITTEN\n");
+    for (;;)
+        vsync();
+}
+
 static void firmware_idle(int f)
 {
     (void)f;
@@ -2009,8 +2036,9 @@ static const DemoEntry demos[] = {
     { "snd-mix", d_snd_mix },           { "snd-pcm", d_snd_pcm },
     { "snd-adpcm", d_snd_adpcm },       { "snd-psg", d_snd_psg },
     { "snd-capture", d_snd_capture },   { "snd-stream", d_snd_stream },
-    { "io-cart", d_io_cart },           { "io-save-eeprom", d_io_save },
-    { "io-save-flash", d_io_save },     { "io-save-fram", d_io_save },
+    { "io-cart", d_io_cart },           { "io-qalog", d_io_qalog },
+    { "io-save-eeprom", d_io_save },    { "io-save-flash", d_io_save },
+    { "io-save-fram", d_io_save },
     { "io-firmware", d_io_firmware },   { "io-rtc", d_io_rtc },
     { "io-touch", d_io_touch },         { "io-power", d_io_power },
     { "acc-stage", d_acc_stage },

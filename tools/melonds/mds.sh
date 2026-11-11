@@ -7,13 +7,16 @@
 #   tools/melonds/mds.sh run   corvane/corvane.nds 600 out/mds/boot "60:A,200:A" 150,599
 #   tools/melonds/mds.sh demos corvane/build/release/demos   # RESULT line per demo ROM
 # Environment passed through: SAV POKE PEEK WAV RTC TRACE TRACE_EVERY SHOT_EVERY PM0
-# RENDERER SCALE (see headless/mdsrun.cpp).
+# RENDERER SCALE SDDIR (see headless/mdsrun.cpp).
+# SDDIR=out/mds/x/sd attaches a DLDI SD card that mirrors that directory (the
+# ROM runs as homebrew then, with no save chip); files the game writes appear
+# there when the run ends.
 set -eu
 
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 IMAGE=nds-melonds:1
 docker build -q -t "$IMAGE" "$ROOT/tools/melonds/headless" >/dev/null
-RUN="docker run --rm -e SAV=${SAV:-} -e POKE=${POKE:-} -e PEEK=${PEEK:-} -e WAV=${WAV:-} -e RTC=${RTC:-} -e TRACE=${TRACE:-} -e TRACE_EVERY=${TRACE_EVERY:-} -e SHOT_EVERY=${SHOT_EVERY:-} -e PM0=${PM0:-} -e RENDERER=${RENDERER:-} -e SCALE=${SCALE:-} -v $ROOT:/work -w /work $IMAGE"
+RUN="docker run --rm -e SAV=${SAV:-} -e POKE=${POKE:-} -e PEEK=${PEEK:-} -e WAV=${WAV:-} -e RTC=${RTC:-} -e TRACE=${TRACE:-} -e TRACE_EVERY=${TRACE_EVERY:-} -e SHOT_EVERY=${SHOT_EVERY:-} -e PM0=${PM0:-} -e RENDERER=${RENDERER:-} -e SCALE=${SCALE:-} -e SDDIR=${SDDIR:-} -v $ROOT:/work -w /work $IMAGE"
 
 # Reject bad settings here too: the runner's error would be filtered out below.
 case "${RENDERER:-soft}" in
