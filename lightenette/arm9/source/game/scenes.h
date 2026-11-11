@@ -10,6 +10,7 @@ typedef enum {
     SC_TITLE,
     SC_JUDGE,
     SC_ACT1,
+    SC_ACT2,
     SC_MENU,
     SC_REHEARSAL,
 } LtScene;
@@ -20,6 +21,7 @@ void display_reset(void);
 LtScene scene_title(void);
 LtScene scene_judge(void);
 LtScene scene_act1(void);
+LtScene scene_act2(void);
 LtScene scene_menu(void);
 LtScene scene_rehearsal(void);
 

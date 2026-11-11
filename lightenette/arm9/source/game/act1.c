@@ -348,7 +348,7 @@ static LtScene act1_loop(const Act1Step *steps, int nsteps, int end_frame, Act1O
             cleared = true;
             clear_frame = f;
             text_put(&con, 1, 0, TP_GREEN, "ACT 1  CLEAR!          ");
-            text_put(&sub, 1, 23, TP_GREEN, "A: TITLE   B: BACK");
+            text_put(&sub, 1, 23, TP_GREEN, "A: ACT 2   B: BACK ");
         }
         text_printf(&con, 1, 22, cleared ? TP_GREEN : TP_WHITE, "MATCH %3d%%", score);
 
@@ -380,7 +380,9 @@ static LtScene act1_loop(const Act1Step *steps, int nsteps, int end_frame, Act1O
                 return SC_TITLE;
             }
         }
-        else if (cv_in.pressed & KEY_B || (cleared && (cv_in.pressed & KEY_A)))
+        else if (cleared && (cv_in.pressed & KEY_A))
+            return SC_ACT2;
+        else if (cv_in.pressed & KEY_B)
             return SC_TITLE;
     }
 }

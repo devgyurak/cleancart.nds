@@ -12,7 +12,7 @@ OUTPREFIX_final.png is always written.
 
 Environment:
   SAVETYPE  DeSmuME save type (3 EEPROM 64 KB default, 4 FRAM, 5 FLASH)
-  RESULT_WORDS  words of the result block to print (default 8, 16 for the whole block)
+  RESULT_WORDS  words of the result block to print (default 8, 32 for the whole block)
   POKE      ADDR:VALUE (hex addr) written as a u32 every 30 frames,
             e.g. to keep a lives counter up during long runs
 

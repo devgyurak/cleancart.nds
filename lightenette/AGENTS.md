@@ -40,7 +40,7 @@ to both).
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `judge_scene.c` (judge and rehearsal scenes), `rehearsal.c` (act 1 from an embedded touch script, then the judge; result block id `RHEL`), `act1.h`, `act1.c` (act 1: marionette rig, sliders, silhouette score;
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `judge_scene.c` (judge and rehearsal scenes), `rehearsal.c` (act 1 from an embedded touch script, act 2 from a key script, then the judge; the result block is 32 words, `CvResult.values[29]` in `core/sys.h`; result block id `RHEL`), `act2.h`, `act2.c` (act 2: three paper dolls turned with reversed texcoords written in the vertices, never the TEXIMAGE_PARAM flip bits; the stitched third doll uses the plain 32>16 mirror; after the clear it captures its own picture and counts cut-line and edge pixels, expected 0/0/18; result block id `ACT2`; key script for the rehearsal), `act1.h`, `act1.c` (act 1: marionette rig, sliders, silhouette score;
   result block id `ACT1`).
 - `arm9/source/judge/`: accuracy judge (`judge.h` documents the result block at
   `CV_RESULT_ADDR`). Needs bank D free as the capture target (`VL_JUDGE` in `gfx/vram.h`).
@@ -52,5 +52,6 @@ to both).
 ## Controls (melonDS keys in brackets)
 
 Start (Return) starts act 1: touch-drag the four sliders on the bottom screen; A (X) after a clear
-returns to the title, B (Z) backs out. Title + Select (Backspace) opens the test menu (up/down, A (X), B (Z)); in the judge A (X) cycles BLDCNT,
+goes on to act 2, B (Z) backs out. Act 2: Left/Right (arrows) or tap chooses a doll, L/R (Q/W) or a tap
+on the lower half turns it; A (X) after a clear returns to the title. Title + Select (Backspace) opens the test menu (up/down, A (X), B (Z)); in the judge A (X) cycles BLDCNT,
 B (Z) / Start returns. More actions are listed here as scenes land.

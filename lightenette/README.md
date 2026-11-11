@@ -6,7 +6,7 @@
 
 [한국어](README-KO.md)
 
-<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"></p>
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"></p>
 
 An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
 marionette show with the touch screen. It is also built to judge itself: the ROM
@@ -15,9 +15,12 @@ cases where emulators have disagreed with hardware, so other emulators can use i
 a regression test.
 
 **Status: work in progress.** The title screen, the accuracy judge (title + Select) and a
-prototype of act 1 (title + Start) run; the other acts land stage by stage. Act 1: drag the
-four sliders on the touch screen to swing the paper marionette's limbs until they cover the
-shadow on the top screen (silhouette overlap 85% or more).
+prototype of act 1 (title + Start) run; act 2 is in the test menu (and follows a cleared act 1);
+the other acts land stage by stage. Act 1: drag the four sliders on the touch screen to swing the
+paper marionette's limbs until they cover the shadow on the top screen (silhouette overlap 85% or
+more). Act 2: choose a doll (left/right or tap) and turn it around with L/R until each of the three
+paper dolls faces the way the touch screen asks. The turn mirrors the card with reversed texture
+coordinates written into the vertices, and the third (stitched) doll's back may show a seam.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
@@ -39,7 +42,7 @@ Two clean builds give the same SHA-256.
 
 ## Accuracy judge
 
-Title + Select opens a test menu: the accuracy judge and the act 1 rehearsal. The judge (or the `lightenette-acc-stage.nds` demo ROM) runs a static scene and grades
+Title + Select opens a test menu: the accuracy judge, act 2 and the rehearsal (acts 1 and 2). The judge (or the `lightenette-acc-stage.nds` demo ROM) runs a static scene and grades
 three cases melonDS reported against hardware: reversed texture coordinates ([#2008](https://github.com/melonDS-emu/melonDS/issues/2008)),
 a translucent OBJ over 3D with a brightness effect ([#2503](https://github.com/melonDS-emu/melonDS/issues/2503)) and
 edge marking / line polygons ([#2549](https://github.com/melonDS-emu/melonDS/issues/2549)). The values are on screen and in the
@@ -47,7 +50,7 @@ result block at `0x0237F000` (layout in `arm9/source/judge/judge.h`). It needs n
 
 ## Rehearsal and judging script
 
-The rehearsal replays act 1 from a touch script embedded in the ROM, then runs the judge and leaves one
+The rehearsal replays act 1 from a touch script and act 2 from a key script embedded in the ROM, then runs the judge and leaves one
 result block (layout in `arm9/source/game/rehearsal.h`). It uses no pen input, no save chip and no
 NitroFS. Reach it from the test menu, or build the ROM that boots straight into it:
 `./build.sh DEMO=rehearsal` → `lightenette-rehearsal.nds`.
@@ -58,8 +61,8 @@ gating item is OK (1: an item is NG, 2: no valid result block). Items whose sour
 are informational and never fail the run.
 
 ```sh
-# melonDS headless runner (RENDERER=gl|compute for the GL renderers); DeSmuME: RESULT_WORDS=16 tools/emu/emu.sh run …
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 330 out/mds/reh "" 329 > reh.log
+# melonDS headless runner (RENDERER=gl|compute for the GL renderers); DeSmuME: RESULT_WORDS=32 tools/emu/emu.sh run …
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 480 out/mds/reh "" 479 > reh.log
 python3 lightenette/tools/judge.py reh.log
 ```
 
