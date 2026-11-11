@@ -9,9 +9,8 @@
 An original voxel silhouette puzzle for the Nintendo DS: stack blocks until the
 front and plan views match the order. Both screens show the model in 3D.
 
-**Status.** Chapter 1 (eight puzzles) is playable with both screens in 3D, a 2D grid mode, the
-credits with the licence viewer and the hidden auto QA run. Chapters 2-5, the showcase mode
-and the accuracy rehearsal come in later changes. Nothing is measured on real hardware yet.
+**Status.** All five chapters (40 puzzles) are playable with both screens in 3D, a 2D grid mode, a showcase mode, the
+accuracy rehearsal, the credits with the licence viewer and the hidden auto QA run, which plays the whole game. Nothing is measured on real hardware yet.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)

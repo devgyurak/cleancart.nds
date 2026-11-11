@@ -10,6 +10,7 @@
 #include "game/puzzle.h"
 #include "game/rehearsal.h"
 #include "game/scenes.h"
+#include "game/script.h"
 #include "gfx/dual.h"
 #include "gfx/fx.h"
 
@@ -17,97 +18,38 @@
 
 // --- the scripted player --------------------------------------------------------
 
-enum { PH_BUILD, PH_WAIT, PH_DELIVER, PH_EXIT };
-
-static int phase, tick, wait;
-static u8 target[PZ_MAX_DIM][PZ_MAX_DIM];
-
 // What each puzzle left behind for the block.
 static u32 front_d, plan_c, cross_d, cross_c;
 static u32 last_blocks, last_par;
 static bool delivered_ok;
+static ScrPhase last_phase;
+static u16 prev_keys;
 
-static bool fresh;   // the puzzle is loaded by scene_play, so the targets are read on its first frame
-
-static void script_begin(void)
-{
-    fresh = true;
-    phase = PH_BUILD;
-    tick = wait = 0;
-    delivered_ok = false;
-}
-
-// Called every frame after the real input was read: replaces it with the script.
+// Called every frame after the real input was read: replaces it with the script
+// (game/script.c plays the stored solution with the keys a person uses).
 static void script_hook(void)
 {
-    cv_in.pressed = cv_in.repeat = cv_in.held = cv_in.released = 0;
+    u16 keys;
+    ScrPhase ph = script_step(&keys, false);
+    cv_in.held = keys;
+    cv_in.pressed = keys & ~prev_keys;
+    cv_in.repeat = cv_in.pressed;
+    cv_in.released = prev_keys & ~keys;
     cv_in.touching = false;
-    const PzPart *p = play_part();
-    const PzGrid *g = play_grid();
-    if (fresh)
+    prev_keys = keys;
+    if (ph == SCR_DELIVER && last_phase == SCR_WAIT)
     {
-        memset(target, 0, sizeof(target));
-        for (int i = 0; i < p->nsol; i++)
-            target[p->sol[3 * i + 1]][p->sol[3 * i]]++;
-        fresh = false;
+        // The pile is right and a few front/plan pairs were captured: measure.
+        front_d = dual_probe.front_d;
+        plan_c = dual_probe.plan_c;
+        cross_d = dual_probe.cross_d;
+        cross_c = dual_probe.cross_c;
+        last_blocks = (u32)play_blocks();
+        last_par = (u32)play_par();
     }
-    if (++tick % 3)
-        return;
-    switch (phase)
-    {
-        case PH_BUILD:
-        {
-            int tx = -1, ty = -1;
-            for (int y = 0; y < p->d && tx < 0; y++)
-                for (int x = 0; x < p->w; x++)
-                    if (pz_height(g, x, y) < target[y][x])
-                    {
-                        tx = x;
-                        ty = y;
-                        break;
-                    }
-            if (tx < 0)
-            {
-                phase = PH_WAIT;
-                wait = 0;
-                return;
-            }
-            int cx, cy;
-            play_cursor(&cx, &cy);
-            if (cx < tx)       cv_in.repeat = KEY_RIGHT;
-            else if (cx > tx)  cv_in.repeat = KEY_LEFT;
-            else if (cy < ty)  cv_in.repeat = KEY_UP;
-            else if (cy > ty)  cv_in.repeat = KEY_DOWN;
-            else               cv_in.pressed = KEY_A;
-            break;
-        }
-        case PH_WAIT:
-            // Let a few front/plan pairs be captured, then measure and deliver.
-            if (++wait > 40)
-            {
-                front_d = dual_probe.front_d;
-                plan_c = dual_probe.plan_c;
-                cross_d = dual_probe.cross_d;
-                cross_c = dual_probe.cross_c;
-                last_blocks = (u32)pz_blocks(g, p);
-                last_par = p->par;
-                if (play_matched())
-                    cv_in.pressed = KEY_A;
-                phase = PH_DELIVER;
-                wait = 0;
-            }
-            break;
-        case PH_DELIVER:
-            if (++wait > 20)
-            {
-                delivered_ok = play_delivered();
-                cv_in.pressed = KEY_START;   // back to the puzzle list: scene_play returns
-                phase = PH_EXIT;
-            }
-            break;
-        default:
-            break;
-    }
+    if (ph == SCR_DONE)
+        delivered_ok = play_delivered();
+    last_phase = ph;
 }
 
 // --- the run ----------------------------------------------------------------------
@@ -143,7 +85,8 @@ void rehearsal_run(void)
         ev_chapter = ch;
         ev_index = 1;
         ev_view3d = true;
-        script_begin();
+        last_phase = SCR_BUILD;
+        delivered_ok = false;
         scene_play();
         played_mask |= 1u << (ch - 1);
         delivered_count += delivered_ok;

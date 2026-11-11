@@ -21,7 +21,7 @@ def block(flags=0x1ff, **over):
     v[12], v[13], v[15] = 3072, 3072, 4096
     for k, x in over.items():
         v[int(k[1:])] = x
-    return [judge.MAGIC, 0x48525645, 900] + v
+    return [judge.MAGIC, 0x48525645, 4000] + v
 
 
 def text(words):

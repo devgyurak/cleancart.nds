@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
-// Elevane side of the auto QA mode (core/qa.h). The run takes the normal flow:
-// title -> credits -> title, then passes. The puzzle chapters join the flow with
-// their scenes; nothing is tuned (qa_tune.h) and the game saves nothing itself
-// except the one write the run uses to prove the save path.
+// Elevane side of the auto QA mode (core/qa.h). The run takes the normal flow: title ->
+// puzzle list -> every puzzle of every chapter, in order -> back to the list -> title ->
+// credits -> title, then passes. The pilot plays each puzzle with the scripted player
+// (game/script.c: the stored solution, built with the keys a person uses) through the live
+// play scene and starts the chapters from the puzzle list with the D-pad and A. Nothing is
+// tuned (qa_tune.h); the game saves nothing itself except the one write the run uses to
+// prove the save path.
 
 #include <nds.h>
 #include <string.h>
@@ -14,15 +17,20 @@
 #include "core/qalog.h"
 #include "core/save.h"
 #include "core/sys.h"
+#include "game/play.h"
+#include "game/puzzle.h"
 #include "game/qa_tune.h"
 #include "game/scenes.h"
+#include "game/script.h"
 
 // No tunable numbers (see qa_tune.h).
 const QaTune qa_tune_off = { 0 };
 const QaTune qa_tune_on = { 0 };
 
-static bool credits_seen;
-static bool save_proved;
+static bool credits_seen, save_proved;
+static unsigned chapters_done;   // bit n-1: chapter n was left through the puzzle list
+static int prev_scene = -1;
+static unsigned base_delivered;  // ev_delivered_total when the run started
 
 const char *qa_game_name(void)
 {
@@ -32,33 +40,62 @@ const char *qa_game_name(void)
 void qa_game_reset(void)
 {
     credits_seen = save_proved = false;
+    chapters_done = 0;
+    prev_scene = -1;
+    base_delivered = ev_delivered_total;
+}
+
+static unsigned delivered(void)
+{
+    return ev_delivered_total - base_delivered;
 }
 
 u32 qa_game_hash(void)
 {
-    u32 w[2] = { credits_seen, save_proved };
+    u32 w[3] = { delivered(), chapters_done, credits_seen };
     return qalog_fnv(QALOG_FNV_INIT, w, sizeof(w));
 }
 
 void qa_game_words(u32 *w)
 {
-    w[0] = credits_seen;
-    w[1] = save_proved;
-    w[2] = cv_frame;
-    w[3] = w[4] = w[5] = 0;
+    w[0] = delivered();
+    w[1] = (u32)pz_count();
+    w[2] = credits_seen;
+    w[3] = chapters_done;
+    w[4] = cv_frame;
+    w[5] = 0;
+}
+
+static void fail(const char *reason)
+{
+    u32 w[QA_GAME_WORDS];
+    qa_game_words(w);
+    qa_fail(reason, w, QA_GAME_WORDS);
 }
 
 void qa_game_scene(int id)
 {
+    if (prev_scene == SC_PLAY && id == SC_SELECT)
+    {
+        // A chapter ends here (the last puzzle returns to the list).
+        static const char *const names[] = { "ch0", "ch1", "ch2", "ch3", "ch4", "ch5", "ch6" };
+        int ch = ev_chapter >= 1 && ev_chapter <= 5 ? ev_chapter : 0;
+        chapters_done |= 1u << (ch - 1 < 0 ? 0 : ch - 1);
+        qa_checkpoint(names[ch], qa_game_hash());
+        qalog_line("game", "chapter_end", "n=%d delivered=%u", ch, delivered());
+    }
+    prev_scene = id;
     switch (id)
     {
-        case SC_CREDITS:
+        case SC_PLAY:
             if (!save_proved)
             {
-                qa_save_written(save_write());   // prove the save path once
+                qa_save_written(save_write());   // the game saves nothing itself: prove the path once
                 save_proved = true;
             }
-            credits_seen = true;
+            break;
+        case SC_CREDITS:
+            credits_seen = delivered() >= (unsigned)pz_count();
             break;
         case SC_TITLE:
             if (credits_seen)
@@ -69,15 +106,31 @@ void qa_game_scene(int id)
                 qa_pass("credits", w, QA_GAME_WORDS);
             }
             break;
+        case SC_SHOWCASE:
+            fail("unexpected-scene");
+            break;
         default:
             break;
     }
 }
 
-// The block stays in the common QA layout (core/qalog.c): nothing to add yet.
+// The block stays in the common QA layout (core/qalog.c): nothing to add.
 void qa_game_publish(bool pass)
 {
     (void)pass;
+}
+
+// The chapter the next puzzle belongs to, from how many were delivered so far.
+static int chapter_for(unsigned done)
+{
+    for (int ch = 1; ch <= 5; ch++)
+    {
+        unsigned n = (unsigned)pz_chapter_size(ch);
+        if (done < n)
+            return ch;
+        done -= n;
+    }
+    return 0;
 }
 
 void qa_game_pilot(int scene, u32 f, QaInput *out)
@@ -85,9 +138,29 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
     switch (scene)
     {
         case SC_TITLE:
-            if (f > 20 && (f & 15) == 8)
+            if (delivered() >= (unsigned)pz_count() && f > 20 && (f & 15) == 8)
                 out->keys = KEY_X;   // the credits, as a player would
             break;
+        case SC_SELECT:
+        {
+            if (f < 10 || (f & 7) != 4)
+                break;
+            int want = chapter_for(delivered());
+            if (want == 0)
+                out->keys = KEY_B;           // everything delivered: back to the title
+            else if (ev_chapter != want)
+                out->keys = KEY_RIGHT;
+            else
+                out->keys = KEY_A;
+            break;
+        }
+        case SC_PLAY:
+        {
+            u16 keys;
+            script_step(&keys, true);
+            out->keys = keys;
+            break;
+        }
         case SC_CREDITS:
             out->keys = KEY_A;       // holding A scrolls faster
             if (f > 700)

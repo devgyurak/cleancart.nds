@@ -40,9 +40,9 @@ EvScene scene_title(void)
         scene_frame_end();
         if (qa_title_poll())
         {
-            // Hidden auto QA mode (core/qa.h): left like X.
+            // Hidden auto QA mode (core/qa.h): the puzzle list, like Start.
             snd_sfx(CV_SFX_CHIME, 100, 64);
-            return SC_CREDITS;
+            return SC_SELECT;
         }
         // X opens the credits, but L+R+X is the start of the QA combo: with L or R
         // held X is left alone (press L and R first, then X).
