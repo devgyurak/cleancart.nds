@@ -257,7 +257,7 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
                 ly = PARK_Y;
                 mode_t0 = f + 2;
                 text_put(&con, 0, 0, TP_GREEN, "ACT 3  CLEAR!          ");
-                text_put(&sub, 1, 23, TP_GREEN, "A: TITLE   B: BACK    ");
+                text_put(&sub, 1, 23, TP_GREEN, "A: ACT 4   B: BACK    ");
             }
         }
 
@@ -336,7 +336,9 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
                 return SC_TITLE;
             }
         }
-        else if ((cv_in.pressed & KEY_B) || (cleared && (cv_in.pressed & KEY_A)))
+        else if (cleared && (cv_in.pressed & KEY_A))
+            return SC_ACT4;
+        else if (cv_in.pressed & KEY_B)
             return SC_TITLE;
     }
 }

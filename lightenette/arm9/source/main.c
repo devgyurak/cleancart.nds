@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
             case SC_ACT1:  scene = scene_act1(); break;
             case SC_ACT2:  scene = scene_act2(); break;
             case SC_ACT3:  scene = scene_act3(); break;
+            case SC_ACT4:  scene = scene_act4(); break;
+            case SC_ACT5:  scene = scene_act5(); break;
             case SC_MENU:  scene = scene_menu(); break;
             case SC_REHEARSAL: scene = scene_rehearsal(); break;
             case SC_TITLE:

@@ -6,7 +6,7 @@
 
 [English](README.md)
 
-<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette 타이틀 화면"> <img src="docs/images/act1-start.png" width="256" alt="1막 시작"> <img src="docs/images/act1.png" width="256" alt="1막 클리어"> <img src="docs/images/act2.png" width="256" alt="2막 클리어"> <img src="docs/images/act3.png" width="256" alt="3막 클리어"></p>
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette 타이틀 화면"> <img src="docs/images/act1-start.png" width="256" alt="1막 시작"> <img src="docs/images/act1.png" width="256" alt="1막 클리어"> <img src="docs/images/act2.png" width="256" alt="2막 클리어"> <img src="docs/images/act3.png" width="256" alt="3막 클리어"> <img src="docs/images/act4.png" width="256" alt="4막 클리어"> <img src="docs/images/act5.png" width="256" alt="5막 클리어"></p>
 
 닌텐도 DS용 오리지널 퍼즐 액션 게임입니다. 등불을 들고 터치스크린으로 마리오네트
 인형극을 조종합니다. 동시에 ROM이 스스로 판정하도록 만들었습니다. 자기 화면을
@@ -14,11 +14,11 @@
 통과/실패를 보고하므로 다른 에뮬레이터가 회귀 테스트로 쓸 수 있습니다.
 
 **상태: 개발 중.** 타이틀 화면, 정확도 판정(타이틀 + Select), 1막 프로토타입(타이틀 + Start)까지
-동작하고 2·3막은 테스트 메뉴에서 열립니다(2막은 1막 클리어 뒤, 3막은 2막 클리어 뒤에도 이어짐). 나머지 막은 단계별로
+동작하고 2~5막은 테스트 메뉴에서 열립니다(각 막은 앞 막 클리어 뒤에도 이어짐). 아트·사운드·크레딧은 단계별로
 추가합니다. 1막: 터치스크린의 슬라이더 4개를 끌어 종이 마리오네트의 팔다리를 위 화면의 그림자에
 맞춥니다(실루엣 겹침 85% 이상). 2막: 인형을 고르고(좌우 또는 터치) L/R로 뒤돌려, 종이 인형 세 개가
 모두 아래 화면이 요구하는 방향을 보게 합니다. 뒤돌기는 정점에 직접 쓴 역방향 텍스처 좌표로 카드를
-뒤집고, 세 번째(꿰맨) 인형의 뒷면에는 재단선이 보일 수 있습니다. 3막: 무대는 거의 까맣고(3D 레이어에 밝기 감소 효과), 반투명 등불을 D-pad나 드래그로 움직여 숨은 표식 세 개 위에 잠시 머물게 하면 표식이 켜집니다. 아래 화면은 표식 지도라서 어느 렌더러에서도 끝까지 할 수 있습니다. 클리어 뒤에는 효과 비트를 없음/알파/밝기 감소로 바꿔 가며 자기 화면을 캡처해 등불 픽셀을 읽습니다(GBATEK대로라면 셋 다 같고, melonDS #2503).
+뒤집고, 세 번째(꿰맨) 인형의 뒷면에는 재단선이 보일 수 있습니다. 3막: 무대는 거의 까맣고(3D 레이어에 밝기 감소 효과), 반투명 등불을 D-pad나 드래그로 움직여 숨은 표식 세 개 위에 잠시 머물게 하면 표식이 켜집니다. 아래 화면은 표식 지도라서 어느 렌더러에서도 끝까지 할 수 있습니다. 클리어 뒤에는 효과 비트를 없음/알파/밝기 감소로 바꿔 가며 자기 화면을 캡처해 등불 픽셀을 읽습니다(GBATEK대로라면 셋 다 같고, melonDS #2503). 4막: 가로대에서 핀 네 개로 줄 네 개가 내려오지만 아래쪽 끝이 뒤섞여 있습니다. 핀 두 개를 골라 줄을 맞바꿔 서로 엇갈리는 줄이 없게 합니다. 줄과 가로·대각선 실 두 가닥은 라인 폴리곤이고, 클리어 뒤에 실의 픽셀 수를 셉니다(melonDS #2549). 5막: 어두운 무대의 피날레. 등불로 인형을 하나씩 밝히고 아래 화면이 요구하는 면으로 돌립니다. 받침대에는 엣지 마킹 색 세 가지가 있고, 클리어 뒤 재단선·엣지 세 색·줄·등불을 한꺼번에 판정합니다.
 
 - 언어: C(게임, ARM9 + 자체 ARM7 코어), Python 3(빌드 시 도구)
 - 툴체인: BlocksDS v1.25.0 (digest로 고정한 Docker 이미지)
@@ -58,8 +58,8 @@ Docker만 있으면 됩니다.
 `unconfirmed`인 항목은 정보용이라 실행을 실패시키지 않습니다.
 
 ```sh
-# melonDS 헤드리스 러너(GL 렌더러는 RENDERER=gl|compute), DeSmuME: RESULT_WORDS=32 tools/emu/emu.sh run …
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 700 out/mds/reh "" 699 > reh.log
+# melonDS 헤드리스 러너(GL 렌더러는 RENDERER=gl|compute), DeSmuME: RESULT_WORDS=64 tools/emu/emu.sh run …
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1100 out/mds/reh "" 1099 > reh.log
 python3 lightenette/tools/judge.py reh.log
 ```
 

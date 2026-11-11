@@ -32,7 +32,7 @@
 //   SCALE=n      internal resolution for gl/compute (default 1); screenshots
 //                are 256n wide
 //
-// Prints "RESULT w0..w31" (demo result block at 0x0237F000), "SAVE type len"
+// Prints "RESULT w0..w63" (demo result block at 0x0237F000), "SAVE type len"
 // (melonDS save memory type and size), "PC9 x PC7 y" and the ARM9 registers
 // ("CPU9", "REG9") for crash triage. Nothing in here is built into a ROM.
 
@@ -619,7 +619,7 @@ int main(int argc, char** argv)
     shot(out + "_final.png");
 
     printf("RESULT");
-    for (int i = 0; i < 32; i++) printf(" %08x", nds.ARM9Read32(0x0237F000 + 4 * i));
+    for (int i = 0; i < 64; i++) printf(" %08x", nds.ARM9Read32(0x0237F000 + 4 * i));
     printf("\n");
     if (const char* pk = getenv("PEEK"))
         for (auto& item : split(pk, ',')) {
