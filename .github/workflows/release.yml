@@ -6,6 +6,8 @@
 # the ROMs as workflow artifacts:
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
+#   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
+#                ROMs, expected.json and judge.py; today only lightenette has one)
 # The release job then zips each artifact and attaches the zips to a GitHub
 # Release named after the tag, so the ROMs outlive the artifact retention.
 # Only that job gets write access; the build job stays read-only.
@@ -70,7 +72,7 @@ jobs:
       - name: Checksums
         working-directory: ${{ steps.tag.outputs.game }}/build/release
         run: |
-          for d in rom demos; do
+          for d in rom demos judge; do
             [ -d "$d" ] || continue
             (cd "$d" && sha256sum -- *.nds > SHA256SUMS && cat SHA256SUMS)
           done
@@ -85,6 +87,14 @@ jobs:
         with:
           name: ${{ github.ref_name }}-demos
           path: ${{ steps.tag.outputs.game }}/build/release/demos/
+          if-no-files-found: ignore
+
+      # Games that grade themselves (lightenette) ship the rehearsal ROMs with
+      # expected.json and judge.py; other games have no build/release/judge.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ github.ref_name }}-judge
+          path: ${{ steps.tag.outputs.game }}/build/release/judge/
           if-no-files-found: ignore
 
   release:
@@ -118,6 +128,14 @@ jobs:
           TAG: ${{ github.ref_name }}
           GAME: ${{ needs.build.outputs.game }}
         run: |
+          # A tag pushed at the wrong commit and then moved starts one run per
+          # push, queued in order. The run for the old commit must not publish
+          # (corvane-v0.2.1 first went out with v0.2.0 notes this way).
+          tagged=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
+          if [ "$tagged" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag $TAG now points at $tagged, but this run built $GITHUB_SHA. Not publishing; the run for the moved tag does."
+            exit 1
+          fi
           version="${TAG#"$GAME"-}"
           case "$version" in *-*) pre=--prerelease ;; *) pre= ;; esac
           {
@@ -125,6 +143,7 @@ jobs:
             echo
             echo "- \`$TAG.zip\`: game ROM and save-chip variants"
             if [ -f "$TAG-demos.zip" ]; then echo "- \`$TAG-demos.zip\`: feature demo ROMs"; fi
+            if [ -f "$TAG-judge.zip" ]; then echo "- \`$TAG-judge.zip\`: emulator-test kit (rehearsal ROMs, \`expected.json\`, \`judge.py\`)"; fi
             echo
             echo "Each zip has its own \`SHA256SUMS\` and the licence texts and third-party notices."
             echo "The build is reproducible: \`./build.sh release\` in \`$GAME/\` at this commit gives the same ROMs."
@@ -134,7 +153,9 @@ jobs:
             echo '```'
           } > notes.md
           if gh release view "$TAG" > /dev/null 2>&1; then
+            # Re-run: replace the files and the notes, which list their checksums.
             gh release upload --clobber "$TAG" -- *.zip SHA256SUMS
+            gh release edit "$TAG" --notes-file notes.md
           else
             # shellcheck disable=SC2086 # $pre is empty or one flag
             gh release create "$TAG" --verify-tag --title "$GAME $version" \

@@ -86,6 +86,47 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | io-rtc | date and time update every second, stage 2 day/night | year, month, day, hour | ✅ `1a b a f` date and time tick; stage 2 sky DAY |
 | io-touch | crosshair at the pen position, pixel/raw values | touching, x, y, raw x | ✅ `0 78 64 0` pen 120,100 while touched |
 | io-power | A: top backlight, B: speaker, closing the lid sleeps | battery, lid, backlight, speaker | ✅ `f 0 0 1` battery OK, lid open, A/B toggle |
+| acc-stage | reversed-UV cards, edge-marked puppets on line-polygon strings, semi-transparent lantern over darkened 3D; grades itself (see [Accuracy cross-check](#accuracy-cross-check-acc-stage)) | cut-line pixels per card row, edge pixels, line pixels, pass flags | ✅ software renderer `120000 b7 2c1 1f` all pass; GL renderers differ (see below) |
+
+## Accuracy cross-check (acc-stage)
+
+`acc-stage` touches three features where melonDS's renderers were reported to
+differ from hardware: [#2008](https://github.com/melonDS-emu/melonDS/issues/2008)
+(reversed texture coordinates),
+[#2503](https://github.com/melonDS-emu/melonDS/issues/2503) (semi-transparent OBJ
+over 3D) and [#2549](https://github.com/melonDS-emu/melonDS/issues/2549) (edge
+marking, line polygons). The scene is static. BLDCNT is `0100` (no effect) for
+frames 0–39, `0140` (alpha) for 40–79 and `01C1` (darken BG0) from 80. The demo
+captures the main screen (display capture to bank D) in each mode, counts pixels
+and prints the grades at the bottom left. The same numbers can be read on hardware.
+
+| Part | What is drawn | Expected (GBATEK / hardware report) |
+|---|---|---|
+| #2008 | three 16x16 paper cards at 1:1, texels 16–31 with magenta cut lines at 15 and 32: `FWD 16>32`, `REV 31>15` (the compensated mirror from the issue), `REV 32>16` | cut line only in `REV 32>16`, 18 pixels at its left edge: `SEAM 0 0 18` |
+| #2549 | two puppets with polygon IDs 8 and 16 (edge colours yellow, cyan); strings and a floor grid as line polygons (triangles with two equal vertices) | outlines and lines present (counted outside the lantern) |
+| #2503 | a 64x64 semi-transparent OBJ lantern, EVA 8 / EVB 16, over 3D | it alpha-blends the same in all three modes; in darken mode it is the only undarkened spot |
+
+Result block: `values[0]` cut-line pixels (FWD, REV31 << 8, REV32 << 16),
+`[1]` edge pixels, `[2]` line pixels, `[3]` pass flags (bit 0 cut lines,
+1 edges, 2 lines, 3 lantern blend, 4 darken; hardware should give `1f`),
+`[4..6]` lantern pixel at (232,132) per mode, `[7..8]` pixel at (140,140) in
+none / darken mode. After the checkpoint A cycles the three modes.
+
+Results on 2026-11-11, 1x. melonDS 1.1 runs headless (`tools/melonds/mds.sh`,
+GL renderers on Mesa llvmpipe through `RENDERER=gl|compute`); DeSmuME is the
+`tools/emu/` build. Hardware has not been run yet.
+
+| Renderer | Cut lines | Edge px | Line px | Lantern none / alpha / darken | Flags | Differs from expected |
+|---|---|---|---|---|---|---|
+| melonDS software | 0 0 18 | 183 | 705 | `318f` `318f` `318f` | `1f` | — |
+| melonDS OpenGL (Classic) | 0 **18 0** | **0** | 710 | **`0d2c`** `318f` **`0d2c`** | `14` | #2008: mirror off by one; #2549: no edge marking; #2503: lantern not blended without the alpha effect bits, including darken mode |
+| melonDS OpenGL (Compute shader) | 0 0 18 | 183 | 834 | **`0d2c`** `318f` **`0d2c`** | `17` | #2503 as Classic. Edge marking is right at 1x; at `SCALE=2` the outline stays one output pixel thick (#2549) |
+| DeSmuME | 0 0 18 | 188 | 338 | `318f` `318f` **`1d6e`** | `17` | darkens the blended lantern in darken mode; draws no horizontal line polygons |
+
+Open questions that need hardware: whether horizontal line polygons are drawn
+(melonDS draws them, DeSmuME doesn't) and the exact line pixel count (705 / 710
+/ 834 / 338). The display capture saw the same values as the GL output here, so
+in-ROM grading caught all three GL differences.
 
 ## Main build checklist
 

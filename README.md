@@ -29,6 +29,7 @@ and clearly noticed third-party runtime libraries.
 |---|---|---|
 | [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen. | [README](corvane/README.md) · [QA checklist](corvane/docs/QA.md) · [Assets](corvane/ASSETS.md) |
 | [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound. | [README](hushwell/README.md) · [QA checklist](hushwell/docs/QA.md) · [Assets](hushwell/ASSETS.md) |
+| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display to test emulator accuracy cases, and a release ships the rehearsal ROMs with `expected.json` and `judge.py` for other emulators' CI. | [README](lightenette/README.md) · [QA checklist](lightenette/docs/QA.md) · [Assets](lightenette/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -38,7 +39,7 @@ Requires [Docker](https://www.docker.com/). Every game builds inside a BlocksDS
 image pinned by digest, so builds are reproducible and need no local toolchain.
 
 ```sh
-cd corvane            # or: cd hushwell
+cd corvane            # or: cd hushwell, cd lightenette
 ./build.sh            # → corvane.nds (hushwell.nds)
 ./build.sh demos      # single-feature demo ROMs (corvane-<demo>.nds)
 ```
@@ -90,6 +91,7 @@ key table in [AGENTS.md](AGENTS.md#controls-and-key-mapping) and `tools/melonds/
 ```
 corvane/          a game: sources, build.sh, Dockerfile, docs, licences
 hushwell/         a game (made from the corvane template)
+lightenette/      a game (made from the corvane template)
 tools/emu/        headless DeSmuME harness for smoke tests (Docker)
 tools/melonds/    melonDS key mapping, input checks (macOS), headless melonDS runner
 scripts/          maintenance scripts (agent config sync, logo generator)
@@ -100,7 +102,7 @@ AGENTS.md         project conventions for coding agents (Claude Code reads it vi
 
 ## Licence
 
-Each game states its licence in its folder. Corvane and Hushwell are licensed under the
-Apache License 2.0 ([corvane](corvane/LICENSE), [hushwell](hushwell/LICENSE)); third-party
+Each game states its licence in its folder. Corvane, Hushwell and Lightenette are licensed under the
+Apache License 2.0 ([corvane](corvane/LICENSE), [hushwell](hushwell/LICENSE), [lightenette](lightenette/LICENSE)); third-party
 components in their ROMs are listed in each game's `THIRD_PARTY_NOTICES`. ROMs are not committed;
 build them from source.

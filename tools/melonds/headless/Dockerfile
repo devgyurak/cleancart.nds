@@ -2,12 +2,14 @@
 # SPDX-FileCopyrightText: 2026 Corvane contributors
 #
 # Headless melonDS 1.1 core (GPL-3.0, downloaded at build time, never part of a ROM)
-# plus our runner mdsrun.cpp. Native arch; no JIT, software renderer.
+# plus our runner mdsrun.cpp. Native arch; no JIT. Software renderer by default;
+# RENDERER=gl|compute runs the GL renderers on Mesa llvmpipe (surfaceless EGL).
 
 FROM debian:bookworm-slim
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl cmake make g++ \
+    libegl-dev libegl1 libegl-mesa0 libgl1-mesa-dri \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
