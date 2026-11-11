@@ -17,6 +17,22 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
 | acc-stage demo | `lightenette-acc-stage.nds`, same numbers as the title → Select scene; result block `0x0237F000`: magic `0x52455643`, id `0x4A44474C` | see below |
 
+## Conclusion (2026-11-11)
+
+The rehearsal reproduces the graphics bugs that are currently open for the OpenGL (Classic)
+renderer. Each one shows up as NG items on that renderer, while the software renderer passes every
+gating item:
+
+| Bug | What the ROM sees on OpenGL (Classic) | NG items |
+|---|---|---|
+| Reversed texture coordinates | the cut line shows on the compensated doll instead of the plain one (judge and act 2 `0/18/0`, act 5 `18/0/0`) | `seam-uv`, `act2-seam`, `act5-seam` |
+| Edge marking | no outlines at all (0 edge pixels) | `edge-marking`, `act2-edge-marking`, `act5-edge-3-colours` |
+| Translucent OBJ over a brightness effect | the lantern changes with the blend mode (e.g. `0d2c/318f/0d2c` instead of one value) | `lantern-blend-equal`, `act3-lantern-equal`, `act5-lantern-equal` |
+
+These NG results are the intended outcome, not faults of the game: every act still clears on that
+renderer, and its profile (`--profile`) matches. Not covered yet: internal resolutions above 1x
+(all runs are at 1x) and real hardware.
+
 ## Judge measurements (2026-11-11, headless; GL = Mesa llvmpipe; not yet on hardware)
 
 Result block `values[0..3]` (seam rows, edge, line, flags) and lantern values `values[4..6]`:
@@ -82,6 +98,10 @@ that profile in `expected.json`; any other set is exit 1 and the run names the n
 newly passing items. A reviewer reported that melonDS master `4ce2188` already fixed #2503; we have
 **not** verified that. If it is true, the GL profiles report the three lantern items as NEWLY PASSING
 and exit 1 until the profile is updated.
+
+The three `*-lantern-equal` items also require the lantern pixel to differ from the backdrop pixel
+(`unlike` in `expected.json`): a lantern that is not drawn at all would otherwise give three identical
+backdrop pixels and pass as "all equal".
 
 Gating items: `seam-uv`, `act2-seam`, `act5-seam` are qualitative (source `report:melonDS#2008`): rows 0 and 1
 must show no cut line and row 2 (the uncompensated reverse) must show one. The exact `0/0/18`

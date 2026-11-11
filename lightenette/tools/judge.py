@@ -125,7 +125,14 @@ def grade(item, vals):
         lo, hi = item['min'], item['max']
         return lo - tol <= got[0] <= hi + tol, '%d' % got[0], '%d..%d' % (lo, hi)
     if check == 'all_equal':
-        return max(got) - min(got) <= tol, '/'.join('%04x' % g for g in got), 'all equal'
+        shown = '/'.join('%04x' % g for g in got)
+        if 'unlike' in item:
+            # The lantern must really be drawn: three identical backdrop
+            # pixels would otherwise count as "all equal".
+            if got[0] == vals[item['unlike']]:
+                return False, shown + ' (= backdrop)', 'all equal, not the backdrop'
+            return max(got) - min(got) <= tol, shown, 'all equal, not the backdrop'
+        return max(got) - min(got) <= tol, shown, 'all equal'
     if check == 'differ':
         return got[0] != got[1], '/'.join('%04x' % g for g in got), 'differ'
     raise Fatal('expected.json: unknown check %r in item %s' % (check, item.get('id')))
