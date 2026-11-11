@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "about": "Expected result-block values for the Lightenette rehearsal and judge ROMs. Judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h and arm9/source/judge/judge.h.",
+  "block": { "address": "0x0237F000", "magic": 1380275779 },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware (e.g. hw:DS Lite); gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "lightenette-rehearsal.nds",
+      "item_id": 1279608914,
+      "item_id_text": "RHEL",
+      "frames": 330,
+      "note": "act 1 from the embedded touch script, then the judge; no save chip, no NitroFS"
+    },
+    "acc-stage": {
+      "rom": "lightenette-acc-stage.nds",
+      "item_id": 1245988684,
+      "item_id_text": "LGDJ",
+      "frames": 180,
+      "note": "the judge scene alone"
+    }
+  },
+  "items": [
+    {
+      "id": "seam-uv",
+      "title": "Reversed-UV cut line: 0/0/18 pixels on the three card rows (melonDS #2008)",
+      "boots": ["rehearsal", "acc-stage"],
+      "frame": 330,
+      "values": [0],
+      "check": "eq",
+      "expect": 1179648,
+      "pack": "u8x3",
+      "display": "0/0/18",
+      "tolerance": 0,
+      "source": "report:melonDS#2008",
+      "model": null
+    },
+    {
+      "id": "edge-marking",
+      "title": "Edge marking draws edge pixels (melonDS #2549)",
+      "boots": ["rehearsal", "acc-stage"],
+      "frame": 330,
+      "values": [1],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "model": null
+    },
+    {
+      "id": "line-polygon",
+      "title": "Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338)",
+      "boots": ["rehearsal", "acc-stage"],
+      "frame": 330,
+      "values": [2],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "model": null
+    },
+    {
+      "id": "lantern-blend-equal",
+      "title": "Translucent lantern OBJ looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
+      "boots": ["rehearsal", "acc-stage"],
+      "frame": 330,
+      "values": [4, 5, 6],
+      "check": "all_equal",
+      "tolerance": 0,
+      "source": "GBATEK",
+      "model": null
+    },
+    {
+      "id": "darken-works",
+      "title": "Darken lowers the 3D backdrop outside the lantern",
+      "boots": ["rehearsal", "acc-stage"],
+      "frame": 330,
+      "values": [7, 8],
+      "check": "differ",
+      "tolerance": 0,
+      "source": "GBATEK",
+      "model": null
+    },
+    {
+      "id": "act1-cleared",
+      "title": "Act 1 is cleared by the embedded touch script",
+      "boots": ["rehearsal"],
+      "frame": 330,
+      "values": [10],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "model": null
+    },
+    {
+      "id": "act1-score",
+      "title": "Act 1 silhouette match at the end, 85-100",
+      "boots": ["rehearsal"],
+      "frame": 330,
+      "values": [9],
+      "check": "range",
+      "min": 85,
+      "max": 100,
+      "tolerance": 0,
+      "source": "rom",
+      "model": null
+    },
+    {
+      "id": "rehearsal-finished",
+      "title": "The rehearsal ran to the end",
+      "boots": ["rehearsal"],
+      "frame": 330,
+      "values": [12],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "model": null
+    }
+  ]
+}

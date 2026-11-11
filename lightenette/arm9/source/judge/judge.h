@@ -21,6 +21,8 @@
 
 #include <nds.h>
 
+#include "gfx/text.h"
+
 #define JUDGE_ID 0x4A44474Cu  // "LGDJ"
 
 typedef struct {
@@ -36,6 +38,9 @@ void judge_run(JudgeResult *res);
 
 // One frame of the static scene after judge_run (A cycles BLDCNT).
 void judge_frame(void);
+
+// Writes a line on the judge screen (row 0-23), after judge_run.
+void judge_text(int y, int pal, const char *s);
 
 // Keeps the scene on screen forever (demo build).
 void __attribute__((noreturn)) judge_idle(void);

@@ -39,18 +39,40 @@ Two clean builds give the same SHA-256.
 
 ## Accuracy judge
 
-Title + Select (or the `lightenette-acc-stage.nds` demo ROM) runs a static scene and grades
+Title + Select opens a test menu: the accuracy judge and the act 1 rehearsal. The judge (or the `lightenette-acc-stage.nds` demo ROM) runs a static scene and grades
 three cases melonDS reported against hardware: reversed texture coordinates ([#2008](https://github.com/melonDS-emu/melonDS/issues/2008)),
 a translucent OBJ over 3D with a brightness effect ([#2503](https://github.com/melonDS-emu/melonDS/issues/2503)) and
 edge marking / line polygons ([#2549](https://github.com/melonDS-emu/melonDS/issues/2549)). The values are on screen and in the
 result block at `0x0237F000` (layout in `arm9/source/judge/judge.h`). It needs no NitroFS file.
+
+## Rehearsal and judging script
+
+The rehearsal replays act 1 from a touch script embedded in the ROM, then runs the judge and leaves one
+result block (layout in `arm9/source/game/rehearsal.h`). It uses no pen input, no save chip and no
+NitroFS. Reach it from the test menu, or build the ROM that boots straight into it:
+`./build.sh DEMO=rehearsal` → `lightenette-rehearsal.nds`.
+
+`expected.json` lists every checked item (frame, expected value, tolerance, source, boot path, hardware
+model). `tools/judge.py` reads a run log and grades it; it needs only Python 3 and exits 0 when every
+gating item is OK (1: an item is NG, 2: no valid result block). Items whose source is `unconfirmed`
+are informational and never fail the run.
+
+```sh
+# melonDS headless runner (RENDERER=gl|compute for the GL renderers); DeSmuME: RESULT_WORDS=16 tools/emu/emu.sh run …
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 330 out/mds/reh "" 329 > reh.log
+python3 lightenette/tools/judge.py reh.log
+```
+
+Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report), `hw:<model>`
+(measured by us on hardware), `rom` (the ROM's own deterministic logic), `unconfirmed`.
+The judge understands the `RESULT` line of both harnesses and `PEEK` dumps of the block.
 
 ## Layout
 
 ```
 arm9/source/game/   scenes
 arm9/source/judge/  accuracy judge (capture, pixel counts, result block)
-arm9/source/demo/   demo ROM entry (acc-stage)
+arm9/source/demo/   demo ROM entry (acc-stage, rehearsal)
 arm9/source/core/   system, input, DMA, save, sound (corvane layers)
 arm9/source/gfx/    2D/3D layers (corvane layers)
 arm7/               own ARM7 core

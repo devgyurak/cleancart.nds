@@ -12,6 +12,7 @@ OUTPREFIX_final.png is always written.
 
 Environment:
   SAVETYPE  DeSmuME save type (3 EEPROM 64 KB default, 4 FRAM, 5 FLASH)
+  RESULT_WORDS  words of the result block to print (default 8, 16 for the whole block)
   POKE      ADDR:VALUE (hex addr) written as a u32 every 30 frames,
             e.g. to keep a lives counter up during long runs
 
@@ -69,7 +70,7 @@ def main(argv):
             e.screenshot().save('%s_%05d.png' % (out, f))
     e.screenshot().save('%s_final.png' % out)
     m = e.memory.unsigned
-    words = [m.read_long(RESULT_ADDR + 4 * i) for i in range(8)]
+    words = [m.read_long(RESULT_ADDR + 4 * i) for i in range(int(os.environ.get('RESULT_WORDS', '8')))]
     print('RESULT', ' '.join('%08x' % w for w in words))
     print('PC9 %x PC7 %x' % (e.memory.register_arm9.pc, e.memory.register_arm7.pc))
 

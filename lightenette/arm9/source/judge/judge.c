@@ -272,6 +272,11 @@ static void frame_end(void)
     input_update();
 }
 
+void judge_text(int y, int pal, const char *s)
+{
+    text_put(&con, 0, y, pal, s);
+}
+
 void judge_run(JudgeResult *res)
 {
     judge_setup();
