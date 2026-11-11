@@ -47,6 +47,7 @@ them and they are not in the ROM.
 | `nitrofs/stream.pcm` | streamed BGM (ambient pad, PCM8 11025 Hz, about 16 s) | `audio.make_stream()` | original synthesis, Apache-2.0 |
 | `nitrofs/demo1–5.rpl` | input logs for demo play | `stages.demo_replays()` | original, Apache-2.0 |
 | `nitrofs/probe.bin` | 2 KB pattern for checking cart DMA (expected CRC included) | `mkassets.py` | original, Apache-2.0 |
+| (runtime) `acc-stage` card texture and lantern sprite | 64x16 direct-colour paper card with cut lines; 64x64 4bpp radial glow | drawn at run time by `arm9/source/demo/demo.c` (`acc_make_card`, `acc_make_lamp`), demo build only | original, Apache-2.0 |
 | `nitrofs/licenses/*` | licence texts (see below) | copied by the `Makefile` | each text's own licence |
 | `icon.bmp` | 32x32 banner icon | `images.icon()` | original, Apache-2.0 |
 

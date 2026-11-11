@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
 // Headless runner on the melonDS 1.1 core (the same core as melonDS.app):
-// software renderer, FreeBIOS, generated firmware, no JIT. It loads a ROM the
+// software renderer by default, FreeBIOS, generated firmware, no JIT. It loads a ROM the
 // way the Qt frontend does (save from a .sav file, direct boot), feeds
 // scripted input and writes screenshots, so QA can look at melonDS output
 // without screen recording.
@@ -25,6 +25,12 @@
 //   RTC=YYYY-MM-DD-HH-MM-SS   start time of the RTC (default: host UTC)
 //   PM0=hex      power management register 0 at boot. Direct boot leaves it 0;
 //                0d is what the firmware leaves (backlights and amp on)
+//   RENDERER=soft|gl|compute  3D renderer (default soft). gl is "OpenGL (Classic)",
+//                compute is "OpenGL (Compute shader)", both on Mesa llvmpipe
+//                through a surfaceless EGL context. Screenshots then come from
+//                the GL compositor output, the picture the app shows.
+//   SCALE=n      internal resolution for gl/compute (default 1); screenshots
+//                are 256n wide
 //
 // Prints "RESULT w0..w15" (demo result block at 0x0237F000), "SAVE type len"
 // (melonDS save memory type and size), "PC9 x PC7 y" and the ARM9 registers
@@ -49,6 +55,12 @@
 #include "GPU.h"
 #include "SPU.h"
 #include "SPI.h"
+#include "GPU3D_OpenGL.h"
+#include "GPU3D_Compute.h"
+#include "frontend/glad/glad.h"
+
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 using namespace melonDS;
 
@@ -262,20 +274,13 @@ static void chunk(FILE* f, const char* type, const std::vector<u8>& data)
     fwrite(c.data(), 1, c.size(), f);
 }
 
-// 256x384 RGB PNG (top screen over bottom) with stored (uncompressed) deflate blocks.
-static void write_png(const std::string& path, const u32* top, const u32* bot)
+// RGB PNG from 8-bit RGB rows, with stored (uncompressed) deflate blocks.
+static void write_png_rgb(const std::string& path, int w, int h, const std::vector<u8>& rgb)
 {
-    const int w = 256, h = 384;
     std::vector<u8> raw;
     for (int y = 0; y < h; y++) {
         raw.push_back(0);
-        const u32* row = y < 192 ? top + y * w : bot + (y - 192) * w;
-        for (int x = 0; x < w; x++) {
-            u32 p = row[x];  // melonDS framebuffer: 0xFFRRGGBB, 8 bits per channel
-            raw.push_back(p >> 16);
-            raw.push_back(p >> 8);
-            raw.push_back(p);
-        }
+        raw.insert(raw.end(), rgb.begin() + y * w * 3, rgb.begin() + (y + 1) * w * 3);
     }
     std::vector<u8> z = {0x78, 0x01};
     u32 a = 1, b = 0;
@@ -298,6 +303,75 @@ static void write_png(const std::string& path, const u32* top, const u32* bot)
     chunk(f, "IDAT", z);
     chunk(f, "IEND", {});
     fclose(f);
+}
+
+// 256x384 PNG (top screen over bottom) from the software framebuffers.
+static void write_png(const std::string& path, const u32* top, const u32* bot)
+{
+    std::vector<u8> rgb;
+    for (int y = 0; y < 384; y++) {
+        const u32* row = y < 192 ? top + y * 256 : bot + (y - 192) * 256;
+        for (int x = 0; x < 256; x++) {
+            u32 p = row[x];  // melonDS framebuffer: 0xFFRRGGBB, 8 bits per channel
+            rgb.push_back(p >> 16);
+            rgb.push_back(p >> 8);
+            rgb.push_back(p);
+        }
+    }
+    write_png_rgb(path, 256, 384, rgb);
+}
+
+// Surfaceless EGL context with desktop GL 4.3 core (compute needs 4.3).
+static bool gl_context()
+{
+    auto get_display = (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
+    EGLDisplay dpy = get_display ? get_display(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, nullptr)
+                                 : EGL_NO_DISPLAY;
+    if (dpy == EGL_NO_DISPLAY || !eglInitialize(dpy, nullptr, nullptr) || !eglBindAPI(EGL_OPENGL_API))
+        return false;
+    const EGLint cfg_attr[] = { EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT, EGL_SURFACE_TYPE, 0, EGL_NONE };
+    EGLConfig cfg;
+    EGLint n = 0;
+    if (!eglChooseConfig(dpy, cfg_attr, &cfg, 1, &n) || n < 1)
+        return false;
+    const EGLint ctx_attr[] = { EGL_CONTEXT_MAJOR_VERSION, 4, EGL_CONTEXT_MINOR_VERSION, 3,
+                                EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+                                EGL_NONE };
+    EGLContext ctx = eglCreateContext(dpy, cfg, EGL_NO_CONTEXT, ctx_attr);
+    if (ctx == EGL_NO_CONTEXT || !eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, ctx))
+        return false;
+    return gladLoadGLLoader((GLADloadproc)eglGetProcAddress) != 0;
+}
+
+// The GL compositor's output texture: both screens at SCALE, 2*SCALE rows
+// apart, top row first, in melonDS's BGRA byte order.
+static void write_png_gl(const std::string& path, NDS& nds, int scale)
+{
+    int w = 256 * scale, th = (384 + 2) * scale;
+    std::vector<u8> tex(w * th * 4);
+    glFinish();
+    // The renderer leaves a pixel-pack buffer bound (its capture readback) and
+    // owns texture unit 1: read through unit 0 with no PBO, then put both back.
+    GLint pbo = 0, unit = 0, bound = 0;
+    glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, &pbo);
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &unit);
+    glActiveTexture(GL_TEXTURE0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    nds.GPU.GetRenderer3D().BindOutputTexture(nds.GPU.FrontBuffer);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, tex.data());
+    glBindTexture(GL_TEXTURE_2D, bound);
+    glActiveTexture(unit);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
+    std::vector<u8> rgb;
+    for (int y = 0; y < 384 * scale; y++) {
+        int ty = y < 192 * scale ? y : y + 2 * scale;
+        const u8* row = tex.data() + (size_t)ty * w * 4;
+        for (int x = 0; x < w; x++)
+            rgb.insert(rgb.end(), row + x * 4, row + x * 4 + 3);
+    }
+    write_png_rgb(path, w, 384 * scale, rgb);
 }
 
 static void write_wav(const std::string& path, const std::vector<s16>& s)
@@ -428,6 +502,32 @@ int main(int argc, char** argv)
     nds.Reset();
     nds.SetupDirectBoot(rompath);
 
+    std::string renderer = getenv("RENDERER") && *getenv("RENDERER") ? getenv("RENDERER") : "soft";
+    int scale = getenv("SCALE") && *getenv("SCALE") ? atoi(getenv("SCALE")) : 1;
+    if (renderer != "soft") {
+        if (!gl_context()) { fprintf(stderr, "no EGL/GL 4.3 context\n"); return 1; }
+        if (renderer == "gl") {
+            auto r = GLRenderer::New();
+            if (!r) { fprintf(stderr, "GLRenderer::New failed\n"); return 1; }
+            r->SetRenderSettings(false, scale);
+            nds.GPU.SetRenderer3D(std::move(r));
+        } else if (renderer == "compute") {
+            auto r = ComputeRenderer::New();
+            if (!r) { fprintf(stderr, "ComputeRenderer::New failed\n"); return 1; }
+            r->SetRenderSettings(scale, false);
+            // The app compiles the compute shaders step by step before running;
+            // without this the renderer draws nothing (its assert is off in Release).
+            int cur = 0, count = 0;
+            while (r->NeedsShaderCompile())
+                r->ShaderCompileStep(cur, count);
+            nds.GPU.SetRenderer3D(std::move(r));
+        } else {
+            fprintf(stderr, "unknown RENDERER %s\n", renderer.c_str());
+            return 2;
+        }
+        printf("GL %s\n", (const char*)glGetString(GL_RENDERER));
+    }
+
     int y, mo, d, h, mi, s;
     if (const char* r = getenv("RTC"); r && sscanf(r, "%d-%d-%d-%d-%d-%d", &y, &mo, &d, &h, &mi, &s) == 6) {
         nds.RTC.SetDateTime(y, mo, d, h, mi, s);
@@ -452,6 +552,8 @@ int main(int argc, char** argv)
     std::map<std::string, int> held;  // key -> release frame
 
     auto shot = [&](const std::string& path) {
+        if (renderer != "soft")
+            return write_png_gl(path, nds, scale);
         int fb = nds.GPU.FrontBuffer;
         write_png(path, nds.GPU.Framebuffer[fb][0].get(), nds.GPU.Framebuffer[fb][1].get());
     };
