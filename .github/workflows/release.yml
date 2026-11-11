@@ -118,6 +118,14 @@ jobs:
           TAG: ${{ github.ref_name }}
           GAME: ${{ needs.build.outputs.game }}
         run: |
+          # A tag pushed at the wrong commit and then moved starts one run per
+          # push, queued in order. The run for the old commit must not publish
+          # (corvane-v0.2.1 first went out with v0.2.0 notes this way).
+          tagged=$(gh api "repos/$GH_REPO/commits/$TAG" --jq .sha)
+          if [ "$tagged" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag $TAG now points at $tagged, but this run built $GITHUB_SHA. Not publishing; the run for the moved tag does."
+            exit 1
+          fi
           version="${TAG#"$GAME"-}"
           case "$version" in *-*) pre=--prerelease ;; *) pre= ;; esac
           {
@@ -134,7 +142,9 @@ jobs:
             echo '```'
           } > notes.md
           if gh release view "$TAG" > /dev/null 2>&1; then
+            # Re-run: replace the files and the notes, which list their checksums.
             gh release upload --clobber "$TAG" -- *.zip SHA256SUMS
+            gh release edit "$TAG" --notes-file notes.md
           else
             # shellcheck disable=SC2086 # $pre is empty or one flag
             gh release create "$TAG" --verify-tag --title "$GAME $version" \
