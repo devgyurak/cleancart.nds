@@ -28,4 +28,4 @@ and the accuracy rehearsal come in later changes. Nothing is measured on real ha
 
 Everything builds in the pinned Docker image; two clean builds give the same SHA-256.
 Play: Start on the title, choose an order, build with the D-pad and A/B or by touching the bottom screen;
-Select switches to the 2D grid. Auto QA run: on the title hold L+R+X+Y for 120 frames (see [docs/QA.md](docs/QA.md)).
+Select switches to the 2D grid, X opens the showcase mode (the work drawn bigger than one 3D frame holds). Auto QA run: on the title hold L+R+X+Y for 120 frames (see [docs/QA.md](docs/QA.md)).

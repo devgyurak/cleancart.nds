@@ -74,11 +74,27 @@ screen has it as lit floor tiles; blocks outside the order are red. Touch hit te
 
 **2D grid mode** (Select, any time in a puzzle): `scene_text_screens()` text on both screens, no 3D, no capture, same
 state and rules. Every puzzle must stay solvable in it. In 3D mode the same grid is drawn small in the corners.
-Mode changes tear the screens down and rebuild them (`enter_3d`/`leave_3d`/`enter_2d`). The showcase mode (HBlank
-DMA / rear plane presets) and its bank hand-over come with the showcase stage.
+Mode changes tear the screens down and rebuild them (`enter_3d`/`leave_3d`/`enter_2d`). 
+**Showcase mode** (`game/showcase.c`, X in a puzzle): the finished structure repeated as a plaza of copies, about 2300
+polygons, more than one frame holds (2048 polygons / 6144 vertices), so it is drawn in two passes (left half, right
+half, fixed split x = 128 so each pass holds about 1140 polygons) one per frame; the screen shows the measured counts
+and overflow flags. Preset 1 (A switches): HBlank DMA, the path of melonDS #2618 (acc-split-hdma): engine A at the
+bottom only captures into bank D, the top screen is engine B's 16bpp bitmap BG2 in bank C filled one line per HBlank
+(BG2Y = -1); even calls draw the right pass alone, odd calls the left pass blended with bank D. The screen counts sub BG
+holes (transparent or black pixels, every 4th line) per kind of frame. Preset 2: rear plane (acc-split-rear): engine A
+on top, banks A and C alternate as capture target and rear plane colour (texture slot 2), bank B the far depth plane
+(slot 3), text on engine B (bank H). Both are optional extras: a wrong picture there never blocks play.
+Bank hand-over: entering the showcase leaves the dual 3D layout (`leave_3d`), `setup()` remaps every bank for the
+preset (`vram_layout(VL_DUAL3D)` first, then the preset's changes), leaving stops HBlank DMA channel 1, switches capture
+off and clears `GL_CLEAR_BMP`; the puzzle then re-enters dual 3D from scratch (`enter_3d` -> `dual_begin`, call counter
+0, sub bitmap re-set up) and its 20-frame fade-in covers the first two frames. The pile is kept (`resume`). The routing
+latency (1 call) is a constant: it is what every emulator and renderer measured in the corvane demos; hardware
+unconfirmed. Expected: preset 1 hole count 0 on melonDS 1.1 (all renderers) and master software; master GL shows the
+left half black, master Compute grey (`BLEND 6144`, the #2618 defect); preset 2 is wrong on one side on GL and
+Compute (1.1 and master), a separate defect.
 
 ## Controls (melonDS keys in brackets)
 
-Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, Select (Backspace) 2D grid / 3D, Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
+Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, Select (Backspace) 2D grid / 3D, X (S) showcase (A switches preset, B back), Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
 Y (A) is free in this game and is meant for choosing the work layer in chapter 4 (Y + D-pad up/down).
 More actions are listed here as scenes land.

@@ -42,6 +42,8 @@ static int cur_x, cur_y;
 static bool delivered, matched;
 static int touch_x = -1, touch_y = -1, touch_frames;
 static int delivered_blocks;
+static bool want_showcase;
+static bool resume;       // coming back from the showcase: keep the pile
 static bool want_list;   // Start: back to the puzzle list
 static CvText top_text, bot_text;
 
@@ -262,7 +264,7 @@ static void overlay(bool big)
         if (matched)
             text_center(&bot_text, 20, TP_GREEN, "MATCH!   A: DELIVER");
         text_center(&bot_text, 22, TP_GRAY, "A +1  B -1  HOLD TOUCH: CLEAR");
-        text_center(&bot_text, 23, TP_GRAY, big ? "SELECT: 3D VIEW" : "SELECT: 2D GRID");
+        text_center(&bot_text, 23, TP_GRAY, big ? "SELECT: 3D  X: SHOWCASE" : "SELECT: 2D  X: SHOWCASE");
     }
 }
 
@@ -317,6 +319,11 @@ static void handle_input(void)
     if (cv_in.pressed & KEY_START)
     {
         want_list = true;
+        return;
+    }
+    if (cv_in.pressed & KEY_X)
+    {
+        want_showcase = true;
         return;
     }
     if (delivered)
@@ -415,11 +422,21 @@ static void load_puzzle(void)
     delivered = matched = false;
     touch_x = touch_y = -1;
     want_list = false;
+    want_showcase = false;
 }
+
+const PzGrid *play_grid(void) { return &grid; }
+const PzPart *play_part(void) { return part; }
 
 EvScene scene_play(void)
 {
-    load_puzzle();
+    if (resume)
+    {
+        resume = false;
+        want_showcase = want_list = false;
+    }
+    else
+        load_puzzle();
     bool in3d = ev_view3d;
     if (in3d)
         enter_3d();
@@ -455,6 +472,13 @@ EvScene scene_play(void)
                 enter_3d();
             else
                 enter_2d();
+        }
+        if (want_showcase)
+        {
+            if (in3d)
+                leave_3d();
+            resume = true;
+            return SC_SHOWCASE;
         }
         if (want_list)
         {

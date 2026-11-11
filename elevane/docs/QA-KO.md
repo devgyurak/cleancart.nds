@@ -10,6 +10,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 `AGENTS.md` 참고).
 | 타이틀 → Start (목록) | "CHOOSE AN ORDER", 1장 주문서 8개. 위/아래, A 시작, B 뒤로 | ✅ DeSmuME 헤드리스 (2026-11-11). melonDS 손 조작은 아직 |
 | 퍼즐 (3D) | 위: 정면도, 파란 도면 벽 = 주문서, 블록은 금색, 주문서 밖 블록은 빨강. 아래: 평면도, 밝은 바닥 타일 = 주문서, 커서 타일 노랑. 글자 오버레이(ORDER/NOW 격자, BLOCKS, PAR). 십자키 이동, A +1, B -1, 평면도 칸 터치 +1, 30프레임 누르면 비움. 두 도면이 맞으면 "MATCH! A: DELIVER", A로 납품("DELIVERED ***", 블록 수와 par로 별), A 다음 퍼즐, B 목록. 1-01 스크립트 풀이: `60:START,100:A,160:A,175:RIGHT,185:A,200:RIGHT,210:A,225:RIGHT,235:A,280:A` | ✅ DeSmuME. ✅ melonDS 1.1 soft·GL·compute를 스크립트 터치로 (`160:T60/147:3,175:T105/147:3,190:T150/147:3,205:T196/147:3`): 화면이 일치함 (98,304픽셀 중 8단계 넘게 다른 것은 약 300개, 글자와 가장자리뿐). melonDS 손 조작감은 아직 |
 | 퍼즐 (2D 격자) | Select: 두 화면 모두 글자만. 위에 정면도 격자(`#` 블록, `X` 초과, `+` 부족, `.` 비어 있음), 아래에 평면도 높이(커서 노랑). 규칙은 같고 3D 없이 풀 수 있음. 다시 Select로 3D 복귀 | ✅ DeSmuME (2D에서 풀고 3D로 복귀) |
+| 퍼즐 → X (감상 모드) | 복사본으로 채운 광장 그림(위 화면은 엔진 B 그림), 글자는 아래 화면. 프리셋 1(HBlank DMA): POLYS 1140+1140(패스마다 2048 미만, 합치면 초과), OVERFLOW 0 0, HOLES CAP 0 BLEND 0. A로 프리셋 2(리어 플레인), B/Start로 퍼즐 복귀(쌓은 것 유지, 3D 정상) | ✅ DeSmuME(두 프리셋. 폴리곤 카운터는 DeSmuME가 0을 돌려줘서 0으로 나옴), ✅ melonDS 1.1 soft/GL/compute와 master `4ce2188` soft: 프리셋 1 `HOLES 0 0`. ❌ master `4ce2188` GL(왼쪽 검게)·Compute(왼쪽 회색): 프리셋 1 `BLEND 6144`, #2618 결함이며 퍼즐 진행은 정상. 프리셋 2: ✅ soft, ❌ GL(한쪽 빔, 별개 결함). 퍼즐 복귀 ✅ DeSmuME, melonDS 1.1 soft/GL |
 | 타이틀 → X (크레딧) | 스크롤 크레딧 (libnds, 소스 URL이 있는 BlocksDS crts MPL-2.0, picolibc, libgcc). X로 라이선스 뷰어(`licenses/`의 모든 문서, X 다음 파일, B 뒤로). NitroFS가 없으면 "CART FILES NOT AVAILABLE" | 아직 확인 전 |
 
 ## 자동 QA 실행
