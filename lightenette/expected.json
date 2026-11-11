@@ -6,7 +6,7 @@
   "sources": {
     "GBATEK": "documented hardware behaviour; gating",
     "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
-    "hw:<model>": "measured by us on real hardware (e.g. hw:DS Lite); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
     "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
     "unconfirmed": "no hardware value yet; informational only, never fails the run"
   },

@@ -18,7 +18,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from cvtools import audio, codec, images  # noqa: E402
+from cvtools import audio, codec, images, ltart  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
 
@@ -105,6 +105,11 @@ def main():
     w.blob('cv_sprite_pal', images.palette_bytes(images.SPRITE_PALETTE))
     for name, (tile, sw, sh) in sorted(index.items()):
         w.define('CV_SPR_%s' % name.upper(), tile)
+
+    # Title picture: 8bpp bitmap (BG3) and its palette from entry 96 up.
+    title_pix, title_pal = ltart.title_art()
+    w.blob('cv_title_lz', lz(title_pix), '256x192 8bpp title picture, LZ77')
+    w.blob('cv_title_pal', title_pal[ltart.BASE * 2:], 'palette entries 96-255')
 
     # --- 3D ---------------------------------------------------------------
     tex = images.textures()

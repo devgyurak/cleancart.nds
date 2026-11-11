@@ -203,6 +203,20 @@ def make_samples():
     vals = [0.5 * math.sin(TAU * i / cyc) + 0.3 * (1 if i < cyc // 2 else -1) * 0.5 for i in range(cyc)]
     s.append(Sample('drone', FMT_PCM8, rate, pcm8(vals[-4:] + vals), loop_words=1, volume=60))
 
+    # 20 chime: two bell partials with a slow decay (UI confirm)
+    n, rate = 9000, 16384
+    vals = []
+    for i in range(n):
+        t = i / rate
+        vals.append((0.5 * math.sin(TAU * 880 * t) + 0.3 * math.sin(TAU * 1318 * t)
+                     + 0.15 * math.sin(TAU * 2217 * t)) * env(i, n, 0.004, 2.2))
+    s.append(Sample('chime', FMT_PCM8, rate, pcm8(vals), volume=90))
+
+    # 21 click: a short soft tick (menu move)
+    n, rate = 700, 16384
+    vals = [math.sin(TAU * 1500 * (i / rate)) * 0.6 * env(i, n, 0.01, 3.0) for i in range(n)]
+    s.append(Sample('click', FMT_PCM8, rate, pcm8(vals), volume=70))
+
     for smp in s:
         if smp.fmt in (FMT_PCM8, FMT_PCM16, FMT_ADPCM):
             smp.words = len(smp.data) // 4
@@ -370,16 +384,9 @@ def compose(seed, root, scale, prog, bpm, bars_per_chord=1, density=0.6,
 
 
 SONGS = [
-    # name, composer arguments
-    ('title',    dict(seed=11, root=57, scale='dorian', prog=[0, 5, 3, 4], bpm=112, bars_per_chord=2, intro_bars=2)),
-    ('briefing', dict(seed=23, root=50, scale='minor', prog=[0, 3, 5, 4], bpm=84, drums='none', arp=False, density=0.45)),
-    ('stage1',   dict(seed=31, root=52, scale='minor', prog=[0, 5, 6, 4, 0, 3, 6, 4], bpm=138)),
-    ('stage2',   dict(seed=47, root=55, scale='lydian', prog=[0, 1, 4, 3], bpm=128, bars_per_chord=2, lead_duty=3)),
-    ('stage3',   dict(seed=59, root=48, scale='phrygian', prog=[0, 1, 0, 6], bpm=104, drums='none', density=0.4)),
-    ('stage4',   dict(seed=67, root=53, scale='minor', prog=[0, 0, 5, 6], bpm=150, drums='drive')),
-    ('boss',     dict(seed=79, root=50, scale='phrygian', prog=[0, 1, 5, 4, 0, 1, 6, 4], bpm=164, drums='drive', density=0.75)),
-    ('ending',   dict(seed=97, root=60, scale='major', prog=[0, 5, 3, 4, 0, 3, 4, 0], bpm=96, bars_per_chord=2)),
-    ('result',   dict(seed=101, root=60, scale='major', prog=[0, 4], bpm=120, drums='none')),
+    # name, composer arguments (Lightenette: slow, lantern-lit, no heavy drums)
+    ('lantern', dict(seed=0x1A7E, root=57, scale='lydian', prog=[0, 4, 5, 3], bpm=88, bars_per_chord=2, drums='none', intro_bars=2, density=0.5)),
+    ('puppets', dict(seed=0x7075, root=52, scale='dorian', prog=[0, 3, 5, 4, 0, 6, 5, 4], bpm=104, drums='rock', density=0.55, lead_duty=2)),
 ]
 
 

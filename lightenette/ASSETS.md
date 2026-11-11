@@ -22,7 +22,9 @@ are not in the ROM.
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_sprite_tiles`, `cv_sprite_pal` | small sprite sheet (shared with corvane; unused by the title) | `images.sprite_sheet()` | original, Apache-2.0 |
 | `cv_tex_*`, `cv_toon_table` | textures in all seven 3D formats, toon table (shared with corvane) | `images.textures()`, `toon_table()` | original, Apache-2.0 |
-| `cv_smp_*`, `cv_song_*`, `cv_sound_bank`, `cv_sample_names`, `cv_song_names` | sound effects and music | `cvtools/audio.py` | original, Apache-2.0 |
+| `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | instrument and effect samples, including Lightenette's `chime` and `click` (shared engine samples come from corvane) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
+| `cv_song_lantern_*`, `cv_song_puppets_*`, `cv_song_names` | the two songs: `lantern` (title) and `puppets` (credits), composed by code | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `cv_title_lz`, `cv_title_pal` | 256x192 8bpp title picture (lantern glow, marionette on a control bar, wordmark from the game font), LZ77, palette entries 96–255 | `cvtools/ltart.py` `title_art()` | original, Apache-2.0 |
 | (runtime) act 2 doll card texture | 64x16 direct-colour paper doll card with cut lines (same layout as the judge's card) | drawn at run time by `arm9/source/game/act2.c` (`make_card`) | original, Apache-2.0 |
 | (runtime) act 3 | nothing new: the stage and marks are untextured 3D polygons; the lantern is the judge's 64x64 glow, loaded through `judge_lamp_load()` | `arm9/source/game/act3.c` | original, Apache-2.0 |
 | (runtime) acts 4 and 5 | nothing new beyond act 2's doll card, redrawn at run time in act 5 (`make_card()`, same pixels): act 4 is untextured line polygons and quads, act 5 reuses the judge's lantern glow through `judge_lamp_load()` | `arm9/source/game/act4.c`, `act5.c` | original, Apache-2.0 |

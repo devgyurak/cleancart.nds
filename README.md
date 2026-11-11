@@ -29,7 +29,7 @@ and clearly noticed third-party runtime libraries.
 |---|---|---|
 | [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen. | [README](corvane/README.md) · [QA checklist](corvane/docs/QA.md) · [Assets](corvane/ASSETS.md) |
 | [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound. | [README](hushwell/README.md) · [QA checklist](hushwell/docs/QA.md) · [Assets](hushwell/ASSETS.md) |
-| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action (work in progress) that also judges itself: the ROM counts pixels of its own display to test emulator accuracy cases. | [README](lightenette/README.md) · [QA checklist](lightenette/docs/QA.md) · [Assets](lightenette/ASSETS.md) |
+| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display to test emulator accuracy cases, and a release ships the rehearsal ROMs with `expected.json` and `judge.py` for other emulators' CI. | [README](lightenette/README.md) · [QA checklist](lightenette/docs/QA.md) · [Assets](lightenette/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
