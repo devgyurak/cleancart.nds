@@ -45,6 +45,7 @@ xorshift, 파이썬 `random` 미사용).
 | `nitrofs/stream.pcm` | 스트리밍 BGM(앰비언트 패드, PCM8 11025 Hz, 약 16초) | `audio.make_stream()` | 직접 합성, Apache-2.0 |
 | `nitrofs/demo1–5.rpl` | 데모 플레이용 입력 로그 | `stages.demo_replays()` | 직접 제작, Apache-2.0 |
 | `nitrofs/probe.bin` | 카트 DMA 검증용 2 KB 패턴(CRC 기대값 포함) | `mkassets.py` | 직접 제작, Apache-2.0 |
+| (실행 중 생성) `acc-stage` 카드 텍스처와 등불 스프라이트 | 재단선이 있는 64x16 다이렉트 컬러 종이 카드, 64x64 4bpp 원형 빛 | `arm9/source/demo/demo.c`(`acc_make_card`, `acc_make_lamp`)가 실행 중에 그림, 데모 빌드 전용 | 직접 제작, Apache-2.0 |
 | `nitrofs/licenses/*` | 라이선스 원문(아래 참고) | `Makefile`이 복사 | 각 원문의 라이선스 |
 | `icon.bmp` | 32x32 배너 아이콘 | `images.icon()` | 직접 제작, Apache-2.0 |
 

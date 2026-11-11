@@ -70,7 +70,8 @@ DEMOS := \
   3d-limits \
   snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream \
   io-cart io-save-eeprom io-save-flash io-save-fram io-firmware io-rtc \
-  io-touch io-power
+  io-touch io-power \
+  acc-stage
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
