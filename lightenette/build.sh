@@ -4,8 +4,8 @@
 #
 # Builds Lightenette inside the pinned BlocksDS container.
 #   ./build.sh                 -> lightenette.nds
-#   ./build.sh DEMO=2d-blend   -> lightenette-2d-blend.nds
-#   ./build.sh demos           -> every feature demo ROM
+#   ./build.sh DEMO=acc-stage  -> lightenette-acc-stage.nds
+#   ./build.sh demos           -> every demo ROM (acc-stage, rehearsal)
 #   ./build.sh SAVE=flash      -> save-chip variant
 set -eu
 

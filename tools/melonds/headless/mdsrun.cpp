@@ -503,7 +503,20 @@ int main(int argc, char** argv)
     nds.SetupDirectBoot(rompath);
 
     std::string renderer = getenv("RENDERER") && *getenv("RENDERER") ? getenv("RENDERER") : "soft";
-    int scale = getenv("SCALE") && *getenv("SCALE") ? atoi(getenv("SCALE")) : 1;
+    if (renderer != "soft" && renderer != "gl" && renderer != "compute") {
+        fprintf(stderr, "ERROR unknown RENDERER %s (soft, gl or compute)\n", renderer.c_str());
+        return 2;
+    }
+    int scale = 1;
+    if (const char* sc = getenv("SCALE"); sc && *sc) {
+        char* end = nullptr;
+        long v = strtol(sc, &end, 10);
+        if (*end || v < 1 || v > 16) {
+            fprintf(stderr, "ERROR SCALE must be a number from 1 to 16, got '%s'\n", sc);
+            return 2;
+        }
+        scale = (int)v;
+    }
     if (renderer != "soft") {
         if (!gl_context()) { fprintf(stderr, "no EGL/GL 4.3 context\n"); return 1; }
         if (renderer == "gl") {
@@ -521,9 +534,6 @@ int main(int argc, char** argv)
             while (r->NeedsShaderCompile())
                 r->ShaderCompileStep(cur, count);
             nds.GPU.SetRenderer3D(std::move(r));
-        } else {
-            fprintf(stderr, "unknown RENDERER %s\n", renderer.c_str());
-            return 2;
         }
         printf("GL %s\n", (const char*)glGetString(GL_RENDERER));
     }

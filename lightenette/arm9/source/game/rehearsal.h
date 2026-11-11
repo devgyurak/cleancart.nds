@@ -18,18 +18,18 @@
 //   values[14]  act 2 cut-line pixels per doll: d0 | d1 << 8 | d2 << 16 (0/0/18)
 //   values[15]  act 2 edge-marking pixels around the plinths
 //   values[16]  act 2 frame of the clear (counted from the act's start)
-//   values[17]  1 if the act 2 display capture finished
+//   values[17]  1 if the act 2 display capture finished (0: seam/edge not graded)
 //   values[18]  act 3 cleared (1 = yes)
 //   values[19]  act 3 marks found (0-3)
 //   values[20..22]  act 3 lantern pixel with BLDCNT 0100 / 0140 / 01C1
 //   values[23..24]  act 3 backdrop pixel outside the lantern, no effect / darkened
-//   values[25]  1 if the act 3 display captures finished
+//   values[25]  act 3 captures that finished, bit m = BLDCNT mode m (7 = all three)
 //   values[26]  act 3 frame of the clear (counted from the act's start)
 //   values[27]  act 4 cleared (1 = yes)
 //   values[28]  act 4 frame of the clear
 //   values[29]  act 4 horizontal thread pixels (line polygon, information only)
 //   values[30]  act 4 diagonal thread pixels (line polygon, information only)
-//   values[31]  1 if the act 4 display capture finished
+//   values[31]  1 if the act 4 display capture finished (0: counts not graded)
 //   values[32]  act 5 cleared (1 = yes)
 //   values[33]  act 5 frame of the clear
 //   values[34]  act 5 cut-line pixels per doll (u8x3, expected 0/0/18)
@@ -37,7 +37,11 @@
 //   values[38]  act 5 string line-polygon pixels (information only)
 //   values[39..41]  act 5 lantern pixel with BLDCNT 0100 / 0140 / 01C1
 //   values[42..43]  act 5 backdrop pixel outside the lantern, no effect / darkened
-//   values[44]  1 if the act 5 display captures finished
+//   values[44]  act 5 captures that finished, bit m = BLDCNT mode m (7 = all three)
+//   values[3] bits 8-10 do the same for the judge's three captures. A value that
+//   belongs to a capture that did not finish reads 0xFFFF (pixels) and its
+//   capture bit is clear; tools/judge.py grades such an item NG.
+//   The magic word is written last, after the values and a cache flush.
 //   The whole block is 64 words (CvResult.values[61]).
 
 #ifndef LT_REHEARSAL_H

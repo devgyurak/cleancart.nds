@@ -17,7 +17,8 @@
 //
 // Result block (CvResult at CV_RESULT_ADDR, demo_id ACT4_ID), every frame:
 // values[0] cleared, [1] horizontal thread pixels, [2] diagonal thread pixels,
-// [3] strings' pegs packed 4 bits each, [4] crossings.
+// [3] strings' pegs packed 4 bits each, [4] crossings, [5] 1 once the display
+// capture finished (the thread counts are only valid then).
 
 #include <nds.h>
 #include <stdio.h>
@@ -32,6 +33,7 @@
 #include "gfx/oam.h"
 #include "gfx/text.h"
 #include "gfx/vram.h"
+#include "judge/capture.h"
 
 #define MAIN_BG ((u8 *)0x06000000)
 #define SUB_BG  ((u8 *)0x06200000)
@@ -283,8 +285,8 @@ static LtScene act4_loop(const Act4Step *steps, int nsteps, int end_frame, Act4O
         }
 
         if (cleared && f == clear_frame + CAP_AFTER)
-            REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);  // source A to bank D, 256x192
-        if (cleared && f == clear_frame + READ_AFTER && !(REG_DISPCAPCNT & (1u << 31)))
+            cap_start();
+        if (cleared && f == clear_frame + READ_AFTER && cap_done())
         {
             hpx = count_col(hcol, H_Y - 4, H_Y + 4);
             dpx = count_col(dcol, D_Y0 - 2, D_Y1 + 3);
@@ -304,7 +306,9 @@ static LtScene act4_loop(const Act4Step *steps, int nsteps, int end_frame, Act4O
         r->values[2] = dpx;
         r->values[3] = (u32)(peg_of[0] | peg_of[1] << 4 | peg_of[2] << 8 | peg_of[3] << 12);
         r->values[4] = (u32)crossings();
+        r->values[5] = measured;
         r->magic = CV_RESULT_MAGIC;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 
         oam_commit();
         sys_vsync();

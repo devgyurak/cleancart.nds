@@ -7,7 +7,7 @@
 
 [한국어](README-KO.md)
 
-<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"> <img src="docs/images/act3.png" width="256" alt="Act 3, cleared"> <img src="docs/images/act4.png" width="256" alt="Act 4, cleared"> <img src="docs/images/act5.png" width="256" alt="Act 5, cleared"></p>
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"> <img src="docs/images/act3.png" width="256" alt="Act 3, cleared"> <img src="docs/images/act4.png" width="256" alt="Act 4, cleared"> <img src="docs/images/act5.png" width="256" alt="Act 5, cleared"></p>
 
 An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
 marionette show with the touch screen. It is also built to judge itself: the ROM
@@ -61,16 +61,18 @@ Two clean builds give the same SHA-256.
 The ROM decides by itself; the emulator only has to run it and expose main RAM.
 
 1. Run `lightenette-rehearsal.nds` (boots straight into the rehearsal: act 1 from a touch script, acts 2 to 5 from key scripts, then the judge). It needs no save chip, no pen input and no NitroFS, so it works from any cart kernel. `lightenette-acc-stage.nds` runs only the static judge scene.
-2. After 1100 frames read the result block at `0x0237F000` (64 words; layout in `arm9/source/game/rehearsal.h` and `arm9/source/judge/judge.h`: magic `0x52455643`, item id, frame, values). The same numbers and OK/NG are drawn on screen, so a screenshot works too.
-3. Grade it: `python3 tools/judge.py <log>` (Python 3 stdlib only) compares the block with `expected.json` and exits 0 when every gating item is OK, 1 if one is NG, 2 if there was no valid block. It reads the `RESULT` line of the melonDS headless runner and of the DeSmuME harness, or a `PEEK` dump.
+2. After 1800 frames (the rehearsal ends at about frame 864-954; 1800 covers the worst case where every act runs to its own limit) read the result block at `0x0237F000` (64 words; layout in `arm9/source/game/rehearsal.h` and `arm9/source/judge/judge.h`: magic `0x52455643`, item id, frame, values). The same numbers and OK/NG are drawn on screen, so a screenshot works too. The magic word is written last, so a block with the right magic is complete. Each display capture has a "finished" bit (`values[3]` bits 8-10 for the judge; `values[17]`, `[25]`, `[31]`, `[44]` for the acts); a value whose capture did not finish reads `0xFFFF`.
+3. Grade it: `python3 tools/judge.py <log>` (Python 3 stdlib only) compares the block with `expected.json` and exits 0 when every gating item is OK, 1 if one is NG (or the rehearsal did not finish), 2 if there was no usable result (no valid block, unknown or mismatching `--boot`, unreadable files). It finds `expected.json` next to itself (the release kit layout) or one folder up (the source tree). It reads the `RESULT` line of the melonDS headless runner and of the DeSmuME harness (a leading ROM name from the `demos` commands is accepted, `--demo NAME` picks one), or a `PEEK` dump; malformed lines are skipped with a warning. An item whose capture did not finish, or whose pixel is the "not captured" marker, is NG.
+4. Known differences: `python3 tools/judge.py --profile NAME <log>` exits 0 only when the failing gating items are exactly the `known` list of that emulator profile in `expected.json` (`--list-profiles` shows them: `melonds-1.1-software`, `melonds-1.1-gl-classic`, `melonds-1.1-gl-compute`, `desmume-pydesmume-0.0.9`). Newly failing items and newly passing items are reported, so a fixed emulator shows up instead of passing silently. A reviewer reported that melonDS master `4ce2188` already fixed #2503; we have not verified that.
 
 ```sh
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1100 out/mds/reh "" 1099 > reh.log   # RENDERER=gl|compute
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
 python3 lightenette/tools/judge.py reh.log
+python3 lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # exit 0 only if the NG set matches
 ```
 
 `expected.json` lists every item: frame, expected value, tolerance, source, boot path and hardware
-model. Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report),
+model, and optionally the captures it depends on (`done`) and whether it reads pixels (`pixels`). The reversed-UV cut line is graded qualitatively (rows 0 and 1 clean, row 2 shows the line); the exact `0/0/18` is an emulator measurement and only an informational item. Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report),
 `hw:<model>` (measured by us on hardware), `rom` (the ROM's own deterministic logic),
 `unconfirmed`. Items from `unconfirmed` sources only print INFO and never fail a run; when a
 hardware value arrives the item moves up to gating. The file carries a `schema` number and each

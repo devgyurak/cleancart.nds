@@ -6,6 +6,8 @@
 # the ROMs as workflow artifacts:
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
+#   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
+#                ROMs, expected.json and judge.py; today only lightenette has one)
 # The release job then zips each artifact and attaches the zips to a GitHub
 # Release named after the tag, so the ROMs outlive the artifact retention.
 # Only that job gets write access; the build job stays read-only.

@@ -17,7 +17,7 @@ void demo_main(const char *name)
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     if (strcmp(name, "acc-stage") == 0)
     {
-        judge_run(NULL);
+        judge_run(NULL, true);
         judge_idle();
     }
     if (strcmp(name, "rehearsal") == 0)

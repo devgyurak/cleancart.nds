@@ -22,7 +22,7 @@
 #include "core/cart.h"
 #include "core/save.h"
 
-#define SAVE_MAGIC   0x56535643u  // "CVSV"
+#define SAVE_MAGIC   0x5653544Cu  // "LTSV"
 #define SAVE_VERSION 1
 #define SLOT_A       0x0000
 

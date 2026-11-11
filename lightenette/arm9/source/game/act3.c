@@ -20,7 +20,8 @@
 //
 // Result block (CvResult at CV_RESULT_ADDR, demo_id ACT3_ID), every frame:
 // values[0] cleared, [1] marks found, [2..4] lantern pixel NONE/ALPHA/DARK,
-// [5..6] backdrop pixel no effect / darkened, [7] captures finished.
+// [5..6] backdrop pixel no effect / darkened (0xFFFF: not captured), [7] capture
+// bits that finished (bit m = BLDCNT mode m; 7 = all, else the values are not graded).
 
 #include <nds.h>
 #include <stdio.h>
@@ -35,6 +36,7 @@
 #include "gfx/oam.h"
 #include "gfx/text.h"
 #include "gfx/vram.h"
+#include "judge/capture.h"
 #include "judge/judge.h"
 
 #define MAIN_BG ((u8 *)0x06000000)
@@ -57,8 +59,8 @@
 // Parking spot after the clear (top-left of the sprite) and the pixels read.
 #define PARK_X 192
 #define PARK_Y 112
-#define LAMP_PX_X 232
-#define LAMP_PX_Y 132
+#define LAMP_PX_X 214
+#define LAMP_PX_Y 140
 #define OUT_PX_X  140
 #define OUT_PX_Y  140
 
@@ -199,7 +201,8 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
     }
     int f = 0, clear_frame = -1, nfound = 0, mode_t0 = 0;
     bool cleared = false, measured = false;
-    u16 lamp[3] = { 0 }, out_none = 0, out_dark = 0;
+    u32 capmask = 0;   // bit m: the BLDCNT mode m capture finished and was read
+    u16 lamp[3] = { CAP_BAD, CAP_BAD, CAP_BAD }, out_none = CAP_BAD, out_dark = CAP_BAD;
     int cap_mode = -1;
 
     text_put(&con, 0, 0, TP_YELLOW, "ACT 3  FIND THE MARKS");
@@ -219,7 +222,7 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
                 if (f >= steps[i].frame && f < steps[i].frame + steps[i].len)
                     held |= steps[i].keys;
         }
-        else if (cv_in.touching)
+        else if (cv_in.touching && !cleared)   // after the clear the lantern stays parked
         {
             lx = cv_in.tx - LAMP_W / 2;
             ly = cv_in.ty - LAMP_W / 2;
@@ -271,27 +274,30 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
                     set_blend(m);
                 if (t == CAP_AFTER)
                 {
-                    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);  // source A to bank D
+                    cap_start();
                     cap_mode = m;
                 }
                 if (t == READ_AFTER && cap_mode == m)
                 {
-                    bool done = !(REG_DISPCAPCNT & (1u << 31));
-                    lamp[m] = done ? cap_px(LAMP_PX_X, LAMP_PX_Y) : 0xFFFF;
-                    if (m == 0)
-                        out_none = cap_px(OUT_PX_X, OUT_PX_Y);
-                    if (m == 2)
-                        out_dark = cap_px(OUT_PX_X, OUT_PX_Y);
+                    if (cap_done())
+                    {
+                        capmask |= 1u << m;
+                        lamp[m] = cap_px(LAMP_PX_X, LAMP_PX_Y);
+                        if (m == 0)
+                            out_none = cap_px(OUT_PX_X, OUT_PX_Y);
+                        if (m == 2)
+                            out_dark = cap_px(OUT_PX_X, OUT_PX_Y);
+                    }
                     if (m == 2)
                     {
                         measured = true;
-                        bool blend_ok = lamp[0] == lamp[1] && lamp[1] == lamp[2];
+                        bool blend_ok = capmask == 7 && lamp[0] == lamp[1] && lamp[1] == lamp[2];
                         text_printf(&con, 0, 20, TP_WHITE, "LAMP %04X %04X %04X", lamp[0],
                                     lamp[1], lamp[2]);
                         text_put(&con, 21, 20, blend_ok ? TP_GREEN : TP_RED, blend_ok ? "OK" : "NG");
                         text_printf(&con, 0, 21, TP_WHITE, "DARK %04X %04X", out_none, out_dark);
-                        text_put(&con, 15, 21, out_dark != out_none ? TP_GREEN : TP_RED,
-                                 out_dark != out_none ? "OK" : "NG");
+                        bool dark_ok = (capmask & 5) == 5 && out_dark != out_none;
+                        text_put(&con, 15, 21, dark_ok ? TP_GREEN : TP_RED, dark_ok ? "OK" : "NG");
                     }
                 }
             }
@@ -311,8 +317,9 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
         r->values[4] = lamp[2];
         r->values[5] = out_none;
         r->values[6] = out_dark;
-        r->values[7] = measured;
+        r->values[7] = capmask;
         r->magic = CV_RESULT_MAGIC;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 
         oam_commit();
         sys_vsync();
@@ -326,7 +333,7 @@ static LtScene act3_loop(const Act3Step *steps, int nsteps, int end_frame, Act3O
                 {
                     out->cleared = cleared;
                     out->clear_frame = clear_frame;
-                    out->measured = measured;
+                    out->measured = capmask;
                     out->found = nfound;
                     for (int i = 0; i < 3; i++)
                         out->lamp[i] = lamp[i];

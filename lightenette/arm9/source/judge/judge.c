@@ -20,6 +20,7 @@
 #include "gfx/oam.h"
 #include "gfx/text.h"
 #include "gfx/vram.h"
+#include "judge/capture.h"
 #include "judge/judge.h"
 
 #define MAIN_BG  ((u8 *)0x06000000)
@@ -32,7 +33,6 @@ static CvText con;
 // x is exact for any pixel; y is exact when y % 3 == 0.
 #define ACC_PX(x) ((x) * 32 - 4096)
 #define ACC_PY(y) (4096 - (y) * 128 / 3)
-#define ACC_CAP   ((const u16 *)0x06860000)   // bank D in LCDC mode
 #define ACC_CARD_X 88
 #define ACC_LAMP_X 192
 #define ACC_LAMP_Y 112
@@ -190,10 +190,13 @@ static void acc_draw(void)
     glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(0));
     acc_color(acc_string);
     acc_line(140, 54, 244, 54, -256);
-    acc_line(150, 54, 152, 97, -256);
-    acc_line(170, 54, 165, 109, -256);
-    acc_line(190, 54, 196, 91, -256);
-    acc_line(214, 54, 205, 103, -256);
+    // The strings stop 3 px above the puppets: a line pixel inside a puppet
+    // polygon (other polygon ID) would be repainted with an edge colour and
+    // drop out of the line count.
+    acc_line(150, 54, 152, 93, -256);
+    acc_line(170, 54, 165, 105, -256);
+    acc_line(190, 54, 195, 87, -256);
+    acc_line(214, 54, 206, 99, -256);
     acc_color(acc_grid);
     for (int y = 150; y <= 186; y += 12)
         acc_line(132, y, 252, y, 256);
@@ -207,7 +210,7 @@ static void acc_draw(void)
 
 static u16 acc_px(int x, int y)
 {
-    return ACC_CAP[y * 256 + x] & 0x7FFF;
+    return cap_pixel(x, y);
 }
 
 static int acc_seam(int row)
@@ -282,7 +285,7 @@ void judge_text(int y, int pal, const char *s)
     text_put(&con, 0, y, pal, s);
 }
 
-void judge_run(JudgeResult *res)
+void judge_run(JudgeResult *res, bool publish)
 {
     judge_setup();
     text_put(&con, 0, 0, TP_YELLOW, "LIGHTENETTE JUDGE");
@@ -300,9 +303,12 @@ void judge_run(JudgeResult *res)
 
     // The scene never moves; only BLDCNT changes at frames 40 and 80. Each
     // mode is captured once it has been on screen for a while.
-    int seam[3] = { 0 };
-    u32 edges = 0, lines = 0;
-    u16 lamp[3] = { 0 }, out_none = 0, out_dark = 0;
+    // A value is only read from a capture that finished; otherwise it keeps its
+    // "not captured" marker (seam 255, counts 0, pixels CAP_BAD) and the
+    // matching capture bit in capmask stays clear.
+    int seam[3] = { 255, 255, 255 };
+    u32 edges = 0, lines = 0, capmask = 0;
+    u16 lamp[3] = { CAP_BAD, CAP_BAD, CAP_BAD }, out_none = CAP_BAD, out_dark = CAP_BAD;
     acc_blend(ACC_NONE);
     for (int f = 0; f < CHECKPOINT; f++)
     {
@@ -311,11 +317,11 @@ void judge_run(JudgeResult *res)
         if (f == 80)
             acc_blend(ACC_DARK);
         if (f == 30 || f == 70 || f == 110)
-            REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);  // source A to bank D, 256x192
-        if (f == 36 || f == 76 || f == 116)
+            cap_start();
+        if ((f == 36 || f == 76 || f == 116) && cap_done())
         {
-            bool done = !(REG_DISPCAPCNT & (1u << 31));
-            lamp[acc_mode] = done ? acc_px(232, 132) : 0xFFFF;
+            capmask |= 1u << acc_mode;
+            lamp[acc_mode] = acc_px(232, 132);
             if (acc_mode == ACC_NONE)
             {
                 for (int i = 0; i < 3; i++)
@@ -331,42 +337,54 @@ void judge_run(JudgeResult *res)
         frame_end();
     }
 
-    // Expectations from GBATEK and the hardware report in #2008: only the
-    // uncompensated reverse row shows its cut line (18 pixels, card height);
-    // the lantern blends the same way in all three modes; darken still works
-    // outside it.
-    bool seam_ok = seam[0] == 0 && seam[1] == 0 && seam[2] == 18;
-    bool blend_ok = lamp[0] == lamp[1] && lamp[1] == lamp[2] && lamp[0] != out_none;
-    bool dark_ok = out_dark != out_none;
+    // Expectations: the hardware report in #2008 has only the uncompensated
+    // reverse row (row 2) showing its cut line, so rows 0 and 1 must be clean and
+    // row 2 must show it. The emulators that draw it show 18 pixels (the card
+    // height); that exact count is a measurement, not a hardware value, so the
+    // check is qualitative. GBATEK: the lantern blends the same way in all three
+    // modes; darken still works outside it. Nothing is graded from a capture
+    // that did not finish.
+    bool all_cap = capmask == 7;
+    bool seam_ok = (capmask & 1) && seam[0] == 0 && seam[1] == 0 && seam[2] > 0;
+    bool blend_ok = all_cap && lamp[0] == lamp[1] && lamp[1] == lamp[2] && lamp[0] != out_none;
+    bool dark_ok = (capmask & 5) == 5 && out_dark != out_none;
     text_printf(&con, 0, 15, TP_WHITE, "SEAM %2d %2d %2d", seam[0], seam[1], seam[2]);
     acc_ok(14, 15, seam_ok);
     text_printf(&con, 0, 16, TP_WHITE, "EDGE %4lu", (unsigned long)edges);
-    acc_ok(10, 16, edges > 0);
+    acc_ok(10, 16, (capmask & 1) && edges > 0);
     text_printf(&con, 0, 17, TP_WHITE, "LINE %4lu", (unsigned long)lines);
-    acc_ok(10, 17, lines > 0);
+    acc_ok(10, 17, (capmask & 1) && lines > 0);
     text_printf(&con, 0, 18, TP_WHITE, "LAMP %04X %04X", lamp[0], lamp[1]);
     text_printf(&con, 0, 19, TP_WHITE, "     %04X", lamp[2]);
     acc_ok(10, 19, blend_ok);
     text_printf(&con, 0, 20, TP_WHITE, "DARK %04X %04X", out_none, out_dark);
     acc_ok(15, 20, dark_ok);
 
-    u32 flags = seam_ok | (edges > 0) << 1 | (lines > 0) << 2 | blend_ok << 3 | dark_ok << 4;
+    u32 flags = seam_ok | ((capmask & 1) && edges > 0) << 1 | ((capmask & 1) && lines > 0) << 2
+                | blend_ok << 3 | dark_ok << 4 | capmask << 8;
     u32 v0 = (u32)seam[0] | (u32)seam[1] << 8 | (u32)seam[2] << 16;
-    volatile CvResult *r = CV_RESULT;
-    r->demo_id = JUDGE_ID;
-    r->frame = cv_frame;
-    r->values[0] = v0;
-    r->values[1] = edges;
-    r->values[2] = lines;
-    r->values[3] = flags;
-    r->values[4] = lamp[0];
-    r->values[5] = lamp[1];
-    r->values[6] = lamp[2];
-    r->values[7] = out_none;
-    r->values[8] = out_dark;
-    r->magic = CV_RESULT_MAGIC;
-    DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
-    text_put(&con, 0, 22, TP_GRAY, "A: BLDCNT  B/START: BACK");
+    if (publish)
+    {
+        volatile CvResult *r = CV_RESULT;
+        r->magic = 0;
+        r->demo_id = JUDGE_ID;
+        r->frame = cv_frame;
+        r->values[0] = v0;
+        r->values[1] = edges;
+        r->values[2] = lines;
+        r->values[3] = flags;
+        r->values[4] = lamp[0];
+        r->values[5] = lamp[1];
+        r->values[6] = lamp[2];
+        r->values[7] = out_none;
+        r->values[8] = out_dark;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+        r->magic = CV_RESULT_MAGIC;   // last: a reader never sees a half-filled block
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    }
+    // Text stays in columns 0-15 (the scene starts at x = 128) or in rows 0-5.
+    text_put(&con, 0, 22, TP_GRAY, "A: BLDCNT");
+    text_put(&con, 0, 23, TP_GRAY, "B: BACK");
     text_printf(&con, 0, 1, TP_GREEN, "CHECKPOINT %08lX %08lX", (unsigned long)v0,
                 (unsigned long)edges);
     text_printf(&con, 0, 2, TP_GREEN, "           %08lX %08lX", (unsigned long)lines,

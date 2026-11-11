@@ -71,7 +71,6 @@ void g3_init(void)
     glClearDepth(0x7FFF);
     glViewport(0, 0, 255, 191);
 
-    glSetToonTable((const uint16_t *)cv_toon_table);
     // Edge colours per polygon-ID group (id >> 3).
     //  0 terrain / corridor, 1 enemies, 2 player, 3 bosses, 4-6 effects, 7 debris
     static const u16 edges[8] = {
@@ -330,24 +329,6 @@ typedef struct {
 } TexDesc;
 
 static const TexDesc tex_desc[TEX_COUNT] = {
-    [TEX_GLOW]    = { cv_tex_glow, cv_tex_glow_pal, CV_TEX_GLOW_PAL_SIZE, GL_RGB32_A3, 16,
-                      TEXGEN_TEXCOORD },
-    [TEX_SMOKE]   = { cv_tex_smoke, cv_tex_smoke_pal, CV_TEX_SMOKE_PAL_SIZE, GL_RGB8_A5, 32,
-                      TEXGEN_TEXCOORD },
-    [TEX_STRIPES] = { cv_tex_stripes, cv_tex_stripes_pal, CV_TEX_STRIPES_PAL_SIZE, GL_RGB4, 32,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_FLIP_S | TEXGEN_TEXCOORD },
-    [TEX_HULL]    = { cv_tex_hull, cv_tex_hull_pal, CV_TEX_HULL_PAL_SIZE, GL_RGB16, 64,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
-    [TEX_ARMOR]   = { cv_tex_armor, cv_tex_armor_pal, CV_TEX_ARMOR_PAL_SIZE, GL_RGB256, 64,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | GL_TEXTURE_FLIP_T | TEXGEN_TEXCOORD },
-    [TEX_TERRAIN] = { cv_tex_terrain, cv_tex_terrain_pal, CV_TEX_TERRAIN_PAL_SIZE, GL_COMPRESSED, 128,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
-    [TEX_PANEL]   = { cv_tex_panel, NULL, 0, GL_RGBA, 32,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
-    [TEX_MESH]    = { cv_tex_mesh, NULL, 0, GL_RGBA, 32,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
-    [TEX_FLARE]   = { cv_tex_flare, cv_tex_flare_pal, CV_TEX_FLARE_PAL_SIZE, GL_RGB8_A5, 32,
-                      TEXGEN_TEXCOORD },
     [TEX_PAPER]   = { cv_tex_paper, NULL, 0, GL_RGBA, 32,
                       GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
 };

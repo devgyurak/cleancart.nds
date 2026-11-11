@@ -362,6 +362,7 @@ static LtScene act1_loop(const Act1Step *steps, int nsteps, int end_frame, Act1O
         for (int i = 0; i < LIMBS; i++)
             r->values[2 + i] = (u32)(angle[i] + 90);
         r->magic = CV_RESULT_MAGIC;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 
         oam_commit();
         sys_vsync();

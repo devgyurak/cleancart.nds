@@ -18,7 +18,8 @@
 // plinths (two edge colours: polygon IDs 8 and 16).
 //
 // Result block (CvResult at CV_RESULT_ADDR, demo_id ACT2_ID), every frame:
-// values[0] cleared, [1] seam pixels (u8x3), [2] edge pixels, [3] doll facings
+// values[0] cleared, [1] seam pixels (u8x3), [2] edge pixels, [3] doll facings,
+// [4] 1 once the display capture finished (seam and edges are only valid then)
 // (bit n = doll n shows its back).
 
 #include <nds.h>
@@ -34,6 +35,7 @@
 #include "gfx/oam.h"
 #include "gfx/text.h"
 #include "gfx/vram.h"
+#include "judge/capture.h"
 
 #define MAIN_BG ((u8 *)0x06000000)
 #define SUB_BG  ((u8 *)0x06200000)
@@ -356,13 +358,13 @@ static LtScene act2_loop(const Act2Step *steps, int nsteps, int end_frame, Act2O
 
         // Grade the picture once the act has been cleared for a few frames.
         if (cleared && f == clear_frame + CAP_AFTER)
-            REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);  // source A to bank D, 256x192
-        if (cleared && f == clear_frame + READ_AFTER && !(REG_DISPCAPCNT & (1u << 31)))
+            cap_start();
+        if (cleared && f == clear_frame + READ_AFTER && cap_done())
         {
             seam = count_seam(0) | count_seam(1) << 8 | count_seam(2) << 16;
             edges = count_edges();
             measured = true;
-            bool seam_ok = seam == 0x120000;
+            bool seam_ok = (seam & 0xFFFF) == 0 && (seam >> 16) > 0;   // only the stitched doll (C) may show it
             text_printf(&con, 0, 21, TP_WHITE, "SEAM %2lu %2lu %2lu %s", seam & 255,
                         seam >> 8 & 255, seam >> 16 & 255, seam_ok ? "OK" : "NG");
             text_printf(&con, 0, 22, TP_WHITE, "EDGE %4lu %s", (unsigned long)edges,
@@ -381,7 +383,9 @@ static LtScene act2_loop(const Act2Step *steps, int nsteps, int end_frame, Act2O
         r->values[1] = seam;
         r->values[2] = edges;
         r->values[3] = back[0] | back[1] << 1 | back[2] << 2;
+        r->values[4] = measured;
         r->magic = CV_RESULT_MAGIC;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 
         oam_commit();
         sys_vsync();
