@@ -20,5 +20,6 @@ contributors)의 자체 제작물입니다.
 | `cv_sprite_tiles`, `cv_sprite_pal` | 작은 스프라이트 시트(corvane과 공유, 타이틀에서는 미사용) | `images.sprite_sheet()` | 자체 제작, Apache-2.0 |
 | `cv_tex_*`, `cv_toon_table` | 3D 텍스처 7가지 형식 전부, 툰 테이블(corvane과 공유) | `images.textures()`, `toon_table()` | 자체 제작, Apache-2.0 |
 | `cv_smp_*`, `cv_song_*`, `cv_sound_bank`, `cv_sample_names`, `cv_song_names` | 효과음과 음악 | `cvtools/audio.py` | 자체 제작, Apache-2.0 |
+| (런타임) 판정 장면의 카드 텍스처와 등불 스프라이트 | 재단선이 있는 64x16 다이렉트 컬러 종이 카드, 64x64 4bpp 방사형 빛 | 실행 시 `arm9/source/judge/judge.c`(`acc_make_card`, `acc_make_lamp`)가 그림 | 자체 제작, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 점검이 읽는 CRC를 아는 2 KB 파일 | `tools/mkassets.py` | 자체 제작, Apache-2.0 |
 | 배너 아이콘(`icon.bmp`) | 32x32 4bpp 아이콘 | `images.icon()` | 자체 제작, Apache-2.0 |

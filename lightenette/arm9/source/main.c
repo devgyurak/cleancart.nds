@@ -11,6 +11,7 @@
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/scenes.h"
 #include "gfx/gl3d.h"
 
@@ -31,11 +32,16 @@ int main(int argc, char *argv[])
     snd_master(cv_save.volume);
     g3_init();
 
+#ifdef CV_DEMO
+    demo_main(CV_DEMO);
+#endif
+
     LtScene scene = SC_TITLE;
     for (;;)
     {
         switch (scene)
         {
+            case SC_JUDGE: scene = scene_judge(); break;
             case SC_TITLE:
             default:       scene = scene_title(); break;
         }

@@ -33,10 +33,20 @@ Docker is all you need.
 
 Two clean builds give the same SHA-256.
 
+## Accuracy judge
+
+Title + Select (or the `lightenette-acc-stage.nds` demo ROM) runs a static scene and grades
+three cases melonDS reported against hardware: reversed texture coordinates ([#2008](https://github.com/melonDS-emu/melonDS/issues/2008)),
+a translucent OBJ over 3D with a brightness effect ([#2503](https://github.com/melonDS-emu/melonDS/issues/2503)) and
+edge marking / line polygons ([#2549](https://github.com/melonDS-emu/melonDS/issues/2549)). The values are on screen and in the
+result block at `0x0237F000` (layout in `arm9/source/judge/judge.h`). It needs no NitroFS file.
+
 ## Layout
 
 ```
 arm9/source/game/   scenes
+arm9/source/judge/  accuracy judge (capture, pixel counts, result block)
+arm9/source/demo/   demo ROM entry (acc-stage)
 arm9/source/core/   system, input, DMA, save, sound (corvane layers)
 arm9/source/gfx/    2D/3D layers (corvane layers)
 arm7/               own ARM7 core

@@ -31,10 +31,19 @@ Docker만 있으면 됩니다.
 
 깨끗한 빌드를 두 번 하면 SHA-256이 같습니다.
 
+## 정확도 판정
+
+타이틀 + Select(또는 `lightenette-acc-stage.nds` 데모 ROM)로 정지 장면을 돌려, melonDS가 실기와
+다르다고 보고된 세 항목을 판정합니다: 역방향 텍스처 좌표([#2008](https://github.com/melonDS-emu/melonDS/issues/2008)),
+밝기 효과와 함께 쓰는 반투명 OBJ([#2503](https://github.com/melonDS-emu/melonDS/issues/2503)), 엣지 마킹·라인 폴리곤([#2549](https://github.com/melonDS-emu/melonDS/issues/2549)).
+값은 화면과 `0x0237F000`의 결과 블록(구조는 `arm9/source/judge/judge.h`)에 나옵니다. NitroFS 파일은 필요 없습니다.
+
 ## 구성
 
 ```
 arm9/source/game/   장면
+arm9/source/judge/  정확도 판정(캡처, 픽셀 세기, 결과 블록)
+arm9/source/demo/   데모 ROM 진입점(acc-stage)
 arm9/source/core/   시스템, 입력, DMA, 세이브, 사운드(corvane 계층)
 arm9/source/gfx/    2D/3D 계층(corvane 계층)
 arm7/               자체 ARM7 코어

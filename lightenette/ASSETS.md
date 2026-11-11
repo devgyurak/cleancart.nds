@@ -23,5 +23,6 @@ are not in the ROM.
 | `cv_sprite_tiles`, `cv_sprite_pal` | small sprite sheet (shared with corvane; unused by the title) | `images.sprite_sheet()` | original, Apache-2.0 |
 | `cv_tex_*`, `cv_toon_table` | textures in all seven 3D formats, toon table (shared with corvane) | `images.textures()`, `toon_table()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_song_*`, `cv_sound_bank`, `cv_sample_names`, `cv_song_names` | sound effects and music | `cvtools/audio.py` | original, Apache-2.0 |
+| (runtime) judge card texture and lantern sprite | 64x16 direct-colour paper card with cut lines; 64x64 4bpp radial glow | drawn at run time by `arm9/source/judge/judge.c` (`acc_make_card`, `acc_make_lamp`) | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
 | banner icon (`icon.bmp`) | 32x32 4bpp icon | `images.icon()` | original, Apache-2.0 |
