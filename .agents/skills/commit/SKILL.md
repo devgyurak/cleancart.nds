@@ -126,8 +126,10 @@ upt/blocksds-1.26
 - **Release** (a new game or a new game version): PR `develop` → `main`, titled
   `Release <game> v<x.y.z>`, merged with a merge commit (squash/rebase are off for
   main; `pr-guard` rejects any head other than `develop`). Then tag the merge
-  commit on main: `git tag <game>-v<x.y.z> origin/main && git push origin <game>-v<x.y.z>`.
-  The release workflow refuses tags that are not on main.
+  commit on main, fetching first so `origin/main` includes it:
+  `git fetch origin && git tag <game>-v<x.y.z> origin/main && git push origin <game>-v<x.y.z>`.
+  The release workflow refuses tags that are not on main, and a run whose tag was
+  moved to another commit since it started stops before publishing.
 - PRs need an approval from the code owner @devgyurak (`.github/CODEOWNERS`);
   the maintainer merges their own PRs through the admin bypass.
 - Only admins can create tags (tag ruleset). Open, merge or tag only when the user asks.
