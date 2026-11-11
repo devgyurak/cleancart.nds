@@ -24,6 +24,7 @@ EvScene scene_title(void)
 
     text_center(&main_text, 8, TP_YELLOW, "ELEVANE");
     text_center(&main_text, 10, TP_GRAY, "A VOXEL SILHOUETTE PUZZLE");
+    text_center(&main_text, 19, TP_WHITE, "PRESS START");
     text_center(&main_text, 21, TP_GRAY, "X: CREDITS");
 
     text_center(&sub_text, 8, TP_WHITE, "APACHE-2.0 SOURCE");
@@ -45,6 +46,11 @@ EvScene scene_title(void)
         }
         // X opens the credits, but L+R+X is the start of the QA combo: with L or R
         // held X is left alone (press L and R first, then X).
+        if (cv_in.pressed & KEY_START)
+        {
+            snd_sfx(CV_SFX_CHIME, 100, 64);
+            return SC_SELECT;
+        }
         if ((cv_in.pressed & KEY_X) && !(cv_in.held & (KEY_L | KEY_R)))
         {
             snd_sfx(CV_SFX_CHIME, 100, 64);
