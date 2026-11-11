@@ -1,0 +1,44 @@
+# Lightenette
+
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+[![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#build)
+[![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#build)
+
+[한국어](README-KO.md)
+
+An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
+marionette show with the touch screen. It is also built to judge itself: the ROM
+captures its own display, counts pixels of fixed colours and reports pass/fail for
+cases where emulators have disagreed with hardware, so other emulators can use it as
+a regression test.
+
+**Status: work in progress.** The title screen runs; the stages and the judging module
+land stage by stage.
+
+- Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
+- Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
+- Licence: Apache-2.0 — third-party notices in `THIRD_PARTY_NOTICES`, asset sources in `ASSETS.md`
+
+## Build
+
+Docker is all you need.
+
+```sh
+./build.sh                    # lightenette.nds
+./build.sh SAVE=flash         # lightenette-save-flash.nds
+./build.sh SAVE=fram          # lightenette-save-fram.nds
+./build.sh -j8 release        # build/release/{rom,demos}: what a lightenette-vX.Y.Z tag ships
+./build.sh clean
+```
+
+Two clean builds give the same SHA-256.
+
+## Layout
+
+```
+arm9/source/game/   scenes
+arm9/source/core/   system, input, DMA, save, sound (corvane layers)
+arm9/source/gfx/    2D/3D layers (corvane layers)
+arm7/               own ARM7 core
+tools/              asset generators (Python 3, stdlib only)
+```
