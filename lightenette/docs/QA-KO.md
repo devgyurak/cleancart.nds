@@ -17,6 +17,20 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 | 리허설 데모 | `lightenette-rehearsal.nds`는 세이브 칩과 NitroFS 없이 곧바로 리허설로 부팅, 결과 블록 ID `0x4C454852`. `python3 lightenette/tools/judge.py <로그>`가 `expected.json`과 대조 | 아래 참고 |
 | acc-stage 데모 | `lightenette-acc-stage.nds`, 타이틀 → Select 장면과 같은 값, 결과 블록 `0x0237F000`: 매직 `0x52455643`, ID `0x4A44474C` | 아래 참고 |
 
+## 결론 (2026-11-11)
+
+리허설로 OpenGL (Classic) 렌더러에서 현재 다뤄지고 있는 그래픽 버그들을 재현했습니다. 세 가지 모두 이 렌더러에서
+NG 항목으로 나타나고, 소프트웨어 렌더러에서는 모든 판정 항목이 통과합니다.
+
+| 버그 | OpenGL (Classic)에서 ROM이 본 것 | NG 항목 |
+|---|---|---|
+| 역방향 텍스처 좌표 | 재단선이 보정 없는 인형이 아니라 보정한 인형에 나타남(판정 장면·2막 `0/18/0`, 5막 `18/0/0`) | `seam-uv`, `act2-seam`, `act5-seam` |
+| 엣지 마킹 | 외곽선이 전혀 없음(엣지 픽셀 0) | `edge-marking`, `act2-edge-marking`, `act5-edge-3-colours` |
+| 밝기 효과 위의 반투명 OBJ | 등불 값이 블렌드 모드에 따라 바뀜(예: 한 값이 아니라 `0d2c/318f/0d2c`) | `lantern-blend-equal`, `act3-lantern-equal`, `act5-lantern-equal` |
+
+이 NG는 의도한 결과이고 게임의 결함이 아닙니다. 이 렌더러에서도 모든 막이 클리어되고, 프로필(`--profile`)도
+일치합니다. 아직 다루지 않은 것: 1배보다 높은 내부 해상도(모든 실행은 1배)와 실기.
+
 ## 판정 측정값 (2026-11-11, 헤드리스, GL은 Mesa llvmpipe, 실기 미측정)
 
 결과 블록 `values[0..3]`(재단선 행, 엣지, 라인, 플래그)과 등불 값 `values[4..6]`:
