@@ -1,6 +1,6 @@
 # cleancart.nds
 
-Original Nintendo DS homebrew games, one per top-level folder (`corvane/`, `hushwell/`).
+Original Nintendo DS homebrew games, one per top-level folder (`corvane/`, `hushwell/`, `lightenette/`).
 Everything that ships in a ROM must be licence-clean: our own code and our own
 generated assets, plus clearly noticed third-party runtime libraries.
 
@@ -100,7 +100,7 @@ scripts/mklogo.py             regenerate the repository logo in docs/logo/
 .github/workflows/pr-guard.yml required PR check: title prefix (develop), head = develop (main)
 .github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 <game>/                       one game: Makefile, build.sh, Dockerfile, sources, docs
-                              (corvane/, hushwell/)
+                              (corvane/, hushwell/, lightenette/)
 ```
 
 ## Rules (read before editing matching files)
