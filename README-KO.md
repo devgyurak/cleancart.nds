@@ -87,7 +87,7 @@ macOS에서 키가 먹지 않으면 melonDS의 키보드 매핑이 비어 있을
 ```
 corvane/          게임 하나: 소스, build.sh, Dockerfile, 문서, 라이선스
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
-tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS)
+tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
 docs/logo/        저장소 로고 (scripts/mklogo.py가 생성)
 .github/          워크플로(릴리스, PR 검사), ruleset, PR 템플릿
