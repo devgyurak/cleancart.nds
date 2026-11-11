@@ -73,11 +73,11 @@ LtScene scene_title(void)
     }
 }
 
-// Test menu: the accuracy judge and the act 1 rehearsal.
+// Test menu: the accuracy judge, act 2 and the rehearsal.
 LtScene scene_menu(void)
 {
-    static const char *const items[] = { "ACCURACY JUDGE", "REHEARSAL: ACT 1" };
-    static const LtScene targets[] = { SC_JUDGE, SC_REHEARSAL };
+    static const char *const items[] = { "ACCURACY JUDGE", "ACT 2: TURN THE DOLLS", "REHEARSAL: ACTS 1-2" };
+    static const LtScene targets[] = { SC_JUDGE, SC_ACT2, SC_REHEARSAL };
     enum { N = sizeof(items) / sizeof(items[0]) };
 
     display_reset();
@@ -94,7 +94,7 @@ LtScene scene_menu(void)
     for (;;)
     {
         for (int i = 0; i < N; i++)
-            text_printf(&main_text, 6, 9 + 2 * i, i == sel ? TP_YELLOW : TP_GRAY, "%c %-18s",
+            text_printf(&main_text, 6, 9 + 2 * i, i == sel ? TP_YELLOW : TP_GRAY, "%c %-22s",
                         i == sel ? '>' : ' ', items[i]);
         frame_end();
         if (cv_in.pressed & KEY_UP)
