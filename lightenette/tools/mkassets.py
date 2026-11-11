@@ -100,11 +100,6 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
-    sheet, index = images.sprite_sheet()
-    w.blob('cv_sprite_tiles', sheet, '4bpp sprite sheet, 1D mapping')
-    w.blob('cv_sprite_pal', images.palette_bytes(images.SPRITE_PALETTE))
-    for name, (tile, sw, sh) in sorted(index.items()):
-        w.define('CV_SPR_%s' % name.upper(), tile)
 
     # Title picture: 8bpp bitmap (BG3) and its palette from entry 96 up.
     title_pix, title_pal = ltart.title_art()
@@ -112,15 +107,10 @@ def main():
     w.blob('cv_title_pal', title_pal[ltart.BASE * 2:], 'palette entries 96-255')
 
     # --- 3D ---------------------------------------------------------------
-    tex = images.textures()
-    for name in sorted(tex):
-        data, pal, tw, th = tex[name]
-        w.blob('cv_tex_%s' % name, data, 'texture %dx%d' % (tw, th))
-        if pal:
-            w.blob('cv_tex_%s_pal' % name, pal)
-        else:
-            w.define('CV_TEX_%s_PAL_SIZE' % name.upper(), 0)
-    w.blob('cv_toon_table', images.toon_table())
+    # Only the paper grain ships: the other corvane textures, the sprite sheet and the
+    # toon table are not used by any lightenette scene.
+    data, pal, tw, th = images.textures()['paper']
+    w.blob('cv_tex_paper', data, 'texture %dx%d' % (tw, th))
 
     # --- Sound ------------------------------------------------------------
     samples = audio.make_samples()

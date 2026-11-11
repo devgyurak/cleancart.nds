@@ -117,16 +117,7 @@ bool g3_overflowed(void);
 
 // --- Textures ---------------------------------------------------------------
 typedef enum {
-    TEX_GLOW,     // A3I5
-    TEX_SMOKE,    // A5I3
-    TEX_STRIPES,  // 4-colour
-    TEX_HULL,     // 16-colour
-    TEX_ARMOR,    // 256-colour
-    TEX_TERRAIN,  // 4x4 compressed
-    TEX_PANEL,    // direct colour
-    TEX_MESH,     // direct colour with holes (alpha test)
-    TEX_FLARE,    // A5I3 soft flare for big flashes
-    TEX_PAPER,    // direct colour paper for the marionette cut-outs
+    TEX_PAPER,    // direct colour paper grain (lightenette ships only this one)
     TEX_COUNT
 } CvTex;
 

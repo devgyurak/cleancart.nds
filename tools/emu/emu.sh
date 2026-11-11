@@ -12,17 +12,31 @@ set -eu
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 IMAGE=nds-emu:1
 docker build -q --platform linux/amd64 -t "$IMAGE" "$ROOT/tools/emu" >/dev/null
-RUN="docker run --rm --platform linux/amd64 -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} -e RESULT_WORDS=${RESULT_WORDS:-8} -v $ROOT:/work -w /work $IMAGE"
+# Words of the result block to print: lightenette's block is 64 words, the other
+# games' blocks are 16, so the default is 64 only for lightenette ROMs.
+words_for() {
+  case "$1" in
+    lightenette|lightenette/*) echo "${RESULT_WORDS:-64}" ;;
+    *) echo "${RESULT_WORDS:-8}" ;;
+  esac
+}
+RW=8
+RUN() {
+  docker run --rm --platform linux/amd64 -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} \
+    -e RESULT_WORDS="$RW" -v "$ROOT":/work -w /work "$IMAGE" "$@"
+}
 
 cmd=$1
 shift
 case "$cmd" in
   run)
     mkdir -p "$ROOT/$(dirname "$3")"
-    $RUN python tools/emu/run.py "$@" 2>&1 | grep -E '^(RESULT|PC9)'
+    RW=$(words_for "$1")
+    RUN python tools/emu/run.py "$@" 2>&1 | grep -E '^(RESULT|PC9)'
     ;;
   demos)
     game=$1
+    RW=$(words_for "$game")
     mkdir -p "$ROOT/out/demos"
     for rom in "$ROOT/$game"/"$game"-*.nds; do
       n=$(basename "$rom" .nds)
@@ -31,13 +45,13 @@ case "$cmd" in
         *io-save-fram)  st=4 ;;
         *)              st=3 ;;
       esac
-      docker run --rm --platform linux/amd64 -e SAVETYPE=$st -v "$ROOT":/work -w /work "$IMAGE" \
+      docker run --rm --platform linux/amd64 -e SAVETYPE=$st -e RESULT_WORDS="$RW" -v "$ROOT":/work -w /work "$IMAGE" \
         python tools/emu/run.py "$game/$n.nds" 180 "out/demos/$n" "30:T120/100:20,60:A:5" 2>&1 \
         | grep '^RESULT' | sed "s/^/$n /"
     done
     ;;
   montage)
-    $RUN python tools/emu/montage.py "$@"
+    RUN python tools/emu/montage.py "$@"
     ;;
   *)
     echo "usage: emu.sh run|demos|montage ..." >&2

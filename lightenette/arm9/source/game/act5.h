@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
     bool cleared;
     int clear_frame;   // frame the clear was reached, -1 if not
-    bool measured;     // all three captures finished
+    u32 measured;      // capture bits that finished, bit m = BLDCNT mode m (7 = all)
     u32 seam;          // cut-line pixels per doll: doll0 | doll1 << 8 | doll2 << 16
     u32 edge[3];       // edge-marking pixels of the three plinth colours
     u32 lines;         // string line-polygon pixels

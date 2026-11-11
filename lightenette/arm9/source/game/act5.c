@@ -24,7 +24,8 @@
 // Result block (CvResult at CV_RESULT_ADDR, demo_id ACT5_ID), every frame:
 // values[0] cleared, [1] lit dolls (bits), [2] seam (u8x3), [3..5] edge pixels,
 // [6] string line pixels, [7..9] lantern pixel NONE/ALPHA/DARK, [10..11]
-// backdrop pixel no effect / darkened, [12] captures finished.
+// backdrop pixel no effect / darkened (0xFFFF: not captured), [12] capture bits that
+// finished (bit m = BLDCNT mode m; 7 = all, else the values are not graded).
 
 #include <nds.h>
 #include <stdio.h>
@@ -39,6 +40,7 @@
 #include "gfx/oam.h"
 #include "gfx/text.h"
 #include "gfx/vram.h"
+#include "judge/capture.h"
 #include "judge/judge.h"
 
 #define MAIN_BG ((u8 *)0x06000000)
@@ -337,9 +339,9 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
         anim[i] = near_frames[i] = 0;
     }
     int f = 0, hold = 0, clear_frame = -1, mode_t0 = 0, cap_mode = -1;
-    bool cleared = false, measured = false;
-    u32 seam = 0, edge[3] = { 0, 0, 0 }, lines = 0;
-    u16 lamp[3] = { 0 }, out_none = 0, out_dark = 0;
+    bool cleared = false, measured = false, was_touching = false;
+    u32 seam = 0, edge[3] = { 0, 0, 0 }, lines = 0, capmask = 0;
+    u16 lamp[3] = { CAP_BAD, CAP_BAD, CAP_BAD }, out_none = CAP_BAD, out_dark = CAP_BAD;
 
     text_put(&con, 0, 0, TP_YELLOW, "ACT 5  THE FINALE");
     text_put(&sub, 1, 0, TP_YELLOW, "ACT 5  THE FINALE");
@@ -369,8 +371,7 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
         {
             if (f == 0)
                 pressed = 0;  // the key that opened the act
-            static bool was_touching;
-            if (cv_in.touching && cv_in.ty < 140)
+            if (cv_in.touching && cv_in.ty < 140 && !cleared)   // parked after the clear
             {
                 lx = cv_in.tx - LAMP_W / 2;
                 ly = cv_in.ty - LAMP_W / 2;
@@ -440,28 +441,34 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
                     set_blend(m, 10);
                 if (t == CAP_AFTER)
                 {
-                    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);  // source A to bank D
+                    cap_start();
                     cap_mode = m;
                 }
                 if (t == READ_AFTER && cap_mode == m)
                 {
-                    bool done = !(REG_DISPCAPCNT & (1u << 31));
-                    lamp[m] = done ? cap_px(LAMP_PX_X, LAMP_PX_Y) : 0xFFFF;
-                    if (m == 0)
+                    if (cap_done())
                     {
-                        out_none = cap_px(OUT_PX_X, OUT_PX_Y);
-                        seam = count_seam(0) | count_seam(1) << 8 | count_seam(2) << 16;
-                        for (int k = 0; k < 3; k++)
-                            edge[k] = count_edge(k);
-                        lines = count_lines();
+                        capmask |= 1u << m;
+                        lamp[m] = cap_px(LAMP_PX_X, LAMP_PX_Y);
+                        if (m == 0)
+                        {
+                            out_none = cap_px(OUT_PX_X, OUT_PX_Y);
+                            seam = count_seam(0) | count_seam(1) << 8 | count_seam(2) << 16;
+                            for (int k = 0; k < 3; k++)
+                                edge[k] = count_edge(k);
+                            lines = count_lines();
+                        }
+                        if (m == 2)
+                            out_dark = cap_px(OUT_PX_X, OUT_PX_Y);
                     }
                     if (m == 2)
                     {
-                        out_dark = cap_px(OUT_PX_X, OUT_PX_Y);
                         measured = true;
-                        bool seam_ok = seam == 0x120000;
-                        bool edge_ok = edge[0] && edge[1] && edge[2];
-                        bool blend_ok = lamp[0] == lamp[1] && lamp[1] == lamp[2];
+                        // Qualitative, like the judge: only the stitched doll's back may
+                        // show a seam (the emulators that draw it show 18 pixels).
+                        bool seam_ok = (capmask & 1) && (seam & 0xFFFF) == 0 && (seam >> 16) > 0;
+                        bool edge_ok = (capmask & 1) && edge[0] && edge[1] && edge[2];
+                        bool blend_ok = capmask == 7 && lamp[0] == lamp[1] && lamp[1] == lamp[2];
                         text_printf(&con, 0, 18, TP_WHITE, "SEAM %2lu %2lu %2lu %s", seam & 255,
                                     seam >> 8 & 255, seam >> 16 & 255, seam_ok ? "OK" : "NG");
                         text_printf(&con, 0, 19, TP_WHITE, "EDGE %lu %lu %lu %s", (unsigned long)edge[0],
@@ -470,7 +477,7 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
                         text_printf(&con, 0, 21, TP_WHITE, "LAMP %04X %04X %04X %s", lamp[0], lamp[1],
                                     lamp[2], blend_ok ? "OK" : "NG");
                         text_printf(&con, 0, 22, TP_WHITE, "DARK %04X %04X %s", out_none, out_dark,
-                                    out_dark != out_none ? "OK" : "NG");
+                                    (capmask & 5) == 5 && out_dark != out_none ? "OK" : "NG");
                     }
                 }
             }
@@ -494,8 +501,9 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
         r->values[9] = lamp[2];
         r->values[10] = out_none;
         r->values[11] = out_dark;
-        r->values[12] = measured;
+        r->values[12] = capmask;
         r->magic = CV_RESULT_MAGIC;
+        DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 
         oam_commit();
         sys_vsync();
@@ -509,7 +517,7 @@ static LtScene act5_loop(const Act5Step *steps, int nsteps, int end_frame, Act5O
                 {
                     out->cleared = cleared;
                     out->clear_frame = clear_frame;
-                    out->measured = measured;
+                    out->measured = capmask;
                     out->seam = seam;
                     for (int k = 0; k < 3; k++)
                         out->edge[k] = edge[k];

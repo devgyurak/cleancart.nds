@@ -7,7 +7,7 @@
 
 [English](README.md)
 
-<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette 타이틀 화면"> <img src="docs/images/act1.png" width="256" alt="1막 클리어"> <img src="docs/images/act2.png" width="256" alt="2막 클리어"> <img src="docs/images/act3.png" width="256" alt="3막 클리어"> <img src="docs/images/act4.png" width="256" alt="4막 클리어"> <img src="docs/images/act5.png" width="256" alt="5막 클리어"></p>
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette 타이틀 화면"> <img src="docs/images/act1-start.png" width="256" alt="1막 시작"> <img src="docs/images/act1.png" width="256" alt="1막 클리어"> <img src="docs/images/act2.png" width="256" alt="2막 클리어"> <img src="docs/images/act3.png" width="256" alt="3막 클리어"> <img src="docs/images/act4.png" width="256" alt="4막 클리어"> <img src="docs/images/act5.png" width="256" alt="5막 클리어"></p>
 
 닌텐도 DS용 오리지널 퍼즐 액션 게임입니다. 등불을 들고 터치스크린으로 마리오네트
 인형극을 조종합니다. 동시에 ROM이 스스로 판정하도록 만들었습니다. 자기 화면을
@@ -59,15 +59,17 @@ Docker만 있으면 됩니다.
 판정은 ROM이 스스로 합니다. 에뮬레이터는 ROM을 돌리고 메인 RAM을 읽을 수만 있으면 됩니다.
 
 1. `lightenette-rehearsal.nds`를 실행합니다(바로 리허설로 부팅: 1막은 터치 스크립트, 2~5막은 키 스크립트로 재생한 뒤 판정). 세이브 칩, 펜 입력, NitroFS가 필요 없어 어떤 카트 커널에서도 동작합니다. `lightenette-acc-stage.nds`는 정적 판정 장면만 실행합니다.
-2. 1100프레임 뒤 `0x0237F000`의 결과 블록(64워드, 배치는 `arm9/source/game/rehearsal.h`, `arm9/source/judge/judge.h`: 매직 `0x52455643`, 항목 ID, 프레임, 값)을 읽습니다. 같은 값과 OK/NG가 화면에도 그려지므로 스크린샷으로도 확인할 수 있습니다.
-3. 판정: `python3 tools/judge.py <로그>`(Python 3 표준 라이브러리만)가 블록을 `expected.json`과 비교해, 판정 대상이 모두 OK면 0, NG가 있으면 1, 유효한 블록이 없으면 2를 반환합니다. melonDS 헤드리스 러너와 DeSmuME 하네스의 `RESULT` 줄, `PEEK` 덤프를 읽습니다.
+2. 1800프레임 뒤(리허설은 약 864~954프레임에 끝나고, 모든 막이 각자의 한도까지 가는 최악의 경우를 1800이 덮습니다) `0x0237F000`의 결과 블록(64워드, 배치는 `arm9/source/game/rehearsal.h`, `arm9/source/judge/judge.h`: 매직 `0x52455643`, 항목 ID, 프레임, 값)을 읽습니다. 같은 값과 OK/NG가 화면에도 그려지므로 스크린샷으로도 확인할 수 있습니다. 매직 워드는 맨 마지막에 쓰므로 매직이 맞으면 블록이 완성된 것입니다. 디스플레이 캡처마다 '완료' 비트가 있고(판정은 `values[3]`의 비트 8~10, 막은 `values[17]`, `[25]`, `[31]`, `[44]`), 완료되지 않은 캡처의 값은 `0xFFFF`로 읽힙니다.
+3. 판정: `python3 tools/judge.py <로그>`(Python 3 표준 라이브러리만)가 블록을 `expected.json`과 비교해, 판정 대상이 모두 OK면 0, NG가 있거나 리허설이 끝나지 않았으면 1, 쓸 수 있는 결과가 없으면(유효한 블록 없음, 모르는/맞지 않는 `--boot`, 읽을 수 없는 파일) 2를 반환합니다. `expected.json`은 스크립트와 같은 폴더(릴리스 키트 구성)에서 먼저, 없으면 한 단계 위(소스 트리)에서 찾습니다. melonDS 헤드리스 러너와 DeSmuME 하네스의 `RESULT` 줄(`demos` 명령이 붙이는 ROM 이름 접두어도 인식하며 `--demo NAME`으로 하나를 고름)과 `PEEK` 덤프를 읽고, 형식이 이상한 줄은 경고만 내고 건너뜁니다. 캡처가 끝나지 않았거나 픽셀 값이 '캡처 안 됨' 표식인 항목은 NG입니다.
+4. 알려진 차이: `python3 tools/judge.py --profile NAME <로그>`는 실패한 판정 항목이 `expected.json`의 해당 에뮬레이터 프로필 `known` 목록과 정확히 같을 때만 0을 반환합니다(`--list-profiles`로 확인: `melonds-1.1-software`, `melonds-1.1-gl-classic`, `melonds-1.1-gl-compute`, `desmume-pydesmume-0.0.9`). 새로 실패한 항목과 새로 통과한 항목을 보고하므로, 고쳐진 에뮬레이터가 조용히 지나가지 않고 드러납니다. 리뷰어가 melonDS master `4ce2188`에서 #2503이 이미 고쳐졌다고 알려 왔지만 우리는 확인하지 않았습니다.
 
 ```sh
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1100 out/mds/reh "" 1099 > reh.log   # RENDERER=gl|compute
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
 python3 lightenette/tools/judge.py reh.log
+python3 lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # NG 집합이 같을 때만 0
 ```
 
-`expected.json`은 항목마다 프레임, 기대값, 허용 오차, 출처, 부팅 경로, 실기 모델을 적습니다.
+`expected.json`은 항목마다 프레임, 기대값, 허용 오차, 출처, 부팅 경로, 실기 모델을 적고, 필요하면 의존하는 캡처(`done`)와 픽셀을 읽는 항목인지(`pixels`)도 적습니다. 역방향 UV 재단선은 정성적으로 판정하며(0·1행은 깨끗, 2행은 선이 보임) 정확한 `0/0/18`은 에뮬레이터 측정값이라 정보용 항목일 뿐입니다.
 출처: `GBATEK`(문서화된 동작), `report:<ref>`(제3자의 실기 보고), `hw:<model>`(우리가
 실기에서 측정), `rom`(ROM 자체의 결정적 로직), `unconfirmed`(미확정). `unconfirmed` 항목은
 INFO만 출력하고 실행을 실패시키지 않으며, 실기 값이 들어오면 판정 항목으로 올라갑니다.

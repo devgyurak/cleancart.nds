@@ -88,28 +88,35 @@ void rehearsal_run(void)
     act4_replay(act4_script, sizeof(act4_script) / sizeof(act4_script[0]), ACT4_END, &o4);
     Act5Outcome o5 = { false, -1, false, 0, { 0, 0, 0 }, 0, { 0, 0, 0 }, 0, 0 };
     act5_replay(act5_script, sizeof(act5_script) / sizeof(act5_script[0]), ACT5_END, &o5);
-    judge_run(NULL);
 
-    char line[33];
-    snprintf(line, sizeof(line), "ACT1 %3d %s F%d", o.score, o.cleared ? "OK" : "NG", o.clear_frame);
-    judge_text(21, o.cleared ? TP_GREEN : TP_RED, line);
-    snprintf(line, sizeof(line), "ACT2 %s F%d SEAM %lu/%lu/%lu", o2.cleared ? "OK" : "NG", o2.clear_frame,
-             o2.seam & 255, o2.seam >> 8 & 255, o2.seam >> 16 & 255);
-    judge_text(22, o2.cleared ? TP_GREEN : TP_RED, line);
-
-    snprintf(line, sizeof(line), "ACT3 %s F%d %04X %04X %04X", o3.cleared ? "OK" : "NG", o3.clear_frame,
-             o3.lamp[0], o3.lamp[1], o3.lamp[2]);
-    judge_text(23, o3.cleared ? TP_GREEN : TP_RED, line);
-
-    snprintf(line, sizeof(line), "ACT4 %s F%d H%lu D%lu", o4.cleared ? "OK" : "NG", o4.clear_frame,
-             (unsigned long)o4.hline, (unsigned long)o4.dline);
-    judge_text(13, o4.cleared ? TP_GREEN : TP_RED, line);
-    snprintf(line, sizeof(line), "ACT5 %s F%d %lu/%lu/%lu", o5.cleared ? "OK" : "NG", o5.clear_frame,
-             o5.seam & 255, o5.seam >> 8 & 255, o5.seam >> 16 & 255);
-    judge_text(14, o5.cleared ? TP_GREEN : TP_RED, line);
+    // The per-act blocks above carry magic; withdraw it until the combined block is
+    // complete (it is written last).
     volatile CvResult *r = CV_RESULT;
+    r->magic = 0;
+    DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    JudgeResult jr;
+    judge_run(&jr, false);
+
+    // One summary row above the scene (rows 0-5 are free across the screen;
+    // below them the scene occupies x >= 128).
+    char line[33];
+    bool all = o.cleared && o2.cleared && o3.cleared && o4.cleared && o5.cleared;
+    snprintf(line, sizeof(line), "A1 %s A2 %s A3 %s A4 %s A5 %s", o.cleared ? "OK" : "NG",
+             o2.cleared ? "OK" : "NG", o3.cleared ? "OK" : "NG", o4.cleared ? "OK" : "NG",
+             o5.cleared ? "OK" : "NG");
+    judge_text(5, all ? TP_GREEN : TP_RED, line);
+
     r->demo_id = REHEARSAL_ID;
     r->frame = cv_frame;
+    r->values[0] = (u32)jr.seam[0] | (u32)jr.seam[1] << 8 | (u32)jr.seam[2] << 16;
+    r->values[1] = jr.edges;
+    r->values[2] = jr.lines;
+    r->values[3] = jr.flags;
+    r->values[4] = jr.lamp[0];
+    r->values[5] = jr.lamp[1];
+    r->values[6] = jr.lamp[2];
+    r->values[7] = jr.out_none;
+    r->values[8] = jr.out_dark;
     r->values[9] = (u32)o.score;
     r->values[10] = o.cleared;
     r->values[11] = (u32)o.clear_frame;
@@ -146,6 +153,8 @@ void rehearsal_run(void)
     r->values[42] = o5.out_none;
     r->values[43] = o5.out_dark;
     r->values[44] = o5.measured;
+    DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    r->magic = CV_RESULT_MAGIC;   // last: a reader never sees a half-filled block
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 

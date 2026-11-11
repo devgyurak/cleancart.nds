@@ -20,7 +20,7 @@ typedef struct {
 typedef struct {
     bool cleared;
     int clear_frame;   // frame the third mark was found, -1 if not
-    bool measured;     // all three lantern captures finished
+    u32 measured;      // capture bits that finished, bit m = BLDCNT mode m (7 = all)
     int found;         // marks found (0-3)
     u16 lamp[3];       // lantern pixel with BLDCNT 0100 / 0140 / 01C1
     u16 out_none;      // backdrop pixel outside the lantern, BLDCNT 0100

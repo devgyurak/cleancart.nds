@@ -15,7 +15,7 @@
 
 LtScene scene_judge(void)
 {
-    judge_run(NULL);
+    judge_run(NULL, true);
     for (;;)
     {
         judge_frame();

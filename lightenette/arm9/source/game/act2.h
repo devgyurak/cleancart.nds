@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
     bool cleared;
     int clear_frame;  // frame the clear was reached, -1 if not
-    bool measured;    // the seam capture finished
+    u32 measured;     // capture bits that finished (1 = the seam capture)
     u32 seam;         // cut-line pixels per doll: doll0 | doll1 << 8 | doll2 << 16
     u32 edges;        // edge-marking pixels around the plinths
 } Act2Outcome;

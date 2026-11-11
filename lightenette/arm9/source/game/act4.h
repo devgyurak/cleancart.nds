@@ -19,7 +19,7 @@ typedef struct {
 typedef struct {
     bool cleared;
     int clear_frame;  // frame the clear was reached, -1 if not
-    bool measured;    // the thread capture finished
+    u32 measured;     // capture bits that finished (1 = the thread capture)
     u32 hline;        // pixels of the horizontal thread
     u32 dline;        // pixels of the diagonal thread
 } Act4Outcome;

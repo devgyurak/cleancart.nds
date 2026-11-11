@@ -12,14 +12,21 @@
 //   values[1]  edge-marking pixels (> 0 passes)
 //   values[2]  line-polygon pixels (> 0 passes)
 //   values[3]  pass flags: bit0 seam, bit1 edge, bit2 line, bit3 lantern
-//              blends alike in all three BLDCNT modes, bit4 darken works
-//   values[4..6]  lantern pixel with BLDCNT 0100 / 0140 / 01C1
+//              blends alike in all three BLDCNT modes, bit4 darken works;
+//              bits 8-10: the display capture of BLDCNT mode 0100 / 0140 / 01C1
+//              finished (a value is only valid when its capture bit is set;
+//              seam, edge, line and the no-effect backdrop come from capture 0,
+//              the darkened backdrop from capture 2)
+//   values[4..6]  lantern pixel with BLDCNT 0100 / 0140 / 01C1 (0xFFFF: not captured)
 //   values[7..8]  backdrop pixel outside the lantern, no effect / darkened
+//                 (0xFFFF: not captured)
+//   The magic word is written last, after every value and a cache flush.
 
 #ifndef LT_JUDGE_H
 #define LT_JUDGE_H
 
 #include <nds.h>
+#include <stdbool.h>
 
 #include "gfx/text.h"
 
@@ -29,12 +36,14 @@ typedef struct {
     int seam[3];
     u32 edges, lines;
     u16 lamp[3], out_none, out_dark;
-    u32 flags;
+    u32 flags;     // as values[3], including the capture bits 8-10
 } JudgeResult;
 
 // Sets up the 3D engine and runs the 120-frame measurement (blocking), shows
-// the values on the top screen and fills the result block. res may be NULL.
-void judge_run(JudgeResult *res);
+// the values on the top screen and fills res (may be NULL). With publish the
+// result block is filled too, magic last; the rehearsal passes false and
+// publishes one combined block itself.
+void judge_run(JudgeResult *res, bool publish);
 
 // One frame of the static scene after judge_run (A cycles BLDCNT).
 void judge_frame(void);

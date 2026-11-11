@@ -54,6 +54,9 @@ def env(i, n, attack=0.01, release=1.0):
     return a * (1 - t) ** release
 
 
+SAMPLES_USED = ('bass', 'pad', 'kick', 'snare', 'hat', 'chime', 'click')
+
+
 def make_samples():
     rng = Rng(0xC0FFEE)
     s = []
@@ -217,6 +220,9 @@ def make_samples():
     vals = [math.sin(TAU * 1500 * (i / rate)) * 0.6 * env(i, n, 0.01, 3.0) for i in range(n)]
     s.append(Sample('click', FMT_PCM8, rate, pcm8(vals), volume=70))
 
+    # Lightenette ships only what its songs (bass, pad and the drum kit) and its UI
+    # (chime, click) use. The rest are generated with the shared set but not linked.
+    s = [smp for smp in s if smp.name in SAMPLES_USED]
     for smp in s:
         if smp.fmt in (FMT_PCM8, FMT_PCM16, FMT_ADPCM):
             smp.words = len(smp.data) // 4
