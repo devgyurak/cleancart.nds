@@ -89,4 +89,4 @@ Adding a library
 ----------------
 When a new library is linked into the ROM, append its notice here, copy its
 licence text into licenses/, and add a line to the in-game credits
-(arm9/source/game/scenes.c).
+(arm9/source/game/credits.c: the credits[] array and the licence viewer's files[] list).
