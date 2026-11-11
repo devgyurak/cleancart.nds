@@ -27,7 +27,8 @@ Run from the game folder (e.g. `corvane/`).
 4. **Notices**: `THIRD_PARTY_NOTICES` covers every library from step 3; the texts are in
    `licenses/` and copied to `build/nitrofs/licenses/`; the credits array in
    `arm9/source/game/scenes.c` mentions each one (crts MPL-2.0 sentence + source URL,
-   picolibc copyright, libnds).
+   picolibc copyright, libnds), and the licence viewer's `files[]` in
+   `game/scenes.c` lists every file in `licenses/`.
 5. **Originality**: grep names/text for third-party game titles or characters.
 6. **Git hygiene**: `git status --short | grep -E '\.nds|\.sav|build/'` is empty
    (.gitignore covers them).

@@ -11,7 +11,8 @@
   The repository logo (`docs/logo/*.svg`) is output of `scripts/mklogo.py`:
   change the script and re-run it, never hand-edit the SVGs.
 - New library linked into a ROM → same change updates `THIRD_PARTY_NOTICES`,
-  `licenses/<lib>-*.txt` and the in-game credits (`game/scenes.c` `credits[]`).
+  `licenses/<lib>-*.txt`, the in-game credits (`game/scenes.c` `credits[]`) and the
+  licence viewer's file list.
   Prefer not to add libraries; the ARM7 core stays our own (no DSWiFi/Maxmod/Mbed TLS).
 - No third-party trademarks, game names or characters in names, identifiers, text or assets.
 - Build artifacts (`build/`, `*.nds`, `*.sav`) are never committed.
