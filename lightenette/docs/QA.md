@@ -17,6 +17,26 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
 | acc-stage demo | `lightenette-acc-stage.nds`, same numbers as the title → Select scene; result block `0x0237F000`: magic `0x52455643`, id `0x4A44474C` | see below |
 
+## Auto QA run
+
+Hidden mode of the release ROM (`lightenette.nds`, SHA-256 identical to what ships): on the title screen press L and R, then X and Y, and
+hold all four for 120 frames. The game plays the normal flow by itself: acts 1-5 with the rehearsal's scripts, the credits, then one
+accuracy-judge pass. Log on the SD card (`cleancart/lightenette/qa-<date>-<time>.log`), result block `QARN` in the rehearsal's layout, graded with
+`python3 lightenette/tools/judge.py --profile <renderer> <log>` (boot `qa`, extra item `qa-verdict`). Headless: `SDDIR=out/lt/x tools/melonds/mds.sh run
+lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (`RENDERER=gl|compute` for the GL renderers; DeSmuME: `RESULT_WORDS=64
+tools/emu/emu.sh run ... 4000 ...`).
+
+| Renderer | QA run (2026-11-11) | `judge.py --profile` | QA judge values = rehearsal demo's |
+|---|---|---|---|
+| melonDS 1.1 software | ✅ `RESULT PASS` at frame 2090 | ✅ `melonds-1.1-software` MATCH (no NG) | ✅ identical (clear frames excluded) |
+| melonDS 1.1 GL classic | ✅ PASS | ✅ `melonds-1.1-gl-classic` MATCH (the 9 known NG: seam-uv, act2-seam, act5-seam, edge-marking, act2-edge-marking, act5-edge-3-colours, lantern-blend-equal, act3-lantern-equal, act5-lantern-equal) | ✅ identical |
+| melonDS 1.1 GL compute | ✅ PASS | ✅ `melonds-1.1-gl-compute` MATCH | ✅ identical |
+| DeSmuME (py-desmume 0.0.9) | ✅ verdict 1 | ✅ `desmume-pydesmume-0.0.9` MATCH | ✅ identical |
+
+Two software runs give identical checkpoint hashes (`tools/qa/compare.py`, 6 checkpoints). With QA off nothing changed: the rehearsal run through the
+test menu gives the same result block as before. The software run has no save chip (homebrew run for the SD card): the save mirror read back identical, the chip
+write is not verified. Real DS Lite + R4: not run yet.
+
 ## Conclusion (2026-11-11)
 
 The rehearsal reproduces the graphics bugs that are currently open for the OpenGL (Classic)

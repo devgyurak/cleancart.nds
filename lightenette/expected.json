@@ -35,6 +35,13 @@
       "item_id_text": "LGDJ",
       "frames": 180,
       "note": "the judge scene alone"
+    },
+    "qa": {
+      "rom": "lightenette.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 4000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the normal flow title, acts 1-5 with the rehearsal's scripts, credits, then the accuracy judge once; the block uses the rehearsal's layout (values[0..44]) and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags). Ends at about frame 2090 after the combo (melonDS)"
     }
   },
   "items": [
@@ -43,11 +50,13 @@
       "title": "Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         0
@@ -66,11 +75,13 @@
       "title": "Reversed-UV cut line: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         0
@@ -92,11 +103,13 @@
       "title": "Edge marking draws edge pixels (melonDS #2549)",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         1
@@ -116,11 +129,13 @@
       "title": "Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338)",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         2
@@ -140,11 +155,13 @@
       "title": "Translucent lantern OBJ looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         4,
@@ -167,11 +184,13 @@
       "title": "Darken lowers the 3D backdrop outside the lantern",
       "boots": [
         "rehearsal",
-        "acc-stage"
+        "acc-stage",
+        "qa"
       ],
       "frame": {
         "rehearsal": 1800,
-        "acc-stage": 180
+        "acc-stage": 180,
+        "qa": 1
       },
       "values": [
         7,
@@ -191,10 +210,12 @@
       "id": "act1-cleared",
       "title": "Act 1 is cleared by the embedded touch script",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         10
@@ -209,10 +230,12 @@
       "id": "act1-score",
       "title": "Act 1 silhouette match at the end, 85-100",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         9
@@ -228,10 +251,12 @@
       "id": "act2-cleared",
       "title": "Act 2 is cleared by the embedded key script",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         13
@@ -246,10 +271,12 @@
       "id": "act2-seam",
       "title": "Act 2 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         14
@@ -267,10 +294,12 @@
       "id": "act2-seam-exact",
       "title": "Act 2 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         14
@@ -291,10 +320,12 @@
       "id": "act2-edge-marking",
       "title": "Act 2 plinths get both edge-marking colours (melonDS #2549)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         15
@@ -313,10 +344,12 @@
       "id": "act3-cleared",
       "title": "Act 3 is cleared by the embedded key script (all three marks found)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         18
@@ -331,10 +364,12 @@
       "id": "act3-lantern-equal",
       "title": "Act 3 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         20,
@@ -356,10 +391,12 @@
       "id": "act3-darken-works",
       "title": "Act 3 darken lowers the 3D backdrop outside the lantern",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         23,
@@ -379,10 +416,12 @@
       "id": "act4-cleared",
       "title": "Act 4 is cleared by the embedded key script (no strings cross)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         27
@@ -397,10 +436,12 @@
       "id": "act4-hline",
       "title": "Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         29
@@ -419,10 +460,12 @@
       "id": "act4-dline",
       "title": "Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         30
@@ -441,10 +484,12 @@
       "id": "act5-cleared",
       "title": "Act 5 is cleared by the embedded key script (all dolls lit and turned)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         32
@@ -459,10 +504,12 @@
       "id": "act5-seam",
       "title": "Act 5 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         34
@@ -480,10 +527,12 @@
       "id": "act5-seam-exact",
       "title": "Act 5 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         34
@@ -504,10 +553,12 @@
       "id": "act5-edge-3-colours",
       "title": "Act 5 plinths get all three edge-marking colours (melonDS #2549)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         35,
@@ -528,10 +579,12 @@
       "id": "act5-line-polygon",
       "title": "Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         38
@@ -550,10 +603,12 @@
       "id": "act5-lantern-equal",
       "title": "Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         39,
@@ -575,10 +630,12 @@
       "id": "act5-darken-works",
       "title": "Act 5 darken lowers the 3D backdrop outside the lantern",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         42,
@@ -598,13 +655,33 @@
       "id": "rehearsal-finished",
       "title": "The rehearsal ran to the end",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 1800
+        "rehearsal": 1800,
+        "qa": 1
       },
       "values": [
         12
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "model": null
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The auto QA run ended with RESULT PASS (every act cleared, credits reached, judge run)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "qa": 1
+      },
+      "values": [
+        48
       ],
       "check": "eq",
       "expect": 1,
