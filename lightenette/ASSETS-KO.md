@@ -19,7 +19,9 @@ contributors)의 자체 제작물입니다.
 | `cv_ui_tiles`, `cv_ui_pal` | 창 테두리·게이지 타일 | `images.ui_tiles()` | 자체 제작, Apache-2.0 |
 | `cv_sprite_tiles`, `cv_sprite_pal` | 작은 스프라이트 시트(corvane과 공유, 타이틀에서는 미사용) | `images.sprite_sheet()` | 자체 제작, Apache-2.0 |
 | `cv_tex_*`, `cv_toon_table` | 3D 텍스처 7가지 형식 전부, 툰 테이블(corvane과 공유) | `images.textures()`, `toon_table()` | 자체 제작, Apache-2.0 |
-| `cv_smp_*`, `cv_song_*`, `cv_sound_bank`, `cv_sample_names`, `cv_song_names` | 효과음과 음악 | `cvtools/audio.py` | 자체 제작, Apache-2.0 |
+| `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 악기·효과음 샘플. Lightenette 고유의 `chime`, `click` 포함(공용 엔진 샘플은 corvane에서 옴) | `cvtools/audio.py` `make_samples()` | 자체 제작, Apache-2.0 |
+| `cv_song_lantern_*`, `cv_song_puppets_*`, `cv_song_names` | 곡 두 개: `lantern`(타이틀), `puppets`(크레딧). 코드로 작곡 | `cvtools/audio.py` `SONGS`, `compose()` | 자체 제작, Apache-2.0 |
+| `cv_title_lz`, `cv_title_pal` | 256x192 8bpp 타이틀 그림(등불 빛무리, 조종대에 매달린 마리오네트, 게임 폰트로 만든 워드마크), LZ77, 팔레트 96–255번 | `cvtools/ltart.py` `title_art()` | 자체 제작, Apache-2.0 |
 | (런타임) 3막 | 새 에셋 없음: 무대와 표식은 텍스처 없는 3D 폴리곤이고, 등불은 판정의 64x64 글로우를 `judge_lamp_load()`로 불러 씀 | `arm9/source/game/act3.c` | 자체 제작, Apache-2.0 |
 | (런타임) 4·5막 | 2막의 인형 카드를 5막에서 런타임에 다시 그리는 것(`make_card()`, 같은 픽셀) 외에는 새것 없음. 4막은 텍스처 없는 라인 폴리곤과 사각형, 5막은 `judge_lamp_load()`로 판정의 등불 글로우를 재사용 | `arm9/source/game/act4.c`, `act5.c` | 자체 제작, Apache-2.0 |
 | (런타임) 2막 인형 카드 텍스처 | 재단선이 있는 64x16 다이렉트 컬러 종이 인형 카드(판정 카드와 같은 구성) | 실행 시 `arm9/source/game/act2.c`(`make_card`)가 그림 | 자체 제작, Apache-2.0 |

@@ -70,7 +70,7 @@ jobs:
       - name: Checksums
         working-directory: ${{ steps.tag.outputs.game }}/build/release
         run: |
-          for d in rom demos; do
+          for d in rom demos judge; do
             [ -d "$d" ] || continue
             (cd "$d" && sha256sum -- *.nds > SHA256SUMS && cat SHA256SUMS)
           done
@@ -85,6 +85,14 @@ jobs:
         with:
           name: ${{ github.ref_name }}-demos
           path: ${{ steps.tag.outputs.game }}/build/release/demos/
+          if-no-files-found: ignore
+
+      # Games that grade themselves (lightenette) ship the rehearsal ROMs with
+      # expected.json and judge.py; other games have no build/release/judge.
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ github.ref_name }}-judge
+          path: ${{ steps.tag.outputs.game }}/build/release/judge/
           if-no-files-found: ignore
 
   release:
@@ -133,6 +141,7 @@ jobs:
             echo
             echo "- \`$TAG.zip\`: game ROM and save-chip variants"
             if [ -f "$TAG-demos.zip" ]; then echo "- \`$TAG-demos.zip\`: feature demo ROMs"; fi
+            if [ -f "$TAG-judge.zip" ]; then echo "- \`$TAG-judge.zip\`: emulator-test kit (rehearsal ROMs, \`expected.json\`, \`judge.py\`)"; fi
             echo
             echo "Each zip has its own \`SHA256SUMS\` and the licence texts and third-party notices."
             echo "The build is reproducible: \`./build.sh release\` in \`$GAME/\` at this commit gives the same ROMs."

@@ -29,7 +29,7 @@
 |---|---|---|
 | [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온 | [README](corvane/README-KO.md) · [QA 체크리스트](corvane/docs/QA-KO.md) · [에셋](corvane/ASSETS-KO.md) |
 | [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것 | [README](hushwell/README-KO.md) · [QA 체크리스트](hushwell/docs/QA-KO.md) · [에셋](hushwell/ASSETS-KO.md) |
-| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 등불과 마리오네트 퍼즐 액션(개발 중). ROM이 자기 화면의 픽셀 수를 세어 에뮬레이터 정확도 항목을 스스로 판정합니다. | [README](lightenette/README-KO.md) · [QA 체크리스트](lightenette/docs/QA-KO.md) · [에셋](lightenette/ASSETS-KO.md) |
+| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 에뮬레이터 정확도 항목을 스스로 판정하며, 릴리스에는 다른 에뮬레이터의 CI용으로 리허설 ROM과 `expected.json`, `judge.py`가 함께 올라갑니다. | [README](lightenette/README-KO.md) · [QA 체크리스트](lightenette/docs/QA-KO.md) · [에셋](lightenette/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 

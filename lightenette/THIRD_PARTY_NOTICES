@@ -9,7 +9,7 @@ are used.
 The ROM is built with BlocksDS. The components below end up inside every
 Lightenette ROM. This file and the full licence texts in licenses/ are also
 copied into the ROM's file system (NitroFS: /licenses/) and can be read in
-the game: the in-game credits (added before the first release).
+the game: Title > Credits > X (licence viewer).
 
 Components that are NOT included: Lightenette runs its own ARM7 core instead of
 the BlocksDS default ARM7 binary, so DSWiFi, lwIP, Mbed TLS, Maxmod and

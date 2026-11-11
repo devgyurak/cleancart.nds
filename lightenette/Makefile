@@ -139,7 +139,8 @@ demos:
 	@for d in $(DEMOS); do $(MAKE) --no-print-directory DEMO=$$d || exit 1; done
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
-# build/release/rom (game + save variants) and build/release/demos, each
+# build/release/rom (game + save variants), build/release/demos and
+# build/release/judge (rehearsal ROMs, expected.json, judge.py), each
 # with the licence texts and notices a binary distribution has to carry.
 RELEASE := build/release
 
@@ -155,6 +156,10 @@ release:
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/$$d/ || exit 1; done
 	@cp lightenette.nds lightenette-save-flash.nds lightenette-save-fram.nds $(RELEASE)/rom/
 	@for d in $(DEMOS); do cp lightenette-$$d.nds $(RELEASE)/demos/ || exit 1; done
+	@# The emulator-test kit: the rehearsal ROMs with the file that grades them.
+	@mkdir -p $(RELEASE)/judge && \
+		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/ && \
+		cp lightenette-rehearsal.nds lightenette-acc-stage.nds $(RELEASE)/judge/
 
 clean:
 	@echo "  CLEAN"
