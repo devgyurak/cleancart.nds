@@ -62,8 +62,16 @@ Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM
   addressed by index (sorted), and `taken` bits (`cv_game.taken_lo/hi`) use those indices.
 - **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
   written at frame 120. The last 4 KB of the ARM9 heap is reserved for it.
-- **Save layout** (`core/save.c`, magic `HWSV`): two copies (seq + BIOS CRC16), replay area
-  as in corvane. Progress (`cont_*`) is written at every radio and chapter start.
+- **Save layout** (`core/save.c`, magic `HWSV`): two copies (seq + BIOS CRC16) at
+  0x0000/0x0400 (FLASH: 0x0000/0x10000), replay area at 0x8000 / 0x20000 / 0x0800
+  (EEPROM/FLASH/FRAM), max 30000 bytes, as in corvane. On an 8 KB chip (what melonDS
+  emulates for our header game code `HSWL`) the EEPROM/FRAM builds detect the 0x2000
+  address wrap and keep the replay at 0x0800, max 6140 bytes (FLASH build without a
+  JEDEC ID: max 7675, and each write goes out as one SPI command because an EEPROM
+  reads the 3-byte addresses as 2-byte ones). A longer run is cut to the runs that
+  fit (`replay_blob(max)` with `save_replay_capacity()`), so its replay stops early;
+  a log that still doesn't fit clears the area. Progress (`cont_*`) is written at
+  every radio and chapter start.
 - **Replay header** (32 bytes): magic `CVRP`, seed, run count, then the run start state
   (`CvRunStart`: chapter, RTC hour, health, flares, radio, keys, battery, tapes, taken bits,
   options = touch-look, night-visit and mic settings); each run entry carries the mic level.
