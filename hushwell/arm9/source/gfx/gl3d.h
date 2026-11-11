@@ -77,6 +77,7 @@ static inline u32 gx_texcoord(int s, int t)
 void g3_init(void);
 void g3_setup_lights(int scheme);
 void g3_flush(bool wbuffer);
+void g3_flush_measured(bool wbuffer);  // also latches g3_flushed_*_count()
 void g3_draw(const CvModel *m);
 
 // Camera: eye/target in world 20.12. Builds the projection and a 4x3 view
@@ -105,9 +106,13 @@ bool g3_box_test(CvVec corner, CvVec size);          // in current matrices
 bool g3_pos_test(CvVec p, int32_t out_clip[4]);
 CvVec g3_vec_test(int32_t x, int32_t y, int32_t z);   // unit vector in, 4.12 out
 
-// Polygon / vertex RAM after the last flush and the overflow flag.
+// Polygon / vertex RAM of the list being built (read before g3_flush: the
+// counters restart at the buffer swap), of the list sent by the last
+// g3_flush_measured(), and the overflow flag.
 int g3_poly_count(void);
 int g3_vert_count(void);
+int g3_flushed_poly_count(void);
+int g3_flushed_vert_count(void);
 bool g3_overflowed(void);
 
 // --- Textures ---------------------------------------------------------------
