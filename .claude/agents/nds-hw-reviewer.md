@@ -19,6 +19,21 @@ surrounding code. Check every item in `.claude/rules/nds-c.md`, in particular:
 - Texture VRAM: banks mapped for other uses at load time (stage 5 C/D rear plane).
 - IPC ordering (handlers before IPCSYNC READY), FIFO flooding, ARM7 sending before READY.
 - Slot-1 bus ownership around AUXSPI / raw cart access; timeouts on every busy-wait.
+- ARM9 access to shared WRAM (0x03000000) without an MPU region mapped over it
+  (BlocksDS crt0 maps none: data abort); borrowing region 3 (slot-2) instead of 2;
+  region/permissions not restored when the WRAM goes back to the ARM7.
+- DMA channel plan: main-memory display FIFO sharing a channel with code that calls
+  dma_wait(); dma_wait() on any channel a repeating DMA may hold.
+- Reads of write-only registers (BGxPA–PD, MOSAIC, …) instead of a written copy.
+- Polygon/vertex RAM counters read after the flush/swap (read 0) instead of just
+  before the flush once GXSTAT bit 27 clears; stress geometry clipped before
+  polygon RAM.
+- Save code: 0xFF status treated as "no chip" while polling; layout that assumes
+  more than 8 KB without detecting the EEPROM wrap at 0x2000; page size > 32 on an
+  8 KB chip; FLASH addressing without a JEDEC ID (0x9F) check.
+- Makefile header: `GAME_CODE` still `####` or reused, `UNIT_CODE` not 0.
+- Text drawn from UTF-8 files byte-wise; licence viewer list vs `licenses/` files;
+  on-screen input hints with no handler in some sub-state.
 - Fixed array bounds vs the largest user; recursion depth; matrix stack depth (< 31).
 - Determinism: rng only via rng_*, no timer/RTC seeds, timer events frame-locked.
 - Objects left between camera and player; scenes that don't restore brightness/blend/windows.

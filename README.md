@@ -28,6 +28,7 @@ and clearly noticed third-party runtime libraries.
 | Game | Description | Docs |
 |---|---|---|
 | [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen. | [README](corvane/README.md) · [QA checklist](corvane/docs/QA.md) · [Assets](corvane/ASSETS.md) |
+| [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound. | [README](hushwell/README.md) · [QA checklist](hushwell/docs/QA.md) · [Assets](hushwell/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -37,8 +38,8 @@ Requires [Docker](https://www.docker.com/). Every game builds inside a BlocksDS
 image pinned by digest, so builds are reproducible and need no local toolchain.
 
 ```sh
-cd corvane
-./build.sh            # → corvane.nds
+cd corvane            # or: cd hushwell
+./build.sh            # → corvane.nds (hushwell.nds)
 ./build.sh demos      # single-feature demo ROMs (corvane-<demo>.nds)
 ```
 
@@ -88,6 +89,7 @@ key table in [AGENTS.md](AGENTS.md#controls-and-key-mapping) and `tools/melonds/
 
 ```
 corvane/          a game: sources, build.sh, Dockerfile, docs, licences
+hushwell/         a game (made from the corvane template)
 tools/emu/        headless DeSmuME harness for smoke tests (Docker)
 tools/melonds/    melonDS key mapping, input checks (macOS), headless melonDS runner
 scripts/          maintenance scripts (agent config sync, logo generator)
@@ -98,7 +100,7 @@ AGENTS.md         project conventions for coding agents (Claude Code reads it vi
 
 ## Licence
 
-Each game states its licence in its folder. Corvane is licensed under the
-[Apache License 2.0](corvane/LICENSE); third-party components in its ROM are listed
-in [THIRD_PARTY_NOTICES](corvane/THIRD_PARTY_NOTICES). ROMs are not committed;
+Each game states its licence in its folder. Corvane and Hushwell are licensed under the
+Apache License 2.0 ([corvane](corvane/LICENSE), [hushwell](hushwell/LICENSE)); third-party
+components in their ROMs are listed in each game's `THIRD_PARTY_NOTICES`. ROMs are not committed;
 build them from source.

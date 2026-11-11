@@ -24,9 +24,33 @@ description: Start a new DS game folder in this repo from the corvane template (
    Makefile (`GAME_TITLE`, variant names, the ROM list in the `release` target),
    `build.sh` image tag, NOTICE and notices. Keep the `release` target: the release
    workflow builds tag `<name>-v<x.y.z>` with `./build.sh release`.
-3. Write `tools/mkassets.py` for the new game's assets (start from corvane's, keep the
+   Set a new header identity in the Makefile (see `.claude/rules/build-and-verify.md`):
+   `GAME_CODE := <CODE> 00 <TITLE>` with a 4-char code used by no other game here
+   and absent from melonDS's `src/ROMList.cpp`, and `UNIT_CODE := 0`; check that
+   ndstool gets `-g $(GAME_CODE) -uc $(UNIT_CODE)`. Never leave `####`.
+3. Check the copied layers carry the melonDS/hardware fixes from corvane issue #3.
+   Once those fix PRs are merged into `develop`, corvane's `core/` and `gfx/` have
+   them. If you copy before that, check and port by hand:
+   - `core/sys.c`: MPU region 2 mapped over shared WRAM while the ARM9 owns it
+     (`mpu_map_swram()`), else a data abort on the first WRAM access.
+   - `core/dma.h`/`dma.c`: main-memory display FIFO off the VBlank OAM channel
+     (`CV_DMA_CH_MMEM` = channel 1).
+   - `core/save.c`: 8 KB EEPROM wrap detection, 32-byte pages, FLASH JEDEC check,
+     no-chip decision in `save_detected_type()` rather than on a 0xFF status.
+   - `gfx/gl3d.c`/`gl3d.h`: `g3_flush_measured()` for demos that report polygon counts.
+   - `demo/demo.c` (if copied): no reads of write-only registers; the 3d-limits
+     grid on screen.
+   - Licence viewer (if copied from `game/scenes.c`): every `licenses/` file listed,
+     UTF-8 folded; hints like "START: …" handled in every sub-state.
+4. Write `tools/mkassets.py` for the new game's assets (start from corvane's, keep the
    `CWriter`/`pack`/`lz` helpers) and an `ASSETS.md`.
-4. Write `<name>/AGENTS.md` (code map, contracts, how to add things) and
+5. Write `<name>/AGENTS.md` (code map, contracts, how to add things) and
    `<name>/CLAUDE.md` containing only `@AGENTS.md`.
-5. Build (`nds-build`), smoke test (`nds-emu-test`), audit (`nds-license-audit`).
-6. Add the game to the root `AGENTS.md` layout section.
+6. Build (`nds-build`), smoke test (`nds-emu-test`), audit (`nds-license-audit`).
+   Run the demo suite and a boot → save → reload pass in headless melonDS too
+  : `tools/melonds/mds.sh demos <game>/build/release/demos` and check
+   every RESULT and that the `SAVE` type isn't 0; then
+   `SAV=out/mds/<game>.sav tools/melonds/mds.sh run …` twice (save, then reload)
+   and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).
+   DeSmuME alone missed the MPU, DMA, header and save bugs.
+7. Add the game to the root `AGENTS.md` layout section.
