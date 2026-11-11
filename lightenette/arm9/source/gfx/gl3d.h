@@ -126,6 +126,7 @@ typedef enum {
     TEX_PANEL,    // direct colour
     TEX_MESH,     // direct colour with holes (alpha test)
     TEX_FLARE,    // A5I3 soft flare for big flashes
+    TEX_PAPER,    // direct colour paper for the marionette cut-outs
     TEX_COUNT
 } CvTex;
 
