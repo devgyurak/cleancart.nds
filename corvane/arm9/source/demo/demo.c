@@ -1362,12 +1362,15 @@ static void d_3d_limits(void)
         int count = 600 + f * 20;  // passes 2048 polygons along the way
         for (int i = 0; i < count; i++)
         {
-            int x = (i % 48) - 24, y = (i / 48) - 24;
+            // 64 columns 0.12 apart keep every row on screen (the view is
+            // about +-3.4 high at z = 0): clipped triangles never reach
+            // polygon RAM, and a wider grid peaked at ~1700 polygons.
+            int x = (i % 64) - 32, y = (i / 64) - 24;
             GFX_COLOR = RGB15(i & 31, (i >> 3) & 31, 16);
             glBegin(GL_TRIANGLES);
-            glVertex3v16(x * F(0.2), y * F(0.2), 0);
-            glVertex3v16(x * F(0.2) + F(0.18), y * F(0.2), 0);
-            glVertex3v16(x * F(0.2), y * F(0.2) + F(0.18), 0);
+            glVertex3v16(x * F(0.12), y * F(0.12), 0);
+            glVertex3v16(x * F(0.12) + F(0.1), y * F(0.12), 0);
+            glVertex3v16(x * F(0.12), y * F(0.12) + F(0.1), 0);
             glEnd();
         }
         // Polygon RAM counts the list being built: read it before the flush.
