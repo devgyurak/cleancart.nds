@@ -71,7 +71,7 @@ DEMOS := \
   snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream \
   io-cart io-save-eeprom io-save-flash io-save-fram io-firmware io-rtc \
   io-touch io-power \
-  acc-stage
+  io-qalog acc-stage
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
@@ -105,7 +105,7 @@ SRC7 := $(shell find arm7/source -name '*.c' | LC_ALL=C sort)
 OBJ9 := $(SRC9:%.c=$(OUT)/9/%.o) $(OUT)/9/gen/assets.o
 OBJ7 := $(SRC7:%.c=$(OUT)/7/%.o)
 
-.PHONY: all clean demos assets release
+.PHONY: all clean demos assets release FORCE
 all: $(ROM)
 
 assets: $(STAMP)
@@ -121,7 +121,16 @@ $(STAMP): $(wildcard tools/*.py tools/cvtools/*.py tools/stages/*.json licenses/
 
 $(GEN)/assets.c $(GEN)/assets.h $(GEN)/icon.bmp: $(STAMP)
 
-$(OUT)/9/%.o: %.c $(STAMP)
+# Build id for the QA log header: a hash of the sources, so the same tree gives
+# the same id (no git needed in the container). The file only changes when the
+# id does, so it doesn't force a rebuild by itself.
+BUILD_ID := $(shell cat $(SRC9) $(SRC7) $(sort $(wildcard common/*.h)) | sha256sum | cut -c1-12)
+$(GEN)/buildid.h: FORCE | $(STAMP)
+	@printf '#define CV_BUILD_ID "%s"\n' "$(BUILD_ID)" > $@.new
+	@cmp -s $@.new $@ && rm $@.new || mv $@.new $@
+FORCE:
+
+$(OUT)/9/%.o: %.c $(STAMP) $(GEN)/buildid.h
 	@echo "  CC.9    $<"
 	@mkdir -p $(@D)
 	@$(CC) $(CFLAGS9) -MMD -MP -c -o $@ $<

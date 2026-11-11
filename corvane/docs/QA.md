@@ -20,8 +20,31 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 0x0237F00C u32 values[13] (per demo, see the table below)
 ```
 
+- QA log result block (`io-qalog`, and the auto QA mode that follows): same address and
+  layout, `demo_id` = `QARN` (0x4E524151). `values[0]` verdict (1 PASS, 2 FAIL), `[1]` log lines,
+  `[2]` SD flags, `[3]` last checkpoint hash, `[4]` checkpoints, `[5]` lag frames,
+  `[6]` save flags (bit0 chip write verified, bit1 SD mirror read-back), `[7..12]` per game.
+  The log itself: `<drive>cleancart/<game>/qa-<date>-<time>.log` on the SD card;
+  check it with `tools/qa/parse_log.py`.
 - Demos that need input (sys-keys, io-touch, io-power, io-rtc, io-firmware) keep
   updating the screen after the checkpoint.
+
+## Auto QA run
+
+Hidden mode (same ROM as the release): on the title screen hold **L+R+X+Y for 120 frames**. The
+game plays all five stages, the ending and the credits by itself (boss HP x0.1, hits cost no
+life, weak numbers only; effects, sound and saves are unchanged) and finishes on the records
+screen. The save the cart had (settings slots and the last-run replay area) is restored at the end. On a flash cart with an SD card it writes
+`cleancart/corvane/qa-<date>-<time>.log` and `save-<n>.bin`; every run also fills the `QARN`
+result block. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run corvane/corvane.nds 20000 out/mds/x
+"60:A,200:A,500:L:140,500:R:140,500:X:140,500:Y:140"`, then `tools/qa/parse_log.py` on the log.
+
+| Where | Result (2026-11-11, build from this tree) |
+|---|---|
+| melonDS 1.1 headless, software renderer, SD image | ✅ `RESULT PASS reason=credits` at frame 13,725, 5 stage checkpoints, 6 save mirrors read back identical (`chip_type=-1`: homebrew run has no save chip) |
+| Same ROM, second run | ✅ all checkpoint hashes identical (`tools/qa/compare.py`) |
+| DeSmuME headless (no SD) | ✅ `QARN` block verdict 1, last state hash `37db96a8` = melonDS (lag differs, not compared) |
+| Real DS Lite + R4 | not run yet |
 
 ## QA record
 
@@ -81,6 +104,7 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | snd-capture | stage 3 song + echo | 1 | ✅ `1` song + echo, no gaps |
 | snd-stream | seamless ambient pad | size, sample rate | ✅ `2b000 2b11` 176,128 bytes at 11,025 Hz, no gaps |
 | io-cart | NitroFS file sizes, cart DMA OK, stage 3 info | total, load ok, cart DMA, spawn count | ✅ `61c4c 1 1 2d` NitroFS mounted, all files OK, cart DMA OK. Was a data abort on v0.1.0 (#6), fixed by #14 |
+| io-qalog | writes a QA log (RAM ring, SD card when the cart has one), mirrors the save image, writes the `QARN` result block; headless runs need an SD image (`SDDIR=… tools/melonds/mds.sh`) | `values[]` as in the QARN layout below: verdict 1, lines, SD flags (bit0 log on SD, bit1 read-back OK), … | ✅ melonDS (SD image) `1 2f 3 …` log on the SD, read-back OK, `tools/qa/parse_log.py` passes; without SD `1 2f 0` (RAM only) |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | write, reload, seq +1, chip answers | ✅ eeprom `1 1 1 1`; flash `1 1 1 2`; fram `1 1 1 3`. melonDS attaches an 8 KB EEPROM to every build. No save chip on v0.1.0 (#8), fixed by #16 |
 | io-firmware | name, favourite colour → ship colour, language, birthday, touch calibration | colour, language, name length, ship colour | ✅ `0 1 7 4e0c` name MELONDS, colour 0, English, 01/01, calibration shown |
 | io-rtc | date and time update every second, stage 2 day/night | year, month, day, hour | ✅ `1a b a f` date and time tick; stage 2 sky DAY |

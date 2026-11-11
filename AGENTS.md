@@ -93,6 +93,7 @@ AGENTS.md / CLAUDE.md         this guidance (CLAUDE.md imports AGENTS.md)
 .claude/agents/*.md           Claude Code subagents
 .codex/agents/*.toml          Codex custom agents (generated: scripts/sync_agents.py)
 tools/emu/                    headless DeSmuME harness (run, demos, montage)
+tools/qa/                     QA log tools: parse_log, compare, ingest, lint
 tools/melonds/                melonDS config, GDB/keyboard helpers, headless melonDS runner (mds.sh)
 scripts/sync_agents.py        regenerate .codex/agents from .claude/agents
 scripts/mklogo.py             regenerate the repository logo in docs/logo/
@@ -123,6 +124,8 @@ Claude Code loads these automatically by path. Codex: open the matching file you
 | `melonds-mac` | installing/configuring melonDS, key mapping, verifying input in melonDS |
 | `nds-license-audit` | before finishing any change that adds files, assets or libraries |
 | `nds-new-game` | starting another game folder from the corvane template |
+| `nds-qa-mode` | adding/changing the hidden auto QA mode (L+R+X+Y on the title), SD log, QARN block, porting checklist |
+| `nds-hw-qa` | running the QA mode on a real DS Lite + R4 and recording the result |
 | `commit` | writing a commit message, PR title or branch name (prefix rules) |
 
 ## Subagents
@@ -143,4 +146,9 @@ Claude definitions are canonical (`.claude/agents/`). After editing one, run
    DeSmuME has no MPU and skips some DMA modes: check MPU, DMA, cart and save changes
    in headless melonDS (`tools/melonds/mds.sh`) too.
 3. Licence audit passes (SPDX headers, ASSETS.md, notices).
-4. Report honestly what was verified where (DeSmuME ≠ melonDS ≠ hardware).
+4. Every game carries the auto QA mode (skill `nds-qa-mode`): headless melonDS soft with an SD image
+   reaches the credits with `RESULT PASS`, the log passes `tools/qa/parse_log.py`, DeSmuME reaches
+   the end too, two runs give identical checkpoint hashes, `tools/qa/lint.py` passes, and with QA off
+   nothing changed. Games with `expected.json` + `judge.py` also run it on all four renderers and
+   match the known profiles.
+5. Report honestly what was verified where (DeSmuME ≠ melonDS ≠ hardware).

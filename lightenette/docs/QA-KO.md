@@ -17,6 +17,26 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 | 리허설 데모 | `lightenette-rehearsal.nds`는 세이브 칩과 NitroFS 없이 곧바로 리허설로 부팅, 결과 블록 ID `0x4C454852`. `python3 lightenette/tools/judge.py <로그>`가 `expected.json`과 대조 | 아래 참고 |
 | acc-stage 데모 | `lightenette-acc-stage.nds`, 타이틀 → Select 장면과 같은 값, 결과 블록 `0x0237F000`: 매직 `0x52455643`, ID `0x4A44474C` | 아래 참고 |
 
+## 자동 QA 실행
+
+출시 ROM(`lightenette.nds`, 배포본과 SHA-256 동일)의 숨김 모드: 타이틀 화면에서 L과 R을 먼저 누른 뒤 X와 Y까지 네 키를 120프레임 누르고 있습니다.
+게임이 정상 흐름을 스스로 진행합니다. 리허설 스크립트로 막 1~5, 크레딧, 마지막에 정확도 판정 1회. 로그는 SD 카드의
+`cleancart/lightenette/qa-<날짜>-<시각>.log`, 결과 블록 `QARN`은 리허설 배치 그대로이고
+`python3 lightenette/tools/judge.py --profile <렌더러> <로그>`로 채점합니다(boot `qa`, 추가 항목 `qa-verdict`). 헤드리스: `SDDIR=out/lt/x tools/melonds/mds.sh run
+lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (GL은 `RENDERER=gl|compute`, DeSmuME는 `RESULT_WORDS=64
+tools/emu/emu.sh run ... 4000 ...`).
+
+| 렌더러 | QA 런 (2026-11-11) | `judge.py --profile` | QA judge 값 = 리허설 데모 값 |
+|---|---|---|---|
+| melonDS 1.1 소프트웨어 | ✅ 2090프레임에 `RESULT PASS` | ✅ `melonds-1.1-software` 일치(NG 없음) | ✅ 동일(클리어 프레임 제외) |
+| melonDS 1.1 GL classic | ✅ PASS | ✅ `melonds-1.1-gl-classic` 일치(알려진 NG 9개: seam-uv, act2-seam, act5-seam, edge-marking, act2-edge-marking, act5-edge-3-colours, lantern-blend-equal, act3-lantern-equal, act5-lantern-equal) | ✅ 동일 |
+| melonDS 1.1 GL compute | ✅ PASS | ✅ `melonds-1.1-gl-compute` 일치 | ✅ 동일 |
+| DeSmuME (py-desmume 0.0.9) | ✅ 판정 1 | ✅ `desmume-pydesmume-0.0.9` 일치 | ✅ 동일 |
+
+소프트웨어 렌더러로 두 번 돌린 체크포인트 해시가 같습니다(`tools/qa/compare.py`, 6개). QA를 끈 상태는 달라진 것이 없습니다: 테스트 메뉴로 돌린 리허설
+결과 블록이 변경 전과 같습니다. 소프트웨어 실행은 SD 카드를 붙이려고 홈브루로 돌리므로 세이브 칩이 없습니다: 세이브 미러는 읽기 검증이 일치했고 칩 쓰기는
+검증하지 못했습니다. 실기 DS Lite + R4: 아직 안 돌림.
+
 ## 결론 (2026-11-11)
 
 리허설로 OpenGL (Classic) 렌더러에서 현재 다뤄지고 있는 그래픽 버그들을 재현했습니다. 세 가지 모두 이 렌더러에서

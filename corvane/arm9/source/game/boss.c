@@ -16,6 +16,8 @@
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/timer.h"
+#include "core/qa.h"
+#include "game/qa_tune.h"
 #include "game/game.h"
 #include "game/hud.h"
 #include "game/stage.h"
@@ -125,7 +127,9 @@ static int add_part(int parent, CvVec offset, int model, CvTex tex, int32_t scal
     p->tex = tex;
     p->scale = scale;
     p->radius = CV_FXMUL(cv_models[model].radius, scale);
-    p->hp = p->hp_max = hp * (cv_save.difficulty ? 2 : 1);
+    p->hp = p->hp_max = hp * (cv_save.difficulty ? 2 : 1) * qa_tune()->boss_hp_pct / 100;
+    if (hp > 0 && p->hp_max < 1)
+        p->hp = p->hp_max = 1;
     p->alive = true;
     p->core = core;
     p->damageable = hp > 0;
@@ -233,6 +237,26 @@ int boss_hp_max(void)
 CvVec boss_pos(void)
 {
     return B.n ? B.p[0].world : B.pos;
+}
+
+static bool shield_up(void);
+
+// Where a shot can hurt the boss right now: the first live part that takes
+// damage (not the core while the shield is up). Read-only; used by the QA autopilot.
+bool boss_aim_point(CvVec *out)
+{
+    if (!S.boss_active || B.dying)
+        return false;
+    bool shielded = shield_up();
+    for (int i = 0; i < B.n; i++)
+    {
+        const Part *p = &B.p[i];
+        if (!p->alive || !p->damageable || (p->core && shielded))
+            continue;
+        *out = p->world;
+        return true;
+    }
+    return false;
 }
 
 static bool shield_up(void)
