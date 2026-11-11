@@ -351,7 +351,7 @@ static LtScene act2_loop(const Act2Step *steps, int nsteps, int end_frame, Act2O
             cleared = true;
             clear_frame = f;
             text_put(&con, 0, 0, TP_GREEN, "ACT 2  CLEAR!          ");
-            text_put(&sub, 1, 23, TP_GREEN, "A: TITLE   B: BACK    ");
+            text_put(&sub, 1, 23, TP_GREEN, "A: ACT 3   B: BACK    ");
         }
 
         // Grade the picture once the act has been cleared for a few frames.
@@ -402,7 +402,9 @@ static LtScene act2_loop(const Act2Step *steps, int nsteps, int end_frame, Act2O
                 return SC_TITLE;
             }
         }
-        else if (cv_in.pressed & KEY_B || (cleared && (cv_in.pressed & KEY_A)))
+        else if (cleared && (cv_in.pressed & KEY_A))
+            return SC_ACT3;
+        else if (cv_in.pressed & KEY_B)
             return SC_TITLE;
     }
 }

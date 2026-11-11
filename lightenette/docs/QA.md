@@ -8,8 +8,9 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 |---|---|---|
 | Title | "LIGHTENETTE" and the prompt on the top screen; licence/ARM7/save lines on the bottom screen | ✅ DeSmuME headless (2026-11-11); not yet in melonDS |
 | Title → Start (act 1) | top: shadow and paper marionette, strings to a crossbar, MATCH % ; bottom: four sliders. Drag a slider: its limb swings, MATCH rises. At 85%+ for 20 frames: "CLEAR!". A returns to the title, B backs out. Scripted clear: `40:START,80:T32/51:25,120:T96/64:25,160:T160/74:25,200:T224/114:25` (result block id `0x31544341`: score, cleared, angles + 90) | ✅ DeSmuME and melonDS soft headless, scripted touches (2026-11-11); hands-on feel in melonDS not yet checked |
-| Title → Select | test menu (up/down, A, B backs out): *Accuracy judge* (after ~2 s the values appear; B/Start returns to the title) and *Act 2: turn the dolls* and *Rehearsal: acts 1-2* (both acts play themselves, then the judge; the screen ends with `ACT1 97 OK F59` / `ACT2 OK F… SEAM 0/0/18`) | ✅ DeSmuME, melonDS soft (2026-11-11) for the judge; menu keys not yet tried by hand |
+| Title → Select | test menu (up/down, A, B backs out): *Accuracy judge* (after ~2 s the values appear; B/Start returns to the title) and *Act 2: turn the dolls*, *Act 3: find the marks* and *Rehearsal: acts 1-3* (the acts play themselves, then the judge; the screen ends with `ACT1 97 OK F59` / `ACT2 OK F… SEAM 0/0/18` / `ACT3 OK F… <lantern pixels>`) | ✅ DeSmuME, melonDS soft (2026-11-11) for the judge; menu keys not yet tried by hand |
 | Title → Select → Act 2 | top: three paper dolls on plinths with strings, the chosen one marked; bottom: per doll NOW/AIM facing and OK/TURN. Left/Right or tap chooses, L/R (or tap the lower half) turns: the card narrows, flips, widens. Dolls A front, B back, C back for 20 frames: "CLEAR!", then the picture is captured and `SEAM 0 0 18 OK` / `EDGE n OK` show on the top screen. Scripted: `30:SELECT,50:DOWN,70:A,100:RIGHT,110:R,135:RIGHT,145:L` (result block id `0x32544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
+| Title → Select → Act 3 | top: nearly black stage (3D with BLDCNT 01C1) with three painted marks and a glowing translucent lantern; bottom: a map with the marks (X, `*` once found) and the lantern (@). D-pad or drag moves the lantern; keep it within 16 px of a mark for 15 frames to light it. All three found: "CLEAR!", the lantern parks, then `LAMP <none> <alpha> <darken> OK/NG` and `DARK <plain> <darkened> OK` show. Scripted: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:A:4,100:LEFT:8,100:DOWN:16,140:LEFT:32,140:UP:40,200:RIGHT:76,200:DOWN:4` (result block id `0x33544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
 | rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
 | acc-stage demo | `lightenette-acc-stage.nds`, same numbers as the title → Select scene; result block `0x0237F000`: magic `0x52455643`, id `0x4A44474C` | see below |
 
@@ -35,14 +36,23 @@ Rehearsal block extras (`values[9..17]`): act 1 score 97, cleared 1, clear frame
 
 The result block now has 32 words; read them all (`RESULT_WORDS=32` for DeSmuME).
 
-`tools/judge.py` on the rehearsal ROM (480 frames):
+Act 3 block extras (`values[18..26]`): cleared 1, marks 3, lantern pixel NONE/ALPHA/DARK, backdrop pixel plain/darkened, captures done 1, clear frame 181. Measured (headless, 2026-11-11):
+
+| Renderer | lantern NONE/ALPHA/DARK | backdrop plain/darkened |
+|---|---|---|
+| melonDS software | 25da/25da/25da | 2463/0c21 |
+| melonDS GL classic | 0d2c/25da/0d2c | 2463/0c21 |
+| melonDS GL compute | 0d2c/25da/0d2c | 2463/0c21 |
+| DeSmuME | 25da/25da/1972 | 2463/1042 |
+
+`tools/judge.py` on the rehearsal ROM (700 frames; it ends at frame ~547 on melonDS and ~637 on DeSmuME):
 
 | Renderer | verdict | NG items |
 |---|---|---|
 | melonDS software | OK (exit 0) | - |
-| melonDS GL classic | NG (exit 1) | seam-uv, edge-marking, lantern-blend-equal, act2-seam, act2-edge-marking |
-| melonDS GL compute | NG (exit 1) | lantern-blend-equal |
-| DeSmuME | NG (exit 1) | lantern-blend-equal |
+| melonDS GL classic | NG (exit 1) | seam-uv, edge-marking, lantern-blend-equal, act2-seam, act2-edge-marking, act3-lantern-equal |
+| melonDS GL compute | NG (exit 1) | lantern-blend-equal, act3-lantern-equal |
+| DeSmuME | NG (exit 1) | lantern-blend-equal, act3-lantern-equal |
 
 `line-polygon` is `unconfirmed` (705/710/834/338) and only informational. Expected: seam 0/0/18 and the lantern equal in all modes (GBATEK). The numbers equal corvane's
 `acc-stage` demo. DeSmuME ≠ melonDS ≠ hardware.

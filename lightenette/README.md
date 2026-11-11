@@ -6,7 +6,7 @@
 
 [한국어](README-KO.md)
 
-<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"></p>
+<p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"> <img src="docs/images/act3.png" width="256" alt="Act 3, cleared"></p>
 
 An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
 marionette show with the touch screen. It is also built to judge itself: the ROM
@@ -15,12 +15,17 @@ cases where emulators have disagreed with hardware, so other emulators can use i
 a regression test.
 
 **Status: work in progress.** The title screen, the accuracy judge (title + Select) and a
-prototype of act 1 (title + Start) run; act 2 is in the test menu (and follows a cleared act 1);
-the other acts land stage by stage. Act 1: drag the four sliders on the touch screen to swing the
+prototype of act 1 (title + Start) run; acts 2 and 3 are in the test menu (act 2 follows a cleared act 1, act 3 a cleared
+act 2); the other acts land stage by stage. Act 1: drag the four sliders on the touch screen to swing the
 paper marionette's limbs until they cover the shadow on the top screen (silhouette overlap 85% or
 more). Act 2: choose a doll (left/right or tap) and turn it around with L/R until each of the three
 paper dolls faces the way the touch screen asks. The turn mirrors the card with reversed texture
-coordinates written into the vertices, and the third (stitched) doll's back may show a seam.
+coordinates written into the vertices, and the third (stitched) doll's back may show a seam. Act 3: the stage is nearly black (3D layer with
+the brightness-decrease effect); move the semi-transparent lantern (D-pad or drag) over the three
+hidden marks and keep it there until each lights up. The bottom screen is a map of the marks, so the
+act is completable on any renderer. After the clear the act captures its own picture with the effect
+bits set to none / alpha / darken and reads the lantern pixel in each (the same in all three per
+GBATEK; melonDS #2503).
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
@@ -62,7 +67,7 @@ are informational and never fail the run.
 
 ```sh
 # melonDS headless runner (RENDERER=gl|compute for the GL renderers); DeSmuME: RESULT_WORDS=32 tools/emu/emu.sh run …
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 480 out/mds/reh "" 479 > reh.log
+tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 700 out/mds/reh "" 699 > reh.log
 python3 lightenette/tools/judge.py reh.log
 ```
 
