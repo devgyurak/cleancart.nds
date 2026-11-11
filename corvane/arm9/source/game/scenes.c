@@ -538,8 +538,10 @@ CvScene scene_briefing(void)
     fx_bright(FX_BOTH, -16);
     fx_fade_in(FX_BOTH, 16, false);
 
-    // Typewriter dialogue.
-    for (int line = 0; line < 4; line++)
+    // Typewriter dialogue. A completes the current line; START sorties at
+    // once, as the hint at the bottom says.
+    bool sortie = false;
+    for (int line = 0; line < 4 && !sortie; line++)
     {
         const char *s = brief_lines[n - 1][line];
         for (int i = 0; s[i]; i++)
@@ -550,17 +552,20 @@ CvScene scene_briefing(void)
                 snd_psg(11, 3, 24, 84);
             frame_end();
             frame_end();
-            if (cv_in.pressed & (KEY_A | KEY_START))
+            if (cv_in.pressed & KEY_START)
+            {
+                sortie = true;
+                break;
+            }
+            if (cv_in.pressed & KEY_A)
             {
                 text_put(&main_text, 1, 17 + line * 2, TP_WHITE, s);
                 break;
             }
-            if (cv_in.pressed & KEY_START)
-                break;
         }
         snd_stop_channels(1 << 11);
     }
-    for (;;)
+    while (!sortie)
     {
         frame_end();
         if (cv_in.pressed & (KEY_A | KEY_START) || (cv_in.touching && cv_in.ty > 160))
