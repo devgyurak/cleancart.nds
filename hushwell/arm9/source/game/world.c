@@ -1490,9 +1490,10 @@ CvScene scene_chapter(void)
 
     if (replay_recording())
     {
-        // Keep the run on the save chip for "replay last run".
+        // Keep the run on the save chip for "replay last run". On a small
+        // chip (melonDS: 8 KB) only the start of a long run fits.
         u32 size;
-        const void *blob = replay_blob(&size);
+        const void *blob = replay_blob(save_replay_capacity(), &size);
         replay_stop();
         save_replay(blob, size);
     }

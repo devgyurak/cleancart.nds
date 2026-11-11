@@ -52,6 +52,8 @@ bool replay_finished(void);
 u32  replay_seed(void);
 const CvRunStart *replay_run_start(void);
 bool replay_peek(const void *blob, u32 size, int *chapter);
-const void *replay_blob(u32 *size);
+// The recorded log, cut to its first runs so it fits `max` bytes (the save
+// chip's replay area; playback then ends where the log ends).
+const void *replay_blob(u32 max, u32 *size);
 
 #endif // CV_INPUT_H

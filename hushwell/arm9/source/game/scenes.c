@@ -850,13 +850,35 @@ static const char *const credits[] = {
 };
 #define NUM_CREDITS (int)(sizeof(credits) / sizeof(credits[0]))
 
+// The licence texts are UTF-8 and some names in them carry accents (n with
+// tilde, i with acute); the font is ASCII only. Two-byte sequences in
+// U+00C0-U+00FF fold to their base letter, anything else becomes '?'.
+// Returns the bytes used.
+static int utf8_fold(const char *s, u32 left, char *out)
+{
+    static const char latin1[] = "AAAAAAACEEEEIIIIDNOOOOOxOUUUUYPsaaaaaaaceeeeiiiidnooooo/ouuuuypy";
+    u8 c = (u8)s[0];
+    int n = c >= 0xF0 ? 4 : c >= 0xE0 ? 3 : c >= 0xC0 ? 2 : 1;
+    if ((u32)n > left)
+        n = (int)left;
+    *out = '?';
+    if (n == 2 && ((u8)s[1] & 0xC0) == 0x80)
+    {
+        int cp = ((c & 0x1F) << 6) | ((u8)s[1] & 0x3F);
+        if (cp >= 0xC0 && cp <= 0xFF)
+            *out = latin1[cp - 0xC0];
+    }
+    return n;
+}
+
 static void license_viewer(void)
 {
+    // Every text in licenses/ (shipped as NitroFS /licenses).
     static const char *const files[] = {
         "licenses/THIRD_PARTY_NOTICES", "licenses/MPL-2.0.txt",
         "licenses/picolibc-COPYING.picolibc", "licenses/libnds-LICENSE.txt",
-        "licenses/crts-COPYING.zlib", "licenses/GCC-RUNTIME-LIBRARY-EXCEPTION-3.1.txt",
-        "licenses/LICENSE" };
+        "licenses/libnds-LICENSE.FatFs.txt", "licenses/crts-COPYING.zlib",
+        "licenses/GCC-RUNTIME-LIBRARY-EXCEPTION-3.1.txt", "licenses/LICENSE" };
     const int nfiles = sizeof(files) / sizeof(files[0]);
     int file = 0;
     u32 size = 0;
@@ -894,11 +916,11 @@ static void license_viewer(void)
             }
             if (line >= top + 23)
                 break;
+            char b[2] = { c == '\t' ? ' ' : c, 0 };
+            if ((u8)c >= 0x80)
+                i += utf8_fold(text + i, size - i, b) - 1;
             if (line >= top)
-            {
-                char b[2] = { c == '\t' ? ' ' : c, 0 };
                 text_put(t, col, line - top, TP_WHITE, b);
-            }
             col++;
         }
         text_clear(&sub_text);

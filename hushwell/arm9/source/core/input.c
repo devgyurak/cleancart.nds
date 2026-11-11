@@ -10,7 +10,7 @@
 #define REPLAY_MAGIC 0x50525643u  // "CVRP"
 #define RF_TOUCH 1
 #define RF_LID   2
-#define MAX_RUNS 3700   // 32 + 8 * 3700 bytes fit the replay area of every chip
+#define MAX_RUNS 3700   // 32 + 8 * 3700 bytes fit CV_REPLAY_MAX; 8 KB chips hold fewer (replay_blob)
 
 typedef struct {
     u32 magic;
@@ -225,8 +225,11 @@ bool replay_peek(const void *blob, u32 size, int *chapter)
     return true;
 }
 
-const void *replay_blob(u32 *size)
+const void *replay_blob(u32 max, u32 *size)
 {
+    u32 fit = max > sizeof(rec.hdr) ? (max - sizeof(rec.hdr)) / sizeof(ReplayRun) : 0;
+    if (rec.hdr.count > fit)
+        rec.hdr.count = (u16)fit;
     *size = sizeof(rec.hdr) + rec.hdr.count * sizeof(ReplayRun);
     return &rec;
 }

@@ -30,6 +30,15 @@ endif
 GAME_TITLE    := Hushwell
 GAME_SUBTITLE := A survival horror under the well
 GAME_AUTHOR   := Corvane contributors
+# Header game code, maker code and title. Not "####": melonDS (and some
+# loaders) treat that code as homebrew and attach no save chip at all. HSWL
+# is in no ROM list we know of (corvane uses CRVN); melonDS then emulates an
+# 8 KB EEPROM.
+GAME_CODE     := HSWL 00 HUSHWELL
+# DS-only unit code. With the default (2, DS or DSi) and no DSi region,
+# melonDS blocks every card read of a non-homebrew ROM in DS mode as "DSi
+# area", and NitroFS fails to mount. Hushwell uses no DSi features.
+UNIT_CODE     := 0
 
 ifeq ($(DEMO),)
   ifeq ($(SAVE),eeprom)
@@ -137,7 +146,7 @@ $(OUT)/arm7.elf: $(OBJ7)
 
 $(ROM): $(OUT)/arm9.elf $(OUT)/arm7.elf $(STAMP)
 	@echo "  NDSTOOL $@"
-	@$(NDSTOOL) -c $@ -7 $(OUT)/arm7.elf -9 $(OUT)/arm9.elf \
+	@$(NDSTOOL) -c $@ -7 $(OUT)/arm7.elf -9 $(OUT)/arm9.elf -g $(GAME_CODE) -uc $(UNIT_CODE) \
 		-b $(GEN)/icon.bmp "$(GAME_TITLE);$(GAME_SUBTITLE);$(GAME_AUTHOR)" \
 		-d $(NITRO)
 

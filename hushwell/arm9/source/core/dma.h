@@ -3,9 +3,15 @@
 //
 // Channel plan:
 //   0  immediate copies and the geometry-FIFO display lists
-//   1  HBlank raster tables (wave / scroll)
-//   2  VBlank OAM+palette upload, or main-memory display FIFO
+//   1  HBlank raster tables (wave / scroll), or main-memory display FIFO
+//      (chapter 3 projector film and two demos). While the display FIFO
+//      stream runs, dma_hblank_rearm() leaves the channel alone.
+//   2  VBlank OAM+palette upload
 //   3  fills, cart transfers, line-start (display sync) effects
+//
+// The display FIFO stream must not share channel 2: the hardware stops it at
+// every VBlank and the VBlank handler restarts it at once, so a dma_wait() on
+// that channel (oam_commit -> dma_at_vblank) almost never sees it idle.
 
 #ifndef CV_DMA_H
 #define CV_DMA_H
@@ -16,6 +22,7 @@
 #define CV_DMA_CH_HBLANK 1
 #define CV_DMA_CH_VBLANK 2
 #define CV_DMA_CH_MISC   3
+#define CV_DMA_CH_MMEM   CV_DMA_CH_HBLANK
 
 void dma_wait(int ch);
 void dma_stop(int ch);
