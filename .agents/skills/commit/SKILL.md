@@ -130,6 +130,9 @@ upt/blocksds-1.26
   `git fetch origin && git tag <game>-v<x.y.z> origin/main && git push origin <game>-v<x.y.z>`.
   The release workflow refuses tags that are not on main, and a run whose tag was
   moved to another commit since it started stops before publishing.
+- **Back-merge** after a release: PR `main` → `develop`, merged with a merge commit
+  so develop gets the release merge commit. `pr-guard` doesn't check its title or
+  branch name.
 - PRs need an approval from the code owner @devgyurak (`.github/CODEOWNERS`);
   the maintainer merges their own PRs through the admin bypass.
 - Only admins can create tags (tag ruleset). Open, merge or tag only when the user asks.
