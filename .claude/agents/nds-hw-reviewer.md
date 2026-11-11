@@ -37,6 +37,10 @@ surrounding code. Check every item in `.claude/rules/nds-c.md`, in particular:
 - Fixed array bounds vs the largest user; recursion depth; matrix stack depth (< 31).
 - Determinism: rng only via rng_*, no timer/RTC seeds, timer events frame-locked.
 - Objects left between camera and player; scenes that don't restore brightness/blend/windows.
+- Auto QA mode: a QA branch (`qa_*`, `qalog_*`, `QaTune` reads gated by `qa_active()`) inside
+  `gfx/`, `core/save.c`, judge or capture code; SD/FAT access (`fopen`, `fatInitDefault`,
+  `mkdir`) without `cart_bus_claim()`; a QA flush or log write inside a save transaction;
+  tune fields that change what is rendered or judged instead of a difficulty number.
 - SPDX header present on new files.
 
 Report findings ranked by severity: file:line, what goes wrong on hardware or in

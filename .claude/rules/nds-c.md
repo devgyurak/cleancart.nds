@@ -77,6 +77,11 @@ Memory / DMA / IPC
 - Save chip presence: some EEPROMs read status 0xFF during their internal write, so
   `wait_ready()` must not treat 0xFF as "no chip"; decide that once at detection
   (open bus) and clear the chip-ok flag there.
+- Auto QA mode (skill `nds-qa-mode`): QA code only feeds input at the replay spot in
+  `core/input.c` and changes numbers through `qa_tune()`. No `qa*`/`qalog*` symbol in
+  `gfx/`, `core/save.c`, `judge/`, `capture.c` (`tools/qa/lint.py`). SD/FAT access only inside
+  `cart_bus_claim()/release`, never flush inside a save transaction, close the file after
+  every flush. No timers/RTC in state hashes; QA runs fix the RTC hour.
 - melonDS attaches no save chip to game code `####` (see `build-and-verify.md`)
   and, for a code it doesn't know, always emulates an 8 KB EEPROM whose addresses
   wrap at 0x2000 (a real 8 KB EEPROM also has 32-byte write pages). Detect the wrap
