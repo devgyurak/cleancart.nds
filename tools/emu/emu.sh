@@ -12,7 +12,7 @@ set -eu
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 IMAGE=nds-emu:1
 docker build -q --platform linux/amd64 -t "$IMAGE" "$ROOT/tools/emu" >/dev/null
-RUN="docker run --rm --platform linux/amd64 -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} -v $ROOT:/work -w /work $IMAGE"
+RUN="docker run --rm --platform linux/amd64 -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} -e RESULT_WORDS=${RESULT_WORDS:-8} -v $ROOT:/work -w /work $IMAGE"
 
 cmd=$1
 shift

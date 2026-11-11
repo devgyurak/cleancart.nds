@@ -9,6 +9,7 @@
 
 #include "core/sys.h"
 #include "demo/demo.h"
+#include "game/rehearsal.h"
 #include "judge/judge.h"
 
 void demo_main(const char *name)
@@ -18,6 +19,11 @@ void demo_main(const char *name)
     {
         judge_run(NULL);
         judge_idle();
+    }
+    if (strcmp(name, "rehearsal") == 0)
+    {
+        rehearsal_run();
+        rehearsal_idle();
     }
     for (;;)
         sys_vsync();

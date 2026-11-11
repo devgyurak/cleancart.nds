@@ -20,6 +20,7 @@
 #include "core/hw.h"
 #include "core/input.h"
 #include "core/sys.h"
+#include "game/act1.h"
 #include "game/scenes.h"
 #include "gfx/fx.h"
 #include "gfx/gl3d.h"
@@ -296,7 +297,8 @@ static void setup(void)
     fx_bright(FX_BOTH, 0);
 }
 
-LtScene scene_act1(void)
+// Shared loop: live pen input, or the touch script when `steps` is given.
+static LtScene act1_loop(const Act1Step *steps, int nsteps, int end_frame, Act1Outcome *out)
 {
     setup();
     for (int i = 0; i < LIMBS; i++)
@@ -312,16 +314,29 @@ LtScene scene_act1(void)
         text_put(&sub, 8 * i + 1, 1, TP_WHITE, names[i]);
         slider_draw(i);
     }
-    text_put(&sub, 1, 23, TP_GRAY, "B: BACK");
+    text_put(&sub, 1, 23, TP_GRAY, steps ? "REHEARSAL" : "B: BACK");
 
-    for (;;)
+    int f = 0, clear_frame = -1;
+    for (;; f++)
     {
-        if (cv_in.touching && !cleared)
+        bool touching = cv_in.touching;
+        int tx = cv_in.tx, ty = cv_in.ty;
+        if (steps)
         {
-            int c = cv_in.tx / 64;
-            if (c >= 0 && c < LIMBS && cv_in.ty >= SLIDER_TOP - 8)
+            touching = false;
+            for (int i = 0; i < nsteps && steps[i].frame <= f; i++)
             {
-                angle[c] = angle_from_ty(cv_in.ty);
+                touching = steps[i].ty != 0;
+                tx = steps[i].tx;
+                ty = steps[i].ty;
+            }
+        }
+        if (touching && !cleared)
+        {
+            int c = tx / 64;
+            if (c >= 0 && c < LIMBS && ty >= SLIDER_TOP - 8)
+            {
+                angle[c] = angle_from_ty(ty);
                 slider_draw(c);
             }
         }
@@ -331,6 +346,7 @@ LtScene scene_act1(void)
         if (hold >= CLEAR_HOLD && !cleared)
         {
             cleared = true;
+            clear_frame = f;
             text_put(&con, 1, 0, TP_GREEN, "ACT 1  CLEAR!          ");
             text_put(&sub, 1, 23, TP_GREEN, "A: TITLE   B: BACK");
         }
@@ -351,7 +367,30 @@ LtScene scene_act1(void)
         sys_vsync();
         sys_handle_lid();
         input_update();
-        if (cv_in.pressed & KEY_B || (cleared && (cv_in.pressed & KEY_A)))
+        if (steps)
+        {
+            if ((cleared && f >= clear_frame + 30) || f >= end_frame)
+            {
+                if (out)
+                {
+                    out->score = score;
+                    out->cleared = cleared;
+                    out->clear_frame = clear_frame;
+                }
+                return SC_TITLE;
+            }
+        }
+        else if (cv_in.pressed & KEY_B || (cleared && (cv_in.pressed & KEY_A)))
             return SC_TITLE;
     }
+}
+
+LtScene scene_act1(void)
+{
+    return act1_loop(NULL, 0, 0, NULL);
+}
+
+void act1_replay(const Act1Step *steps, int n, int end_frame, Act1Outcome *out)
+{
+    act1_loop(steps, n, end_frame, out);
 }

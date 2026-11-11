@@ -40,16 +40,17 @@ to both).
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `judge_scene.c`, `act1.c` (act 1: marionette rig, sliders, silhouette score;
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `judge_scene.c` (judge and rehearsal scenes), `rehearsal.c` (act 1 from an embedded touch script, then the judge; result block id `RHEL`), `act1.h`, `act1.c` (act 1: marionette rig, sliders, silhouette score;
   result block id `ACT1`).
 - `arm9/source/judge/`: accuracy judge (`judge.h` documents the result block at
   `CV_RESULT_ADDR`). Needs bank D free as the capture target (`VL_JUDGE` in `gfx/vram.h`).
-- `arm9/source/demo/`: `make DEMO=acc-stage` builds the judge as its own ROM.
+- `arm9/source/demo/`: `make DEMO=acc-stage` builds the judge, `DEMO=rehearsal` the rehearsal, each as its own ROM. Demo builds skip `nitro_init`, `cart_init` and the save chip.
+- `expected.json` + `tools/judge.py`: expected result-block values per item and the stdlib-only grader (exit 0 = pass). Keep both in step with the C result block layout; unconfirmed items stay informational until a hardware value arrives.
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.
 - `tools/mkassets.py`, `tools/cvtools/`: asset generators (Python 3, stdlib only).
 
 ## Controls (melonDS keys in brackets)
 
 Start (Return) starts act 1: touch-drag the four sliders on the bottom screen; A (X) after a clear
-returns to the title, B (Z) backs out. Title + Select (Backspace) opens the judge; there A (X) cycles BLDCNT,
+returns to the title, B (Z) backs out. Title + Select (Backspace) opens the test menu (up/down, A (X), B (Z)); in the judge A (X) cycles BLDCNT,
 B (Z) / Start returns. More actions are listed here as scenes land.
