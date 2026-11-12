@@ -109,7 +109,7 @@ def run(args):
             vals_in = [int(v, 16) for v in args.values]
             if not 1 <= len(vals_in) <= 61:
                 raise Fatal('--values wants 1 to 61 hex numbers')
-            words = [MAGIC, exp['boot']['item_id'], exp['boot']['frames_min']] + vals_in
+            words = [MAGIC, exp["boot"]["item_id"], exp["boot"]["frames_min"]] + vals_in + [0] * (61 - len(vals_in))
             text = 'RESULT ' + ' '.join('%08x' % w for w in words) + '\n'
         elif args.logs:
             for path in args.logs:
