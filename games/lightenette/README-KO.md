@@ -9,6 +9,8 @@
 
 <p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette 타이틀 화면"> <img src="docs/images/act1-start.png" width="256" alt="1막 시작"> <img src="docs/images/act1.png" width="256" alt="1막 클리어"> <img src="docs/images/act2.png" width="256" alt="2막 클리어"> <img src="docs/images/act3.png" width="256" alt="3막 클리어"> <img src="docs/images/act4.png" width="256" alt="4막 클리어"> <img src="docs/images/act5.png" width="256" alt="5막 클리어"></p>
 
+<sub>빌드한 ROM을 헤드리스 DeSmuME 0.9.12(`tools/emu/`)로 찍은 화면입니다. melonDS나 실기가 아닙니다(3막 그림의 "NG"는 DeSmuME의 알려진 랜턴 블렌드 차이입니다). 위 화면만 최근접 이웃 2배(512×384)로 실었습니다.</sub>
+
 닌텐도 DS용 오리지널 퍼즐 액션 게임입니다. 등불을 들고 터치스크린으로 마리오네트
 인형극을 조종합니다. 동시에 ROM이 스스로 판정하도록 만들었습니다. 자기 화면을
 캡처해 정해진 색의 픽셀 수를 세고, 에뮬레이터가 실기와 어긋난 적이 있는 항목의

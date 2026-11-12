@@ -9,6 +9,8 @@
 
 <p align="center"><img src="docs/images/title.png" width="256" alt="타이틀"> <img src="docs/images/chapter1.png" width="256" alt="1장, 일치"> <img src="docs/images/chapter4.png" width="256" alt="4장, 작업 층과 아치"> <img src="docs/images/chapter5.png" width="256" alt="5장, 구조물 둘 중 하나"> <img src="docs/images/showcase.png" width="256" alt="감상 모드"></p>
 
+<sub>빌드한 ROM을 헤드리스 melonDS 1.1(`tools/melonds/mds.sh`)로 찍은 화면입니다. DeSmuME나 실기가 아닙니다. 1·4·5장과 쇼케이스는 퍼즐을 스크립트로 푸는 리허설 ROM에서 찍었습니다. 위 화면(정면도)만 최근접 이웃 2배(512×384)로 실었습니다.</sub>
+
 닌텐도 DS용 오리지널 복셀 실루엣 퍼즐입니다. 주문서 하나는 정면도와 평면도 실루엣이고,
 두 실루엣을 만드는 블록 구조물을 쌓으면 납품됩니다. 블록이 적을수록 별을 더 받습니다.
 위 화면은 정면도, 아래 화면은 평면도이며 **두 화면 모두 3D**입니다(디스플레이 캡처, 화면마다
