@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Only the two forms in this folder; see CONTRIBUTING.md.
+blank_issues_enabled: false
+contact_links:
+  - name: Contribution policy
+    url: https://github.com/devgyurak/cleancart.nds/blob/main/CONTRIBUTING.md
+    about: This project does not take pull requests from outside.

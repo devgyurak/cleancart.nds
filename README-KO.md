@@ -2,8 +2,8 @@
 
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo/cleancart-lockup-dark.svg">
-    <img src="docs/logo/cleancart-lockup.svg" alt="cleancart.nds" width="420">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo/cleancart-lockup-dark.svg">
+    <img src="assets/logo/cleancart-lockup.svg" alt="cleancart.nds" width="420">
   </picture>
 </h1>
 
@@ -22,6 +22,19 @@
 [BlocksDS](https://blocksds.skylyrac.net/)로 만든 닌텐도 DS 오리지널 홈브루 게임 모음입니다.
 라이선스를 깨끗하게 유지합니다. 코드는 직접 작성하고, 에셋은 이 저장소의 코드로
 생성하며, ROM에 들어가는 서드파티 런타임 라이브러리는 모두 고지합니다.
+
+## 목적
+
+에뮬레이터 개발자가 개발하고 검증할 때 쓰도록 만든 홈브루 게임 모음입니다.
+
+- **스스로 판정하는 완성된 게임.** 각 ROM은 끝까지 플레이할 수 있는 게임이면서, 하드웨어가 어떻게
+  동작했는지도 보고합니다(결과 블록, `expected.json`, `judge.py`). 실기와 다른 동작은 느낌이 아니라
+  실패한 항목으로 드러납니다.
+- **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
+  차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이
+  있습니다([docs/LEVELS-KO.md](docs/LEVELS-KO.md)).
+- **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
+  또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
 ## 게임
 
@@ -57,8 +70,8 @@ cd games/corvane     # 또는: cd games/hushwell …
 
 작업은 `develop`에서 딴 브랜치에서 하고, 제목이 커밋 접두사(`ADD:`, `FIX:` …)로 시작하는
 PR로 `develop`에 머지합니다. 새 게임이나 게임의 새 버전은 `develop` → `main` PR(머지 커밋)로
-내보낸 뒤 main에 태그를 붙여 릴리스합니다. 기여자의 PR은 메인테이너의 승인
-([CODEOWNERS](.github/CODEOWNERS)) 후 머지됩니다.
+내보낸 뒤 main에 태그를 붙여 릴리스합니다. PR은 메인테이너만 올립니다
+([CODEOWNERS](.github/CODEOWNERS)). 대신 보낼 수 있는 것은 [CONTRIBUTING-KO.md](CONTRIBUTING-KO.md)를 보세요.
 
 `<게임>-v<버전>` 형식의 태그를 푸시하면 GitHub Actions
 ([`release.yml`](.github/workflows/release.yml))가 해당 게임을 빌드해
@@ -95,14 +108,24 @@ games/elevane/    게임 하나(lightenette에서 시작)
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
-docs/logo/        저장소 로고 (scripts/mklogo.py가 생성)
-.github/          워크플로(릴리스, PR 검사), ruleset, PR 템플릿
+assets/logo/      저장소 로고 (scripts/mklogo.py가 생성, 브랜딩용이며 ROM 에셋 아님)
+docs/             저장소 공통 문서 (난이도 레벨)
+.github/          워크플로(릴리스, PR 검사), ruleset, PR·이슈 템플릿
 AGENTS.md         코딩 에이전트용 프로젝트 규칙 (Claude Code는 CLAUDE.md로 읽음)
+LICENSE           games/ 밖의 모든 것에 적용되는 Apache-2.0
+CONTRIBUTING-KO.md 받는 기여의 범위 (이슈만)
 ```
 
 ## 라이선스
 
-라이선스는 게임마다 각 폴더에 적혀 있습니다. Corvane, Hushwell, Lightenette, Elevane은 Apache License 2.0
-([corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE))이며, ROM에 들어가는 서드파티
-구성 요소는 각 게임의 `THIRD_PARTY_NOTICES`에 있습니다. ROM은 커밋하지 않으니
-소스에서 빌드해 주세요.
+| 범위 | 라이선스 |
+|---|---|
+| `games/` 밖의 모든 것(도구, 스크립트, 문서, 로고, `.github/`) | Apache License 2.0, [LICENSE](LICENSE) |
+| [corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE) | Apache License 2.0, 각 게임 폴더의 `LICENSE` |
+
+ROM에 들어가는 서드파티 구성 요소는 각 게임의 `THIRD_PARTY_NOTICES`에 있습니다. ROM은 커밋하지
+않으니 소스에서 빌드해 주세요.
+
+---
+
+Nintendo와 제휴하거나 Nintendo의 승인을 받은 프로젝트가 아닙니다. Nintendo DS는 Nintendo의 상표입니다.

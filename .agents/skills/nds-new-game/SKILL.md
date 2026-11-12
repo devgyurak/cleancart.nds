@@ -7,7 +7,7 @@ description: Start a new DS game folder in this repo from the corvane template (
 
 1. Read the design request; if it names an existing commercial game, build an
    original game in that genre instead (no names, characters, art or levels).
-2. Create `games/<name>/` (lowercase, no trademarks) and copy the infrastructure:
+2. Create `games/<name>/` (lowercase; no third-party names, see rule 3 in `AGENTS.md`) and copy the infrastructure:
    ```sh
    mkdir games/<name> && cd games/<name>
    cp ../corvane/{Dockerfile,build.sh,Makefile,.gitignore,LICENSE} .
@@ -53,7 +53,10 @@ description: Start a new DS game folder in this repo from the corvane template (
    `SAV=out/mds/<game>.sav tools/melonds/mds.sh run …` twice (save, then reload)
    and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).
    DeSmuME alone missed the MPU, DMA, header and save bugs.
-7. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.
+7. A new game ships `expected.json` + `tools/judge.py` from the start, and every item in
+   `expected.json` has `level` (1–4) and `level_basis` (`docs/LEVELS.md`; ask the `level-judge`
+   agent). `python3 scripts/mklevels.py --check` must pass once that script exists.
+8. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.
    Add `game/qa_tune.h` + `game/qa_game.c` and the hooks from skill `nds-qa-mode` (porting
    checklist) before the first release; a game without a working QA run isn't done.
-8. Add the game to the root `AGENTS.md` layout section.
+9. Add the game to the root `AGENTS.md` layout section.

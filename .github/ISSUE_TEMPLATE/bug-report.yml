@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+name: Bug report or question
+description: Something in a game is wrong, or you want to know why a result looks the way it does
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste code, art, sound or levels. Describe the behaviour instead.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      description: The maintainer sets the label.
+      options:
+        - Bug
+        - Question about a result
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game and release tag
+      placeholder: lightenette-v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: emulator
+    attributes:
+      label: Emulator, version and renderer
+      placeholder: melonDS 1.1, software renderer
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: judge.py output or QA log
+      description: The output of `judge.py`, or the relevant part of the QA log.
+      render: text
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: Drag an image here. Both screens if the problem is on the bottom screen.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce, or your question
+    validations:
+      required: true

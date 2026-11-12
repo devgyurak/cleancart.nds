@@ -15,6 +15,8 @@ Hushwell, a closed sanatorium in the mountains, built over an old well. Whatever
 comes up out of the well hunts by sound. You have a flashlight, a recorder and a
 flare pistol with very few flares.
 
+**Hardware areas it tests:** 2D engines A and B, the 3D engine (lighting, fog, texturing), ARM7 sound, DMA/timers/IPC/interrupts, and cart, save, RTC, touch and power I/O.
+
 The top screen is the first-person 3D view with almost no HUD; the bottom screen is
 a hand-drawn map that fills in as you explore, a recorder for the tapes you find,
 the flashlight battery and a radio-static meter whose needle swings when the creature
@@ -204,3 +206,7 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
   `THIRD_PARTY_NOTICES`, the full texts in `licenses/`; the same files are shipped in the
   ROM's NitroFS `/licenses/` and can be read in game under **Credits → X (licence viewer)**.
 - Hushwell runs its own ARM7 core, so DSWiFi, lwIP, Mbed TLS, Maxmod and LibXM7 are not included.
+
+---
+
+Not affiliated with or endorsed by Nintendo. Nintendo DS is a trademark of Nintendo.

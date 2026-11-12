@@ -1,6 +1,6 @@
 ---
 name: nds-license-audit
-description: Check a DS game folder for licence compliance (SPDX headers, generated/CC0 assets listed in ASSETS.md, third-party notices, licence texts in NitroFS and in-game credits, no committed ROMs, no trademarks). Use before finishing any change that adds files, assets or libraries, or when the user asks about licences.
+description: Check a DS game folder for licence compliance (SPDX headers, generated/CC0 assets listed in ASSETS.md, third-party notices, licence texts in NitroFS and in-game credits, no committed ROMs, no third-party names in ROM content). Use before finishing any change that adds files, assets or libraries, or when the user asks about licences.
 ---
 
 # Licence audit
@@ -29,7 +29,14 @@ Run from the game folder (e.g. `games/corvane/`).
    `arm9/source/game/scenes.c` mentions each one (crts MPL-2.0 sentence + source URL,
    picolibc copyright, libnds), and the licence viewer's `files[]` in
    `game/scenes.c` lists every file in `licenses/`.
-5. **Originality**: grep names/text for third-party game titles or characters.
+5. **Originality and names**: grep names/text for third-party game titles or characters. Emulator,
+   tool, library and platform names (melonDS, DeSmuME, BlocksDS, GBATEK, Nintendo DS, …) are fine in
+   docs, tools, comments, commit messages and `expected.json`, but must not appear in game names,
+   ROM content (in-game text, assets, NitroFS files) or code identifiers built into the ROM, except the
+   third-party credits and licence texts rule 4 requires:
+   ```sh
+   grep -rnE 'melonDS|DeSmuME|Nintendo|GBATEK' arm7 arm9 common   # review every hit
+   ```
 6. **Git hygiene**: `git status --short | grep -E '\.nds|\.sav|build/'` is empty
    (.gitignore covers them).
 

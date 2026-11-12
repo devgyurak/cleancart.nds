@@ -16,6 +16,8 @@
 경로가 동작했는지 보고하므로 다른 에뮬레이터가 회귀 테스트로 쓸 수 있습니다
 ([에뮬레이터 테스트로 쓰기](#에뮬레이터-테스트로-쓰기) 참고).
 
+**시험하는 하드웨어 영역:** 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. 스크립트 리허설로 확인.
+
 **상태.** 다섯 장(퍼즐 40개), 2D 격자 모드, 감상 모드, 리허설과 판정, 라이선스 뷰어가 있는
 크레딧, 게임 전체를 스스로 플레이하는 숨은 자동 QA 실행까지 끝났고, DeSmuME와 melonDS(소프트웨어,
 GL, compute 렌더러)에서 헤드리스로 돌아갑니다. **실기 측정값은 아직 없습니다**: 기대값이 문서
@@ -94,3 +96,7 @@ OpenGL classic, compute). 알려진 결과: master GL과 Compute는 감상 프�
 - [docs/QA-KO.md](docs/QA-KO.md): 무엇을 어디서 확인했는지 (DeSmuME, melonDS, 실기)
 - [ASSETS-KO.md](ASSETS-KO.md): 모든 에셋은 코드가 생성하며 생성기가 명시되어 있음
 - `AGENTS.md`: 기여자용 코드 지도와 규약
+
+---
+
+Nintendo와 제휴하거나 Nintendo의 승인을 받은 프로젝트가 아닙니다. Nintendo DS는 Nintendo의 상표입니다.

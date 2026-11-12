@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: 2026 Corvane contributors
-"""Writes the repository logo to docs/logo/.
+"""Writes the repository logo to assets/logo/.
 
 The mark is an unlocked game card: the padlock body is a card (corner notch,
 contact slots instead of a keyhole) and the shackle is open. The wordmark
@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, 'games', 'corvane', 'tools'))
 from cvtools.font import GLYPHS  # noqa: E402
 
-OUT = os.path.join(ROOT, 'docs', 'logo')
+OUT = os.path.join(ROOT, 'assets', 'logo')
 NAME = 'CLEANCART.NDS'
 INK = {'': '#000000', '-dark': '#ffffff'}
 

@@ -15,6 +15,8 @@ captures its own display, counts pixels of fixed colours and reports pass/fail f
 cases where emulators have disagreed with hardware, so other emulators can use it as
 a regression test (see [Using it as an emulator test](#using-it-as-an-emulator-test)).
 
+**Hardware areas it tests:** display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking and line polygons, where melonDS renderers have differed from hardware.
+
 **Status.** Five acts, the accuracy judge, a rehearsal mode, `expected.json` and the
 judging script are done and run headless in DeSmuME and in melonDS (software, GL and
 compute renderers). **Nothing has been measured on real hardware yet**: items whose
@@ -92,3 +94,7 @@ arm7/               own ARM7 core
 tools/              asset generators and judge.py (Python 3, stdlib only)
 expected.json       expected values for the judge
 ```
+
+---
+
+Not affiliated with or endorsed by Nintendo. Nintendo DS is a trademark of Nintendo.
