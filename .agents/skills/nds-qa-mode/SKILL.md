@@ -6,9 +6,9 @@ description: The hidden auto QA mode every game carries (L+R+X+Y hold on the tit
 # Auto QA mode
 
 Same ROM as the release (SHA-256 identical): no QA build. The mode is hidden; nothing
-on screen shows it. Reference implementation: `corvane/` (`core/qa.c/.h`,
+on screen shows it. Reference implementation: `games/corvane/` (`core/qa.c/.h`,
 `core/qalog.c/.h`, `game/qa_game.c`, `game/qa_tune.h`). `core/` files are copied into each
-game and kept identical (`diff -r corvane/arm9/source/core <game>/arm9/source/core` for
+game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/arm9/source/core` for
 `qa*.c/h`); the game side is the game's own.
 
 ## Rules

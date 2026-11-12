@@ -33,7 +33,7 @@ The console is operated by a person; the steps below are what to do and what to 
    The game plays itself to the credits (about 5 minutes) and writes `cleancart/elevane/qa-*.log` to the SD card.
    Then `python3 tools/qa/ingest.py /Volumes/<card> --game elevane` and compare with an emulator run
    (`python3 tools/qa/compare.py <emu.log> <hw.log> --info`).
-6. Grade the rehearsal photo: `python3 elevane/tools/judge.py --values <hex> <hex> ...` (values 0 to 17 in order,
+6. Grade the rehearsal photo: `python3 games/elevane/tools/judge.py --values <hex> <hex> ...` (values 0 to 17 in order,
    exit 0 = no gating item failed). Add `--profile melonds-1.1-software` to see how it differs from an emulator.
 
 ## Recording

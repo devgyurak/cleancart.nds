@@ -66,9 +66,9 @@ The ROM decides by itself; the emulator only has to run it and expose main RAM.
 4. Known differences: `python3 tools/judge.py --profile NAME <log>` exits 0 only when the failing gating items are exactly the `known` list of that emulator profile in `expected.json` (`--list-profiles` shows them: `melonds-1.1-software`, `melonds-1.1-gl-classic`, `melonds-1.1-gl-compute`, `desmume-pydesmume-0.0.9`). Newly failing items and newly passing items are reported, so a fixed emulator shows up instead of passing silently. A reviewer reported that melonDS master `4ce2188` already fixed #2503; we have not verified that.
 
 ```sh
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
-python3 lightenette/tools/judge.py reh.log
-python3 lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # exit 0 only if the NG set matches
+tools/melonds/mds.sh run games/lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
+python3 games/lightenette/tools/judge.py reh.log
+python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # exit 0 only if the NG set matches
 ```
 
 `expected.json` lists every item: frame, expected value, tolerance, source, boot path and hardware

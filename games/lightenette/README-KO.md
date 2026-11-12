@@ -64,9 +64,9 @@ Docker만 있으면 됩니다.
 4. 알려진 차이: `python3 tools/judge.py --profile NAME <로그>`는 실패한 판정 항목이 `expected.json`의 해당 에뮬레이터 프로필 `known` 목록과 정확히 같을 때만 0을 반환합니다(`--list-profiles`로 확인: `melonds-1.1-software`, `melonds-1.1-gl-classic`, `melonds-1.1-gl-compute`, `desmume-pydesmume-0.0.9`). 새로 실패한 항목과 새로 통과한 항목을 보고하므로, 고쳐진 에뮬레이터가 조용히 지나가지 않고 드러납니다. 리뷰어가 melonDS master `4ce2188`에서 #2503이 이미 고쳐졌다고 알려 왔지만 우리는 확인하지 않았습니다.
 
 ```sh
-tools/melonds/mds.sh run lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
-python3 lightenette/tools/judge.py reh.log
-python3 lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # NG 집합이 같을 때만 0
+tools/melonds/mds.sh run games/lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log   # RENDERER=gl|compute
+python3 games/lightenette/tools/judge.py reh.log
+python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # NG 집합이 같을 때만 0
 ```
 
 `expected.json`은 항목마다 프레임, 기대값, 허용 오차, 출처, 부팅 경로, 실기 모델을 적고, 필요하면 의존하는 캡처(`done`)와 픽셀을 읽는 항목인지(`pixels`)도 적습니다. 역방향 UV 재단선은 정성적으로 판정하며(0·1행은 깨끗, 2행은 선이 보임) 정확한 `0/0/18`은 에뮬레이터 측정값이라 정보용 항목일 뿐입니다.

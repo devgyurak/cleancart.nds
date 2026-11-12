@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 Corvane contributors
 #
 # Push a tag named <game>-v<version> (e.g. corvane-v0.1.0) to build that game's
-# folder in its pinned BlocksDS container (<game>/build.sh release) and upload
+# folder in its pinned BlocksDS container (games/<game>/build.sh release) and upload
 # the ROMs as workflow artifacts:
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
@@ -60,17 +60,17 @@ jobs:
         env:
           GAME: ${{ steps.tag.outputs.game }}
         run: |
-          if [ ! -x "$GAME/build.sh" ] || ! grep -q '^release:' "$GAME/Makefile"; then
-            echo "::error::No game folder '$GAME/' with build.sh and a 'release' make target"
+          if [ ! -x "games/$GAME/build.sh" ] || ! grep -q '^release:' "games/$GAME/Makefile"; then
+            echo "::error::No game folder 'games/$GAME/' with build.sh and a 'release' make target"
             exit 1
           fi
 
       - name: Build
-        working-directory: ${{ steps.tag.outputs.game }}
+        working-directory: games/${{ steps.tag.outputs.game }}
         run: ./build.sh -j"$(nproc)" release
 
       - name: Checksums
-        working-directory: ${{ steps.tag.outputs.game }}/build/release
+        working-directory: games/${{ steps.tag.outputs.game }}/build/release
         run: |
           for d in rom demos judge; do
             [ -d "$d" ] || continue
@@ -80,13 +80,13 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}
-          path: ${{ steps.tag.outputs.game }}/build/release/rom/
+          path: games/${{ steps.tag.outputs.game }}/build/release/rom/
           if-no-files-found: error
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}-demos
-          path: ${{ steps.tag.outputs.game }}/build/release/demos/
+          path: games/${{ steps.tag.outputs.game }}/build/release/demos/
           if-no-files-found: ignore
 
       # Games that grade themselves (lightenette, elevane) ship the rehearsal ROMs with
@@ -94,7 +94,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}-judge
-          path: ${{ steps.tag.outputs.game }}/build/release/judge/
+          path: games/${{ steps.tag.outputs.game }}/build/release/judge/
           if-no-files-found: ignore
 
   release:
@@ -146,7 +146,7 @@ jobs:
             if [ -f "$TAG-judge.zip" ]; then echo "- \`$TAG-judge.zip\`: emulator-test kit (rehearsal ROMs, \`expected.json\`, \`judge.py\`)"; fi
             echo
             echo "Each zip has its own \`SHA256SUMS\` and the licence texts and third-party notices."
-            echo "The build is reproducible: \`./build.sh release\` in \`$GAME/\` at this commit gives the same ROMs."
+            echo "The build is reproducible: \`./build.sh release\` in \`games/$GAME/\` at this commit gives the same ROMs."
             echo
             echo '```'
             cat SHA256SUMS

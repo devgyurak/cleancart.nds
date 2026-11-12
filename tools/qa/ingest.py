@@ -6,7 +6,7 @@
     ingest.py SD_MOUNT [--game NAME ...]
 
 Looks for <SD_MOUNT>/cleancart/<game>/ (every game unless --game is given),
-copies qa-*.log and save-*.bin to <repo>/<game>/build/qa/ (not committed; the
+copies qa-*.log and save-*.bin to <repo>/games/<game>/build/qa/ (not committed; the
 file names carry the run's date and time, so runs never overwrite each other), runs parse_log on every log and prints one line per log.
 """
 
@@ -35,7 +35,7 @@ def main(argv):
     status = 0
     for game in games:
         src = os.path.join(base, game)
-        dst = os.path.join(ROOT, game, 'build', 'qa')
+        dst = os.path.join(ROOT, 'games', game, 'build', 'qa')
         os.makedirs(dst, exist_ok=True)
         for path in sorted(glob.glob(os.path.join(src, 'qa-*.log')) + glob.glob(os.path.join(src, 'save-*.bin'))):
             out = os.path.join(dst, os.path.basename(path))

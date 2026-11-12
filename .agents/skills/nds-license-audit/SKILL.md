@@ -5,7 +5,7 @@ description: Check a DS game folder for licence compliance (SPDX headers, genera
 
 # Licence audit
 
-Run from the game folder (e.g. `corvane/`).
+Run from the game folder (e.g. `games/corvane/`).
 
 1. **SPDX headers** on all sources and build files:
    ```sh

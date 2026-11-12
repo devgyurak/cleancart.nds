@@ -32,7 +32,7 @@ Elevane은 아직 실기에서 측정한 값이 하나도 없습니다. 이 문�
    게임이 크레딧까지 스스로 플레이하고(약 5분) SD 카드에 `cleancart/elevane/qa-*.log`를 씁니다.
    이후 `python3 tools/qa/ingest.py /Volumes/<card> --game elevane`, 에뮬레이터 실행과의 비교는
    `python3 tools/qa/compare.py <emu.log> <hw.log> --info`.
-6. 리허설 사진 채점: `python3 elevane/tools/judge.py --values <hex> <hex> ...`(값 0~17을 순서대로,
+6. 리허설 사진 채점: `python3 games/elevane/tools/judge.py --values <hex> <hex> ...`(값 0~17을 순서대로,
    종료 코드 0 = 필수 항목 실패 없음). `--profile melonds-1.1-software`를 붙이면 에뮬레이터와 어떻게 다른지 봅니다.
 
 ## 기록

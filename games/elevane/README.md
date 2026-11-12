@@ -79,10 +79,10 @@ leaves a result block at `0x0237F000` (layout: `arm9/source/game/rehearsal.h`).
 
 ```sh
 # melonDS headless runner of this repository (RENDERER=soft|gl|compute, MELONDS_COMMIT=<sha>)
-RENDERER=gl tools/melonds/mds.sh run elevane/elevane-rehearsal.nds 4000 out/x "" 3999 \
-  | python3 elevane/tools/judge.py --profile melonds-1.1-gl-classic
+RENDERER=gl tools/melonds/mds.sh run games/elevane/elevane-rehearsal.nds 4000 out/x "" 3999 \
+  | python3 games/elevane/tools/judge.py --profile melonds-1.1-gl-classic
 # 1x screenshots against the same emulator's software renderer, consecutive frames
-python3 elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
+python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
 ```
 
 `judge.py` exits 0 on pass, 1 when a gating item fails or the profile differs, 2 when there

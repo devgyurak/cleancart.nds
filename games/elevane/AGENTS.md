@@ -4,7 +4,7 @@ Original voxel silhouette puzzle for the DS: stack blocks until the front and pl
 views match the order. Both screens show the model in 3D; a 2D grid shows the same
 state so the puzzles can be solved without 3D. Human docs (English, each with a Korean
 twin `*-KO.md`): `README.md`, `docs/QA.md`, `ASSETS.md`; plus `THIRD_PARTY_NOTICES`.
-Repo-wide rules are in `../AGENTS.md`. Created from lightenette (which came from the
+Repo-wide rules are in `../../AGENTS.md`. Created from lightenette (which came from the
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's
 layers (keep fixes in sync when they apply to all games).
 

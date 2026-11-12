@@ -36,7 +36,7 @@ game plays all five stages, the ending and the credits by itself (boss HP x0.1, 
 life, weak numbers only; effects, sound and saves are unchanged) and finishes on the records
 screen. The save the cart had (settings slots and the last-run replay area) is restored at the end. On a flash cart with an SD card it writes
 `cleancart/corvane/qa-<date>-<time>.log` and `save-<n>.bin`; every run also fills the `QARN`
-result block. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run corvane/corvane.nds 20000 out/mds/x
+result block. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run games/corvane/corvane.nds 20000 out/mds/x
 "60:A,200:A,500:L:140,500:R:140,500:X:140,500:Y:140"`, then `tools/qa/parse_log.py` on the log.
 
 | Where | Result (2026-11-11, build from this tree) |

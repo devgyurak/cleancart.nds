@@ -4,8 +4,8 @@
 #
 # Headless melonDS 1.1 core runner (tools/melonds/headless). Paths are relative
 # to the repository root; outputs go under out/ (not committed).
-#   tools/melonds/mds.sh run   corvane/corvane.nds 600 out/mds/boot "60:A,200:A" 150,599
-#   tools/melonds/mds.sh demos corvane/build/release/demos   # RESULT line per demo ROM
+#   tools/melonds/mds.sh run   games/corvane/corvane.nds 600 out/mds/boot "60:A,200:A" 150,599
+#   tools/melonds/mds.sh demos games/corvane/build/release/demos   # RESULT line per demo ROM
 # Environment passed through: SAV POKE PEEK WAV RTC TRACE TRACE_EVERY SHOT_EVERY PM0
 # RENDERER SCALE SDDIR (see headless/mdsrun.cpp). MELONDS_COMMIT=<sha> runs a build
 # of that melonDS commit instead of the 1.1 release.

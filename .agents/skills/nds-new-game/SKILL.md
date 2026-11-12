@@ -7,9 +7,9 @@ description: Start a new DS game folder in this repo from the corvane template (
 
 1. Read the design request; if it names an existing commercial game, build an
    original game in that genre instead (no names, characters, art or levels).
-2. Create `<name>/` (lowercase, no trademarks) and copy the infrastructure:
+2. Create `games/<name>/` (lowercase, no trademarks) and copy the infrastructure:
    ```sh
-   mkdir <name> && cd <name>
+   mkdir games/<name> && cd games/<name>
    cp ../corvane/{Dockerfile,build.sh,Makefile,.gitignore,LICENSE} .
    cp -R ../corvane/licenses .
    cp ../corvane/THIRD_PARTY_NOTICES ../corvane/NOTICE .
@@ -48,7 +48,7 @@ description: Start a new DS game folder in this repo from the corvane template (
    `<name>/CLAUDE.md` containing only `@AGENTS.md`.
 6. Build (`nds-build`), smoke test (`nds-emu-test`), audit (`nds-license-audit`).
    Run the demo suite and a boot → save → reload pass in headless melonDS too
-  : `tools/melonds/mds.sh demos <game>/build/release/demos` and check
+  : `tools/melonds/mds.sh demos games/<game>/build/release/demos` and check
    every RESULT and that the `SAVE` type isn't 0; then
    `SAV=out/mds/<game>.sav tools/melonds/mds.sh run …` twice (save, then reload)
    and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).

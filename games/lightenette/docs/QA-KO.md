@@ -14,7 +14,7 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 | 타이틀 → Select → 3막 | 위: 거의 까만 무대(3D에 BLDCNT 01C1), 그려 둔 표식 세 개와 빛나는 반투명 등불. 아래: 표식(X, 찾으면 `*`)과 등불(@) 지도. D-pad나 드래그로 등불을 움직이고, 표식에서 16픽셀 안에 15프레임 머물면 켜집니다. 셋 다 찾으면 "CLEAR!" 후 등불이 자리 잡고 `LAMP <없음> <알파> <밝기감소> OK/NG`와 `DARK <그대로> <어둡게> OK`가 나옵니다. 스크립트: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:A:4,100:LEFT:8,100:DOWN:16,140:LEFT:32,140:UP:40,200:RIGHT:76,200:DOWN:4`(결과 블록 ID `0x33544341`) | ✅ DeSmuME 헤드리스, 스크린샷 확인(2026-11-11), 손맛은 미확인 |
 | 타이틀 → Select → 4막 | 위: 가로대, 핀 네 개로 내려오는 색깔 줄 네 가닥(어두운 사각형 + 라인 폴리곤), 아래에 가로·대각선 실 하나씩. 아래: 핀마다 걸린 줄(S1~S4), 커서, CROSSINGS n. L/R이나 터치로 핀을 고르고 A나 두 번째 터치로 두 줄을 맞바꿉니다. 엇갈림 0이 20프레임이면 "CLEAR!" 후 `HLINE n OK` / `DLINE n OK`. 스크립트: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:A:4,100:A:2,104:RIGHT:2,108:A:2,118:A:2,122:RIGHT:2,126:RIGHT:2,130:A:2,140:A:2,144:LEFT:2,148:A:2`(결과 블록 ID `0x34544341`) | ✅ DeSmuME 헤드리스, 스크린샷 확인(2026-11-11), 조작감은 아직 직접 확인 전 |
 | 타이틀 → Select → 5막 | 위: 엣지 색 세 가지의 받침대 위 인형 3개가 있는 어두운 무대, 라인 폴리곤 줄, 등불. 아래: 인형마다 NOW/AIM 면, LIT/DARK, OK/TODO. D-pad나 드래그로 등불을 움직이고 L/R/A(또는 아래쪽 터치)로 등불 아래 인형을 돌립니다. 모두 밝히고 돌려 놓으면(A 뒤, B 앞, C 뒤) 20프레임 뒤 "CLEAR!", 등불이 자리 잡고 `SEAM`, `EDGE`, `LINE`, `LAMP`, `DARK`가 나옵니다. 스크립트: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:DOWN:4,90:A:4,110:UP:8,130:LEFT:36,160:R:2,185:RIGHT:72,250:R:2`(결과 블록 ID `0x35544341`) | ✅ DeSmuME 헤드리스, 스크린샷 확인(2026-11-11), 조작감은 아직 직접 확인 전 |
-| 리허설 데모 | `lightenette-rehearsal.nds`는 세이브 칩과 NitroFS 없이 곧바로 리허설로 부팅, 결과 블록 ID `0x4C454852`. `python3 lightenette/tools/judge.py <로그>`가 `expected.json`과 대조 | 아래 참고 |
+| 리허설 데모 | `lightenette-rehearsal.nds`는 세이브 칩과 NitroFS 없이 곧바로 리허설로 부팅, 결과 블록 ID `0x4C454852`. `python3 games/lightenette/tools/judge.py <로그>`가 `expected.json`과 대조 | 아래 참고 |
 | acc-stage 데모 | `lightenette-acc-stage.nds`, 타이틀 → Select 장면과 같은 값, 결과 블록 `0x0237F000`: 매직 `0x52455643`, ID `0x4A44474C` | 아래 참고 |
 
 ## 자동 QA 실행
@@ -22,8 +22,8 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 출시 ROM(`lightenette.nds`, 배포본과 SHA-256 동일)의 숨김 모드: 타이틀 화면에서 L과 R을 먼저 누른 뒤 X와 Y까지 네 키를 120프레임 누르고 있습니다.
 게임이 정상 흐름을 스스로 진행합니다. 리허설 스크립트로 막 1~5, 크레딧, 마지막에 정확도 판정 1회. 로그는 SD 카드의
 `cleancart/lightenette/qa-<날짜>-<시각>.log`, 결과 블록 `QARN`은 리허설 배치 그대로이고
-`python3 lightenette/tools/judge.py --profile <렌더러> <로그>`로 채점합니다(boot `qa`, 추가 항목 `qa-verdict`). 헤드리스: `SDDIR=out/lt/x tools/melonds/mds.sh run
-lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (GL은 `RENDERER=gl|compute`, DeSmuME는 `RESULT_WORDS=64
+`python3 games/lightenette/tools/judge.py --profile <렌더러> <로그>`로 채점합니다(boot `qa`, 추가 항목 `qa-verdict`). 헤드리스: `SDDIR=out/lt/x tools/melonds/mds.sh run
+games/lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (GL은 `RENDERER=gl|compute`, DeSmuME는 `RESULT_WORDS=64
 tools/emu/emu.sh run ... 4000 ...`).
 
 | 렌더러 | QA 런 (2026-11-11) | `judge.py --profile` | QA judge 값 = 리허설 데모 값 |
