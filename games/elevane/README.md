@@ -9,6 +9,8 @@
 
 <p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/chapter1.png" width="256" alt="Chapter 1, matched"> <img src="docs/images/chapter4.png" width="256" alt="Chapter 4, an arch with the work layer"> <img src="docs/images/chapter5.png" width="256" alt="Chapter 5, one of two structures"> <img src="docs/images/showcase.png" width="256" alt="Showcase mode"></p>
 
+<sub>Captured from the built ROM with the headless emulators of this repository (`tools/emu/`, `tools/melonds/`); the emulator of each picture was not recorded, and not real hardware. Top screen only (the front view) at 2x nearest-neighbour (512×384).</sub>
+
 An original voxel silhouette puzzle for the Nintendo DS. Each order is a front and a plan
 silhouette; build a block structure that makes both and it is delivered, fewer blocks earn
 more stars. The top screen is the front view, the bottom screen the plan view, **both in

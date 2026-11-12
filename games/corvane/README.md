@@ -93,7 +93,7 @@ record saved. On game over you may continue (from the start of that stage).
 <tr><td align="center">4 Fortress Interior</td><td align="center">5 The Core</td><td align="center">Stage 2 boss</td></tr>
 </table>
 
-<sub>Captured from the built ROM in headless DeSmuME 0.9.12 (`tools/emu/`), not melonDS or real hardware. Top (3D) screen at 2x nearest-neighbour; stage 4 shows the bottom screen because the screens swap there. The GIF is part of the stage 2 boss fight.</sub>
+<sub>Captured from the built ROM in headless DeSmuME 0.9.12 (`tools/emu/`), not melonDS or real hardware. Top screen only at 2x nearest-neighbour (512×384); in stage 4 the screens swap, so the top screen there is the radar HUD. The GIF is part of the stage 2 boss fight, also at 2x.</sub>
 
 ## Directories
 

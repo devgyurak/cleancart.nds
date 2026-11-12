@@ -90,7 +90,7 @@ macOS의 Qt는 방향키에 `KeypadModifier`(0x20000000)를 붙여 보내므로 
 <tr><td align="center">4 요새 내부</td><td align="center">5 코어</td><td align="center">스테이지 2 보스</td></tr>
 </table>
 
-<sub>빌드한 ROM을 헤드리스 DeSmuME 0.9.12(`tools/emu/`)에서 캡처했습니다(melonDS·실기 아님). 위(3D) 화면을 최근접 보간 2배로 키웠고, 스테이지 4는 화면이 스왑되므로 아래 화면입니다. GIF는 스테이지 2 보스전의 일부입니다.</sub>
+<sub>빌드한 ROM을 헤드리스 DeSmuME 0.9.12(`tools/emu/`)에서 캡처했습니다(melonDS·실기 아님). 위 화면만 최근접 보간 2배(512×384)로 실었고, 스테이지 4는 화면이 스왑되므로 위 화면이 레이더 HUD입니다. GIF는 스테이지 2 보스전의 일부이며 역시 2배입니다.</sub>
 
 ## 디렉터리
 

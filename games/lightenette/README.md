@@ -9,6 +9,8 @@
 
 <p align="center"><img src="docs/images/title.png" width="256" alt="Lightenette title screen"> <img src="docs/images/act1-start.png" width="256" alt="Act 1, start"> <img src="docs/images/act1.png" width="256" alt="Act 1, cleared"> <img src="docs/images/act2.png" width="256" alt="Act 2, cleared"> <img src="docs/images/act3.png" width="256" alt="Act 3, cleared"> <img src="docs/images/act4.png" width="256" alt="Act 4, cleared"> <img src="docs/images/act5.png" width="256" alt="Act 5, cleared"></p>
 
+<sub>Captured from the built ROM in headless DeSmuME 0.9.12 (`tools/emu/`), not melonDS or real hardware (the "NG" in the act 3 picture is DeSmuME's known lantern-blend difference). Top screen only at 2x nearest-neighbour (512×384).</sub>
+
 An original puzzle-action game for the Nintendo DS: you carry a lantern and work a
 marionette show with the touch screen. It is also built to judge itself: the ROM
 captures its own display, counts pixels of fixed colours and reports pass/fail for
