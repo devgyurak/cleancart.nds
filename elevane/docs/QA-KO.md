@@ -16,6 +16,8 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 `AGENTS.md` 참고).
 | 화면 비교 | `tools/compare.py --phase dual\|showcase`: 같은 에뮬레이터의 소프트웨어 렌더러와 연속 프레임(양화면 2, 감상 4)을 비교 | ✅ 1.1 GL/Compute는 한도 이내(양화면 최대 305/98,304픽셀, 감상 최대 1138). ❌ master GL/Compute는 감상 한도 초과(9,000~17,400): 예상대로 #2618 결함 |
 | 타이틀 → X (크레딧) | 스크롤 크레딧 (libnds, 소스 URL이 있는 BlocksDS crts MPL-2.0, picolibc, libgcc). X로 라이선스 뷰어(`licenses/`의 모든 문서, X 다음 파일, B 뒤로). NitroFS가 없으면 "CART FILES NOT AVAILABLE" | 아직 확인 전 |
 
+실기: 아직 돌리지 않았습니다. 점검표는 [HW-QA-KO.md](HW-QA-KO.md)를 참고하세요.
+
 ## 자동 QA 실행
 
 릴리스 ROM(`elevane.nds`)의 숨은 모드입니다. 타이틀에서 L과 R을 누른 뒤 X와 Y를 눌러 네 키를 120프레임

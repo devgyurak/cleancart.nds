@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 
 #include <nds.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "core/input.h"
@@ -13,6 +14,7 @@
 #include "game/script.h"
 #include "gfx/dual.h"
 #include "gfx/fx.h"
+#include "gfx/text.h"
 
 #define SHOW_FRAMES 120
 
@@ -128,8 +130,32 @@ void rehearsal_run(void)
     publish(REHEARSAL_ID, result, 18);
 }
 
+// The result on screen, for runs on a console where the RAM block cannot be read: the
+// values as hex, to be photographed and graded with `judge.py --values`.
+static void show_result(void)
+{
+    CvText top, bottom;
+    scene_text_screens(&top, &bottom);
+    fx_bright(FX_BOTH, 0);
+    text_center(&top, 1, TP_YELLOW, "REHEARSAL RESULT");
+    text_printf(&top, 1, 3, TP_WHITE, "FLAGS %03lX  FRAME %lu", (unsigned long)result[0], (unsigned long)cv_frame);
+    for (int i = 1; i < 18; i += 2)
+    {
+        int row = 5 + i / 2;
+        if (i + 1 < 18)
+            text_printf(&top, 1, row, TP_GRAY, "%2d %08lX  %2d %08lX", i, (unsigned long)result[i],
+                        i + 1, (unsigned long)result[i + 1]);
+        else
+            text_printf(&top, 1, row, TP_GRAY, "%2d %08lX", i, (unsigned long)result[i]);
+    }
+    text_center(&bottom, 3, TP_GRAY, "VALUES 0..17 IN HEX");
+    text_center(&bottom, 5, TP_GRAY, "PHOTOGRAPH THE TOP SCREEN");
+    text_center(&bottom, 7, TP_GRAY, "tools/judge.py --values ...");
+}
+
 void rehearsal_idle(void)
 {
+    show_result();
     for (;;)
     {
         sys_vsync();

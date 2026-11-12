@@ -16,6 +16,8 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | screen compare | `tools/compare.py --phase dual\|showcase` against the same emulator's software renderer, consecutive frames (2 dual, 4 showcase) | ✅ 1.1 GL/Compute within the limits (dual ≤ 305 of 98 304 pixels, showcase ≤ 1138); ❌ master GL/Compute over the showcase limit (9 000-17 400): the #2618 defect, as expected |
 | Title → X (credits) | scrolling credits (libnds, BlocksDS crts MPL-2.0 with source URL, picolibc, libgcc); X opens the licence viewer (every text of `licenses/`, X next file, B back); without NitroFS the viewer says "CART FILES NOT AVAILABLE" | not yet checked |
 
+Hardware: not run yet, see [HW-QA.md](HW-QA.md) for the checklist.
+
 ## Auto QA run
 
 Hidden mode of the release ROM (`elevane.nds`): on the title screen press L and R, then X and Y,

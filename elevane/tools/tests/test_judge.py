@@ -68,6 +68,17 @@ class Judge(unittest.TestCase):
         rc, _ = self.run_judge(block(), '--profile', 'melonds-1.1-gl-classic')   # newly passing
         self.assertEqual(rc, 1)
 
+    def test_values_from_a_console_screen(self):
+        import io
+        out = io.StringIO()
+        old, sys.stdout = sys.stdout, out
+        try:
+            rc = judge.main(['--expected', EXP, '--json', '--values', '1ff', '1', '15c6', '102a'])
+        finally:
+            sys.stdout = old
+        self.assertEqual(rc, 0)
+        self.assertEqual(json.loads(out.getvalue())['gating_failing'], [])
+
     def test_bad_input_is_exit_2(self):
         rc, _ = self.run_judge([0] * 64)
         self.assertEqual(rc, 2)
