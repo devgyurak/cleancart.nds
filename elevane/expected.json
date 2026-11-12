@@ -1,7 +1,7 @@
 {
  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
  "schema": 1,
- "about": "Expected result-block values for the Elevane rehearsal ROM, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. An item may depend on a flag bit (\"requires\"); when it is clear the item is n/a (DeSmuME returns 0 from the polygon RAM counters). \"known\" lists, per emulator version and renderer, the items (gating or informational) expected to fail there; judge.py --profile passes only when the failing set matches exactly. Pixel counts read every 8th line (24 of 192) because the read must end inside the VBlank.",
+ "about": "Expected result-block values for the Elevane rehearsal ROM, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. An item may depend on a flag bit (\"requires\"); when it is clear the item is n/a (DeSmuME returns 0 from the polygon RAM counters). \"known\" lists, per emulator version and renderer, the items (gating or informational) expected to fail there; judge.py --profile passes only when the failing set matches exactly. Pixel counts read every 8th line (24 of 192) because the read must end inside the VBlank; hole counts are the worst seen over all frames of a kind. A profile also lists the items that are n/a there (\"na\").",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -12,14 +12,15 @@
   "item_id_text": "EVRH",
   "frame": "the block is published at about frame 2500 (melonDS); run at least 3500, the examples use 4000",
   "frames_min": 3500,
-  "note": "plays the first puzzle of every chapter (stack piles, layers, several parts) with a fixed script through the live play scene, then the two showcase presets, 120 calls each; no save chip, no NitroFS"
+  "note": "plays the first puzzle of every chapter (stack piles, layers, several parts) with a fixed script through the live play scene, then the two showcase presets, 120 calls each; no save chip, no NitroFS",
+  "values_shown": 18
  },
  "sources": {
   "GBATEK": "documented hardware behaviour; gating",
   "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2618); gating",
   "hw:<model>": "measured by us on real hardware; gating",
-  "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
-  "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  "rom": "decided by the ROM's own deterministic logic alone, independent of the emulator (puzzle solving, counts); gating",
+  "unconfirmed": "no hardware value yet, or a result that depends on how an emulator handles capture, bank mapping or DMA timing (not documented in GBATEK); informational only, never fails the run (a profile still compares it)"
  },
  "items": [
   {
@@ -34,6 +35,28 @@
    "model": null
   },
   {
+   "id": "chapters-played",
+   "title": "The rehearsal played the first puzzle of all five chapters (mask 0x1f)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 31,
+   "source": "rom",
+   "model": null
+  },
+  {
+   "id": "puzzles-count",
+   "title": "Five puzzles were delivered",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 5,
+   "source": "rom",
+   "model": null
+  },
+  {
    "id": "dual-front",
    "title": "Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it)",
    "values": [
@@ -41,7 +64,7 @@
    ],
    "check": "bit",
    "bit": 1,
-   "source": "rom",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -52,7 +75,7 @@
    ],
    "check": "bit",
    "bit": 2,
-   "source": "rom",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -63,7 +86,7 @@
    ],
    "check": "eq",
    "expect": 0,
-   "source": "rom",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -100,7 +123,7 @@
    ],
    "check": "bit",
    "bit": 5,
-   "source": "report:melonDS#2618",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -111,7 +134,7 @@
    ],
    "check": "bit",
    "bit": 6,
-   "source": "rom",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -144,7 +167,7 @@
    ],
    "check": "bit",
    "bit": 7,
-   "source": "rom",
+   "source": "unconfirmed",
    "model": null
   },
   {
@@ -162,34 +185,42 @@
  "known": {
   "desmume-pydesmume-0.0.9": {
    "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
-   "ng": []
+   "ng": [],
+   "na": [
+    "poly-passes"
+   ]
   },
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": []
+   "ng": [],
+   "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
    "ng": [
     "rear-plane-full"
-   ]
+   ],
+   "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
    "ng": [
     "rear-plane-full"
-   ]
+   ],
+   "na": []
   },
   "melonds-4ce2188-software": {
    "emulator": "melonDS master 4ce2188 (MELONDS_COMMIT=4ce2188), software renderer",
-   "ng": []
+   "ng": [],
+   "na": []
   },
   "melonds-4ce2188-gl-classic": {
    "emulator": "melonDS master 4ce2188, OpenGL (Classic) renderer",
    "ng": [
     "hdma-holes-zero",
     "rear-plane-full"
-   ]
+   ],
+   "na": []
   },
   "melonds-4ce2188-gl-compute": {
    "emulator": "melonDS master 4ce2188, OpenGL (Compute) renderer",
@@ -197,7 +228,8 @@
     "hdma-composite-full",
     "hdma-holes-zero",
     "rear-plane-full"
-   ]
+   ],
+   "na": []
   }
  },
  "known_note": "Measured 2026-11-11 with ./build.sh output, not on hardware. Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the failing items equal the list. When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile after checking.",
@@ -208,12 +240,22 @@
    "dual": {
     "frames": 2,
     "max_diff": 400,
-    "how": "play scene with a solved puzzle: keys 60:START,100:A,160:A,175:RIGHT,185:A,200:RIGHT,210:A,225:RIGHT,235:A, screenshots 250,251"
+    "how": "play scene with a solved puzzle: keys 60:START,100:A,160:A,175:RIGHT,185:A,200:RIGHT,210:A,225:RIGHT,235:A, screenshots 250,251",
+    "frame_list": [
+     250,
+     251
+    ]
    },
    "showcase": {
     "frames": 4,
     "max_diff": 2000,
-    "how": "as above plus 280:X (preset 1), screenshots 380-383"
+    "how": "as above plus 280:X (preset 1), screenshots 380-383",
+    "frame_list": [
+     380,
+     381,
+     382,
+     383
+    ]
    }
   }
  }

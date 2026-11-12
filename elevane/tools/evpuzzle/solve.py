@@ -14,13 +14,14 @@ Two modes, matching how the game lets the player build:
           iterative deepening branch and bound over the allowed cells.
 
 The result is a pure function of the order: fixed iteration order, a node limit
-instead of a clock. When the limit is hit the maker's block count is reported as
-the reference and `exact` is False (the order is then marked in the ROM data).
+instead of a clock. When the limit is hit the reference is the maker's structure
+with every block removed that the silhouettes do not need (`prune`), and `exact`
+is False (the order is then marked in the ROM data, the game shows "REF").
 """
 
 from .model import NEIGHBOURS, PuzzleError, check_structure, supported
 
-NODE_LIMIT = 400000
+NODE_LIMIT = 20000
 
 
 class Infeasible(PuzzleError):
@@ -174,6 +175,22 @@ def _solve_layers(order, upper, node_limit):
     return False   # nothing below `upper`: the maker's count is the minimum
 
 
+def prune(order, mode, cells):
+    """Take blocks away from a valid structure while it stays valid (same silhouettes, supported,
+    and for stack mode no gaps), highest first. Deterministic. A local minimum, not the minimum,
+    but far closer than the maker's own count."""
+    cells = set(cells)
+    changed = True
+    while changed:
+        changed = False
+        for c in sorted(cells, key=lambda c: (-c[2], c[1], c[0])):
+            trial = cells - {c}
+            if not validate(order, mode, trial):
+                cells = trial
+                changed = True
+    return cells
+
+
 def solve(order, mode, maker=None, node_limit=NODE_LIMIT):
     """Minimum solution of an order. `maker` (a Structure) bounds the search and is the
     fallback reference when the node limit is hit."""
@@ -188,7 +205,10 @@ def solve(order, mode, maker=None, node_limit=NODE_LIMIT):
     if r is False:
         return Result(len(maker.cells), maker.cells, True)
     if r is None:
-        return Result(len(maker.cells), maker.cells, False, node_limit)
+        # The search hit its node limit: the reference is the maker's structure with every
+        # block taken away that the silhouettes do not need.
+        cells = prune(order, mode, maker.cells)
+        return Result(len(cells), cells, False, node_limit)
     return r
 
 

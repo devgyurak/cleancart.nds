@@ -176,7 +176,7 @@ static void route(int s)
 static u32 count_holes(void)
 {
     u32 n = 0;
-    for (int y = 0; y < 192; y += 4)
+    for (int y = 0; y < 192; y += 8)   // 24 of 192 lines: the read has to end inside the VBlank
         for (int x = 0; x < 256; x++)
         {
             u16 p = SUB_C[y * 256 + x];
@@ -284,11 +284,30 @@ static void print_info(int call)
 }
 
 // One call of the showcase: routing for the frame now due, then this call's pass.
-static void show_call(const PzGrid *g, const PzPart *p, int c)
+static void print_info(int call);
+
+// info: also redraw the text on the bottom/engine-B screen (after the routing, never before it).
+static void show_call(const PzGrid *g, const PzPart *p, int c, bool info)
 {
     int s = c - SHOW_LATENCY;
     if (s >= 0)
-        route(s);
+        route(s);   // first thing after the VBlank starts: the bank swap and the capture must land in it
+    if (preset == PRESET_HDMA && s >= 8)
+    {
+        // The frame that just ended ran route(s - 1): its picture is in the sub BG now. The
+        // two kinds of frame alternate, so every call measures one of them; the worst count
+        // seen is kept.
+        u32 h = count_holes();
+        if (hdma_p(s - 1))
+        {
+            if (h > holes_p)
+                holes_p = h;
+        }
+        else if (h > holes_q)
+            holes_q = h;
+    }
+    if (info)
+        print_info(c);
     bool right = hdma_p(c) == (preset == PRESET_HDMA);   // hdma: even = right pass; rear: even = left
     glClearColor(0, 0, 0, 0);
     if (preset == PRESET_REAR)
@@ -314,15 +333,7 @@ void showcase_run(int which, int frames, ShowStats *st)
     memset(st, 0, sizeof(*st));
     for (int c = 0; c < frames; c++)
     {
-        show_call(g, p, c);
-        if (preset == PRESET_HDMA && c >= 8 && (c & 3) == 0)
-        {
-            u32 h = count_holes();
-            if (hdma_p(c - SHOW_LATENCY))
-                holes_p = h;
-            else
-                holes_q = h;
-        }
+        show_call(g, p, c, false);
         if (c == frames - 1)
         {
             if (preset == PRESET_HDMA)
@@ -376,18 +387,7 @@ EvScene scene_showcase(void)
     fx_bright(FX_BOTH, 0);
     for (int c = 0;; c++)
     {
-        show_call(g, p, c);
-        if (preset == PRESET_HDMA && c >= 8 && (c & 3) == 0)
-        {
-            // The frame that just ended ran route(c - latency).
-            u32 h = count_holes();
-            if (hdma_p(c - SHOW_LATENCY))
-                holes_p = h;
-            else
-                holes_q = h;
-        }
-        if (c % 10 == 0)
-            print_info(c);
+        show_call(g, p, c, c % 10 == 0);
 
         if (cv_in.pressed & KEY_A)
         {

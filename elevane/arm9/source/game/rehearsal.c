@@ -148,7 +148,9 @@ static void show_result(void)
         else
             text_printf(&top, 1, row, TP_GRAY, "%2d %08lX", i, (unsigned long)result[i]);
     }
-    text_center(&bottom, 3, TP_GRAY, "VALUES 0..17 IN HEX");
+    // A CRC over the 18 values (little endian bytes), so a misread digit shows.
+    text_printf(&top, 1, 15, TP_WHITE, "CRC %04X", (unsigned)swiCRC16(0xFFFF, result, 18 * 4));
+    text_center(&bottom, 3, TP_GRAY, "VALUES 0..17 IN HEX + CRC");
     text_center(&bottom, 5, TP_GRAY, "PHOTOGRAPH THE TOP SCREEN");
     text_center(&bottom, 7, TP_GRAY, "tools/judge.py --values ...");
 }

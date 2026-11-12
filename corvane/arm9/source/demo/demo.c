@@ -2371,7 +2371,9 @@ static void split_config(int s)
             REG_DISPCNT = bmp;
             vram_set(x, 0, 0);
             vram_set(y, 1, 0);   // main BG 0x06000000: last frame's capture
-            REG_DISPCAPCNT = cap3d | CV_CAP_BANK(x);
+            // Source A is the whole engine output (3D + the bitmap BG), not only the 3D layer:
+            // when the split moves left, the newly exposed part comes from last frame's bitmap.
+            REG_DISPCAPCNT = (cap3d & ~CV_CAP_SRCA_3D) | CV_CAP_BANK(x);
             break;
         case SPLIT_REAR:
         case SPLIT_REAR_READ:

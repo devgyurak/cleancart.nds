@@ -88,6 +88,28 @@ def lz(data):
     return blob
 
 
+def elevane_icon():
+    """32x32 banner icon: a three-step block stair, the front view's staircase silhouette."""
+    pal = [(0, 0, 0), (12, 16, 44), (200, 170, 90), (150, 120, 60), (235, 205, 120), (90, 150, 230),
+           (240, 240, 255), (30, 30, 60)] + [(0, 0, 0)] * 8
+    pix = [[1] * 32 for _ in range(32)]
+    for step in range(3):
+        x0, top = 3 + step * 9, 20 - step * 6   # each step is 9 wide and 6 higher than the last
+        for y in range(top, 28):
+            for x in range(x0, x0 + 9):
+                if x == x0 + 8 or y == 27:
+                    pix[y][x] = 7               # outline
+                elif y < top + 2:
+                    pix[y][x] = 4               # lit top
+                elif x == x0:
+                    pix[y][x] = 3
+                else:
+                    pix[y][x] = 2
+    for x in range(2, 31):
+        pix[28][x] = 6                          # the floor line
+    return pix, pal
+
+
 def write(path, data):
     with open(path, 'wb') as f:
         f.write(data)
@@ -174,7 +196,7 @@ def main():
 
     w.write(gen)
 
-    pix, pal = images.icon()
+    pix, pal = elevane_icon()
     bmp_4bpp(os.path.join(gen, 'icon.bmp'), pix, pal)
 
 

@@ -75,7 +75,9 @@ class Minimum(unittest.TestCase):
         p, s, o = one('[t] chapter=4 mode=layers grid=3x3x3\n'
                       'z0 = ###/###/###\nz1 = ###/###/###\nz2 = ###/###/###\n')
         r = solve.solve(o, p.mode, s, node_limit=3)
-        self.assertEqual((r.count, r.exact), (27, False))
+        self.assertFalse(r.exact)
+        self.assertLess(r.count, 27)   # pruned, not the maker's 27
+        self.assertEqual(solve.validate(o, p.mode, r.cells), [])
 
 
 class Data(unittest.TestCase):

@@ -43,7 +43,7 @@
 
 int ev_chapter = 1, ev_index = 1;
 void (*ev_play_hook)(void);
-unsigned ev_delivered_total;
+u64 ev_delivered_bits;   // bit n = puzzle n (file order) was delivered since boot or the last reset
 bool ev_view3d = true;
 
 static PzPuzzle pz;
@@ -60,6 +60,7 @@ static int touch_x = -1, touch_y = -1, touch_frames;
 static int delivered_blocks, total_par;
 static bool want_showcase, resume, want_list;
 static unsigned serial;
+static int cur_pz;      // number of the puzzle being played (file order)
 static CvText top_text, bot_text;
 static PzGrid float_grid;
 
@@ -74,6 +75,19 @@ int play_part_index(void) { return cur_part; }
 int play_mode(void) { return pz.mode; }
 int play_layer(void) { return layer; }
 unsigned play_serial(void) { return serial; }
+unsigned play_delivered_count(void)
+{
+    unsigned n = 0;
+    for (u64 b = ev_delivered_bits; b; b &= b - 1)
+        n++;
+    return n;
+}
+bool play_was_delivered(int chapter, int index)
+{
+    PzPuzzle t;
+    int n = pz_find(chapter, index, &t);
+    return n >= 0 && n < 64 && (ev_delivered_bits >> n & 1);
+}
 void play_cursor(int *x, int *y) { *x = cur_x; *y = cur_y; }
 bool play_matched(void) { return matched; }
 bool play_delivered(void) { return delivered; }
@@ -259,10 +273,10 @@ static void draw_plan_view(void)
     for (int y = 0; y < part->d; y++)
         for (int x = 0; x < part->w; x++)
         {
-            plan_sx[y][x] = 128 + (int)(((int64_t)(gl_x(x) + u / 2 - cx) * 96 * 4 / 3) / VIEW_H);
+            plan_sx[y][x] = 128 + (int)(((int64_t)(gl_x(x) + u / 2 - cx) * 96) / VIEW_H);
             plan_sy[y][x] = 96 + (int)(((int64_t)(gl_z(y) + u / 2 - zc) * 96) / VIEW_H);
         }
-    plan_pitch = (int)(((int64_t)u * 96 * 4 / 3) / VIEW_H);
+    plan_pitch = (int)(((int64_t)u * 96) / VIEW_H);
     if (plan_pitch < 4)
         plan_pitch = 4;
 }
@@ -318,63 +332,70 @@ static void grid_plan(CvText *t, int x0, int y0, int cw)
         }
 }
 
-static void overlay(bool big)
+// which: 0 the top text only, 1 the bottom text only, 2 both. In dual 3D a map is only
+// rewritten while it is not the one on screen (the one for the view drawn this call is
+// shown from the next call on), so the picture never has a half-rewritten text.
+static void overlay(bool big, int which)
 {
     char buf[40];
     static const char *const dirs[4] = { "FRONT", "RIGHT", "BACK", "LEFT" };
-    text_clear(&top_text);
-    text_clear(&bot_text);
-    int blocks = play_blocks();
-
-    snprintf(buf, sizeof(buf), "%d-%02d %s", pz.chapter, pz.index, pz.name);
-    text_put(&top_text, 1, 0, TP_YELLOW, buf);
-    snprintf(buf, sizeof(buf), "PAR %d", total_par);
-    text_put(&top_text, 31 - (int)strlen(buf), 0, TP_GRAY, buf);
-    snprintf(buf, sizeof(buf), "%s VIEW", dirs[big ? 0 : view_dir]);
-    text_put(&top_text, 1, 2, TP_GRAY, buf);
-    if (pz.nparts > 1)
+    if (which != 1)
     {
-        snprintf(buf, sizeof(buf), "PART %d/%d%s", cur_part + 1, pz.nparts, part_ok ? " OK" : "");
-        text_put(&top_text, 31 - (int)strlen(buf), 2, part_ok ? TP_GREEN : TP_GRAY, buf);
+        text_clear(&top_text);
+        snprintf(buf, sizeof(buf), "%d-%02d %s", pz.chapter, pz.index, pz.name);
+        text_put(&top_text, 1, 0, TP_YELLOW, buf);
+        // REF: par is a reference (the search did not prove it minimal), not the minimum.
+        snprintf(buf, sizeof(buf), pz.reference ? "PAR %d REF" : "PAR %d", total_par);
+        text_put(&top_text, 31 - (int)strlen(buf), 0, TP_GRAY, buf);
+        snprintf(buf, sizeof(buf), "%s VIEW", dirs[big ? 0 : view_dir]);
+        text_put(&top_text, 1, 2, TP_GRAY, buf);
+        if (pz.nparts > 1)
+        {
+            snprintf(buf, sizeof(buf), "PART %d/%d%s", cur_part + 1, pz.nparts, part_ok ? " OK" : "");
+            text_put(&top_text, 31 - (int)strlen(buf), 2, part_ok ? TP_GREEN : TP_GRAY, buf);
+        }
+        if (big)
+            grid_front(&top_text, (32 - part->w * 3) / 2, 5, 3);
+        else
+            grid_front(&top_text, 1, 3, 1);
     }
-    if (big)
-        grid_front(&top_text, (32 - part->w * 3) / 2, 5, 3);
-    else
-        grid_front(&top_text, 1, 3, 1);
-
-    text_put(&bot_text, 1, 0, TP_GRAY, "PLAN");
-    snprintf(buf, sizeof(buf), "BLOCKS %d", blocks);
-    text_put(&bot_text, 31 - (int)strlen(buf), 0, TP_WHITE, buf);
-    if (pz.mode)
+    if (which != 0)
     {
-        snprintf(buf, sizeof(buf), layer < 0 ? "LAYER TOP" : "LAYER %d", layer + 1);
-        text_put(&bot_text, 1, 2, layer < 0 ? TP_GRAY : TP_YELLOW, buf);
-        // The layer bar (touch it): top layer first, TOP at the bottom.
-        for (int z = part->h - 1; z >= 0; z--)
-            text_printf(&bot_text, 30, 3 + 2 * (part->h - 1 - z), z == layer ? TP_YELLOW : TP_GRAY, "%c%d",
-                        z == layer ? '>' : ' ', z + 1);
-        text_put(&bot_text, 30, 3 + 2 * part->h, layer < 0 ? TP_YELLOW : TP_GRAY, layer < 0 ? ">T" : " T");
-    }
-    if (big)
-        grid_plan(&bot_text, (32 - part->w * 3) / 2, 4, 3);
-    else
-        grid_plan(&bot_text, 1, 21 - part->d, 2);
-
-    if (floating_any)
-        text_center(&bot_text, 19, TP_RED, "FLOATING BLOCKS!");
-    if (delivered)
-    {
-        int stars = pz_stars(delivered_blocks, total_par);
-        snprintf(buf, sizeof(buf), "DELIVERED  %.*s", stars, "***");
-        text_center(&bot_text, 20, TP_GREEN, buf);
-        text_center(&bot_text, 22, TP_GRAY, "A: NEXT   B: BACK");
-    }
-    else
-    {
-        if (matched)
-            text_center(&bot_text, 20, TP_GREEN, "MATCH!   A: DELIVER");
-        text_center(&bot_text, 22, TP_GRAY, pz.mode ? "A ON  B OFF  Y+UP/DOWN LAYER" : "A +1  B -1  HOLD TOUCH: CLEAR");
-        text_center(&bot_text, 23, TP_GRAY, big ? "SELECT: 3D  X: SHOWCASE" : "SELECT: 2D  L/R: TURN  X: SHOW");
+        text_clear(&bot_text);
+        text_put(&bot_text, 1, 0, TP_GRAY, "PLAN");
+        snprintf(buf, sizeof(buf), "BLOCKS %d", play_blocks());
+        text_put(&bot_text, 31 - (int)strlen(buf), 0, TP_WHITE, buf);
+        // Status on row 1, clear of the grids (a message must never cover the very cells it is about).
+        if (floating_any)
+            text_center(&bot_text, 1, TP_RED, "FLOATING BLOCKS!");
+        else if (delivered)
+        {
+            snprintf(buf, sizeof(buf), "DELIVERED  %.*s", pz_stars(delivered_blocks, total_par), "***");
+            text_center(&bot_text, 1, TP_GREEN, buf);
+        }
+        else if (matched)
+            text_center(&bot_text, 1, TP_GREEN, "MATCH!   A: DELIVER");
+        if (pz.mode)
+        {
+            snprintf(buf, sizeof(buf), layer < 0 ? "LAYER TOP" : "LAYER %d", layer + 1);
+            text_put(&bot_text, 1, 2, layer < 0 ? TP_GRAY : TP_YELLOW, buf);
+            // The layer bar (touch it): top layer first, TOP at the bottom.
+            for (int z = part->h - 1; z >= 0; z--)
+                text_printf(&bot_text, 30, 3 + 2 * (part->h - 1 - z), z == layer ? TP_YELLOW : TP_GRAY, "%c%d",
+                            z == layer ? '>' : ' ', z + 1);
+            text_put(&bot_text, 30, 3 + 2 * part->h, layer < 0 ? TP_YELLOW : TP_GRAY, layer < 0 ? ">T" : " T");
+        }
+        if (big)
+            grid_plan(&bot_text, (32 - part->w * 3) / 2, 4, 3);
+        else
+            grid_plan(&bot_text, 1, 21 - part->d, 2);
+        if (delivered)
+            text_center(&bot_text, 22, TP_GRAY, "A: NEXT   B: BACK");
+        else
+        {
+            text_center(&bot_text, 22, TP_GRAY, pz.mode ? "A ON  B OFF  Y+UP/DOWN LAYER" : "A +1  B -1  HOLD TOUCH: CLEAR");
+            text_center(&bot_text, 23, TP_GRAY, big ? "SELECT: 3D  X: SHOWCASE" : "SELECT: 2D  L/R: TURN  X: SHOW");
+        }
     }
 }
 
@@ -508,7 +529,8 @@ static void handle_input(void)
         {
             delivered = true;
             delivered_blocks = play_blocks();
-            ev_delivered_total++;
+            if (cur_pz >= 0 && cur_pz < 64)
+                ev_delivered_bits |= 1ull << cur_pz;
             snd_sfx(CV_SFX_CHIME, 100, 64);
         }
         else
@@ -590,11 +612,12 @@ static void enter_2d(void)
 
 static void load_puzzle(void)
 {
-    if (pz_find(ev_chapter, ev_index, &pz) < 0)
+    cur_pz = pz_find(ev_chapter, ev_index, &pz);
+    if (cur_pz < 0)
     {
         ev_chapter = 1;
         ev_index = 1;
-        pz_find(1, 1, &pz);
+        cur_pz = pz_find(1, 1, &pz);
     }
     memset(grids, 0, sizeof(grids));
     total_par = 0;
@@ -617,11 +640,16 @@ static void judge(void)
     matched = !delivered;
     for (int k = 0; k < pz.nparts && matched; k++)
         matched = pz_matches(&pz.part[k], &grids[k]);
-    pz_floating(part, grid, &float_grid);
+    pz_floating(part, grid, &float_grid);   // the cells drawn magenta: the part on screen
     floating_any = false;
-    for (int y = 0; y < part->d; y++)
-        for (int x = 0; x < part->w; x++)
-            floating_any |= float_grid.cell[y][x] != 0;
+    for (int k = 0; k < pz.nparts; k++)     // the warning: any part
+    {
+        PzGrid fg;
+        pz_floating(&pz.part[k], &grids[k], &fg);
+        for (int y = 0; y < pz.part[k].d; y++)
+            for (int x = 0; x < pz.part[k].w; x++)
+                floating_any |= fg.cell[y][x] != 0;
+    }
 }
 
 EvScene scene_play(void)
@@ -647,7 +675,7 @@ EvScene scene_play(void)
         // the longer overlay redraw.
         bool top = in3d ? dual_begin_call() : false;
         judge();
-        overlay(!in3d);
+        overlay(!in3d, in3d ? (top ? 0 : 1) : 2);
         if (in3d)
         {
             if (top)

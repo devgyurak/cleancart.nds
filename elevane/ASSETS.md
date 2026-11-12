@@ -23,8 +23,8 @@ All 40 puzzles (chapters 1-5) are in `tools/puzzles/ch*.txt`.
 | `cv_font_tiles` | 5x7 pixel font (ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS` (glyphs drawn as strings) | original, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
-| `cv_song_*`, `cv_song_names` | the two songs `lantern` and `puppets` (the credits play `lantern`), composed by code | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
-| `cv_tex_paper` | 32x32 direct-colour paper texture; the only texture linked into the ROM | `images.textures()` `paper` | original, Apache-2.0 |
+| `cv_song_*`, `cv_song_names` | the two songs `lantern` and `puppets`, composed by code and shared with lightenette; only `lantern` is played (the credits), `puppets` is linked but unused | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `cv_tex_paper` | 32x32 direct-colour paper texture, shared with lightenette; the only texture linked into the ROM, not used by any Elevane scene (the views are flat-coloured polygons) | `images.textures()` `paper` | original, Apache-2.0 |
 | `cv_puzzles` | the puzzle orders (front and plan silhouettes), par block counts and a minimal solution per puzzle, packed by `tools/evpuzzle/pack.py` | `tools/puzzle_check.py` reading `tools/puzzles/ch*.txt` (the maker's structures, written by hand as height maps or layers) | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
-| banner icon (`icon.bmp`) | 32x32 4bpp icon | `images.icon()` | original, Apache-2.0 |
+| banner icon (`icon.bmp`) | 32x32 4bpp icon, a three-step block stair | `tools/mkassets.py` `elevane_icon()` | original, Apache-2.0 |

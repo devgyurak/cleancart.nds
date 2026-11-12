@@ -30,7 +30,6 @@ const QaTune qa_tune_on = { 0 };
 static bool credits_seen, save_proved;
 static unsigned chapters_done;   // bit n-1: chapter n was left through the puzzle list
 static int prev_scene = -1;
-static unsigned base_delivered;  // ev_delivered_total when the run started
 
 const char *qa_game_name(void)
 {
@@ -42,12 +41,17 @@ void qa_game_reset(void)
     credits_seen = save_proved = false;
     chapters_done = 0;
     prev_scene = -1;
-    base_delivered = ev_delivered_total;
+    // A run starts from the same place whatever the player did before: first puzzle, 3D view,
+    // nothing delivered (the PASS condition is that every puzzle is delivered during the run).
+    ev_delivered_bits = 0;
+    ev_chapter = 1;
+    ev_index = 1;
+    ev_view3d = true;
 }
 
 static unsigned delivered(void)
 {
-    return ev_delivered_total - base_delivered;
+    return play_delivered_count();
 }
 
 u32 qa_game_hash(void)
@@ -120,16 +124,13 @@ void qa_game_publish(bool pass)
     (void)pass;
 }
 
-// The chapter the next puzzle belongs to, from how many were delivered so far.
-static int chapter_for(unsigned done)
+// The first chapter that still has a puzzle that was not delivered during this run (0: none).
+static int chapter_for(void)
 {
     for (int ch = 1; ch <= 5; ch++)
-    {
-        unsigned n = (unsigned)pz_chapter_size(ch);
-        if (done < n)
-            return ch;
-        done -= n;
-    }
+        for (int i = 1, n = pz_chapter_size(ch); i <= n; i++)
+            if (!play_was_delivered(ch, i))
+                return ch;
     return 0;
 }
 
@@ -145,7 +146,7 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
         {
             if (f < 10 || (f & 7) != 4)
                 break;
-            int want = chapter_for(delivered());
+            int want = chapter_for();
             if (want == 0)
                 out->keys = KEY_B;           // everything delivered: back to the title
             else if (ev_chapter != want)

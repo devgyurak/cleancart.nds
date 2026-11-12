@@ -4,6 +4,7 @@
 #ifndef EV_PLAY_H
 #define EV_PLAY_H
 
+#include <nds.h>
 #include <stdbool.h>
 
 #include "game/puzzle.h"
@@ -14,7 +15,9 @@ extern bool ev_view3d;   // false: 2D grid only, no 3D at all
 
 // Hooks and read-outs for the rehearsal, the auto QA pilot and the showcase.
 extern void (*ev_play_hook)(void);        // called once per frame after the real input was read
-extern unsigned ev_delivered_total;       // puzzles delivered since boot
+extern u64 ev_delivered_bits;             // bit n = puzzle n (file order) delivered since boot / the last QA reset
+unsigned play_delivered_count(void);
+bool play_was_delivered(int chapter, int index);
 unsigned play_serial(void);               // changes when a puzzle is loaded
 int play_mode(void);                      // 0 piles (stack), 1 layers
 int play_nparts(void);
