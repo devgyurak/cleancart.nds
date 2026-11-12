@@ -41,7 +41,7 @@
 
 ### 환경 의존 항목과 n/a
 
-- `"env"`(Corvane, Hushwell. `--hardware`는 이 두 판정기에만 있고 Corvane에는 `env` 항목이 더 이상 없음): `"harness"`(테스트 하네스가 넣는 입력, 예: 터치 좌표에 따라 값이 달라짐) 또는 `"cart"`
+- `"env"`(지금은 Hushwell에만 있음. `--hardware`는 모든 판정기에 있음, 스킬 `nds-hw-qa` 참고): `"harness"`(테스트 하네스가 넣는 입력, 예: 터치 좌표에 따라 값이 달라짐) 또는 `"cart"`
   (에뮬레이션 카트와 플래시 카트에서 다른 세이브 칩·카트 동작). `judge.py --hardware`는 이런 항목을 n/a로 처리합니다.
   실기 실행에서는 하네스와 카트를 재현할 수 없기 때문입니다.
 - `--profile` 없이 gating 항목이 n/a(`na_when`, `requires`)이면 통과가 아닙니다. 종료 코드 1과 `NOT GRADED`가 나옵니다.

@@ -44,7 +44,7 @@ README, and `--check` fails when a level is missing or the README is out of date
 
 ### Environment-dependent items and n/a
 
-- `"env"` (Corvane, Hushwell; only these two judges have `--hardware`, and Corvane has no `env` item left): `"harness"` (the value depends on input the test harness injects, such as touch coordinates) or `"cart"`
+- `"env"` (Hushwell has them today; every judge has `--hardware`, see skill `nds-hw-qa`): `"harness"` (the value depends on input the test harness injects, such as touch coordinates) or `"cart"`
   (save chip and cart behaviour, which differ between emulated and flash carts). `judge.py --hardware` grades such items n/a
   because a real console run cannot reproduce the harness or the cart.
 - Without `--profile`, a gating item that is n/a (`na_when`, `requires`) is not a pass: the run exits 1 and prints `NOT GRADED`.

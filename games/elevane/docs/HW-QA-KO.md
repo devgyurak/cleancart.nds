@@ -6,6 +6,11 @@ Elevane은 아직 실기에서 측정한 값이 하나도 없습니다. 이 문�
 `expected.json`의 `unconfirmed` 항목을 승격하기 위한 것입니다. 콘솔은 사람이 조작하고, 아래는 할 일과
 적어 둘 것입니다.
 
+**자동 경로(스킬 `nds-hw-qa`):** 카드에 빈 폴더 `cleancart/elevane/`를 만들면 ROM이 결과 블록을 거기에 기록합니다
+(데모에는 `RESULT SAVED`가 뜸). 빈 파일 `cleancart/elevane/autoqa`는 버튼 없이 QA 실행을 시작합니다.
+이후 `python3 tools/qa/ingest.py /Volumes/<카드> --game elevane`가 `judge.py --hardware --partial`로 모두 판정합니다.
+아래 사진 경로(3·6단계)는 카드에 쓸 수 없을 때의 대체 수단입니다. 실기 NG 항목은 프로필이 아니라 발견입니다. 기록 표는 다른 키트의 틀을 참고하세요.
+
 ## 실기가 답해야 할 것
 
 | 질문 | 확인 위치 |
