@@ -1,7 +1,7 @@
 {
  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
  "schema": 2,
- "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. Pure ROM constants and demos that are checked by eye only (screens, sound) are listed in docs/QA.md and are not judged yet.",
+ "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. The screen demos capture their own output (display capture to bank D) and compare pixels with what GBATEK says, VRAM mappings are read back through their aliases, and the sound demos read the channel and capture state the ARM7 reports in its input packet (values[4..8] of those demos). What stays unjudged (the sub screen's line-start DMA bars, sound output content beyond \"not silent\") is listed in docs/QA.md.",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -1427,28 +1427,584 @@
    "source": "rom",
    "level": 1,
    "level_basis": "none"
+  },
+  {
+   "id": "sys-dma-hblank-captured",
+   "demo": "sys-dma-hblank",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "sys-dma-hblank-pixels",
+   "demo": "sys-dma-hblank",
+   "title": "Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers"
+  },
+  {
+   "id": "sys-dma-hblank-samples",
+   "demo": "sys-dma-hblank",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 22,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-affine-captured",
+   "demo": "2d-affine",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-affine-pixels",
+   "demo": "2d-affine",
+   "title": "Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD I/O BG Rotation/Scaling"
+  },
+  {
+   "id": "2d-affine-samples",
+   "demo": "2d-affine",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 192,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-affine-opaque",
+   "demo": "2d-affine",
+   "title": "Most sampled texels are not colour 0 (the probe tests real picture data)",
+   "values": [
+    7
+   ],
+   "check": "range",
+   "min": 100,
+   "max": 192,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-mosaic-captured",
+   "demo": "2d-mosaic",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-mosaic-pixels",
+   "demo": "2d-mosaic",
+   "title": "With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD I/O Mosaic Function"
+  },
+  {
+   "id": "2d-mosaic-samples",
+   "demo": "2d-mosaic",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 49152,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-mosaic-steps",
+   "demo": "2d-mosaic",
+   "title": "The text under the mosaic changes between blocks often (the probe tests a real picture)",
+   "values": [
+    7
+   ],
+   "check": "range",
+   "min": 1000,
+   "max": 49152,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-normal-captured",
+   "demo": "2d-obj-normal",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-obj-normal-pixels",
+   "demo": "2d-obj-normal",
+   "title": "A plain and an h-flipped 8x8 sprite show exactly their tile texels",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD OBJ - Overview"
+  },
+  {
+   "id": "2d-obj-normal-samples",
+   "demo": "2d-obj-normal",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 20,
+   "max": 128,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-affine-captured",
+   "demo": "2d-obj-affine",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-obj-affine-pixels",
+   "demo": "2d-obj-affine",
+   "title": "An affine sprite with the identity matrix, plain and double-size, shows exactly its tile texels",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD OBJ - Rotation/Scaling"
+  },
+  {
+   "id": "2d-obj-affine-samples",
+   "demo": "2d-obj-affine",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 50,
+   "max": 512,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-bitmap-captured",
+   "demo": "2d-obj-bitmap",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-obj-bitmap-pixels",
+   "demo": "2d-obj-bitmap",
+   "title": "A bitmap sprite with alpha field 15 shows the opaque texels of its 16bpp picture unchanged",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD OBJ - Bitmap OBJs"
+  },
+  {
+   "id": "2d-obj-bitmap-samples",
+   "demo": "2d-obj-bitmap",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1000,
+   "max": 4096,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-line-captured",
+   "demo": "2d-obj-line",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-obj-line-budget",
+   "demo": "2d-obj-line",
+   "title": "120 sprites of 16 pixels on one line: the last group (sprites 90-119) should be dropped by the per-line OBJ budget that GBATEK describes (about 1210 cycles); no emulator drops them, the exact accounting is not confirmed",
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-vram-alias",
+   "demo": "2d-vram",
+   "title": "A VRAM bank keeps the data written through LCDC when it is remapped to its engine address (16 mappings, 32 words each)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Memory Control - VRAM"
+  },
+  {
+   "id": "2d-vram-samples",
+   "demo": "2d-vram",
+   "title": "The probe compared 16 x 32 words",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 512,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-dma-disp-captured",
+   "demo": "sys-dma-disp",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "sys-dma-disp-pixels",
+   "demo": "sys-dma-disp",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-dma-disp-samples",
+   "demo": "sys-dma-disp",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 768,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-display-captured",
+   "demo": "2d-display",
+   "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-display-pixels",
+   "demo": "2d-display",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-display-samples",
+   "demo": "2d-display",
+   "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 768,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-display-vram",
+   "demo": "2d-display",
+   "title": "The frame the VRAM display mode showed is in bank A unchanged (768 samples)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "snd-mix-voices",
+   "demo": "snd-mix",
+   "title": "Song and effects together use 8 to 16 channels (SOUNDCNT Start/Busy) at the busiest frame",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 8,
+   "max": 16,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-pcm-oneshot",
+   "demo": "snd-pcm",
+   "title": "A PCM8 one-shot is playing at frame 5 (a channel is busy)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-pcm-loops",
+   "demo": "snd-pcm",
+   "title": "The PCM8 and PCM16 loops started at frames 60 and 80 are still busy at the checkpoint",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 2,
+   "max": 16,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-adpcm-oneshot",
+   "demo": "snd-adpcm",
+   "title": "The ADPCM jingle is playing at frame 5 (a channel is busy)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-adpcm-loop",
+   "demo": "snd-adpcm",
+   "title": "The ADPCM hum loop started at frame 90 is still busy at the checkpoint",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-psg-noise",
+   "demo": "snd-psg",
+   "title": "The noise channel 14 started at frame 100 is busy at frame 105",
+   "values": [
+    4
+   ],
+   "check": "mask",
+   "mask": 16384,
+   "expect": 16384,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-psg-stop",
+   "demo": "snd-psg",
+   "title": "Stopping channels 8-15 clears their Start/Busy bits",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-capture-busy",
+   "demo": "snd-capture",
+   "title": "Both sound capture units run in repeat mode (Start/Busy of capture 0 and 1)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 3,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture"
+  },
+  {
+   "id": "snd-capture-signal",
+   "demo": "snd-capture",
+   "title": "The capture rings hold a non-silent signal (the song reached the mixer output)",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 65535,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture"
+  },
+  {
+   "id": "snd-stream-busy",
+   "demo": "snd-stream",
+   "title": "The streaming channel is still busy at the checkpoint",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
   }
  ],
  "known": {
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": [],
+   "ng": [
+    "2d-obj-line-budget"
+   ],
    "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-   "ng": [],
+   "ng": [
+    "2d-obj-line-budget"
+   ],
    "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-   "ng": [],
+   "ng": [
+    "2d-obj-line-budget"
+   ],
    "na": []
   },
   "desmume-pydesmume-0.0.9": {
    "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=16",
    "ng": [
+    "2d-display-pixels",
+    "2d-obj-line-budget",
     "3d-test-vec-z",
+    "sys-dma-disp-pixels",
     "sys-keys-irqs"
    ],
    "na": [

@@ -62,8 +62,8 @@ Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM
 "Judging". They started as Corvane's (same demo names, same documented items); values that depend on this game's scenes
 (polygon counts, HUD registers, the logo CRC) are Hushwell's own. Every item has `level` 1-4 and `level_basis`
 (`../../docs/LEVELS.md`). When a demo's `finish()` values change, update `expected.json` and re-measure every profile.
-Expected values come from GBATEK, a report or the ROM's own logic; measured-only ones are `unconfirmed`. 16 demos (screen or
-sound only) are not judged yet; the game's chapters are not judged beyond the QA run.
+Expected values come from GBATEK, a report or the ROM's own logic; measured-only ones are `unconfirmed`. The screen demos capture their own output (bank D, `probe_capture*` in `demo/demo.c`) and the
+ARM7 reports channel/capture state in `CvInputPacket` for the sound demos; the game's chapters are not judged beyond the QA run.
 
 ## Contracts other code depends on
 

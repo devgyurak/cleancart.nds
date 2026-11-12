@@ -191,8 +191,8 @@ python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
 `judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 입력이 없으면 2로 끝납니다(데모가 빠졌을 때가
 그렇고, `--partial`이나 `--demo NAME`은 로그에 있는 것만 판정합니다). 모든 항목에는 1~4의 `level`이 있고
 ([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약을 출력합니다. 레벨은 판정에 영향을 주지 않습니다.
-프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은 아직 없습니다. 지금은 데모 65개 중
-49개를 판정하며, 나머지 16개(화면·소리로만 확인)는 [docs/QA-KO.md](docs/QA-KO.md)에 적혀 있습니다. 게임 본편의 챕터는 자동 QA
+프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은 아직 없습니다. 데모 65개 전부를 판정하며,
+화면·소리 데모는 캡처 프로브와 ARM7 채널 보고로 스스로 판정합니다(판정하지 않거나 참고용인 것은 [docs/QA-KO.md](docs/QA-KO.md)에 적혀 있습니다). 게임 본편의 챕터는 자동 QA
 실행(데모 `qa`) 말고는 아직 판정하지 않습니다.
 
 ## 기획서 열린 질문에 대한 선택

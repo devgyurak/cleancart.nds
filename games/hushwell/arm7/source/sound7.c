@@ -626,6 +626,51 @@ static void snd_address_handler(void *address, void *userdata)
         stream_start(address);
 }
 
+// State read-outs for the ARM9's demo judge (they only read registers and the rings).
+uint16_t snd7_busy_mask(void)
+{
+    uint16_t m = 0;
+    for (int ch = 0; ch < 16; ch++)
+        if (CH_CNT(ch) & CNT_START)
+            m |= 1u << ch;
+    return m;
+}
+
+uint16_t snd7_cap_peak(void)
+{
+    // A 256-sample slice of each ring per frame (the whole ring every 16 frames), so the scan
+    // costs the ARM7 little in the middle of the frame; the peak of a full pass is latched.
+    static uint16_t window, latched;
+    static unsigned slice;
+    if (!echo_on)
+    {
+        window = latched = 0;
+        return 0;
+    }
+    int peak = window;
+    for (unsigned i = slice * 256; i < slice * 256 + 256; i++)
+    {
+        int l = echo_left[i], r = echo_right[i];
+        l = l < 0 ? -l : l;
+        r = r < 0 ? -r : r;
+        peak = l > peak ? l : peak;
+        peak = r > peak ? r : peak;
+    }
+    window = (uint16_t)(peak > 0xFFFF ? 0xFFFF : peak);
+    if (++slice == 16)
+    {
+        slice = 0;
+        latched = window;
+        window = 0;
+    }
+    return latched;
+}
+
+uint8_t snd7_cap_busy(void)
+{
+    return ((CAP0_CNT >> 7) & 1) | (((CAP1_CNT >> 7) & 1) << 1);
+}
+
 void snd7_release_wram(void)
 {
     stream_stop();

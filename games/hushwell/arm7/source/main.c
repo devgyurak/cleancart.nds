@@ -76,6 +76,10 @@ static void send_input(void)
         peak = mic_hist[i] > peak ? mic_hist[i] : peak;
     pkt.mic = (uint8_t)(peak > 127 ? 127 : peak);
     pkt.pad = 0;
+    pkt.snd_busy = snd7_busy_mask();
+    pkt.cap_peak = snd7_cap_peak();
+    pkt.cap_busy = snd7_cap_busy();
+    pkt.pad2 = 0;
 
     fifoSendDatamsg(CV_FIFO_INPUT, sizeof(pkt), (u8 *)&pkt);
 
