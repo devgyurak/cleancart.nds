@@ -1,6 +1,6 @@
 {
   "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
-  "schema": 1,
+  "schema": 2,
   "about": "Expected result-block values for the Lightenette rehearsal and judge ROMs, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h and arm9/source/judge/judge.h. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's 'not captured' marker). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
   "block": {
     "address": "0x0237F000",
@@ -64,6 +64,8 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
+      "level": 3,
+      "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
         "value": 3,
@@ -92,6 +94,8 @@
       "display": "0/0/18",
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 3,
@@ -118,6 +122,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
       "model": null,
       "done": {
         "value": 3,
@@ -144,6 +150,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 3,
@@ -172,6 +180,8 @@
       "unlike": 7,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 2,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 3,
@@ -199,6 +209,8 @@
       "check": "differ",
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 1,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 3,
@@ -224,6 +236,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -245,6 +259,8 @@
       "max": 100,
       "tolerance": 0,
       "source": "rom",
+      "level": 2,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -265,6 +281,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -284,6 +302,8 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
+      "level": 3,
+      "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
         "value": 17,
@@ -310,6 +330,8 @@
       "display": "0/0/18",
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 17,
@@ -334,6 +356,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
       "model": null,
       "done": {
         "value": 17,
@@ -358,6 +382,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -380,6 +406,8 @@
       "unlike": 23,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 2,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 25,
@@ -405,6 +433,8 @@
       "check": "differ",
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 1,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 25,
@@ -430,6 +460,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -450,6 +482,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 31,
@@ -474,6 +508,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 31,
@@ -498,6 +534,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -517,6 +555,8 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
+      "level": 3,
+      "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
         "value": 44,
@@ -543,6 +583,8 @@
       "display": "0/0/18",
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 44,
@@ -569,6 +611,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
       "model": null,
       "done": {
         "value": 44,
@@ -593,6 +637,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
+      "level": 4,
+      "level_basis": "none",
       "model": null,
       "done": {
         "value": 44,
@@ -619,6 +665,8 @@
       "unlike": 42,
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 2,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 44,
@@ -644,6 +692,8 @@
       "check": "differ",
       "tolerance": 0,
       "source": "GBATEK",
+      "level": 1,
+      "level_basis": "gbatek:LCD Color Effects",
       "model": null,
       "done": {
         "value": 44,
@@ -669,6 +719,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     },
     {
@@ -687,6 +739,8 @@
       "expect": 1,
       "tolerance": 0,
       "source": "rom",
+      "level": 1,
+      "level_basis": "none",
       "model": null
     }
   ],

@@ -106,12 +106,38 @@ def find_expected(arg):
     raise Fatal('expected.json not found next to judge.py or one folder up')
 
 
+def check_levels(items):
+    """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
+    for it in items:
+        lv = it.get('level')
+        if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
+            raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
+
+
+def level_summary(rows):
+    """rows: (level, ok, informational). One line: L1 a/b OK . L2 ... (levels never change the verdict)."""
+    parts = []
+    for lv in (1, 2, 3, 4):
+        gate = [r for r in rows if r[0] == lv and not r[2]]
+        info = [r for r in rows if r[0] == lv and r[2]]
+        if not gate and not info:
+            continue
+        s = 'L%d' % lv
+        if gate:
+            s += ' %d/%d OK' % (sum(1 for r in gate if r[1]), len(gate))
+        if info:
+            s += (' informational %d' if not gate else ' +%d informational') % len(info)
+        parts.append(s)
+    return ' \u00b7 '.join(parts)
+
+
 def run(args):
     try:
         with open(find_expected(args.expected)) as f:
             exp = json.load(f)
     except (OSError, ValueError) as e:
         raise Fatal('cannot read expected.json: %s' % e)
+    check_levels(exp.get('items', []))
     if args.list_profiles:
         for name, p in sorted(exp.get('known', {}).items()):
             print('%-34s %s' % (name, p['emulator']))
@@ -185,6 +211,7 @@ def run(args):
     for item, g, gating in results:
         tag = {'OK': 'OK  ', 'NG': 'NG  ' if gating else 'INFO', 'NA': 'n/a '}[g]
         print('%s %-24s %s' % (tag, item['id'], item['title']))
+    print('LEVELS ' + level_summary([(i['level'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
     if prof is not None:
         want = sorted(prof['ng'])
         new_fail = [i for i in failing if i not in want]

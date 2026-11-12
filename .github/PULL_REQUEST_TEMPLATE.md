@@ -38,7 +38,7 @@ you did not try as well. Attach screenshots for visual changes. -->
 - [ ] Two clean builds give the same SHA-256 (toolchain or asset pipeline changes)
 - [ ] English docs and their `-KO` twins changed together
 - [ ] No ROMs, saves or build output in the diff
-- [ ] Generated files in sync (`python3 scripts/sync_agents.py --check`, `python3 scripts/mklogo.py`)
+- [ ] Generated files in sync (`python3 scripts/sync_agents.py --check`, `python3 scripts/mklogo.py`, `python3 scripts/mklevels.py --check`)
 
 ## Licensing
 

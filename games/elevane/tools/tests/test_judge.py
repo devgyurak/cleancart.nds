@@ -69,6 +69,24 @@ class Judge(unittest.TestCase):
         rc, _ = self.run_judge(block(), '--profile', 'melonds-1.1-gl-classic')   # newly passing
         self.assertEqual(rc, 1)
 
+    def test_every_item_has_a_level(self):
+        with open(EXP) as f:
+            exp = json.load(f)
+        judge.check_levels(exp['items'])
+        for it in exp['items']:
+            self.assertIn(it['level_basis'].split(':')[0], ('gbatek', 'report', 'hw', 'none'), it['id'])
+
+    def test_missing_or_bad_level_is_an_input_error(self):
+        for bad in ({'id': 'x'}, {'id': 'x', 'level': 0}, {'id': 'x', 'level': 5}, {'id': 'x', 'level': True},
+                    {'id': 'x', 'level': '2'}):
+            with self.assertRaises(judge.Fatal):
+                judge.check_levels([bad])
+
+    def test_level_summary(self):
+        rows = [(1, True, False), (1, False, False), (2, True, False), (4, True, True), (4, False, True), (3, True, False), (3, True, True)]
+        self.assertEqual(judge.level_summary(rows),
+                         'L1 1/2 OK \u00b7 L2 1/1 OK \u00b7 L3 1/1 OK +1 informational \u00b7 L4 informational 2')
+
     def values_args(self, words=None, crc=None, drop=0):
         v = (words or block()[3:21])[:18]
         crc_v = judge.crc16(b''.join(x.to_bytes(4, 'little') for x in v)) if crc is None else crc

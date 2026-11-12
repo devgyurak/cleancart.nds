@@ -56,6 +56,31 @@ class Fatal(Exception):
     """A usage or input problem: exit code 2."""
 
 
+def check_levels(items):
+    """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
+    for it in items:
+        lv = it.get('level')
+        if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
+            raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
+
+
+def level_summary(rows):
+    """rows: (level, ok, informational). One line: L1 a/b OK . L2 ... (levels never change the verdict)."""
+    parts = []
+    for lv in (1, 2, 3, 4):
+        gate = [r for r in rows if r[0] == lv and not r[2]]
+        info = [r for r in rows if r[0] == lv and r[2]]
+        if not gate and not info:
+            continue
+        s = 'L%d' % lv
+        if gate:
+            s += ' %d/%d OK' % (sum(1 for r in gate if r[1]), len(gate))
+        if info:
+            s += (' informational %d' if not gate else ' +%d informational') % len(info)
+        parts.append(s)
+    return ' \u00b7 '.join(parts)
+
+
 def parse_words(text, demo=None, warn=None):
     """Return the last result block in the text as a list of ints, or None."""
     words = None
@@ -169,6 +194,7 @@ def run(args):
     except (ValueError, KeyError, TypeError) as e:
         raise Fatal('%s is not a valid expected.json: %s' % (exp_path, e))
 
+    check_levels(items)
     if args.list_profiles:
         for name, p in sorted(exp.get('known', {}).items()):
             print('%-28s %s  (%d known NG)' % (name, p.get('emulator', ''), len(p.get('ng', []))))
@@ -219,6 +245,7 @@ def run(args):
     print('boot %s  item %08x  frame %d' % (boot, words[1], words[2]))
 
     failed = []
+    rows = []
     missing = 0
     for item in items:
         if boot not in item['boots']:
@@ -232,10 +259,12 @@ def run(args):
             continue
         tag = ('INFO' if ok else 'INFO-NG') if info else ('OK' if ok else 'NG')
         print('%-7s %-22s got %-16s want %-12s [%s]' % (tag, item['id'], got, want, item['source']))
+        rows.append((item['level'], ok, info))
         if not ok and not info:
             failed.append(item['id'])
     if missing:
         return 2
+    print('LEVELS ' + level_summary(rows))
 
     if profile is not None:
         known_ng = set(profile.get('ng', []))

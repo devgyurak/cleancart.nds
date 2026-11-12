@@ -71,6 +71,9 @@ python3 games/lightenette/tools/judge.py reh.log
 python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # NG 집합이 같을 때만 0
 ```
 
+모든 항목에는 1~4의 `level`이 있고([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약
+(`LEVELS L1 a/b OK · …`)을 출력합니다. 레벨은 판정과 종료 코드에 영향을 주지 않습니다.
+
 `expected.json`은 항목마다 프레임, 기대값, 허용 오차, 출처, 부팅 경로, 실기 모델을 적고, 필요하면 의존하는 캡처(`done`)와 픽셀을 읽는 항목인지(`pixels`)도 적습니다. 역방향 UV 재단선은 정성적으로 판정하며(0·1행은 깨끗, 2행은 선이 보임) 정확한 `0/0/18`은 에뮬레이터 측정값이라 정보용 항목일 뿐입니다.
 출처: `GBATEK`(문서화된 동작), `report:<ref>`(제3자의 실기 보고), `hw:<model>`(우리가
 실기에서 측정), `rom`(ROM 자체의 결정적 로직), `unconfirmed`(미확정). `unconfirmed` 항목은
