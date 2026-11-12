@@ -51,7 +51,7 @@ Docker만 있으면 됩니다.
 ./build.sh                    # lightenette.nds
 ./build.sh SAVE=flash         # lightenette-save-flash.nds
 ./build.sh SAVE=fram          # lightenette-save-fram.nds
-./build.sh demos              # acc-stage, rehearsal, l2-* 데모 ROM 9개
+./build.sh demos              # acc-stage, rehearsal, l2-* 데모 ROM 10개
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: lightenette-vX.Y.Z 태그가 배포하는 것
 ./build.sh clean
 ```
@@ -88,11 +88,11 @@ ROM + `expected.json` + `judge.py`를 같은 `lightenette-vX.Y.Z` 릴리스에�
 ### 레벨 2 데모 ROM
 
 Lightenette는 레벨 2(경계 사례) 게임입니다([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)). 위의 화면 경계 사례 외에 작은 데모 ROM
-9개 `lightenette-l2-<이름>.nds`를 함께 제공하며, 각각 `expected.json`의 boot 하나입니다(`l2-sys-irq`, `l2-sys-dma-vblank`,
-`l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`, `l2-2d-obj-bitmap`, `l2-snd-capture`).
+10개 `lightenette-l2-<이름>.nds`를 함께 제공하며, 각각 `expected.json`의 boot 하나입니다(`l2-sys-irq`, `l2-sys-dma-vblank`,
+`l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`, `l2-2d-obj-bitmap`, `l2-snd-capture`, `l2-snd-wave`).
 120프레임을 돌고 평소의 결과 블록을 씁니다(ID = ROM의 데모 이름(예: `l2-sys-irq`)의 FNV-1a 32, 값은 `words[3:]`부터).
-레벨 2 항목 12개를 담습니다: HBlank IRQ 횟수, VBlank DMA, 64비트 하드웨어 제곱근, 폴리곤 RAM 한계, 캡처를 통한 2패스 렌더링,
-아핀 BG / 모자이크 / 비트맵 OBJ 픽셀, 사운드 캡처 신호. ROM 하나씩 판정합니다:
+레벨 2 항목 13개를 담습니다: HBlank IRQ 횟수, VBlank DMA, 64비트 하드웨어 제곱근, 폴리곤 RAM 한계, 캡처를 통한 2패스 렌더링,
+아핀 BG / 모자이크 / 비트맵 OBJ 픽셀, 사운드 캡처 신호, 하드 라이트 PSG 팬의 왼쪽 믹서 진폭 정확값(`snd-wave-pan-right-exact`: GBATEK 혼합은 최대 2, melonDS 1.1은 3을 읽어 세 melonDS 프로필에서 알려진 NG). ROM 하나씩 판정합니다:
 
 ```sh
 tools/melonds/mds.sh demos <l2 ROM 폴더> > l2.log     # RENDERER=gl|compute

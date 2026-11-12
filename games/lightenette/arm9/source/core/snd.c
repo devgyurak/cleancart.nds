@@ -71,6 +71,25 @@ void snd_stream_start(const void *pcm8, u32 bytes, u32 rate, int vol)
     fifoSendAddress(CV_FIFO_SND, &stream_desc);
 }
 
+void snd_record(void *buf, u32 bytes, u32 rate)
+{
+    // The capture unit writes main RAM behind the cache: drop stale lines
+    // now and again before reading the result (snd_record_fetch).
+    static CvRecordDesc rec __attribute__((aligned(32)));
+    rec.magic = CV_REC_MAGIC;
+    rec.buf = buf;
+    rec.words = bytes / 4;
+    rec.rate = rate;
+    DC_FlushRange(&rec, sizeof(rec));
+    DC_InvalidateRange(buf, bytes);
+    fifoSendAddress(CV_FIFO_SND, &rec);
+}
+
+void snd_record_stop(void)
+{
+    send(CV_SND_REC_STOP, 0);
+}
+
 void snd_stream_stop(void)
 {
     send(CV_SND_STREAM_STOP, 0);
@@ -95,6 +114,13 @@ void snd_psg(int ch, int duty, int vol, int note)
 {
     send(CV_SND_RAW_PSG, (ch & 0xF) | ((duty & 7) << 4) | ((vol & 0x7F) << 7)
                          | ((note & 0x7F) << 14));
+}
+
+void snd_psg_pan(int ch, int duty, int vol, int note, int pan)
+{
+    // The pan field is stored xor 32 so that a plain snd_psg() (field 0) stays centred.
+    send(CV_SND_RAW_PSG, (ch & 0xF) | ((duty & 7) << 4) | ((vol & 0x7F) << 7)
+                         | ((note & 0x7F) << 14) | ((u32)(((pan >> 1) & 0x3F) ^ 32) << 21));
 }
 
 void snd_stop_channels(u16 mask)
