@@ -116,6 +116,13 @@ void snd_psg(int ch, int duty, int vol, int note)
                          | ((note & 0x7F) << 14));
 }
 
+void snd_psg_pan(int ch, int duty, int vol, int note, int pan)
+{
+    // The pan field is stored xor 32 so that a plain snd_psg() (field 0) stays centred.
+    send(CV_SND_RAW_PSG, (ch & 0xF) | ((duty & 7) << 4) | ((vol & 0x7F) << 7)
+                         | ((note & 0x7F) << 14) | ((u32)(((pan >> 1) & 0x3F) ^ 32) << 21));
+}
+
 void snd_stop_channels(u16 mask)
 {
     send(CV_SND_RAW_STOP, mask);

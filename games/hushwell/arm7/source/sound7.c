@@ -537,6 +537,7 @@ static void raw_psg(u32 arg)
     int duty = (arg >> 4) & 7;
     int vol = (arg >> 7) & 0x7F;
     int note = (arg >> 14) & 0x7F;
+    int pan = (int)((((arg >> 21) & 0x3F) ^ 32) << 1);    // stored xor 32: 0 keeps the centre
 
     if (ch < 8)
         return;
@@ -544,7 +545,7 @@ static void raw_psg(u32 arg)
         CH_TMR(ch) = TIMER_FOR_RATE(note_freq16[note] * 4);
     else
         CH_TMR(ch) = psg_timer(note_freq16[note]);
-    CH_CNT(ch) = CNT_START | CNT_PSG | CNT_DUTY(duty) | CNT_VOL(vol) | CNT_PAN(64);
+    CH_CNT(ch) = CNT_START | CNT_PSG | CNT_DUTY(duty) | CNT_VOL(vol) | CNT_PAN(pan);
 }
 
 void snd7_vblank(void)

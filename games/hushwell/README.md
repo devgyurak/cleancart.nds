@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#build)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#build)
-[![Feature demos: 65](https://img.shields.io/badge/feature%20demos-65-orange)](docs/QA.md)
+[![Feature demos: 66](https://img.shields.io/badge/feature%20demos-66-orange)](docs/QA.md)
 
 [한국어](README-KO.md)
 
@@ -21,7 +21,7 @@ The top screen is the first-person 3D view with almost no HUD; the bottom screen
 a hand-drawn map that fills in as you explore, a recorder for the tapes you find,
 the flashlight battery and a radio-static meter whose needle swings when the creature
 is near. Each scare is built on one DS hardware feature, and the same source builds
-**65 feature demo ROMs** that each show one feature on its own.
+**66 feature demo ROMs** that each show one feature on its own.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
@@ -37,7 +37,7 @@ plus Python 3, and runs `make` inside it.
 ./build.sh SAVE=flash         # hushwell-save-flash.nds (FLASH 256 KB variant)
 ./build.sh SAVE=fram          # hushwell-save-fram.nds  (FRAM 32 KB variant)
 ./build.sh DEMO=3d-matrix     # hushwell-3d-matrix.nds  (one feature demo)
-./build.sh demos              # all 65 feature demos
+./build.sh demos              # all 66 feature demos
 ./build.sh -j8 release        # build/release/{rom,demos}: what a hushwell-vX.Y.Z tag ships
 ./build.sh clean
 ```
@@ -169,13 +169,13 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
 
 ### Verification status (as of the session that created this game, 2026-11-10)
 
-- With BlocksDS v1.25.0 (pinned digest) the main build and all 65 demos build without warnings.
+- With BlocksDS v1.25.0 (pinned digest) the main build and all 66 demos build without warnings.
 - Automated smoke tests on headless DeSmuME 0.9.12 (py-desmume): boot → warning → title →
   radio → every chapter (walking, map, recorder, flashlight, flare), the creature hearing,
   hunting, striking and retreating, death → retry, QA chapter clear → dual-screen ending →
   credits → record saved, records/settings/sound test screens, attract-mode demo play, the
   chapter 5 dual-screen chase, the chapter 3 film and dial, the chapter 4 night visitor, the
-  well ending, lid sleep, a recorded run matching its replay, all 65 demos reaching their
+  well ending, lid sleep, a recorded run matching its replay, all 66 demos reaching their
   checkpoint, and a full playthrough from the title to the well ending driven by button and
   touch input only. See `docs/QA.md`.
 - Two clean builds give the same SHA-256 for `hushwell.nds` (reproducible build).
@@ -200,7 +200,7 @@ python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
 is missing; `--partial` or `--demo NAME` grade only what is in the log). Every item has a `level` from 1 to 4
 ([docs/LEVELS.md](../../docs/LEVELS.md)) and `judge.py` prints a per-level summary; the level never changes a verdict. Four
 profiles are recorded (melonDS 1.1 software, GL Classic, GL Compute; DeSmuME); nothing has been measured on real hardware yet.
-All 65 demos are judged; the screen and sound demos grade themselves with capture probes and ARM7 channel reports (see
+All 66 demos are judged; the screen and sound demos grade themselves with capture probes and ARM7 channel reports (see
 [docs/QA.md](docs/QA.md#judging-expectedjson-toolsjudgepy) for what stays unjudged or informational). The chapters of the game itself are not judged beyond the auto QA run (demo `qa`).
 
 ## Choices for the design document's open questions

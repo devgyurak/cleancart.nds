@@ -92,7 +92,8 @@
   "io-rtc": 1590775779,
   "io-touch": 4078676555,
   "io-power": 2563074333,
-  "qa": 1314013521
+  "qa": 1314013521,
+  "snd-wave": 3607490958
  },
  "items": [
   {
@@ -2222,6 +2223,81 @@
    "check": "range",
    "min": 1,
    "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-freq",
+   "demo": "snd-wave",
+   "title": "A PSG square wave at 440 Hz (timer-derived) changes level about 220 times in 0.25 s of the left mixer record (+-5 %)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 209,
+   "max": 231,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-octave",
+   "demo": "snd-wave",
+   "title": "The wave an octave lower (220 Hz) changes level half as often: the ratio x100 is 190 to 210",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 190,
+   "max": 210,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-volume",
+   "demo": "snd-wave",
+   "title": "Volume 50 gives half the swing of volume 100 in the record (ratio x100 within 170 to 230)",
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 170,
+   "max": 230,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-pan-left",
+   "demo": "snd-wave",
+   "title": "Pan 0 (hard left) puts an audible wave into the left mixer (peak-to-peak 16 to 255)",
+   "values": [
+    6
+   ],
+   "check": "range",
+   "min": 16,
+   "max": 255,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-pan-right",
+   "demo": "snd-wave",
+   "title": "Pan 126 (hard right) leaves the left mixer all but silent (peak-to-peak at most 8, under 5 % of the audible swing)",
+   "values": [
+    9
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 8,
    "source": "GBATEK",
    "role": "target",
    "level": 1,

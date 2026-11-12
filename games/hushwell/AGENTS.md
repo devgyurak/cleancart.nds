@@ -12,7 +12,7 @@ and `gfx` are corvane's layers (keep fixes in sync when they apply to both).
 ```sh
 ./build.sh                  # hushwell.nds (EEPROM 64 KB)
 ./build.sh SAVE=flash|fram  # save-chip variants
-./build.sh DEMO=<name>      # one feature demo (names: Makefile DEMOS, 65 of them)
+./build.sh DEMO=<name>      # one feature demo (names: Makefile DEMOS, 66 of them)
 ./build.sh demos            # all demos
 ./build.sh -j8 release      # build/release/{rom,demos} (tag hushwell-vX.Y.Z runs this in CI)
 ./build.sh clean
