@@ -114,6 +114,34 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | acc-split-tex / -bg / -relay / -rear / -rear-read / -rear-write / -hdma | one screen in two passes at 60 fps, the split moving every 8 frames; the captured side comes back as a texture, a bitmap BG, VRAM display + graphics capture, the 3D rear plane, or an HBlank DMA from the capture bank into engine B's bitmap BG (see [Same-screen two-pass](#same-screen-two-pass-acc-split)) | latency, variant, split x; hdma: frames with holes (blend << 8 \| capture only) | ✅ software renderer: full picture every frame in all seven |
 | acc-stage | reversed-UV cards, edge-marked puppets on line-polygon strings, semi-transparent lantern over darkened 3D; grades itself (see [Accuracy cross-check](#accuracy-cross-check-acc-stage)) | cut-line pixels per card row, edge pixels, line pixels, pass flags | ✅ software renderer `120000 b7 2c1 1f` all pass; GL renderers differ (see below) |
 
+## Judging (`expected.json`, `tools/judge.py`)
+
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (116 items, 59 of the 75
+demos). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
+change a verdict.
+
+| Kind | What is judged | Examples |
+|---|---|---|
+| (a) self-check, documented constant | error counts 0, `sqrt(10^12)` = 1000000, CRC equal, 2048 polygons | sys-wram, sys-dma-*, sys-bios, sys-math, 3d-limits |
+| (b) register read-back | the register reads back the value the demo wrote (write-only registers are not judged) | 2d-engines, 2d-window, 2d-blend, 3d-toon, 3d-compose |
+| (c) timing figure | a count in a window derived from GBATEK (263 lines per frame, 33.513982 MHz bus) | sys-irq, sys-timer, sys-dma-vblank |
+| (d) screen or sound only | not judged yet | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-normal, 2d-obj-affine, 2d-obj-bitmap, 2d-obj-line, 2d-vram, 2d-display, snd-mix, snd-pcm, snd-adpcm, snd-psg, snd-capture, snd-stream |
+
+Sources: `GBATEK` and `rom` items gate, `unconfirmed` ones (no hardware value yet, for example polygon counts of
+the models) are informational. Polygon counters read 0 in DeSmuME: those items are n/a there (`na_when`).
+
+```sh
+tools/melonds/mds.sh demos games/corvane/build/release/demos > demos.log     # RENDERER=gl|compute for the GL renderers
+python3 games/corvane/tools/judge.py --profile melonds-1.1-software demos.log
+RESULT_WORDS=16 tools/emu/emu.sh demos games/corvane > ds.log && python3 games/corvane/tools/judge.py --profile desmume-pydesmume-0.0.9 ds.log
+```
+
+Known profiles (measured 2026-11-12, nothing on real hardware yet): melonDS 1.1 software passes everything; the GL (Classic)
+renderer fails acc-stage cut line, edge marking and lantern blend, GL (Compute) the lantern blend (the cases of
+melonDS issues #2008, #2503, #2549, as in Lightenette); DeSmuME fails the lantern blend, has no polygon counters and
+differs in two informational items (key IRQ count, `VEC_TEST` z). The 16 demos of kind (d) get ROM-side judging in a
+later change (display capture, as in Lightenette and Elevane); sound demos need a capture check first.
+
 ## Accuracy cross-check (acc-stage)
 
 `acc-stage` touches three features where melonDS's renderers were reported to
