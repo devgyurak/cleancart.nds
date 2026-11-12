@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+name: Game request
+description: A hardware area you would like a game (a self-judging test) to cover
+title: "Game request: "
+labels: ["game-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The maintainer builds the games; pull requests are not accepted (see CONTRIBUTING.md).
+        Do not paste code, art, sound or levels: describe the behaviour and cite documentation or hardware results.
+  - type: textarea
+    id: area
+    attributes:
+      label: Hardware area to test
+      description: What should the game exercise, and why does an emulator need a test for it?
+    validations:
+      required: true
+  - type: textarea
+    id: registers
+    attributes:
+      label: Registers and documentation
+      description: The registers or commands involved and the GBATEK section (or other source).
+    validations:
+      required: true
+  - type: dropdown
+    id: level
+    attributes:
+      label: Expected level
+      description: See docs/LEVELS.md. If it spans several levels, pick the highest.
+      options:
+        - L1 Function
+        - L2 Edge
+        - L3 Timing
+        - L4 Research
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: links
+    attributes:
+      label: Related emulator issues or hardware results
+      description: Links to emulator issues, reports or published hardware measurements.

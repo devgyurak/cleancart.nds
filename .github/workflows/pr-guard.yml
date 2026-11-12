@@ -5,6 +5,7 @@
 #   PR into develop: title starts with a commit prefix (skill `commit`), so a
 #                    squash merge leaves a well-formed commit on develop.
 #   PR into main:    head must be develop (releases only), merged as a merge commit.
+#   PR from a fork: rejected (CONTRIBUTING.md); only the maintainer opens PRs.
 #   main -> develop: back-merge after a release, merged as a merge commit (no
 #                    squash commit to check), so it passes without title checks.
 
@@ -32,6 +33,10 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
           fail=0
+          if [ "$HEAD_REPO" != "$REPO" ]; then
+            echo "::error::This project does not take pull requests from forks. See CONTRIBUTING.md (https://github.com/$REPO/blob/main/CONTRIBUTING.md) for the two kinds of issues we accept."
+            exit 1
+          fi
           if [ "$BASE" = develop ] && [ "$HEAD" = main ] && [ "$HEAD_REPO" = "$REPO" ]; then
             echo "Back-merge main -> develop: no title or branch checks."
             exit 0

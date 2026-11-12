@@ -14,6 +14,8 @@ over 3D terrain and break through five fronts. The top screen is the 3D
 battlefield, the bottom screen is a tactical view with radar and touch lock-on,
 and enemy bullet patterns are drawn as 2D sprites over the 3D scene.
 
+**Hardware areas it tests:** 2D engines A and B, the 3D geometry/rendering engine, ARM7 sound, DMA/timers/IPC/interrupts, and cart, save, RTC, touch and power I/O.
+
 Following the design principles, the game puts the DS's 2D, 3D, sound and system
 features to work in actual gameplay, and the same source builds **65 feature demo
 ROMs** that each show one feature on its own.
@@ -191,3 +193,7 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
   Mbed TLS, Maxmod and LibXM7 are not included.
 - When linking a new library, update `THIRD_PARTY_NOTICES`, `licenses/` and the in-game
   credits (`game/scenes.c`) together.
+
+---
+
+Not affiliated with or endorsed by Nintendo. Nintendo DS is a trademark of Nintendo.
