@@ -5,6 +5,7 @@ description: Start a new DS game folder in this repo from the corvane template (
 
 # New game from the corvane template
 
+0. A new game starts from a brief of the `game-planner` agent (target level, area, judged items, concept). Set `target_level`, `area` and every item's `role` in `expected.json` (`docs/LEVELS.md`).
 1. Read the design request; if it names an existing commercial game, build an
    original game in that genre instead (no names, characters, art or levels).
 2. Create `games/<name>/` (lowercase; no third-party names, see rule 3 in `AGENTS.md`) and copy the infrastructure:
@@ -54,7 +55,7 @@ description: Start a new DS game folder in this repo from the corvane template (
    and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).
    DeSmuME alone missed the MPU, DMA, header and save bugs.
 7. A new game ships `expected.json` + `tools/judge.py` from the start, and every item in
-   `expected.json` has `level` (1–4) and `level_basis` (`docs/LEVELS.md`; ask the `level-judge`
+   `expected.json` has `level` (1–4) and `level_basis` and `role` (`docs/LEVELS.md`; ask the `level-judge`
    agent). `python3 scripts/mklevels.py --check` must pass (add the game's `<!-- cell:<game> -->` marker
    to the Games table of both root READMEs).
 8. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.

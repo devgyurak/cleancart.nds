@@ -146,6 +146,7 @@ Claude Code loads these automatically by path. Codex: open the matching file you
 | `emu-tester` | builds and runs headless smoke tests, reports screenshots + result blocks |
 | `license-auditor` | read-only licence/asset/notice compliance check |
 | `level-judge` | read-only: proposes or reviews the L1–L4 `level` of judged items (`docs/LEVELS.md`) |
+| `game-planner` | read-only: plans a new judged game for a target level or a technique (`scripts/mklevels.py --map`), returns a brief with an `expected.json` draft |
 
 Claude definitions are canonical (`.claude/agents/`). After editing one, run
 `python3 scripts/sync_agents.py` to refresh `.codex/agents/`.
