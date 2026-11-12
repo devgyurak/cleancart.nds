@@ -66,10 +66,31 @@ class Judge(unittest.TestCase):
 
     def test_good_and_bad_block(self):
         exp = load()
-        rc, r = run_judge(line(exp, 'sys-math', [0, 1000000, 0x5000, 4096]))
+        rc, r = run_judge(line(exp, 'io-cart', [0, 1]))
         self.assertEqual((rc, r['gating_failing']), (0, []))
+        rc, r = run_judge(line(exp, 'io-cart', [0, 0]))
+        self.assertEqual((rc, r['gating_failing']), (1, ['io-cart-ok']))
+
+    def test_relocate_items_are_informational(self):
+        exp = load()
+        # sys-math-div is a graphics/system item of Corvane's area: it moves out, so a bad value never gates
         rc, r = run_judge(line(exp, 'sys-math', [1, 1000000, 0x5000, 4096]))
-        self.assertEqual((rc, r['gating_failing']), (1, ['sys-math-div']))
+        self.assertEqual((rc, r['gating_failing']), (0, []))
+        self.assertEqual(r['items']['sys-math-div'], 'NG')
+
+    def test_roles_are_checked(self):
+        exp = load()
+        judge.check_roles(exp)
+        for mutate in (lambda e: e.pop('target_level'),
+                       lambda e: e['items'][0].pop('role'),
+                       lambda e: e['items'][0].update(role='target', level=2),
+                       lambda e: e['items'][0].update(role='prerequisite', level=3),
+                       lambda e: e['items'][0].update(role='target', level=3),
+                       lambda e: e['items'][0].update(role='relocate', to=None)):
+            bad = json.loads(json.dumps(exp))
+            mutate(bad)
+            with self.assertRaises(judge.Fatal):
+                judge.check_roles(bad)
 
     def test_unconfirmed_never_fails(self):
         exp = load()
@@ -106,7 +127,7 @@ class Judge(unittest.TestCase):
 
     def test_gating_change_breaks_a_profile(self):
         exp = load()
-        rc, _ = run_judge(line(exp, 'sys-math', [1, 1000000, 0x5000, 4096]), '--profile', 'melonds-1.1-software')
+        rc, _ = run_judge(line(exp, 'io-cart', [0, 0]), '--profile', 'melonds-1.1-software')
         self.assertEqual(rc, 1)
 
     def test_not_value_and_new_checks(self):

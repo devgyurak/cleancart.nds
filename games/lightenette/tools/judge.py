@@ -64,6 +64,50 @@ def check_levels(items):
             raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
 
 
+ROLES = ('target', 'prerequisite', 'relocate')
+
+
+def check_roles(exp):
+    """target_level and every item's role (docs/LEVELS.md); a violation is an input error (exit 2).
+
+    target: level == target_level. prerequisite: level <= target_level. relocate: temporary, the item is
+    informational and moves to the game named in "to" ("probes" or a game folder).
+    """
+    tl = exp.get('target_level')
+    if isinstance(tl, bool) or not isinstance(tl, int) or not 1 <= tl <= 4:
+        raise Fatal('expected.json has no valid "target_level" (1-4, see docs/LEVELS.md)')
+    for it in exp['items']:
+        role, lv, name = it.get('role'), it['level'], it.get('id')
+        if role not in ROLES:
+            raise Fatal('item %r: "role" must be one of %s' % (name, ', '.join(ROLES)))
+        if role == 'target' and lv != tl:
+            raise Fatal('item %r: role target needs level %d (the target level), not %d' % (name, tl, lv))
+        if role == 'prerequisite' and lv > tl:
+            raise Fatal('item %r: role prerequisite needs level <= %d, not %d' % (name, tl, lv))
+        if lv > tl and role != 'relocate':
+            raise Fatal('item %r: level %d is above the target level %d, only role relocate is allowed' % (name, lv, tl))
+        if role == 'relocate' and not it.get('to'):
+            raise Fatal('item %r: role relocate needs "to"' % name)
+
+
+def is_gating(item):
+    """Gating: not unconfirmed and not waiting to be relocated."""
+    return item['source'] != 'unconfirmed' and item['role'] != 'relocate'
+
+
+def role_summary(rows):
+    """rows: (role, ok). target a/b OK . prerequisite a/b OK . relocate n informational."""
+    parts = []
+    for role in ('target', 'prerequisite'):
+        sel = [r for r in rows if r[0] == role]
+        if sel:
+            parts.append('%s %d/%d OK' % (role, sum(1 for r in sel if r[1]), len(sel)))
+    n = sum(1 for r in rows if r[0] == 'relocate')
+    if n:
+        parts.append('relocate %d informational' % n)
+    return ' \u00b7 '.join(parts)
+
+
 def level_summary(rows):
     """rows: (level, ok, informational). One line: L1 a/b OK . L2 ... (levels never change the verdict)."""
     parts = []
@@ -195,6 +239,7 @@ def run(args):
         raise Fatal('%s is not a valid expected.json: %s' % (exp_path, e))
 
     check_levels(items)
+    check_roles(exp)
     if args.list_profiles:
         for name, p in sorted(exp.get('known', {}).items()):
             print('%-28s %s  (%d known NG)' % (name, p.get('emulator', ''), len(p.get('ng', []))))
@@ -242,29 +287,40 @@ def run(args):
         return 2
 
     vals = words[3:]
-    print('boot %s  item %08x  frame %d' % (boot, words[1], words[2]))
 
     failed = []
     rows = []
+    roles = []
+    lines = []
+    prereq_ng = []
     missing = 0
     for item in items:
         if boot not in item['boots']:
             continue
-        info = item['source'] == 'unconfirmed'
+        info = not is_gating(item)
         try:
             ok, got, want = grade(item, vals)
         except IndexError:
-            print('%-5s %-22s value not in the log (use 64 result words)' % ('MISS', item['id']))
+            lines.append('%-5s %-22s value not in the log (use 64 result words)' % ('MISS', item['id']))
             missing += 1
             continue
         tag = ('INFO' if ok else 'INFO-NG') if info else ('OK' if ok else 'NG')
-        print('%-7s %-22s got %-16s want %-12s [%s]' % (tag, item['id'], got, want, item['source']))
+        lines.append('%-7s %-22s got %-16s want %-12s [%s]' % (tag, item['id'], got, want, item['source']))
         rows.append((item['level'], ok, info))
+        roles.append((item['role'], ok))
+        if not ok and item['role'] == 'prerequisite' and item['id'] not in (profile or {}).get('ng', []):
+            prereq_ng.append(item['id'])
         if not ok and not info:
             failed.append(item['id'])
+    if prereq_ng:
+        print('PREREQ NG %s: the target-level verdicts of this game cannot be trusted' % ', '.join(sorted(prereq_ng)))
+    print('boot %s  item %08x  frame %d' % (boot, words[1], words[2]))
+    for line in lines:
+        print(line)
     if missing:
         return 2
     print('LEVELS ' + level_summary(rows))
+    print('ROLES ' + role_summary(roles))
 
     if profile is not None:
         known_ng = set(profile.get('ng', []))

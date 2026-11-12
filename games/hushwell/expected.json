@@ -1,6 +1,8 @@
 {
  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
- "schema": 2,
+ "schema": 3,
+ "target_level": 1,
+ "area": "sound and I/O",
  "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. The screen demos capture their own output (display capture to bank D) and compare pixels with what GBATEK says, VRAM mappings are read back through their aliases, and the sound demos read the channel and capture state the ARM7 reports in its input packet (values[4..8] of those demos). What stays unjudged (the sub screen's line-start DMA bars, sound output content beyond \"not silent\") is listed in docs/QA.md.",
  "block": {
   "address": "0x0237F000",
@@ -103,6 +105,7 @@
    "check": "eq",
    "expect": 10,
    "source": "GBATEK",
+   "role": "prerequisite",
    "level": 1,
    "level_basis": "gbatek:DS Inter Process Communication"
   },
@@ -117,6 +120,8 @@
    "min": 119,
    "max": 121,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Inter Process Communication"
   },
@@ -131,6 +136,7 @@
    "mask": 203,
    "expect": 75,
    "source": "GBATEK",
+   "role": "prerequisite",
    "level": 1,
    "level_basis": "gbatek:DS Keypad"
   },
@@ -145,6 +151,8 @@
    "min": 1,
    "max": 2,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "none"
   },
@@ -158,6 +166,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Memory Control"
   },
@@ -171,6 +181,8 @@
    "check": "eq",
    "expect": 50393,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:BIOS Misc Functions"
   },
@@ -184,6 +196,8 @@
    "check": "eq",
    "expect": 3,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Memory Control"
   },
@@ -197,6 +211,8 @@
    "check": "eq",
    "expect": 120,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Interrupts"
   },
@@ -211,6 +227,8 @@
    "min": 31297,
    "max": 31560,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:LCD Dimensions and Timings"
   },
@@ -225,6 +243,8 @@
    "min": 118,
    "max": 121,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Interrupts"
   },
@@ -239,6 +259,8 @@
    "min": 19,
    "max": 20,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Timers"
   },
@@ -253,6 +275,8 @@
    "min": 15,
    "max": 16,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Timers"
   },
@@ -266,6 +290,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS DMA Transfers"
   },
@@ -279,6 +305,8 @@
    "check": "eq",
    "expect": 120,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS DMA Transfers"
   },
@@ -292,6 +320,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS DMA Transfers"
   },
@@ -305,6 +335,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
   },
@@ -318,6 +350,8 @@
    ],
    "check": "same",
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
@@ -331,6 +365,8 @@
    ],
    "check": "same",
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
@@ -348,6 +384,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -361,6 +399,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:BIOS Decompression Functions"
   },
@@ -374,6 +414,8 @@
    "check": "eq",
    "expect": 305419896,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:BIOS Memory Copy"
   },
@@ -387,6 +429,8 @@
    "check": "eq",
    "expect": 142,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:BIOS Arithmetic Functions"
   },
@@ -400,6 +444,8 @@
    "check": "eq",
    "expect": 65477,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:BIOS Misc Functions"
   },
@@ -413,6 +459,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Maths"
   },
@@ -426,6 +474,8 @@
    "check": "eq",
    "expect": 1000000,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Maths"
   },
@@ -439,6 +489,8 @@
    "check": "eq",
    "expect": 20480,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Maths"
   },
@@ -452,6 +504,8 @@
    "check": "eq",
    "expect": 4096,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -465,6 +519,7 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Keypad"
   },
@@ -479,6 +534,7 @@
    "mask": 203,
    "expect": 75,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Keypad"
   },
@@ -493,6 +549,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -506,6 +564,8 @@
    "check": "eq",
    "expect": 33295,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Power Control"
   },
@@ -519,6 +579,8 @@
    "check": "eq",
    "expect": 69904,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -532,6 +594,8 @@
    "check": "eq",
    "expect": 65792,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -545,6 +609,8 @@
    "check": "eq",
    "expect": 19718,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O BG Control"
   },
@@ -558,6 +624,8 @@
    "check": "eq",
    "expect": 3584,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O BG Control"
   },
@@ -571,6 +639,8 @@
    "check": "eq",
    "expect": 66566,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -584,6 +654,8 @@
    "check": "eq",
    "expect": 16387,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O BG Control"
   },
@@ -597,6 +669,8 @@
    "check": "eq",
    "expect": 2,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -610,6 +684,8 @@
    "check": "eq",
    "expect": 69632,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -623,6 +699,8 @@
    "check": "eq",
    "expect": 3221295888,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -636,6 +714,8 @@
    "check": "eq",
    "expect": 7967,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Window Feature"
   },
@@ -649,6 +729,8 @@
    "check": "eq",
    "expect": 63,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Window Feature"
   },
@@ -662,6 +744,8 @@
    "check": "eq",
    "expect": 2305,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Window Feature"
   },
@@ -675,6 +759,8 @@
    "check": "eq",
    "expect": 9024,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
   },
@@ -688,6 +774,8 @@
    "check": "eq",
    "expect": 1546,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
   },
@@ -701,6 +789,8 @@
    "check": "eq",
    "expect": 16391,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
   },
@@ -714,6 +804,8 @@
    "check": "eq",
    "expect": 32783,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
   },
@@ -728,6 +820,8 @@
    "mask": 2147483648,
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -742,6 +836,8 @@
    "mask": 2147483647,
    "expect": 20054016,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -755,6 +851,8 @@
    "check": "mask",
    "expect": 1551,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control",
    "mask": 53247
@@ -769,6 +867,8 @@
    "check": "mask",
    "expect": 1581,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control",
    "mask": 53247
@@ -783,6 +883,8 @@
    "check": "mask",
    "expect": 1741,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control",
    "mask": 53247
@@ -797,6 +899,8 @@
    "check": "mask",
    "expect": 1565,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control",
    "mask": 53247
@@ -811,6 +915,8 @@
    "check": "mask",
    "expect": 17933,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control",
    "mask": 53247
@@ -825,6 +931,8 @@
    "check": "eq",
    "expect": 3,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O BG Control"
   },
@@ -838,6 +946,8 @@
    "check": "eq",
    "expect": 7433,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O BG Control"
   },
@@ -855,6 +965,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -872,6 +984,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -889,6 +1003,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -906,6 +1022,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -923,6 +1041,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -940,6 +1060,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -957,6 +1079,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -974,6 +1098,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -991,6 +1117,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1008,6 +1136,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1025,6 +1155,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1042,6 +1174,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1059,6 +1193,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1076,6 +1212,8 @@
     0
    ],
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS 3D Status"
   },
@@ -1093,6 +1231,8 @@
     0
    ],
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1106,6 +1246,8 @@
    "check": "eq",
    "expect": 102,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1119,6 +1261,8 @@
    "check": "eq",
    "expect": 20904,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1132,6 +1276,8 @@
    "check": "eq",
    "expect": 2487,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1145,6 +1291,8 @@
    "check": "eq",
    "expect": 4294964076,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1158,6 +1306,7 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
   },
@@ -1171,6 +1320,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
@@ -1184,6 +1335,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1197,6 +1350,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1210,6 +1365,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1223,6 +1380,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1236,6 +1395,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1249,6 +1410,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1262,6 +1425,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1275,6 +1440,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1288,6 +1455,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
@@ -1302,6 +1471,7 @@
    "min": 0,
    "max": 15,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Firmware User Settings"
   },
@@ -1316,6 +1486,7 @@
    "min": 0,
    "max": 10,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Firmware User Settings"
   },
@@ -1330,6 +1501,7 @@
    "min": 1,
    "max": 12,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Real-Time Clock"
   },
@@ -1344,6 +1516,7 @@
    "min": 1,
    "max": 31,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Real-Time Clock"
   },
@@ -1358,6 +1531,7 @@
    "min": 0,
    "max": 23,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Real-Time Clock"
   },
@@ -1371,6 +1545,7 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Touch Screen Controller"
   },
@@ -1385,6 +1560,8 @@
    "min": 119,
    "max": 121,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Touch Screen Controller"
   },
@@ -1399,6 +1576,8 @@
    "min": 99,
    "max": 101,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Touch Screen Controller"
   },
@@ -1412,6 +1591,7 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Power Management"
   },
@@ -1425,6 +1605,7 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "target",
    "level": 1,
    "level_basis": "none"
   },
@@ -1438,6 +1619,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1451,6 +1634,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "elevane",
    "level": 3,
    "level_basis": "gbatek:DS DMA Transfers"
   },
@@ -1464,6 +1649,8 @@
    "check": "eq",
    "expect": 22,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1477,6 +1664,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1490,6 +1679,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:LCD I/O BG Rotation/Scaling"
   },
@@ -1503,6 +1694,8 @@
    "check": "eq",
    "expect": 192,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1517,6 +1710,8 @@
    "min": 100,
    "max": 192,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1530,6 +1725,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1543,6 +1740,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:LCD I/O Mosaic Function"
   },
@@ -1556,6 +1755,8 @@
    "check": "eq",
    "expect": 49152,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1570,6 +1771,8 @@
    "min": 1000,
    "max": 49152,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1583,6 +1786,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1596,6 +1801,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD OBJ - Overview"
   },
@@ -1610,6 +1817,8 @@
    "min": 20,
    "max": 128,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1623,6 +1832,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1636,6 +1847,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:LCD OBJ - OAM Rotation/Scaling Parameters"
   },
@@ -1650,6 +1863,8 @@
    "min": 50,
    "max": 512,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1663,6 +1878,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1676,6 +1893,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Video OBJs"
   },
@@ -1690,6 +1909,8 @@
    "min": 1000,
    "max": 4096,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1703,6 +1924,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1717,6 +1940,8 @@
    "min": 1,
    "max": 2,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1730,6 +1955,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Memory Control - VRAM"
   },
@@ -1743,6 +1970,8 @@
    "check": "eq",
    "expect": 512,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1756,6 +1985,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1769,6 +2000,8 @@
    "check": "eq",
    "expect": 0,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1782,6 +2015,8 @@
    "check": "eq",
    "expect": 768,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1795,6 +2030,8 @@
    "check": "eq",
    "expect": 1,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
@@ -1808,6 +2045,8 @@
    "check": "eq",
    "expect": 0,
    "source": "unconfirmed",
+   "role": "relocate",
+   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -1821,6 +2060,8 @@
    "check": "eq",
    "expect": 768,
    "source": "rom",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "none"
   },
@@ -1834,6 +2075,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "corvane",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
   },
@@ -1848,6 +2091,7 @@
    "min": 8,
    "max": 16,
    "source": "rom",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1862,6 +2106,7 @@
    "min": 1,
    "max": 16,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1876,6 +2121,7 @@
    "min": 2,
    "max": 16,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1890,6 +2136,7 @@
    "min": 1,
    "max": 16,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1904,6 +2151,7 @@
    "min": 1,
    "max": 16,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1918,6 +2166,7 @@
    "mask": 16384,
    "expect": 16384,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1931,6 +2180,7 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   },
@@ -1944,6 +2194,8 @@
    "check": "eq",
    "expect": 3,
    "source": "GBATEK",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Sound Capture"
   },
@@ -1958,6 +2210,8 @@
    "min": 1,
    "max": 65535,
    "source": "rom",
+   "role": "relocate",
+   "to": "lightenette",
    "level": 2,
    "level_basis": "gbatek:DS Sound Capture"
   },
@@ -1972,6 +2226,7 @@
    "min": 1,
    "max": 16,
    "source": "GBATEK",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Sound Channels"
   }
