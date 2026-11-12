@@ -66,7 +66,7 @@ Docker is all you need.
 ./build.sh                    # elevane.nds
 ./build.sh SAVE=flash         # elevane-save-flash.nds
 ./build.sh SAVE=fram          # elevane-save-fram.nds
-./build.sh demos              # elevane-rehearsal.nds
+./build.sh demos              # elevane-rehearsal.nds + the nine elevane-l3-*.nds demos
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: what an elevane-vX.Y.Z tag ships
 ./build.sh clean
 ```
@@ -77,7 +77,7 @@ Two clean builds give the same SHA-256. Puzzle tools (Python 3, standard library
 
 ## Using it as an emulator test
 
-`build/release/judge/` holds the rehearsal ROM, `expected.json`, `judge.py` and `compare.py`.
+`build/release/judge/` holds the rehearsal ROM, the nine level 3 demo ROMs (`elevane-l3-*.nds`), `expected.json`, `judge.py` and `compare.py`.
 The rehearsal solves the first puzzle of every chapter, then runs both showcase presets and
 leaves a result block at `0x0237F000` (layout: `arm9/source/game/rehearsal.h`).
 
@@ -99,6 +99,12 @@ left half of showcase preset 1 empty (the melonDS #2618 defect, play is unaffect
 rear-plane preset 2 shows one side only on every GL renderer (a separate defect).
 Items without a documentation, report or ROM-logic source are `unconfirmed` until real
 hardware values exist.
+
+The nine level 3 demos (`l3-sys-dma-hblank`, `l3-acc-dual`, `l3-acc-split-*`) test the display capture routing
+latency, the same-screen two-pass schemes and an HBlank DMA backdrop. Each writes a 16-word result block at frame
+120; feed their lines (for example the output of `tools/melonds/mds.sh demos <folder>`) to the same `judge.py`,
+alone or together with the rehearsal block. The six `acc-split-*-latency` items measure 2 frames on every emulator
+we ran (expected 0 or 1, `unconfirmed`), so they are informational NG in every profile.
 
 ## Documentation
 

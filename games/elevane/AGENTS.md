@@ -26,7 +26,7 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 ```sh
 ./build.sh                  # elevane.nds
 ./build.sh SAVE=flash|fram  # save-chip variants
-./build.sh DEMO=<name>      # one demo (names: Makefile DEMOS; none yet)
+./build.sh DEMO=<name>      # one demo (names: Makefile DEMOS: rehearsal, l3-*)
 ./build.sh -j8 release      # build/release/{rom,demos,judge} (tag elevane-vX.Y.Z runs this in CI)
 ./build.sh clean
 ```
@@ -52,6 +52,13 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   VBlank, a full bank read takes a frame and the picture is stale afterwards), cross-contamination, showcase polygon /
   vertex counts and overflow flags, preset 1 hole counts, composite left/right opaque pixels and hash, preset 2 captured
   pixels. Keep `rehearsal.h`, `expected.json` and `tools/judge.py` in step.
+- `demo/demo.c` also holds the nine level 3 demos (`make DEMO=l3-<name>`, ROM `elevane-l3-<name>.nds`), copied from corvane's
+  demos of the same name: `l3-sys-dma-hblank`, `l3-acc-dual`, `l3-acc-split-{tex,bg,relay,rear,rear-read,rear-write,hdma}`
+  (target level 3: capture routing latency, same-screen two-pass schemes, HBlank DMA backdrop). Each writes corvane's 16-word
+  block (`'CVER'`, FNV-1a of the prefixed name, frame, `values[13]`) at frame 120; the prefix keeps the ids apart from
+  corvane's. `expected.json` `demos` maps name to id, an item with `"demo"` is graded from that block, an item without one from
+  the rehearsal. Keep a demo's `finish()` values and its items in step; only the 10 items of `expected.json` with `demo` are
+  judged here, the other items of the same corvane demos stay with corvane.
 - `expected.json` + `tools/judge.py` (grader, exit 0 pass, 1 NG / profile mismatch, 2 no usable result) +
   `tools/compare.py` (1x screenshots of a renderer against the same emulator's software renderer, consecutive frames,
   limits in `expected.json` "screens"). Items from GBATEK / reports / `rom` gate, `unconfirmed` ones are informational

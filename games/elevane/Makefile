@@ -55,9 +55,12 @@ GEN      := build/gen
 NITRO    := build/nitrofs
 STAMP    := $(GEN)/.stamp
 
-# Demo ROMs (names: arm9/source/demo/demo.c). None yet: the judge and the rehearsal
-# ROMs arrive with the rehearsal stage.
-DEMOS := rehearsal
+# Demo ROMs (names: arm9/source/demo/demo.c): the rehearsal and the level 3 demos
+# (l3-* are taken over from corvane; they carry the prefix so block ids differ).
+DEMOS := rehearsal \
+         l3-sys-dma-hblank l3-acc-dual l3-acc-split-tex l3-acc-split-bg \
+         l3-acc-split-relay l3-acc-split-rear l3-acc-split-rear-read \
+         l3-acc-split-rear-write l3-acc-split-hdma
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
@@ -150,7 +153,7 @@ demos:
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
 # build/release/rom (game + save variants), build/release/demos and build/release/judge
-# (the rehearsal ROM, expected.json, judge.py, compare.py), each with the licence texts
+# (the rehearsal and l3-* ROMs, expected.json, judge.py, compare.py), each with the licence texts
 # and notices a binary distribution has to carry.
 RELEASE := build/release
 
@@ -169,7 +172,8 @@ release:
 	@# The emulator-test kit: the rehearsal ROM with the files that grade it.
 	@mkdir -p $(RELEASE)/judge && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py tools/compare.py $(RELEASE)/judge/ && \
-		cp elevane-rehearsal.nds $(RELEASE)/judge/
+		cp elevane-rehearsal.nds $(RELEASE)/judge/ && \
+		for d in $(filter l3-%,$(DEMOS)); do cp elevane-$$d.nds $(RELEASE)/judge/ || exit 1; done
 
 clean:
 	@echo "  CLEAN"

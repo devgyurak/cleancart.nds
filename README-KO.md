@@ -43,7 +43,7 @@
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 75개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 81 · 전제 조건 0 · 옮길 예정 78<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 소리·입출력 데모와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4 · 옮길 예정 0<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 11 · 전제 조건 13 · 옮길 예정 3<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 5 · 옮길 예정 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 13 · 전제 조건 5 · 옮길 예정 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -209,15 +209,25 @@
 
 </details>
 
-<details><summary><b>L3 타이밍</b> · Elevane (3 개)</summary>
+<details><summary><b>L3 타이밍</b> · Elevane (13 개)</summary>
 
 #### Elevane · display timing and compositing
 
-목표 3 · 전제 조건 5 · 옮길 예정 6
+목표 13 · 전제 조건 5 · 옮길 예정 6
 
 - `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(참고용)_ · [expected.json](games/elevane/expected.json)
 - `dual-plan` · Bottom screen: the plan view reached bank C _(참고용)_ · [expected.json](games/elevane/expected.json)
 - `dual-cross-zero` · The two captures never carry each other's clear colour (plan clear in D, front clear in C) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-dual-latency` · The capture routing written one call late shows in the same frame (latency 1, ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-dual-latency-flag` · Routing latency is at most 1 frame _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-tex-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-bg-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-relay-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-rear-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-rear-read-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-rear-write-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `acc-split-hdma-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `sys-dma-hblank-pixels` · Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines) · [expected.json](games/elevane/expected.json)
 
 </details>
 
