@@ -41,3 +41,35 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 `judge.py` of each game rejects an item without a valid `level` (exit code 2, input error) and
 prints a per-level summary. `python3 scripts/mklevels.py` lists the items by level in the root
 README, and `--check` fails when a level is missing or the README is out of date.
+
+## Target level and roles
+
+Each game has one **target level** (`"target_level"` in `expected.json`, 1 to 4) and a one-line `"area"`
+(for example `"graphics and system"`). The target-level items of a game decide whether it passes; lower
+items are prerequisites; higher items belong to the game that owns that level. Games hold no L4 item:
+L4 lives in a separate probe collection (`probes/`), which is not a game.
+
+| Level | Game (area) |
+|---|---|
+| L1 | Corvane (graphics and system), Hushwell (sound and I/O) |
+| L2 | Lightenette |
+| L3 | Elevane |
+| L4 | `probes/`: informational only, recorded per emulator as a profile |
+
+Every item has a `"role"`:
+
+| role | Meaning | Verdict |
+|---|---|---|
+| `target` | `level == target_level` and inside the game's area | gating |
+| `prerequisite` | `level < target_level`, or the same level in another area that a target item relies on (for example Hushwell's `sys-ipc-packets`, the ARM7 to ARM9 packet) | checked and counted apart; a failure is exit code 1 and `PREREQ NG` is printed first: the game's target verdicts cannot be trusted |
+| `relocate` | **temporary.** Above the target level or outside the area, due to move; `"to"` names the game or `"probes"` | informational |
+
+Rules (`judge.py` of every game and `scripts/mklevels.py --check` enforce them; a violation is exit code 2 / a failed check):
+
+- a `target` item has `level == target_level`; a `prerequisite` has `level <= target_level`;
+- an item above the target level can only be `relocate`; `relocate` needs `"to"`;
+- the final state has no `relocate` item (until then `--check` only warns).
+
+Exit codes stay 0/1/2. The output adds `ROLES target a/b OK · prerequisite a/b OK · relocate n informational`.
+Split an item rather than move it whole when only part of it is above the target (a loose "about once per line" range is L1
+and stays; the exact window is L2 and moves). `python3 scripts/mklevels.py --map` prints a GBATEK section x level x game table.

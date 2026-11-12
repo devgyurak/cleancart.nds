@@ -173,6 +173,20 @@ class Judge(unittest.TestCase):
         for name, p in exp['known'].items():
             self.assertTrue(set(p['ng']) <= ids, name)
 
+    def test_roles_are_checked(self):
+        with open(EXP) as f:
+            exp = json.load(f)
+        judge.check_roles(exp)
+        for mutate in (lambda e: e.pop('target_level'),
+                       lambda e: e['items'][0].pop('role'),
+                       lambda e: e['items'][0].update(role='target', level=4),
+                       lambda e: e['items'][0].update(role='prerequisite', level=4),
+                       lambda e: e['items'][0].update(role='relocate', to=None)):
+            bad = json.loads(json.dumps(exp))
+            mutate(bad)
+            with self.assertRaises(judge.Fatal):
+                judge.check_roles(bad)
+
 
 if __name__ == '__main__':
     unittest.main()

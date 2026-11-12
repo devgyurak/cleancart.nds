@@ -38,3 +38,34 @@
 각 게임의 `judge.py`는 올바른 `level`이 없는 항목을 거부하고(종료 코드 2, 입력 오류) 레벨별 요약을
 출력합니다. `python3 scripts/mklevels.py`는 루트 README에 레벨별 항목 목록을 채우고, `--check`는
 레벨이 빠졌거나 README가 최신이 아니면 실패합니다.
+
+## 목표 레벨과 역할
+
+게임마다 **목표 레벨**(`expected.json`의 `"target_level"`, 1~4)과 한 줄 `"area"`(예: `"graphics and system"`)가 있습니다.
+게임의 통과 여부는 목표 레벨 항목이 정합니다. 낮은 항목은 전제 조건이고, 높은 항목은 그 레벨을 맡은 게임으로 옮깁니다.
+게임에는 L4 항목을 두지 않습니다. L4는 게임이 아닌 별도 probe 모음(`probes/`)에 둡니다.
+
+| 레벨 | 게임(영역) |
+|---|---|
+| L1 | Corvane(그래픽·시스템), Hushwell(소리·입출력) |
+| L2 | Lightenette |
+| L3 | Elevane |
+| L4 | `probes/`: 참고용만, 에뮬레이터별 프로필로 기록 |
+
+모든 항목에는 `"role"`이 있습니다.
+
+| role | 뜻 | 판정 |
+|---|---|---|
+| `target` | `level == target_level`이고 게임 영역 안 | gating |
+| `prerequisite` | `level < target_level`이거나, 같은 레벨이지만 목표 항목이 기대는 다른 영역(예: Hushwell의 `sys-ipc-packets`, ARM7→ARM9 패킷) | 검사하고 따로 집계. 실패하면 종료 코드 1이고 `PREREQ NG`를 맨 앞에 출력: 이 게임의 목표 판정을 믿을 수 없음 |
+| `relocate` | **임시 상태.** 목표보다 높거나 영역 밖이라 옮길 예정. `"to"`는 게임 또는 `"probes"` | 참고용 |
+
+규칙(모든 게임의 `judge.py`와 `scripts/mklevels.py --check`가 검사하며, 위반하면 종료 코드 2 / 검사 실패):
+
+- `target`은 `level == target_level`, `prerequisite`는 `level <= target_level`;
+- 목표보다 높은 항목은 `relocate`만 허용하고, `relocate`에는 `"to"`가 필요합니다;
+- 최종 상태에는 `relocate`가 없어야 합니다(그 전까지 `--check`는 경고만 냅니다).
+
+종료 코드는 0/1/2 그대로입니다. 출력에 `ROLES target a/b OK · prerequisite a/b OK · relocate n informational` 줄이 더해집니다.
+항목 일부만 목표보다 높으면 통째로 옮기지 말고 쪼갭니다(느슨한 "줄마다 대략 한 번" 범위는 L1로 남고, 정확한 창은 L2로 옮김).
+`python3 scripts/mklevels.py --map`은 GBATEK 절 × 레벨 × 게임 표를 출력합니다.

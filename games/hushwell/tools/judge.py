@@ -50,6 +50,50 @@ def check_levels(items):
             raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
 
 
+ROLES = ('target', 'prerequisite', 'relocate')
+
+
+def check_roles(exp):
+    """target_level and every item's role (docs/LEVELS.md); a violation is an input error (exit 2).
+
+    target: level == target_level. prerequisite: level <= target_level. relocate: temporary, the item is
+    informational and moves to the game named in "to" ("probes" or a game folder).
+    """
+    tl = exp.get('target_level')
+    if isinstance(tl, bool) or not isinstance(tl, int) or not 1 <= tl <= 4:
+        raise Fatal('expected.json has no valid "target_level" (1-4, see docs/LEVELS.md)')
+    for it in exp['items']:
+        role, lv, name = it.get('role'), it['level'], it.get('id')
+        if role not in ROLES:
+            raise Fatal('item %r: "role" must be one of %s' % (name, ', '.join(ROLES)))
+        if role == 'target' and lv != tl:
+            raise Fatal('item %r: role target needs level %d (the target level), not %d' % (name, tl, lv))
+        if role == 'prerequisite' and lv > tl:
+            raise Fatal('item %r: role prerequisite needs level <= %d, not %d' % (name, tl, lv))
+        if lv > tl and role != 'relocate':
+            raise Fatal('item %r: level %d is above the target level %d, only role relocate is allowed' % (name, lv, tl))
+        if role == 'relocate' and not it.get('to'):
+            raise Fatal('item %r: role relocate needs "to"' % name)
+
+
+def is_gating(item):
+    """Gating: not unconfirmed and not waiting to be relocated."""
+    return item['source'] != 'unconfirmed' and item['role'] != 'relocate'
+
+
+def role_summary(rows):
+    """rows: (role, ok). target a/b OK . prerequisite a/b OK . relocate n informational."""
+    parts = []
+    for role in ('target', 'prerequisite'):
+        sel = [r for r in rows if r[0] == role]
+        if sel:
+            parts.append('%s %d/%d OK' % (role, sum(1 for r in sel if r[1]), len(sel)))
+    n = sum(1 for r in rows if r[0] == 'relocate')
+    if n:
+        parts.append('relocate %d informational' % n)
+    return ' \u00b7 '.join(parts)
+
+
 def level_summary(rows):
     """rows: (level, ok, informational). One line: L1 a/b OK . L2 ... (levels never change the verdict)."""
     parts = []
@@ -132,6 +176,7 @@ def run(args):
     except (OSError, ValueError, KeyError) as e:
         raise Fatal('cannot read expected.json: %s' % e)
     check_levels(items)
+    check_roles(exp)
     if args.list_profiles:
         for name, p in sorted(exp.get('known', {}).items()):
             print('%-30s %s (%d known NG, %d n/a)' % (name, p.get('emulator', ''), len(p['ng']), len(p.get('na', []))))
@@ -185,7 +230,7 @@ def run(args):
         vals = present.get(item['demo'])
         if vals is None:
             continue
-        results.append((item, grade(item, vals), item['source'] != 'unconfirmed'))
+        results.append((item, grade(item, vals), is_gating(item)))
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
@@ -207,11 +252,16 @@ def run(args):
         print(json.dumps({'demos': sorted(present), 'failing': failing, 'gating_failing': gating_fail, 'na': na,
                           'items': {i['id']: g for (i, g, _) in results}, 'exit': rc}, indent=1, sort_keys=True))
         return rc
+    prereq_ng = sorted(i['id'] for (i, g, _) in results if g == 'NG' and i['role'] == 'prerequisite'
+                       and i['id'] not in (profile.get('ng', []) if profile else []))
+    if prereq_ng:
+        print('PREREQ NG %s: the target-level verdicts of this game cannot be trusted' % ', '.join(prereq_ng))
     for item, g, gating in results:
         tag = {'OK': 'OK  ', 'NG': 'NG  ' if gating else 'INFO', 'NA': 'n/a '}[g]
         if not args.quiet or g != 'OK':
             print('%s L%d %-28s %s' % (tag, item['level'], item['id'], item['title']))
     print('LEVELS ' + level_summary([(i['level'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
+    print('ROLES ' + role_summary([(i['role'], g == 'OK') for (i, g, _) in results if g != 'NA']))
     if profile is not None:
         new_fail = [i for i in failing if i not in want]
         new_pass = [i for i in want if i not in failing]
