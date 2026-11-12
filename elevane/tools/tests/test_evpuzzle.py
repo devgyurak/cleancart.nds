@@ -84,15 +84,18 @@ class Data(unittest.TestCase):
     def files(self):
         return sorted(glob.glob(os.path.join(os.path.dirname(HERE), 'puzzles', 'ch*.txt')))
 
+    @classmethod
+    def setUpClass(cls):
+        # The full check takes seconds (par proofs): run it twice, share the results.
+        files = cls.files(cls)
+        cls.runs = [puzzle_check.check(puzzle_check.load(files)) for _ in range(2)]
+
     def test_every_shipped_puzzle_passes(self):
-        rows, _, ok = puzzle_check.check(puzzle_check.load(self.files()))
+        rows, _, ok = self.runs[0]
         self.assertTrue(ok, [r for r in rows if r['problems']])
 
     def test_output_is_deterministic(self):
-        blobs = []
-        for _ in range(2):
-            _, entries, _ = puzzle_check.check(puzzle_check.load(self.files()))
-            blobs.append(pack.pack(entries))
+        blobs = [pack.pack(entries) for _, entries, _ in self.runs]
         self.assertEqual(blobs[0], blobs[1])
 
     def test_chapter1_has_eight(self):

@@ -71,6 +71,8 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   `python3 tools/puzzle_check.py [--chapter N] [--json] [--pack OUT]`; unit tests:
   `python3 -m unittest discover -s tools/tests`. The build stops when a puzzle fails the checker. Output is
   deterministic. To add a puzzle: append it to the chapter file, run the checker, read par.
+  The par proofs (`NODE_LIMIT` 150000) make a clean build take about 10 s longer than the usual
+  ~2 s asset step (exception to `python-tools.md`); `mkassets.py` only reruns when puzzle or tool files change.
 
 ## Frame structure (normal play)
 
