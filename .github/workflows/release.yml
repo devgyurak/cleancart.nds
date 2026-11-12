@@ -3,7 +3,8 @@
 #
 # Push a tag named <game>-v<version> (e.g. corvane-v0.1.0) to build that game's
 # folder in its pinned BlocksDS container (games/<game>/build.sh release) and upload
-# the ROMs as workflow artifacts:
+# the ROMs as workflow artifacts. The research probes are not a game: tag
+# probes-v<version> builds probes/build.sh release (no rom folder, only demos and judge).
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
 #   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
@@ -31,6 +32,7 @@ jobs:
     timeout-minutes: 90
     outputs:
       game: ${{ steps.tag.outputs.game }}
+      dir: ${{ steps.tag.outputs.dir }}
     steps:
       - name: Parse tag
         id: tag
@@ -41,7 +43,11 @@ jobs:
             echo "::error::Tag '$TAG' is not <game>-v<major>.<minor>.<patch> (e.g. corvane-v0.1.0)"
             exit 1
           fi
-          echo "game=${TAG%-v[0-9]*}" >> "$GITHUB_OUTPUT"
+          game="${TAG%-v[0-9]*}"
+          echo "game=$game" >> "$GITHUB_OUTPUT"
+          # games live in games/<game>; the research probes collection is probes/
+          if [ "$game" = probes ]; then dir=probes; else dir="games/$game"; fi
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -58,19 +64,19 @@ jobs:
 
       - name: Check game folder
         env:
-          GAME: ${{ steps.tag.outputs.game }}
+          DIR: ${{ steps.tag.outputs.dir }}
         run: |
-          if [ ! -x "games/$GAME/build.sh" ] || ! grep -q '^release:' "games/$GAME/Makefile"; then
-            echo "::error::No game folder 'games/$GAME/' with build.sh and a 'release' make target"
+          if [ ! -x "$DIR/build.sh" ] || ! grep -q '^release:' "$DIR/Makefile"; then
+            echo "::error::No folder '$DIR/' with build.sh and a 'release' make target"
             exit 1
           fi
 
       - name: Build
-        working-directory: games/${{ steps.tag.outputs.game }}
+        working-directory: ${{ steps.tag.outputs.dir }}
         run: ./build.sh -j"$(nproc)" release
 
       - name: Checksums
-        working-directory: games/${{ steps.tag.outputs.game }}/build/release
+        working-directory: ${{ steps.tag.outputs.dir }}/build/release
         run: |
           for d in rom demos judge; do
             [ -d "$d" ] || continue
@@ -81,13 +87,14 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}
-          path: games/${{ steps.tag.outputs.game }}/build/release/rom/
-          if-no-files-found: error
+          path: ${{ steps.tag.outputs.dir }}/build/release/rom/
+          # the probes have no main ROM, only demos and judge
+          if-no-files-found: ${{ steps.tag.outputs.game == 'probes' && 'ignore' || 'error' }}
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}-demos
-          path: games/${{ steps.tag.outputs.game }}/build/release/demos/
+          path: ${{ steps.tag.outputs.dir }}/build/release/demos/
           if-no-files-found: ignore
 
       # Games that grade themselves (lightenette, elevane) ship the rehearsal ROMs with
@@ -95,7 +102,7 @@ jobs:
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}-judge
-          path: games/${{ steps.tag.outputs.game }}/build/release/judge/
+          path: ${{ steps.tag.outputs.dir }}/build/release/judge/
           if-no-files-found: ignore
 
   release:
@@ -128,6 +135,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
           GAME: ${{ needs.build.outputs.game }}
+          DIR: ${{ needs.build.outputs.dir }}
         run: |
           # A tag pushed at the wrong commit and then moved starts one run per
           # push, queued in order. The run for the old commit must not publish
@@ -142,12 +150,12 @@ jobs:
           {
             echo "$GAME $version, built by [this workflow run]($GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID) from \`$GITHUB_SHA\`."
             echo
-            echo "- \`$TAG.zip\`: game ROM and save-chip variants"
+            if [ -f "$TAG.zip" ]; then echo "- \`$TAG.zip\`: game ROM and save-chip variants"; fi
             if [ -f "$TAG-demos.zip" ]; then echo "- \`$TAG-demos.zip\`: feature demo ROMs"; fi
             if [ -f "$TAG-judge.zip" ]; then echo "- \`$TAG-judge.zip\`: emulator-test kit (rehearsal ROMs, \`expected.json\`, \`judge.py\`)"; fi
             echo
             echo "Each zip has its own \`SHA256SUMS\` and the licence texts and third-party notices."
-            echo "The build is reproducible: \`./build.sh release\` in \`games/$GAME/\` at this commit gives the same ROMs."
+            echo "The build is reproducible: \`./build.sh release\` in \`$DIR/\` at this commit gives the same ROMs."
             echo
             echo '```'
             cat SHA256SUMS

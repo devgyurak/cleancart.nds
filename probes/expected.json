@@ -1,0 +1,608 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+ "schema": 3,
+ "target_level": 4,
+ "area": "research probes",
+ "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is Corvane demo code run under an l4- name; it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value the item was written from (what melonDS software gave), not a hardware value.",
+ "block": {
+  "address": "0x0237F000",
+  "magic": 1380275779
+ },
+ "sources": {
+  "unconfirmed": "no hardware value yet; informational only, never fails the run (with --profile the recorded observation is compared)"
+ },
+ "checks": {
+  "eq": "values[i] == expect",
+  "range": "min <= values[i] <= max",
+  "mask": "(values[i] & mask) == expect",
+  "same": "all values equal (two or more indexes)",
+  "na_when": "[i, v]: the item is n/a when values[i] == v (the emulator has no such counter; DeSmuME reads 0 for the polygon counters)",
+  "nonzero": "(values[i] & mask) != 0",
+  "ne": "values[i] != values[j] (two indexes)",
+  "not_value": "item field: the item fails when any of its values equals it (0xFFFF = capture did not finish)"
+ },
+ "demos": {
+  "l4-sys-dma-gfx": 708316824,
+  "l4-sys-dma-disp": 699586309,
+  "l4-2d-obj-line": 2856125467,
+  "l4-2d-display": 3650649177,
+  "l4-3d-fifo": 3634190384,
+  "l4-3d-matrix": 2479010267,
+  "l4-3d-light": 3053651954,
+  "l4-3d-clip": 1400850296,
+  "l4-3d-poly": 1619890368,
+  "l4-3d-test": 3288099734,
+  "l4-acc-stage": 4154872746,
+  "l4-acc-dual": 935984906,
+  "l4-acc-split-rear": 1557217977,
+  "l4-acc-split-hdma": 2335395293
+ },
+ "items": [
+  {
+   "id": "sys-dma-gfx-polys",
+   "demo": "l4-sys-dma-gfx",
+   "title": "A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 2,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-fifo-polys",
+   "demo": "l4-3d-fifo",
+   "title": "ship over terrain: polygons in polygon RAM",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 280,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-fifo-verts",
+   "demo": "l4-3d-fifo",
+   "title": "ship over terrain: vertices in vertex RAM",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 668,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-clip-polys",
+   "demo": "l4-3d-clip",
+   "title": "near-plane clipping view: polygons",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 33,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-light-polys",
+   "demo": "l4-3d-light",
+   "title": "lit station: polygons",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 39,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-matrix-polys",
+   "demo": "l4-3d-matrix",
+   "title": "hierarchical boss: polygons",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 107,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-poly-polys",
+   "demo": "l4-3d-poly",
+   "title": "floor, culled cubes, airship, shadow: polygons",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 81,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-inside",
+   "demo": "l4-3d-test",
+   "title": "BOX_TEST says INSIDE in 102 of 120 frames (cube path across the view)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 102,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-pos-w",
+   "demo": "l4-3d-test",
+   "title": "POS_TEST w result of the last frame",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 20904,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-vec-x",
+   "demo": "l4-3d-test",
+   "title": "VEC_TEST x result of the last frame",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 2487,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-vec-z",
+   "demo": "l4-3d-test",
+   "title": "VEC_TEST z result of the last frame (the emulators differ by one here)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 4294964076,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "acc-stage-cut-exact",
+   "demo": "l4-acc-stage",
+   "title": "The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value) (third row only; see seam-uv-exact for the whole value)",
+   "values": [
+    0
+   ],
+   "check": "mask",
+   "mask": 16711680,
+   "expect": 1179648,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "acc-dual-both",
+   "demo": "l4-acc-dual",
+   "title": "Front view in bank D and plan view in bank C both have content and never carry each other's clear colour",
+   "values": [
+    3
+   ],
+   "check": "mask",
+   "mask": 1,
+   "expect": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "acc-split-hdma-holes",
+   "demo": "l4-acc-split-hdma",
+   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618 area) (also stands for Elevane hdma-holes-zero: the same HBlank-DMA path)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-line-budget",
+   "demo": "l4-2d-obj-line",
+   "title": "120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational)",
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-dma-disp-pixels",
+   "demo": "l4-sys-dma-disp",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-display-pixels",
+   "demo": "l4-2d-display",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "to": "probes",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "seam-uv-exact",
+   "demo": "l4-acc-stage",
+   "title": "Reversed-UV cut lines of the three card rows are exactly 0/0/18 pixels (stands for Lightenette seam-uv-exact: the same acc-stage measurement with the whole packed value compared; an emulator measurement, not a hardware value)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1179648,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "rear-plane-latency",
+   "demo": "l4-acc-split-rear",
+   "title": "Rear-plane path of the same-screen two-pass view: the capture routing shows within 1 frame (the Corvane acc-split-rear measurement; it stands for the rear-plane path of Elevane preset 2 only as far as routing latency, not its pixel counts)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  }
+ ],
+ "known": {
+  "melonds-1.1-software": {
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+   "observed": {
+    "2d-display-pixels": [
+     0
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     0
+    ],
+    "acc-stage-cut-exact": [
+     1179648
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     1179648
+    ],
+    "sys-dma-disp-pixels": [
+     0
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "melonds-1.1-gl-classic": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+   "observed": {
+    "2d-display-pixels": [
+     0
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     0
+    ],
+    "acc-stage-cut-exact": [
+     0
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     4608
+    ],
+    "sys-dma-disp-pixels": [
+     0
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "melonds-1.1-gl-compute": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+   "observed": {
+    "2d-display-pixels": [
+     0
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     0
+    ],
+    "acc-stage-cut-exact": [
+     1179648
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     1179648
+    ],
+    "sys-dma-disp-pixels": [
+     0
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "desmume-pydesmume-0.0.9": {
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=16",
+   "observed": {
+    "2d-display-pixels": [
+     768
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     0
+    ],
+    "3d-fifo-polys": [
+     0
+    ],
+    "3d-fifo-verts": [
+     0
+    ],
+    "3d-light-polys": [
+     0
+    ],
+    "3d-matrix-polys": [
+     0
+    ],
+    "3d-poly-polys": [
+     0
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964077
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     0
+    ],
+    "acc-stage-cut-exact": [
+     1179648
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     1179648
+    ],
+    "sys-dma-disp-pixels": [
+     736
+    ],
+    "sys-dma-gfx-polys": [
+     0
+    ]
+   }
+  }
+ },
+ "known_note": "Measured 2026-11-12 on the release probe ROMs (./build.sh -j8 release). Every value is what that emulator gave, none is a hardware value; items with a mask record the masked value. Real hardware has not been measured."
+}
