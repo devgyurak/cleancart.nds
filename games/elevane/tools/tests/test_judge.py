@@ -59,6 +59,28 @@ class Judge(unittest.TestCase):
         rc, r = self.run_judge(block(v4=7))     # dual-cross-zero is unconfirmed
         self.assertEqual((rc, r['failing']), (0, ['dual-cross-zero']))
 
+    def test_unfinished_block_of_a_batch_run_is_ignored(self):
+        import io
+        import tempfile
+        zero = 'elevane-rehearsal RESULT ' + ' '.join(['00000000'] * 64) + '\n'
+        with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as f:
+            f.write(text(block()) + zero)
+        out, old = io.StringIO(), sys.stdout
+        sys.stdout = out
+        try:
+            rc = judge.main(['--expected', EXP, '--partial', '--json', f.name])
+        finally:
+            sys.stdout = old
+            os.unlink(f.name)
+        self.assertEqual(rc, 0)
+        # without any finished block of it the same line stays an input error
+        with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as f:
+            f.write(zero)
+        try:
+            self.assertEqual(judge.main(['--expected', EXP, '--partial', '--json', f.name]), 2)
+        finally:
+            os.unlink(f.name)
+
     def test_counters_unavailable_is_na(self):
         rc, r = self.run_judge(block(flags=0xf7))
         self.assertEqual(r['items']['poly-passes'], 'NA')
@@ -95,6 +117,7 @@ class Judge(unittest.TestCase):
 
     def run_values(self, toks, *extra):
         import io
+        import tempfile
         out, err = io.StringIO(), io.StringIO()
         o, e, sys.stdout, sys.stderr = sys.stdout, sys.stderr, out, err
         try:
@@ -202,6 +225,7 @@ class Judge(unittest.TestCase):
     def run_log(self, log, *extra):
         import io
         import tempfile
+        import tempfile
         with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as f:
             f.write(log)
         try:
@@ -262,6 +286,7 @@ class Judge(unittest.TestCase):
     def cli(self, log, *extra, exp=None, json_out=False):
         """Run judge.main on a log text; exp is an expected.json dict (default: the real one)."""
         import io
+        import tempfile
         import tempfile
         paths = []
         try:

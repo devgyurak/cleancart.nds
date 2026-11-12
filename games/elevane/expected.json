@@ -322,7 +322,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 3,
-   "level_basis": "gbatek:DS DMA Transfers",
+   "level_basis": "gbatek:DS DMA Transfers; report:melonDS#2618",
    "model": null
   },
   {
@@ -337,7 +337,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 3,
-   "level_basis": "gbatek:DS DMA Transfers",
+   "level_basis": "gbatek:DS DMA Transfers; report:melonDS#2618",
    "model": null
   }
  ],

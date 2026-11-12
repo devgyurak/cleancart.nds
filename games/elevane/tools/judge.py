@@ -245,6 +245,16 @@ def known_rom(rom, exp):
     return rom is None or 'rehearsal' in rom or any(d in rom for d in exp.get('demos', {}))
 
 
+def expected_id(rom, exp):
+    """The block id the named ROM should leave (the rehearsal's or the demo's), or None when the name is not ours."""
+    if rom is None:
+        return None
+    best = max((d for d in exp.get('demos', {}) if d in rom), key=len, default=None)
+    if best is not None:
+        return exp['demos'][best]
+    return exp['boot']['item_id'] if 'rehearsal' in rom else None
+
+
 def run(args):
     try:
         with open(find_expected(args.expected)) as f:
@@ -295,6 +305,11 @@ def run(args):
     for rom, words in parsed:
         if words[0] != MAGIC:
             # all zero (the ROM never finished) or garbage: never graded, never skipped
+            want_id = expected_id(rom, exp)
+            if want_id is not None and any(w[0] == MAGIC and w[1] == want_id for (_, w) in parsed):
+                # a batch run (mds.sh demos) stops the rehearsal ROM early; the finished block came from its own run
+                print('warning: unfinished block of %s ignored (a finished block of it is in the log)' % rom, file=sys.stderr)
+                continue
             if known_rom(rom, exp):
                 raise Fatal('%s: result block magic is %08x, not %08x (the ROM did not finish)'
                             % (rom or 'a RESULT line', words[0], MAGIC))

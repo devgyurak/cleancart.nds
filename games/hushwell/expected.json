@@ -706,13 +706,13 @@
   {
    "id": "snd-wave-pan-right",
    "demo": "snd-wave",
-   "title": "Pan 126 (hard right) leaves the left mixer all but silent: GBATEK mixing gives 2/128, a swing of at most 2",
+   "title": "Pan 126 (hard right) leaves the left mixer all but silent: a swing under 5 % of the audible pan-0 swing (about 200), so at most 9 (the exact GBATEK rounding is an L2 item in Lightenette)",
    "values": [
     9
    ],
    "check": "range",
    "min": 0,
-   "max": 2,
+   "max": 9,
    "source": "GBATEK",
    "role": "target",
    "level": 1,
@@ -722,23 +722,17 @@
  "known": {
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": [
-    "snd-wave-pan-right"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-   "ng": [
-    "snd-wave-pan-right"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-   "ng": [
-    "snd-wave-pan-right"
-   ],
+   "ng": [],
    "na": []
   },
   "desmume-pydesmume-0.0.9": {

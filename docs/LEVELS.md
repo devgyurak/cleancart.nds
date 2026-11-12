@@ -36,7 +36,7 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 | Field | Meaning |
 |---|---|
 | `"level"` | integer 1 to 4 |
-| `"level_basis"` | where the level comes from: `"gbatek:<section>"` (for example `"gbatek:DS Maths"`), `"report:<ref>"` (for example `"report:melonDS#2008"`), `"hw:<file>"` (for example `"hw:games/elevane/docs/HW-QA.md"`), or `"none"` when no source exists: L4 for behaviour nobody has confirmed; items decided by the ROM's own logic (`source` `rom`) may use `none` at the level of the hardware feature they rely on |
+| `"level_basis"` | where the level comes from: `"gbatek:<section>"` (for example `"gbatek:DS Maths"`), `"report:<ref>"` (for example `"report:melonDS#2008"`), several bases are joined with `"; "` (for example `"gbatek:DS DMA Transfers; report:melonDS#2618"`), `"hw:<file>"` (for example `"hw:games/elevane/docs/HW-QA.md"`), or `"none"` when no source exists: L4 for behaviour nobody has confirmed; items decided by the ROM's own logic (`source` `rom`) may use `none` at the level of the hardware feature they rely on |
 
 `judge.py` of each game rejects an item without a valid `level` (exit code 2, input error) and
 prints a per-level summary. `python3 scripts/mklevels.py` lists the items by level in the root

@@ -113,11 +113,13 @@ def load_games():
             basis = it.get('level_basis')
             if not isinstance(basis, str):
                 raise ValueError('%s/expected.json: item %r has no "level_basis"' % (folder, it.get('id')))
-            if basis.split(':')[0] != basis.split(':')[0].lower():
-                raise ValueError('%s/expected.json: item %r level_basis %r must start with a lower-case kind' % (folder, it.get('id'), basis))
-            if basis.startswith('gbatek:') and basis[len('gbatek:'):] not in GBATEK_SECTIONS:
-                raise ValueError('%s/expected.json: item %r cites an unknown GBATEK section %r (GBATEK_SECTIONS in mklevels.py)'
-                                 % (folder, it.get('id'), basis))
+            for part in (x.strip() for x in basis.split(';')):    # several bases are separated by "; "
+                if part.split(':')[0] != part.split(':')[0].lower():
+                    raise ValueError('%s/expected.json: item %r level_basis %r must start with a lower-case kind'
+                                     % (folder, it.get('id'), part))
+                if part.startswith('gbatek:') and part[len('gbatek:'):] not in GBATEK_SECTIONS:
+                    raise ValueError('%s/expected.json: item %r cites an unknown GBATEK section %r (GBATEK_SECTIONS in mklevels.py)'
+                                     % (folder, it.get('id'), part))
         if not isinstance(exp.get('area'), str) or not exp['area'].strip():
             raise ValueError('%s/expected.json has no "area"' % folder)
         ids = [it.get('id') for it in items]
@@ -205,7 +207,7 @@ def section_map(games):
     cov = {}
     for g in games:
         for i in g.items or ():
-            basis = i['level_basis']
+            basis = i['level_basis'].split(';')[0].strip()
             sec = basis[len('gbatek:'):] if basis.startswith('gbatek:') else ('(' + basis.split(':')[0] + ')')
             by_level = cov.setdefault(sec, {})
             by_game = by_level.setdefault(i['level'], {})

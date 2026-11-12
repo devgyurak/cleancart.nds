@@ -136,5 +136,14 @@ class Level2Boots(unittest.TestCase):
         self.assertEqual(run_judge(['--profile', 'melonds-1.1-gl-classic'], log)[0], 0)
 
 
+class Batch(unittest.TestCase):
+    def test_unfinished_block_never_replaces_a_finished_one(self):
+        good = 'a-rom RESULT ' + ' '.join('%08x' % w for w in [judge_magic(), 1, 5] + [0] * 8) + '\n'
+        zero = 'b-rom RESULT ' + ' '.join(['00000000'] * 11) + '\n'
+        self.assertEqual(judge.parse_words(good + zero)[0], judge_magic())
+        self.assertEqual(judge.parse_words(zero + good)[0], judge_magic())
+        self.assertFalse(any(judge.parse_words(zero)))
+
+
 if __name__ == '__main__':
     unittest.main()
