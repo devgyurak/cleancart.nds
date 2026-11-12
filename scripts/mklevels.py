@@ -14,7 +14,7 @@ expected.json yet are listed as "judge in progress". Markers in the READMEs:
 (the Levels column of the Games table). Output is deterministic: games and items keep their
 order (games sorted by name, probes last).
 
-`--check` also warns (exit code unchanged) about items still marked `relocate`; the final state has none.
+`--check` fails while an item is still marked `relocate` (the final state of the level work has none).
 """
 
 import json
@@ -216,8 +216,9 @@ def main(argv):
         return 0
     pending = {g.name: g.count('relocate') for g in games if g.count('relocate')}
     if check and pending:
-        print('warning: items still marked relocate: ' + ', '.join('%s %d' % kv for kv in sorted(pending.items())),
+        print('ERROR items still marked relocate: ' + ', '.join('%s %d' % kv for kv in sorted(pending.items())),
               file=sys.stderr)
+        return 1
     stale = []
     for name, lang in READMES:
         path = os.path.join(ROOT, name)

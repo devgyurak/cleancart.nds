@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#빌드)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#빌드)
-[![Accuracy items: 39](https://img.shields.io/badge/accuracy%20items-39-orange)](expected.json)
+[![Accuracy items: 36](https://img.shields.io/badge/accuracy%20items-36-orange)](expected.json)
 
 [English](README.md)
 

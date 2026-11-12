@@ -73,7 +73,7 @@
 
 - `target`은 `level == target_level`, `prerequisite`는 `level <= target_level`;
 - 목표보다 높은 항목은 `relocate`만 허용하고, `relocate`에는 `"to"`가 필요합니다;
-- 최종 상태에는 `relocate`가 없어야 합니다(그 전까지 `--check`는 경고만 냅니다).
+- `relocate`는 남아 있으면 안 됩니다. 하나라도 있으면 `mklevels.py --check`가 실패합니다(이 표시는 작업 중에만 씁니다).
 
 종료 코드는 0/1/2 그대로입니다. 출력에 `ROLES target a/b OK · prerequisite a/b OK · relocate n informational` 줄이 더해집니다.
 항목 일부만 목표보다 높으면 통째로 옮기지 말고 쪼갭니다(느슨한 "줄마다 대략 한 번" 범위는 L1로 남고, 정확한 창은 L2로 옮김).

@@ -54,7 +54,8 @@ description: Start a new DS game folder in this repo from the corvane template (
    `SAV=out/mds/<game>.sav tools/melonds/mds.sh run …` twice (save, then reload)
    and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).
    DeSmuME alone missed the MPU, DMA, header and save bugs.
-7. A new game ships `expected.json` + `tools/judge.py` from the start, and every item in
+7. A new game ships `expected.json` + `tools/judge.py` from the start. Fix its `target_level` and `area` first
+   (a game holds no L4 item: those go to `probes/`) and take them from the `game-planner` brief. Every item in
    `expected.json` has `level` (1–4) and `level_basis` and `role` (`docs/LEVELS.md`; ask the `level-judge`
    agent). `python3 scripts/mklevels.py --check` must pass (add the game's `<!-- cell:<game> -->` marker
    to the Games table of both root READMEs).

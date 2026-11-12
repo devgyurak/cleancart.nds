@@ -17,7 +17,7 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 2. Judging happens in the ROM (display capture, fixed colours, a result block at a
    fixed main-RAM address), like lightenette: the rehearsal ROM (`make DEMO=rehearsal`) plays the first
    puzzle of every chapter with puzzles from a fixed script through the live play scene, then both
-   showcase presets, and `tools/judge.py` grades its block against `expected.json`.
+   showcase presets, and `tools/judge.py` grades its block against `expected.json` (target level 3, area "display timing and compositing"; no L4 item: those are recorded in `probes/`).
 3. Judging and rehearsal modes work without NitroFS (see `nitro_ok()` in `core/nitro.c`).
 4. No third-party trademarks in code or ROM strings.
 
