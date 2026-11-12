@@ -44,7 +44,7 @@ README, and `--check` fails when a level is missing or the README is out of date
 
 ### Environment-dependent items and n/a
 
-- `"env"` (Corvane, Hushwell): `"harness"` (the value depends on input the test harness injects, such as touch coordinates) or `"cart"`
+- `"env"` (Corvane, Hushwell; only these two judges have `--hardware`, and Corvane has no `env` item left): `"harness"` (the value depends on input the test harness injects, such as touch coordinates) or `"cart"`
   (save chip and cart behaviour, which differ between emulated and flash carts). `judge.py --hardware` grades such items n/a
   because a real console run cannot reproduce the harness or the cart.
 - Without `--profile`, a gating item that is n/a (`na_when`, `requires`) is not a pass: the run exits 1 and prints `NOT GRADED`.
@@ -71,7 +71,7 @@ Every item has a `"role"`:
 | role | Meaning | Verdict |
 |---|---|---|
 | `target` | `level == target_level` and inside the game's area | gating |
-| `prerequisite` | `level < target_level`, or the same level in another area that a target item relies on (for example Hushwell's `sys-ipc-packets`, the ARM7 to ARM9 packet) | checked and counted apart; a failure is exit code 1 and `PREREQ NG` is printed first: the game's target verdicts cannot be trusted |
+| `prerequisite` | `level < target_level`, or the same level in another area that a target item relies on (for example Hushwell's `sys-ipc-packets`, the ARM7 to ARM9 packet) | checked and counted apart; a gating prerequisite that fails is exit code 1 and `PREREQ NG` is printed first (the game's target verdicts cannot be trusted); an informational (`unconfirmed`) one only prints `PREREQ INFO` |
 | `relocate` | **temporary.** Above the target level or outside the area, due to move; `"to"` names the game or `"probes"` | informational |
 
 Rules (`judge.py` of every game and `scripts/mklevels.py --check` enforce them; a violation is exit code 2 / a failed check):

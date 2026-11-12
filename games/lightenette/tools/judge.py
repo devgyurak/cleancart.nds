@@ -68,6 +68,10 @@ def check_levels(items):
     if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
         raise Fatal('"items" must be a list of objects')
     for it in items:
+        for key in ('id', 'source', 'check', 'values', 'boots'):
+            if key not in it:
+                raise Fatal('item %r has no "%s" in expected.json' % (it.get('id'), key))
+    for it in items:
         lv = it.get('level')
         if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
             raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
@@ -105,12 +109,19 @@ def is_gating(item):
 
 
 def role_summary(rows):
-    """rows: (role, ok). target a/b OK . prerequisite a/b OK . relocate n informational."""
+    """rows: (role, ok, gating). target a/b OK . prerequisite a/b OK +n informational . relocate n informational."""
     parts = []
     for role in ('target', 'prerequisite'):
-        sel = [r for r in rows if r[0] == role]
-        if sel:
-            parts.append('%s %d/%d OK' % (role, sum(1 for r in sel if r[1]), len(sel)))
+        gate = [r for r in rows if r[0] == role and r[2]]
+        info = [r for r in rows if r[0] == role and not r[2]]
+        if not gate and not info:
+            continue
+        s = role
+        if gate:
+            s += ' %d/%d OK' % (sum(1 for r in gate if r[1]), len(gate))
+        if info:
+            s += (' informational %d' if not gate else ' +%d informational') % len(info)
+        parts.append(s)
     n = sum(1 for r in rows if r[0] == 'relocate')
     if n:
         parts.append('relocate %d informational' % n)
@@ -137,6 +148,7 @@ def level_summary(rows):
 def parse_words(text, demo=None, warn=None):
     """Return the last result block in the text as a list of ints, or None."""
     words = None
+    roms = set()
     for n, line in enumerate(text.splitlines(), 1):
         t = line.split()
         if not t:
@@ -148,6 +160,8 @@ def parse_words(text, demo=None, warn=None):
             continue
         if demo is not None and name != demo:
             continue
+        if name:
+            roms.add(name)
         try:
             if t[0] == 'RESULT':
                 if len(t) < 9:
@@ -163,6 +177,8 @@ def parse_words(text, demo=None, warn=None):
         except (ValueError, IndexError) as e:
             if warn:
                 warn('skipping malformed %s line %d: %s' % (t[0], n, e))
+    if demo is None and len(roms) > 1 and warn:
+        warn('the log holds blocks of %d ROMs; only the last block is graded (use --demo NAME)' % len(roms))
     return words
 
 
@@ -318,6 +334,7 @@ def run(args):
     roles = []
     lines = []
     prereq_ng = []
+    prereq_info = []
     na = []          # ids of n/a items
     ungraded = []    # gating items that were n/a
     graded_ids = set()
@@ -343,13 +360,17 @@ def run(args):
         tag = ('INFO' if ok else 'INFO-NG') if info else ('OK' if ok else 'NG')
         lines.append('%-7s %-22s got %-16s want %-12s [%s]' % (tag, item['id'], got, want, item['source']))
         rows.append((item['level'], ok, info))
-        roles.append((item['role'], ok))
-        if not ok and item['role'] == 'prerequisite' and item['id'] not in (profile or {}).get('ng', []):
+        roles.append((item['role'], ok, not info))
+        if not ok and item['role'] == 'prerequisite' and not info and item['id'] not in (profile or {}).get('ng', []):
             prereq_ng.append(item['id'])
+        if not ok and item['role'] == 'prerequisite' and info:
+            prereq_info.append(item['id'])
         if not ok and not info:
             failed.append(item['id'])
     if prereq_ng:
         print('PREREQ NG %s: the target-level verdicts of this game cannot be trusted' % ', '.join(sorted(prereq_ng)))
+    if prereq_info:
+        print('PREREQ INFO %s: informational prerequisite(s) differ (no effect on the verdict)' % ', '.join(sorted(prereq_info)))
     print('boot %s  item %08x  frame %d' % (boot, words[1], words[2]))
     for line in lines:
         print(line)

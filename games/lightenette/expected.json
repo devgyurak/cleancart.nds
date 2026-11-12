@@ -189,7 +189,7 @@
       "source": "unconfirmed",
       "role": "target",
       "level": 2,
-      "level_basis": "none",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
       "model": null,
       "done": {
         "value": 3,
@@ -505,7 +505,7 @@
       "source": "unconfirmed",
       "role": "target",
       "level": 2,
-      "level_basis": "none",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
       "model": null,
       "done": {
         "value": 31,
@@ -532,7 +532,7 @@
       "source": "unconfirmed",
       "role": "target",
       "level": 2,
-      "level_basis": "none",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
       "model": null,
       "done": {
         "value": 31,
@@ -608,8 +608,8 @@
       "expect": 0,
       "tolerance": 0,
       "source": "GBATEK",
-      "role": "target",
-      "level": 2,
+      "role": "prerequisite",
+      "level": 1,
       "level_basis": "gbatek:DS 3D Display Control",
       "model": null,
       "done": {
@@ -637,7 +637,7 @@
       "source": "unconfirmed",
       "role": "target",
       "level": 2,
-      "level_basis": "none",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
       "model": null,
       "done": {
         "value": 44,
@@ -783,8 +783,8 @@
       "check": "eq",
       "expect": 120,
       "source": "GBATEK",
-      "role": "target",
-      "level": 2,
+      "role": "prerequisite",
+      "level": 1,
       "level_basis": "gbatek:DS DMA Transfers"
     },
     {
@@ -878,7 +878,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Status"
+      "level_basis": "gbatek:DS 3D Display Control"
     },
     {
       "id": "acc-dual-passes",
@@ -901,9 +901,9 @@
         0
       ],
       "source": "GBATEK",
-      "role": "target",
-      "level": 2,
-      "level_basis": "gbatek:DS 3D Status"
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control"
     },
     {
       "id": "acc-dual-halves",
@@ -970,8 +970,8 @@
         "mask": 1
       },
       "source": "GBATEK",
-      "role": "target",
-      "level": 2,
+      "role": "prerequisite",
+      "level": 1,
       "level_basis": "gbatek:LCD I/O Mosaic Function"
     },
     {
@@ -1015,8 +1015,8 @@
       "min": 1,
       "max": 65535,
       "source": "rom",
-      "role": "target",
-      "level": 2,
+      "role": "prerequisite",
+      "level": 1,
       "level_basis": "gbatek:DS Sound Capture"
     }
   ],

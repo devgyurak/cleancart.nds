@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#빌드)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#빌드)
-[![Feature demos: 65](https://img.shields.io/badge/feature%20demos-65-orange)](docs/QA-KO.md)
+[![Feature demos: 49](https://img.shields.io/badge/feature%20demos-49-orange)](docs/QA-KO.md)
 
 [English](README.md)
 
@@ -16,7 +16,7 @@
 **시험하는 하드웨어 영역:** 2D 엔진 A·B, 3D 지오메트리/렌더링 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력.
 
 기획 원칙에 따라 DS의 2D·3D·사운드·시스템 기능을 실제 게임플레이에 쓰도록 만들었고,
-각 기능만 따로 보여 주는 **기능 데모 빌드 65종**을 같은 소스에서 뽑을 수 있습니다.
+각 기능만 따로 보여 주는 **기능 데모 빌드 49종**을 같은 소스에서 뽑을 수 있습니다.
 
 - 언어: C (게임 본체, ARM9 + 자체 ARM7 코어), Python 3 (빌드 타임 도구)
 - 툴체인: BlocksDS v1.25.0 (도커 이미지 다이제스트 고정)
@@ -33,7 +33,7 @@
 ./build.sh SAVE=flash         # corvane-save-flash.nds (FLASH 256 KB 변형)
 ./build.sh SAVE=fram          # corvane-save-fram.nds  (FRAM 32 KB 변형)
 ./build.sh DEMO=2d-blend      # corvane-2d-blend.nds   (기능 데모 하나)
-./build.sh demos              # 기능 데모 65종 전부
+./build.sh demos              # 기능 데모 49종 전부
 ./build.sh -j8 release        # build/release/{rom,demos}: corvane-vX.Y.Z 태그가 배포하는 파일
 ./build.sh clean
 ```

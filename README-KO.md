@@ -40,10 +40,10 @@
 
 | 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
 |---|---|---|---|---|
-| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0 · 옮길 예정 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
-| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 66개 전부와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4 · 옮길 예정 0<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
-| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 23 · 전제 조건 13 · 옮길 예정 0<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 13 · 전제 조건 5 · 옮길 예정 0<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 엔진, DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 18 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 13 · 전제 조건 5<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -64,7 +64,7 @@
 
 #### Corvane · graphics and system
 
-목표 93 · 전제 조건 0 · 옮길 예정 0
+목표 93 · 전제 조건 0
 
 - `sys-ipc-sync` · The value the ARM7 wrote to IPCSYNC (0xA, ARM7 ready) is what the ARM9 reads · [expected.json](games/corvane/expected.json)
 - `sys-ipc-packets` · The ARM7 input packet arrives once per frame: 120 packets in 120 frames (1 off allowed) · [expected.json](games/corvane/expected.json)
@@ -80,7 +80,7 @@
 - `sys-timer-beats` · An 8 Hz timer IRQ fires 15 or 16 times in 119 to 120 frames (frame = 560190 bus cycles) · [expected.json](games/corvane/expected.json)
 - `sys-dma-now-errors` · 4 KB RAM to RAM DMA copy has no errors · [expected.json](games/corvane/expected.json)
 - `sys-dma-fill-errors` · DMA fill of 32 KB VRAM and 4 KB RAM has no errors · [expected.json](games/corvane/expected.json)
-- `sys-dma-gfx-polys-any` · The DMA-fed display list cube leaves 1 to 6 polygons (a cube has six faces) · [expected.json](games/corvane/expected.json)
+- `sys-dma-gfx-polys-any` · The DMA-fed display list cube leaves 1 to 3 polygons (back faces are culled, a convex cube shows at most three) · [expected.json](games/corvane/expected.json)
 - `sys-bios-lz77` · LZ77 decompression into VRAM equals the one into WRAM · [expected.json](games/corvane/expected.json)
 - `sys-bios-fastset` · CpuFastSet copies the CpuSet fill value 0x12345678 · [expected.json](games/corvane/expected.json)
 - `sys-bios-div` · BIOS Div 1000 / 7 = 142 · [expected.json](games/corvane/expected.json)
@@ -121,16 +121,16 @@
 - `3d-tex-pal256-poly` · A fully visible 256-colour textured quad is one polygon in polygon RAM · [expected.json](games/corvane/expected.json)
 - `3d-tex-4x4-poly` · A fully visible 4x4 compressed textured quad is one polygon in polygon RAM · [expected.json](games/corvane/expected.json)
 - `3d-tex-direct-poly` · A fully visible direct colour textured quad is one polygon in polygon RAM · [expected.json](games/corvane/expected.json)
-- `3d-fifo-polys-some` · The FIFO-fed scene stores polygons in polygon RAM: 1 to 2048 (RAM_COUNT range) · [expected.json](games/corvane/expected.json)
-- `3d-fifo-verts-some` · The FIFO-fed scene stores vertices in vertex RAM: 1 to 6144 (RAM_COUNT range) · [expected.json](games/corvane/expected.json)
-- `3d-clip-polys-some` · The clipping scene leaves polygons in polygon RAM: 1 to 2048 · [expected.json](games/corvane/expected.json)
-- `3d-light-polys-some` · The lighting scene leaves polygons in polygon RAM: 1 to 2048 · [expected.json](games/corvane/expected.json)
-- `3d-matrix-polys-some` · The matrix-stack scene leaves polygons in polygon RAM: 1 to 2048 · [expected.json](games/corvane/expected.json)
-- `3d-poly-polys-some` · The polygon-attribute scene leaves polygons in polygon RAM: 1 to 2048 · [expected.json](games/corvane/expected.json)
+- `3d-fifo-polys-some` · The FIFO-fed scene stores polygons in polygon RAM: 1 to 2048 (RAM_COUNT range) (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
+- `3d-fifo-verts-some` · The FIFO-fed scene stores vertices in vertex RAM: 1 to 6144 (RAM_COUNT range) (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
+- `3d-clip-polys-some` · The clipping scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
+- `3d-light-polys-some` · The lighting scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
+- `3d-matrix-polys-some` · The matrix-stack scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
+- `3d-poly-polys-some` · The polygon-attribute scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit) · [expected.json](games/corvane/expected.json)
 - `3d-test-inside-some` · BOX_TEST reports the box inside the view volume on some but not all frames (1 to 119 of 120) · [expected.json](games/corvane/expected.json)
 - `3d-test-pos-w-near` · POS_TEST w is about 5.1 in 1.19.12 fixed point (20400 to 21400; the ROM matrix gives 5.1 x 4096) · [expected.json](games/corvane/expected.json)
 - `3d-test-vec-x-near` · VEC_TEST x is about 0.6 in the 4.12 result format (2330 to 2580) · [expected.json](games/corvane/expected.json)
-- `3d-test-vec-z-near` · VEC_TEST z is about -0.79: sign-extended 4.12 value in -3400 to -3100 · [expected.json](games/corvane/expected.json)
+- `3d-test-vec-z-near` · VEC_TEST z is about -0.79: sign-extended 4.12 value in -3260 to -3180 (the transformed vector; an untransformed one would differ) · [expected.json](games/corvane/expected.json)
 - `io-qalog-verdict` · The QA result block (QARN) reports verdict 1 (PASS); the block of the auto QA run of corvane.nds has the same layout and is graded with --demo io-qalog · [expected.json](games/corvane/expected.json)
 - `acc-stage-edge` · Edge marking draws outlines · [expected.json](games/corvane/expected.json)
 - `acc-stage-lantern-visible` · The lantern pixel differs from the backdrop pixel outside it (the lantern is drawn) · [expected.json](games/corvane/expected.json)
@@ -162,7 +162,7 @@
 
 #### Hushwell · sound and I/O
 
-목표 41 · 전제 조건 4 · 옮길 예정 0
+목표 41 · 전제 조건 4
 
 - `sys-dma-cart-found` · probe.bin is found through FNT/FAT in the cart image · [expected.json](games/hushwell/expected.json)
 - `sys-dma-cart-dma` · Raw cart DMA read of probe.bin gives the expected CRC16 · [expected.json](games/hushwell/expected.json)
@@ -204,15 +204,15 @@
 - `snd-wave-octave` · The wave an octave lower (220 Hz) changes level half as often: the ratio x100 is 190 to 210 · [expected.json](games/hushwell/expected.json)
 - `snd-wave-volume` · Volume 50 gives half the swing of volume 100 in the record (ratio x100 within 170 to 230) · [expected.json](games/hushwell/expected.json)
 - `snd-wave-pan-left` · Pan 0 (hard left) puts an audible wave into the left mixer (peak-to-peak 16 to 255) · [expected.json](games/hushwell/expected.json)
-- `snd-wave-pan-right` · Pan 126 (hard right) leaves the left mixer all but silent (peak-to-peak at most 8, under 5 % of the audible swing) · [expected.json](games/hushwell/expected.json)
+- `snd-wave-pan-right` · Pan 126 (hard right) leaves the left mixer all but silent: GBATEK mixing gives 2/128, a swing of at most 2 · [expected.json](games/hushwell/expected.json)
 
 </details>
 
-<details><summary><b>L2 경계</b> · Lightenette (23 개)</summary>
+<details><summary><b>L2 경계</b> · Lightenette (18 개)</summary>
 
 #### Lightenette · display edge cases
 
-목표 23 · 전제 조건 13 · 옮길 예정 0
+목표 18 · 전제 조건 18
 
 - `seam-uv` · Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
 - `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) _(참고용)_ · [expected.json](games/lightenette/expected.json)
@@ -222,21 +222,16 @@
 - `act4-hline` · Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
 - `act4-dline` · Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
 - `act5-seam` · Act 5 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
-- `act5-edge-3-colours` · Act 5 plinths get all three edge-marking colours (melonDS #2549) · [expected.json](games/lightenette/expected.json)
 - `act5-line-polygon` · Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
 - `act5-lantern-equal` · Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
 - `sys-irq-hblank` · HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297) · [expected.json](games/lightenette/expected.json)
-- `sys-dma-vblank-frames` · A DMA started at VBlank has uploaded the palette in every one of 120 frames · [expected.json](games/lightenette/expected.json)
 - `sys-math-sqrt64` · 64-bit hardware square root of 10^12 is 10^6 · [expected.json](games/lightenette/expected.json)
 - `3d-limits-ram` · Polygon RAM holds 2048 polygons: it is full at the end of the overload run · [expected.json](games/lightenette/expected.json)
 - `3d-limits-overflow` · Frames in which 600-2980 submitted triangles overflowed polygon RAM _(참고용)_ · [expected.json](games/lightenette/expected.json)
 - `acc-dual-over` · The whole city in one pass overflows polygon RAM · [expected.json](games/lightenette/expected.json)
-- `acc-dual-passes` · Two half passes fit polygon RAM · [expected.json](games/lightenette/expected.json)
 - `acc-dual-halves` · Both halves of the blended two-pass picture have pixels _(참고용)_ · [expected.json](games/lightenette/expected.json)
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
-- `2d-mosaic-pixels` · With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
-- `snd-capture-signal` · The capture rings hold a non-silent signal (the song reached the mixer output) · [expected.json](games/lightenette/expected.json)
 
 </details>
 
@@ -244,7 +239,7 @@
 
 #### Elevane · display timing and compositing
 
-목표 13 · 전제 조건 5 · 옮길 예정 0
+목표 13 · 전제 조건 5
 
 - `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(참고용)_ · [expected.json](games/elevane/expected.json)
 - `dual-plan` · Bottom screen: the plan view reached bank C _(참고용)_ · [expected.json](games/elevane/expected.json)
@@ -266,7 +261,7 @@
 
 #### Probes · research probes
 
-목표 19 · 전제 조건 0 · 옮길 예정 0
+목표 19 · 전제 조건 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](probes/expected.json)

@@ -15,7 +15,8 @@
   change the script and re-run it, never hand-edit the SVGs. `assets/` at the repository root
   is repository branding, not ROM assets: no `ASSETS.md` row.
 - New library linked into a ROM → same change updates `THIRD_PARTY_NOTICES`,
-  `licenses/<lib>-*.txt`, the in-game credits (`game/scenes.c` `credits[]`) and the
+  `licenses/<lib>-*.txt`, the in-game credits (`game/scenes.c` `credits[]`; `probes/` has no credits screen and
+  relies on `THIRD_PARTY_NOTICES` plus the licence texts in NitroFS) and the
   licence viewer's file list.
   Prefer not to add libraries; the ARM7 core stays our own (no DSWiFi/Maxmod/Mbed TLS).
 - Emulator, tool, library and platform names (melonDS, DeSmuME, BlocksDS, GBATEK, Nintendo DS, …) may be used for factual description in docs, tools, comments, commit messages and `expected.json`. They never appear in game names, ROM content (in-game text, assets, NitroFS files) or code identifiers built into the ROM — except the third-party credits and licence texts that rule 4 requires. Third-party game names, characters and logos are not used anywhere.

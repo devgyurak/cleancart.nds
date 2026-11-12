@@ -41,7 +41,7 @@
 
 ### 환경 의존 항목과 n/a
 
-- `"env"`(Corvane, Hushwell): `"harness"`(테스트 하네스가 넣는 입력, 예: 터치 좌표에 따라 값이 달라짐) 또는 `"cart"`
+- `"env"`(Corvane, Hushwell. `--hardware`는 이 두 판정기에만 있고 Corvane에는 `env` 항목이 더 이상 없음): `"harness"`(테스트 하네스가 넣는 입력, 예: 터치 좌표에 따라 값이 달라짐) 또는 `"cart"`
   (에뮬레이션 카트와 플래시 카트에서 다른 세이브 칩·카트 동작). `judge.py --hardware`는 이런 항목을 n/a로 처리합니다.
   실기 실행에서는 하네스와 카트를 재현할 수 없기 때문입니다.
 - `--profile` 없이 gating 항목이 n/a(`na_when`, `requires`)이면 통과가 아닙니다. 종료 코드 1과 `NOT GRADED`가 나옵니다.
@@ -66,7 +66,7 @@
 | role | 뜻 | 판정 |
 |---|---|---|
 | `target` | `level == target_level`이고 게임 영역 안 | gating |
-| `prerequisite` | `level < target_level`이거나, 같은 레벨이지만 목표 항목이 기대는 다른 영역(예: Hushwell의 `sys-ipc-packets`, ARM7→ARM9 패킷) | 검사하고 따로 집계. 실패하면 종료 코드 1이고 `PREREQ NG`를 맨 앞에 출력: 이 게임의 목표 판정을 믿을 수 없음 |
+| `prerequisite` | `level < target_level`이거나, 같은 레벨이지만 목표 항목이 기대는 다른 영역(예: Hushwell의 `sys-ipc-packets`, ARM7→ARM9 패킷) | 검사하고 따로 집계. gating 전제 조건이 실패하면 종료 코드 1이고 `PREREQ NG`를 맨 앞에 출력(이 게임의 목표 판정을 믿을 수 없음). 참고용(`unconfirmed`)이면 `PREREQ INFO`만 출력 |
 | `relocate` | **임시 상태.** 목표보다 높거나 영역 밖이라 옮길 예정. `"to"`는 게임 또는 `"probes"` | 참고용 |
 
 규칙(모든 게임의 `judge.py`와 `scripts/mklevels.py --check`가 검사하며, 위반하면 종료 코드 2 / 검사 실패):

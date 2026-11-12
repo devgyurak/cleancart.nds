@@ -10,7 +10,7 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../..
 ```sh
 ./build.sh                  # corvane.nds (EEPROM 64 KB)
 ./build.sh SAVE=flash|fram  # save-chip variants
-./build.sh DEMO=<name>      # one feature demo (names: Makefile DEMOS, 65 of them)
+./build.sh DEMO=<name>      # one feature demo (names: Makefile DEMOS, 49 of them)
 ./build.sh demos            # all demos
 ./build.sh -j8 release      # build/release/{rom,demos} (tag corvane-vX.Y.Z runs this in CI)
 ./build.sh clean

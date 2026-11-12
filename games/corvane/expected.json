@@ -134,7 +134,7 @@
    "source": "unconfirmed",
    "role": "target",
    "level": 1,
-   "level_basis": "none"
+   "level_basis": "gbatek:DS Inter Process Communication"
   },
   {
    "id": "sys-wram-errors",
@@ -202,7 +202,7 @@
    "check": "range",
    "min": 22848,
    "max": 31560,
-   "source": "GBATEK",
+   "source": "rom",
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:LCD Dimensions and Timings"
@@ -283,13 +283,13 @@
   {
    "id": "sys-dma-gfx-polys-any",
    "demo": "sys-dma-gfx",
-   "title": "The DMA-fed display list cube leaves 1 to 6 polygons (a cube has six faces)",
+   "title": "The DMA-fed display list cube leaves 1 to 3 polygons (back faces are culled, a convex cube shows at most three)",
    "values": [
     1
    ],
    "check": "range",
    "min": 1,
-   "max": 6,
+   "max": 3,
    "na_when": [
     1,
     0
@@ -897,7 +897,7 @@
   {
    "id": "3d-fifo-polys-some",
    "demo": "3d-fifo",
-   "title": "The FIFO-fed scene stores polygons in polygon RAM: 1 to 2048 (RAM_COUNT range)",
+   "title": "The FIFO-fed scene stores polygons in polygon RAM: 1 to 2048 (RAM_COUNT range) (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     0
    ],
@@ -916,7 +916,7 @@
   {
    "id": "3d-fifo-verts-some",
    "demo": "3d-fifo",
-   "title": "The FIFO-fed scene stores vertices in vertex RAM: 1 to 6144 (RAM_COUNT range)",
+   "title": "The FIFO-fed scene stores vertices in vertex RAM: 1 to 6144 (RAM_COUNT range) (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     1
    ],
@@ -935,7 +935,7 @@
   {
    "id": "3d-clip-polys-some",
    "demo": "3d-clip",
-   "title": "The clipping scene leaves polygons in polygon RAM: 1 to 2048",
+   "title": "The clipping scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     0
    ],
@@ -954,7 +954,7 @@
   {
    "id": "3d-light-polys-some",
    "demo": "3d-light",
-   "title": "The lighting scene leaves polygons in polygon RAM: 1 to 2048",
+   "title": "The lighting scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     0
    ],
@@ -973,7 +973,7 @@
   {
    "id": "3d-matrix-polys-some",
    "demo": "3d-matrix",
-   "title": "The matrix-stack scene leaves polygons in polygon RAM: 1 to 2048",
+   "title": "The matrix-stack scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     1
    ],
@@ -992,7 +992,7 @@
   {
    "id": "3d-poly-polys-some",
    "demo": "3d-poly",
-   "title": "The polygon-attribute scene leaves polygons in polygon RAM: 1 to 2048",
+   "title": "The polygon-attribute scene leaves polygons in polygon RAM: 1 to 2048 (a zero count reads n/a; the item fails only above the RAM limit)",
    "values": [
     0
    ],
@@ -1021,7 +1021,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Status"
+   "level_basis": "gbatek:DS 3D Tests"
   },
   {
    "id": "3d-test-pos-w-near",
@@ -1036,7 +1036,7 @@
    "source": "rom",
    "role": "target",
    "level": 1,
-   "level_basis": "none"
+   "level_basis": "gbatek:DS 3D Tests"
   },
   {
    "id": "3d-test-vec-x-near",
@@ -1051,22 +1051,22 @@
    "source": "rom",
    "role": "target",
    "level": 1,
-   "level_basis": "none"
+   "level_basis": "gbatek:DS 3D Tests"
   },
   {
    "id": "3d-test-vec-z-near",
    "demo": "3d-test",
-   "title": "VEC_TEST z is about -0.79: sign-extended 4.12 value in -3400 to -3100",
+   "title": "VEC_TEST z is about -0.79: sign-extended 4.12 value in -3260 to -3180 (the transformed vector; an untransformed one would differ)",
    "values": [
     3
    ],
    "check": "range",
-   "min": 4294963896,
-   "max": 4294964196,
+   "min": 4294964036,
+   "max": 4294964116,
    "source": "rom",
    "role": "target",
    "level": 1,
-   "level_basis": "none"
+   "level_basis": "gbatek:DS 3D Tests"
   },
   {
    "id": "io-qalog-verdict",
@@ -1508,5 +1508,33 @@
    ]
   }
  },
- "known_note": "Measured 2026-11-12 on the release demo ROMs (./build.sh -j8 release). NG lists include informational (unconfirmed) items that failed. No real hardware has been measured: items without a GBATEK, report or ROM-logic source stay informational until hardware values exist."
+ "known_note": "Measured 2026-11-12 on the release demo ROMs (./build.sh -j8 release). NG lists include informational (unconfirmed) items that failed. No real hardware has been measured: items without a GBATEK, report or ROM-logic source stay informational until hardware values exist.",
+ "not_judged": {
+  "sys-dma-vblank": 2140408880,
+  "sys-dma-cart": 2418294358,
+  "sys-keys": 539658817,
+  "3d-limits": 3569651277,
+  "snd-mix": 1959406791,
+  "snd-pcm": 1889169133,
+  "snd-adpcm": 1871762358,
+  "snd-psg": 1187068991,
+  "snd-capture": 4174014751,
+  "snd-stream": 1981913095,
+  "io-cart": 2124619194,
+  "io-save-eeprom": 3537099980,
+  "io-save-flash": 2897808550,
+  "io-save-fram": 2035996814,
+  "io-firmware": 2262935645,
+  "io-rtc": 1590775779,
+  "io-touch": 4078676555,
+  "io-power": 2563074333,
+  "acc-dual": 2472404239,
+  "acc-split-tex": 194547615,
+  "acc-split-bg": 4185993981,
+  "acc-split-relay": 3794925995,
+  "acc-split-rear": 3065688928,
+  "acc-split-rear-read": 1049209627,
+  "acc-split-rear-write": 194809018,
+  "acc-split-hdma": 2762787424
+ }
 }
