@@ -141,3 +141,14 @@ reference and the pack flags them (`reference`).
 Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down puzzle, left/right chapter, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, L/R (Q/W) turn the top view, Y (A) + up/down the work layer (chapter 4 on), a Y tap the next part, Select (Backspace) 2D grid / 3D, X (S) showcase (A switches preset, B back), Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
 Y (A) is free in this game and is meant for choosing the work layer in chapter 4 (Y + D-pad up/down).
 More actions are listed here as scenes land.
+
+## Result block on the SD card
+
+`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+folder `<drive>cleancart/elevane/` already exists on the card, the demo `finish()` and the rehearsal idle writes its result
+block there as `res-<date>-<time>-elevane-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
+line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the
+folder: whoever prepares the card does. Without the folder (every emulator CI run, an ordinary card)
+nothing is written and nothing on screen changes. The demos show `RESULT SAVED`; the rehearsal shows nothing. `tools/qa/ingest.py SD` copies the logs to
+`build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
+emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).

@@ -4,6 +4,7 @@
 #include <nds.h>
 
 #include "core/input.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "game/act1.h"
 #include "game/act2.h"
@@ -173,6 +174,7 @@ void rehearsal_run(void)
 
 void rehearsal_idle(void)
 {
+    sd_result_save("lightenette", "rehearsal");   // only with cleancart/lightenette/ on the card
     for (;;)
     {
         judge_frame();
