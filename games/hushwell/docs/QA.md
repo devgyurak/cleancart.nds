@@ -103,6 +103,34 @@ melonDS version: ______  Tester: ______  Date: ______
 | io-touch | crosshair at the pen position, pixel/raw values | touching, x, y, raw x | |
 | io-power | A: top backlight, B: speaker, closing the lid sleeps | battery, lid, backlight, speaker | |
 
+## Judging (`expected.json`, `tools/judge.py`)
+
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (97 items, 49 of the 65
+demos). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
+change a verdict.
+
+| Kind | What is judged | Examples |
+|---|---|---|
+| (a) self-check, documented constant | error counts 0, `sqrt(10^12)` = 1000000, CRC equal, 2048 polygons | sys-wram, sys-dma-*, sys-bios, sys-math, 3d-limits |
+| (b) register read-back | the register reads back the value the demo wrote (write-only registers are not judged) | 2d-engines, 2d-window, 2d-blend, 3d-toon, 3d-compose |
+| (c) timing figure | a count in a window derived from GBATEK (263 lines per frame, 33.513982 MHz bus) | sys-irq, sys-timer, sys-dma-vblank |
+| (d) screen or sound only | not judged yet | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-normal, 2d-obj-affine, 2d-obj-bitmap, 2d-obj-line, 2d-vram, 2d-display, snd-mix, snd-pcm, snd-adpcm, snd-psg, snd-capture, snd-stream |
+
+Sources: `GBATEK` and `rom` items gate, `unconfirmed` ones (no hardware value yet, for example polygon counts of
+the models) are informational. Polygon counters read 0 in DeSmuME: those items are n/a there (`na_when`).
+
+```sh
+tools/melonds/mds.sh demos games/hushwell/build/release/demos > demos.log     # RENDERER=gl|compute for the GL renderers
+python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
+RESULT_WORDS=16 tools/emu/emu.sh demos games/hushwell > ds.log && python3 games/hushwell/tools/judge.py --profile desmume-pydesmume-0.0.9 ds.log
+```
+
+Known profiles (measured 2026-11-12, nothing on real hardware yet): melonDS 1.1 software, GL (Classic) and GL (Compute) pass every item;
+DeSmuME has no polygon counters (those items are n/a) and differs in two informational items (key IRQ count, `VEC_TEST` z). Values that
+depend on this game's scenes (polygon counts, the HUD register values of 2d-text, WINOUT of engine B, the CRC of the logo) are Hushwell's own
+and differ from Corvane's. The auto QA run of `hushwell.nds` is graded as demo `qa` (`--demo qa`): `RESULT PASS` in melonDS 1.1 (software)
+and DeSmuME. The 16 demos of kind (d) get ROM-side judging in a later change.
+
 ## Main build checklist
 
 | Item | How to check | melonDS result |
