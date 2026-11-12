@@ -8,7 +8,7 @@
 QA mode may only change numbers (qa_tune) and feed input; it must not branch
 inside rendering, the save code, judging or capture. Any `qa_` / `qalog_` /
 `QA_` / `QAR_` identifier in those files is an error. Files checked, inside
-<game>/arm9/source: everything under gfx/ and judge/, and the files named
+games/<game>/arm9/source: everything under gfx/ and judge/, and the files named
 save.c, capture.c, judge_scene.c, rehearsal.c, actN.c/h (lightenette).
 """
 
@@ -49,8 +49,8 @@ def lint_game(game):
 
 
 def main(argv):
-    games = argv or [os.path.join(ROOT, d) for d in sorted(os.listdir(ROOT))
-                     if os.path.isdir(os.path.join(ROOT, d, 'arm9', 'source', 'core'))]
+    games = argv or [os.path.join(ROOT, 'games', d) for d in sorted(os.listdir(os.path.join(ROOT, 'games')))
+                     if os.path.isdir(os.path.join(ROOT, 'games', d, 'arm9', 'source', 'core'))]
     bad = []
     for g in games:
         bad += lint_game(g)

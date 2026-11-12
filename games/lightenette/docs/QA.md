@@ -14,7 +14,7 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | Title → Select → Act 3 | top: nearly black stage (3D with BLDCNT 01C1) with three painted marks and a glowing translucent lantern; bottom: a map with the marks (X, `*` once found) and the lantern (@). D-pad or drag moves the lantern; keep it within 16 px of a mark for 15 frames to light it. All three found: "CLEAR!", the lantern parks, then `LAMP <none> <alpha> <darken> OK/NG` and `DARK <plain> <darkened> OK` show. Scripted: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:A:4,100:LEFT:8,100:DOWN:16,140:LEFT:32,140:UP:40,200:RIGHT:76,200:DOWN:4` (result block id `0x33544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
 | Title → Select → Act 4 | top: crossbar, four coloured strings (dark quad + line polygon) to four pegs on a board, a horizontal and a diagonal thread below; bottom: per peg the string on it (S1-S4), the cursor, CROSSINGS n. L/R or tap chooses a peg, A or a second tap swaps the two strings. 0 crossings for 20 frames: "CLEAR!", then `HLINE n OK` / `DLINE n OK`. Scripted: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:A:4,100:A:2,104:RIGHT:2,108:A:2,118:A:2,122:RIGHT:2,126:RIGHT:2,130:A:2,140:A:2,144:LEFT:2,148:A:2` (result block id `0x34544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
 | Title → Select → Act 5 | top: dark stage with three dolls on plinths with three edge colours, line-polygon strings and the lantern; bottom: per doll NOW/AIM side, LIT/DARK, OK/TODO. D-pad or drag moves the lantern; L/R/A (or a tap on the lower part) turns the doll under it. All lit and turned (A back, B front, C back) for 20 frames: "CLEAR!", the lantern parks, then `SEAM`, `EDGE`, `LINE`, `LAMP`, `DARK` show. Scripted: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:DOWN:4,90:A:4,110:UP:8,130:LEFT:36,160:R:2,185:RIGHT:72,250:R:2` (result block id `0x35544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
-| rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
+| rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 games/lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
 | acc-stage demo | `lightenette-acc-stage.nds`, same numbers as the title → Select scene; result block `0x0237F000`: magic `0x52455643`, id `0x4A44474C` | see below |
 
 ## Auto QA run
@@ -22,8 +22,8 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 Hidden mode of the release ROM (`lightenette.nds`, SHA-256 identical to what ships): on the title screen press L and R, then X and Y, and
 hold all four for 120 frames. The game plays the normal flow by itself: acts 1-5 with the rehearsal's scripts, the credits, then one
 accuracy-judge pass. Log on the SD card (`cleancart/lightenette/qa-<date>-<time>.log`), result block `QARN` in the rehearsal's layout, graded with
-`python3 lightenette/tools/judge.py --profile <renderer> <log>` (boot `qa`, extra item `qa-verdict`). Headless: `SDDIR=out/lt/x tools/melonds/mds.sh run
-lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (`RENDERER=gl|compute` for the GL renderers; DeSmuME: `RESULT_WORDS=64
+`python3 games/lightenette/tools/judge.py --profile <renderer> <log>` (boot `qa`, extra item `qa-verdict`). Headless: `SDDIR=out/lt/x tools/melonds/mds.sh run
+games/lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (`RENDERER=gl|compute` for the GL renderers; DeSmuME: `RESULT_WORDS=64
 tools/emu/emu.sh run ... 4000 ...`).
 
 | Renderer | QA run (2026-11-11) | `judge.py --profile` | QA judge values = rehearsal demo's |

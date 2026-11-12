@@ -6,7 +6,7 @@
 The mark is an unlocked game card: the padlock body is a card (corner notch,
 contact slots instead of a keyhole) and the shackle is open. The wordmark
 "CLEANCART.NDS" is set in Corvane's own 5x7 pixel font
-(corvane/tools/cvtools/font.py), so no third-party font is involved.
+(games/corvane/tools/cvtools/font.py), so no third-party font is involved.
 
     python3 scripts/mklogo.py
 """
@@ -14,7 +14,7 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, 'corvane', 'tools'))
+sys.path.insert(0, os.path.join(ROOT, 'games', 'corvane', 'tools'))
 from cvtools.font import GLYPHS  # noqa: E402
 
 OUT = os.path.join(ROOT, 'docs', 'logo')

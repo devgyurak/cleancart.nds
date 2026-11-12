@@ -35,7 +35,7 @@ melonDS 버전·데모 이름·기대 화면 설명을 남깁니다.
 잔기가 줄지 않는 정도의 숫자만 바뀌고, 이펙트·사운드·세이브는 그대로입니다. SD 카드가 있는
 플래시카트에서는 `cleancart/corvane/qa-<날짜>-<시각>.log`와 `save-<n>.bin`을 쓰고, 어느
 경우든 `QARN` 결과 블록을 채웁니다. 헤드리스 실행: `SDDIR=out/mds/x tools/melonds/mds.sh run
-corvane/corvane.nds 20000 out/mds/x "60:A,200:A,500:L:140,500:R:140,500:X:140,500:Y:140"`
+games/corvane/corvane.nds 20000 out/mds/x "60:A,200:A,500:L:140,500:R:140,500:X:140,500:Y:140"`
 후 로그를 `tools/qa/parse_log.py`로 검사합니다.
 
 | 환경 | 결과 (2026-11-11, 이 트리의 빌드) |

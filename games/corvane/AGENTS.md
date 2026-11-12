@@ -3,7 +3,7 @@
 Original 3D hover shooter for the DS. Design doc: the user's Claude Docs page
 "Corvane — 3D 액션 슈팅게임 기획서". Human docs (English, each with a Korean
 twin `*-KO.md`): `README.md`, `docs/QA.md` (melonDS checklist + expected demo
-screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AGENTS.md`.
+screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`.
 
 ## Build
 

@@ -77,10 +77,10 @@ Docker만 있으면 됩니다.
 
 ```sh
 # 이 저장소의 melonDS 헤드리스 러너 (RENDERER=soft|gl|compute, MELONDS_COMMIT=<sha>)
-RENDERER=gl tools/melonds/mds.sh run elevane/elevane-rehearsal.nds 4000 out/x "" 3999 \
-  | python3 elevane/tools/judge.py --profile melonds-1.1-gl-classic
+RENDERER=gl tools/melonds/mds.sh run games/elevane/elevane-rehearsal.nds 4000 out/x "" 3999 \
+  | python3 games/elevane/tools/judge.py --profile melonds-1.1-gl-classic
 # 같은 에뮬레이터 소프트웨어 렌더러와 1배 스크린샷 비교, 연속 프레임
-python3 elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
+python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
 ```
 
 `judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 결과가 없으면 2로 끝납니다.

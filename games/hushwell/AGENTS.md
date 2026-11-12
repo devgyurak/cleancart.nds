@@ -3,7 +3,7 @@
 Original first-person 3D survival horror for the DS. Design doc: the user's Claude
 Docs page "Hushwell — 3D 서바이벌 호러 게임 기획서". Human docs (English, each with a
 Korean twin `*-KO.md`): `README.md`, `docs/QA.md` (melonDS checklist + expected demo
-screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../AGENTS.md`.
+screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`.
 Created from the corvane template: `arm7/`, `common/` and most of `arm9/source/core`
 and `gfx` are corvane's layers (keep fixes in sync when they apply to both).
 

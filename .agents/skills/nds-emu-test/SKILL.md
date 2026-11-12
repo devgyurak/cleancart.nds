@@ -9,9 +9,9 @@ The harness is `tools/emu/` (py-desmume in an x86_64 container). Run from the
 repository root; outputs go under `out/` (not committed).
 
 ```sh
-tools/emu/emu.sh run corvane/corvane.nds 900 out/boot "60:A,200:A,400:START" 150,450,899
+tools/emu/emu.sh run games/corvane/corvane.nds 900 out/boot "60:A,200:A,400:START" 150,450,899
 tools/emu/emu.sh montage out/m_boot.png out/boot_00150.png out/boot_00450.png out/boot_00899.png
-tools/emu/emu.sh demos corvane        # every demo ROM → "<name> RESULT 52455643 …"
+tools/emu/emu.sh demos games/corvane        # every demo ROM → "<name> RESULT 52455643 …"
 ```
 
 Then **look at the montage image** (Read the PNG). Screens are 256x384 (top over bottom).
@@ -33,7 +33,7 @@ cycles the start stage), briefing needs A/START per line.
 ## Reading results
 
 - `RESULT 52455643 …` = demo checkpoint reached (`'CVER'`); values follow
-  (see `<game>/docs/QA.md` for what each demo reports).
+  (see `games/<game>/docs/QA.md` for what each demo reports).
 - All zeros + identical screenshots = hang. Resolve the PC:
   `arm-none-eabi-addr2line -i -f -e build/<variant>/arm9.elf <PC9>` (via the build image).
   A PC inside `swiIntrWait` is just a normal VBlank wait.

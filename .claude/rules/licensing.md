@@ -2,11 +2,11 @@
 
 - New source/script/build file → SPDX header first:
   `SPDX-License-Identifier: Apache-2.0` + `SPDX-FileCopyrightText: 2026 Corvane contributors`.
-- New asset → produced by code in `<game>/tools/` (or CC0 with source URL) and listed
-  in `<game>/ASSETS.md` and its Korean twin `ASSETS-KO.md` with generator, source and licence. Never copy, trace,
+- New asset → produced by code in `games/<game>/tools/` (or CC0 with source URL) and listed
+  in `games/<game>/ASSETS.md` and its Korean twin `ASSETS-KO.md` with generator, source and licence. Never copy, trace,
   sample or "recreate" existing art, fonts, music, sounds or levels.
 - Exception: README screenshots/GIFs captured from our own ROMs go in
-  `<game>/docs/images/` only. They are docs, not ROM assets: never built into the
+  `games/<game>/docs/images/` only. They are docs, not ROM assets: never built into the
   ROM, no ASSETS.md row, same licence as the game, no third-party content in frame.
   The repository logo (`docs/logo/*.svg`) is output of `scripts/mklogo.py`:
   change the script and re-run it, never hand-edit the SVGs.

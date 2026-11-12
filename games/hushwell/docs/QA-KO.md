@@ -28,7 +28,7 @@
 챕터 1~5를 스스로 걷습니다(괴물에게 맞아도 체력이 닳지 않는 것 외에는 출시 그대로). 문을 열고, 챕터 3
 다이얼 코드를 맞추고, 테이프를 전부 모아 우물 엔딩을 보고, 크레딧을 거쳐 기록 화면에서 멈춥니다.
 로그는 SD 카드의 `cleancart/hushwell/qa-<날짜>-<시각>.log`, 결과 블록은 `0x0237F000`의 `QARN`입니다.
-헤드리스: `SDDIR=out/mds/x tools/melonds/mds.sh run hushwell/hushwell.nds 40000 out/mds/x
+헤드리스: `SDDIR=out/mds/x tools/melonds/mds.sh run games/hushwell/hushwell.nds 40000 out/mds/x
 "700:L:140,700:R:140,700:X:140,700:Y:140"` 후 `tools/qa/parse_log.py`.
 
 | 환경 | 결과 (2026-11-11, 이 트리의 빌드) |

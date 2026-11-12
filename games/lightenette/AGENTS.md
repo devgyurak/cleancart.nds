@@ -6,7 +6,7 @@ brightness effect, edge marking / line polygons) so other emulators can use the
 ROM as a CI test item. Plan: stages 0-9 in the PR stack (each PR is one stage).
 Human docs (English, each with a Korean twin `*-KO.md`): `README.md`,
 `docs/QA.md`, `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in
-`../AGENTS.md`. Created from the corvane template: `arm7/`, `common/`, and
+`../../AGENTS.md`. Created from the corvane template: `arm7/`, `common/`, and
 `arm9/source/core` and `gfx` are corvane's layers (keep fixes in sync when they apply
 to both).
 

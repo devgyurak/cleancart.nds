@@ -29,7 +29,7 @@ Hidden mode, same ROM as the release: on the title screen hold **L+R+X+Y for 120
 walks the prologue and chapters 1-5 by itself (creature hits cost no health; everything else as shipped),
 opens the doors, dials the chapter 3 code, collects every tape, takes the well ending, plays the credits
 and stops on the records screen. Log: `cleancart/hushwell/qa-<date>-<time>.log` on the SD card, result
-block `QARN` at `0x0237F000`. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run hushwell/hushwell.nds
+block `QARN` at `0x0237F000`. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run games/hushwell/hushwell.nds
 40000 out/mds/x "700:L:140,700:R:140,700:X:140,700:Y:140"`, then `tools/qa/parse_log.py`.
 
 | Where | Result (2026-11-11, build from this tree) |

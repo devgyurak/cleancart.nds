@@ -27,10 +27,10 @@ and clearly noticed third-party runtime libraries.
 
 | Game | Description | Docs |
 |---|---|---|
-| [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen. | [README](corvane/README.md) · [QA checklist](corvane/docs/QA.md) · [Assets](corvane/ASSETS.md) |
-| [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound. | [README](hushwell/README.md) · [QA checklist](hushwell/docs/QA.md) · [Assets](hushwell/ASSETS.md) |
-| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display to test emulator accuracy cases, and a release ships the rehearsal ROMs with `expected.json` and `judge.py` for other emulators' CI. | [README](lightenette/README.md) · [QA checklist](lightenette/docs/QA.md) · [Assets](lightenette/ASSETS.md) |
-| [Elevane](elevane/)<br><img src="elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): build the block structure that makes the front and the plan silhouette, both screens in 3D through display capture. It also judges itself: a rehearsal ROM plays the game and reports whether the capture paths worked, and a release ships it with `expected.json` and `judge.py` for other emulators' CI. | [README](elevane/README.md) · [QA checklist](elevane/docs/QA.md) · [Hardware QA](elevane/docs/HW-QA.md) · [Assets](elevane/ASSETS.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen. | [README](games/corvane/README.md) · [QA checklist](games/corvane/docs/QA.md) · [Assets](games/corvane/ASSETS.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound. | [README](games/hushwell/README.md) · [QA checklist](games/hushwell/docs/QA.md) · [Assets](games/hushwell/ASSETS.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display to test emulator accuracy cases, and a release ships the rehearsal ROMs with `expected.json` and `judge.py` for other emulators' CI. | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): build the block structure that makes the front and the plan silhouette, both screens in 3D through display capture. It also judges itself: a rehearsal ROM plays the game and reports whether the capture paths worked, and a release ships it with `expected.json` and `judge.py` for other emulators' CI. | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -40,7 +40,7 @@ Requires [Docker](https://www.docker.com/). Every game builds inside a BlocksDS
 image pinned by digest, so builds are reproducible and need no local toolchain.
 
 ```sh
-cd corvane            # or: cd hushwell, cd lightenette, cd elevane
+cd games/corvane     # or: cd games/hushwell, …
 ./build.sh            # → corvane.nds (hushwell.nds)
 ./build.sh demos      # single-feature demo ROMs (corvane-<demo>.nds)
 ```
@@ -90,10 +90,10 @@ key table in [AGENTS.md](AGENTS.md#controls-and-key-mapping) and `tools/melonds/
 ## Repository layout
 
 ```
-corvane/          a game: sources, build.sh, Dockerfile, docs, licences
-hushwell/         a game (made from the corvane template)
-lightenette/      a game (made from the corvane template)
-elevane/          a game (made from lightenette)
+games/corvane/    a game: sources, build.sh, Dockerfile, docs, licences
+games/hushwell/   a game (made from the corvane template)
+games/lightenette/ a game (made from the corvane template)
+games/elevane/    a game (made from lightenette)
 tools/emu/        headless DeSmuME harness for smoke tests (Docker)
 tools/melonds/    melonDS key mapping, input checks (macOS), headless melonDS runner
 scripts/          maintenance scripts (agent config sync, logo generator)
@@ -105,6 +105,6 @@ AGENTS.md         project conventions for coding agents (Claude Code reads it vi
 ## Licence
 
 Each game states its licence in its folder. Corvane, Hushwell, Lightenette and Elevane are licensed under the
-Apache License 2.0 ([corvane](corvane/LICENSE), [hushwell](hushwell/LICENSE), [lightenette](lightenette/LICENSE), [elevane](elevane/LICENSE)); third-party
+Apache License 2.0 ([corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE)); third-party
 components in their ROMs are listed in each game's `THIRD_PARTY_NOTICES`. ROMs are not committed;
 build them from source.

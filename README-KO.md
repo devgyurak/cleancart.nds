@@ -27,10 +27,10 @@
 
 | 게임 | 설명 | 문서 |
 |---|---|---|
-| [Corvane](corvane/)<br><img src="corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온 | [README](corvane/README-KO.md) · [QA 체크리스트](corvane/docs/QA-KO.md) · [에셋](corvane/ASSETS-KO.md) |
-| [Hushwell](hushwell/)<br><img src="hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것 | [README](hushwell/README-KO.md) · [QA 체크리스트](hushwell/docs/QA-KO.md) · [에셋](hushwell/ASSETS-KO.md) |
-| [Lightenette](lightenette/)<br><img src="lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 에뮬레이터 정확도 항목을 스스로 판정하며, 릴리스에는 다른 에뮬레이터의 CI용으로 리허설 ROM과 `expected.json`, `judge.py`가 함께 올라갑니다. | [README](lightenette/README-KO.md) · [QA 체크리스트](lightenette/docs/QA-KO.md) · [에셋](lightenette/ASSETS-KO.md) |
-| [Elevane](elevane/)<br><img src="elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐: 정면도와 평면도 실루엣을 만드는 블록 구조물을 쌓습니다. 두 화면 모두 디스플레이 캡처로 3D입니다. 스스로 판정도 합니다: 리허설 ROM이 게임을 플레이하며 캡처 경로가 동작했는지 보고하고, 릴리스에 `expected.json`, `judge.py`와 함께 들어가 다른 에뮬레이터의 CI가 쓸 수 있습니다. | [README](elevane/README-KO.md) · [QA 점검표](elevane/docs/QA-KO.md) · [실기 QA](elevane/docs/HW-QA-KO.md) · [에셋](elevane/ASSETS-KO.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온 | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것 | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 에뮬레이터 정확도 항목을 스스로 판정하며, 릴리스에는 다른 에뮬레이터의 CI용으로 리허설 ROM과 `expected.json`, `judge.py`가 함께 올라갑니다. | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐: 정면도와 평면도 실루엣을 만드는 블록 구조물을 쌓습니다. 두 화면 모두 디스플레이 캡처로 3D입니다. 스스로 판정도 합니다: 리허설 ROM이 게임을 플레이하며 캡처 경로가 동작했는지 보고하고, 릴리스에 `expected.json`, `judge.py`와 함께 들어가 다른 에뮬레이터의 CI가 쓸 수 있습니다. | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -40,7 +40,7 @@
 BlocksDS 이미지 안에서 빌드되므로, 로컬 툴체인 없이 누가 빌드해도 같은 ROM이 나옵니다.
 
 ```sh
-cd corvane            # 또는: cd hushwell, cd lightenette, cd elevane
+cd games/corvane     # 또는: cd games/hushwell …
 ./build.sh            # → corvane.nds (hushwell.nds)
 ./build.sh demos      # 기능별 데모 ROM (corvane-<데모>.nds)
 ```
@@ -88,10 +88,10 @@ macOS에서 키가 먹지 않으면 melonDS의 키보드 매핑이 비어 있을
 ## 저장소 구성
 
 ```
-corvane/          게임 하나: 소스, build.sh, Dockerfile, 문서, 라이선스
-hushwell/         게임 하나(corvane 템플릿으로 시작)
-lightenette/      게임 하나(corvane 템플릿으로 시작)
-elevane/          게임 하나(lightenette에서 시작)
+games/corvane/    게임 하나: 소스, build.sh, Dockerfile, 문서, 라이선스
+games/hushwell/   게임 하나(corvane 템플릿으로 시작)
+games/lightenette/ 게임 하나(corvane 템플릿으로 시작)
+games/elevane/    게임 하나(lightenette에서 시작)
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
@@ -103,6 +103,6 @@ AGENTS.md         코딩 에이전트용 프로젝트 규칙 (Claude Code는 CLA
 ## 라이선스
 
 라이선스는 게임마다 각 폴더에 적혀 있습니다. Corvane, Hushwell, Lightenette, Elevane은 Apache License 2.0
-([corvane](corvane/LICENSE), [hushwell](hushwell/LICENSE), [lightenette](lightenette/LICENSE), [elevane](elevane/LICENSE))이며, ROM에 들어가는 서드파티
+([corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE))이며, ROM에 들어가는 서드파티
 구성 요소는 각 게임의 `THIRD_PARTY_NOTICES`에 있습니다. ROM은 커밋하지 않으니
 소스에서 빌드해 주세요.
