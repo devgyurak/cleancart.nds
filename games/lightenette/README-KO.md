@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#빌드)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#빌드)
-[![Accuracy items: 23](https://img.shields.io/badge/accuracy%20items-23-orange)](expected.json)
+[![Accuracy items: 39](https://img.shields.io/badge/accuracy%20items-39-orange)](expected.json)
 
 [English](README.md)
 
@@ -51,7 +51,7 @@ Docker만 있으면 됩니다.
 ./build.sh                    # lightenette.nds
 ./build.sh SAVE=flash         # lightenette-save-flash.nds
 ./build.sh SAVE=fram          # lightenette-save-fram.nds
-./build.sh demos              # lightenette-acc-stage.nds, lightenette-rehearsal.nds
+./build.sh demos              # acc-stage, rehearsal, l2-* 데모 ROM 9개
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: lightenette-vX.Y.Z 태그가 배포하는 것
 ./build.sh clean
 ```
@@ -85,12 +85,29 @@ ROM + `expected.json` + `judge.py`를 같은 `lightenette-vX.Y.Z` 릴리스에�
 고정하세요. 현재 전부 OK인 기준은 melonDS 1.1 소프트웨어 렌더러이고, 다른 렌더러의 알려진
 차이는 [docs/QA-KO.md](docs/QA-KO.md)에 있습니다.
 
+### 레벨 2 데모 ROM
+
+Lightenette는 레벨 2(경계 사례) 게임입니다([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)). 위의 화면 경계 사례 외에 작은 데모 ROM
+9개 `lightenette-l2-<이름>.nds`를 함께 제공하며, 각각 `expected.json`의 boot 하나입니다(`l2-sys-irq`, `l2-sys-dma-vblank`,
+`l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`, `l2-2d-obj-bitmap`, `l2-snd-capture`).
+120프레임을 돌고 평소의 결과 블록을 씁니다(ID = ROM의 데모 이름(예: `l2-sys-irq`)의 FNV-1a 32, 값은 `words[3:]`부터).
+레벨 2 항목 12개를 담습니다: HBlank IRQ 횟수, VBlank DMA, 64비트 하드웨어 제곱근, 폴리곤 RAM 한계, 캡처를 통한 2패스 렌더링,
+아핀 BG / 모자이크 / 비트맵 OBJ 픽셀, 사운드 캡처 신호. ROM 하나씩 판정합니다:
+
+```sh
+tools/melonds/mds.sh demos <l2 ROM 폴더> > l2.log     # RENDERER=gl|compute
+python3 games/lightenette/tools/judge.py --demo lightenette-l2-acc-dual --profile melonds-1.1-software l2.log
+```
+
+에뮬레이터가 측정할 수 없는 항목(DeSmuME의 폴리곤 RAM 카운터)은 n/a(`na_when`)입니다. `--profile` 없이는 판정 대상 n/a 항목이
+통과로 치지 않으며(`NOT GRADED`, 종료 코드 1) `--allow-na`를 붙이면 넘어갑니다. 프로필이 n/a 항목을 나열합니다.
+
 ## 구성
 
 ```
 arm9/source/game/   장면: 타이틀, 1~5막, 크레딧과 라이선스 뷰어, 리허설
 arm9/source/judge/  정확도 판정(캡처, 픽셀 수, 결과 블록)
-arm9/source/demo/   데모 ROM 진입점(acc-stage, rehearsal)
+arm9/source/demo/   데모 ROM 진입점(acc-stage, rehearsal)과 레벨 2 데모(l2.c)
 arm9/source/core/   시스템, 입력, DMA, 세이브, 사운드(corvane 계층)
 arm9/source/gfx/    2D/3D 계층(corvane 계층)
 arm7/               자체 ARM7 코어

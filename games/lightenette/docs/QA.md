@@ -16,6 +16,15 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | Title → Select → Act 5 | top: dark stage with three dolls on plinths with three edge colours, line-polygon strings and the lantern; bottom: per doll NOW/AIM side, LIT/DARK, OK/TODO. D-pad or drag moves the lantern; L/R/A (or a tap on the lower part) turns the doll under it. All lit and turned (A back, B front, C back) for 20 frames: "CLEAR!", the lantern parks, then `SEAM`, `EDGE`, `LINE`, `LAMP`, `DARK` show. Scripted: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:DOWN:4,90:A:4,110:UP:8,130:LEFT:36,160:R:2,185:RIGHT:72,250:R:2` (result block id `0x35544341`) | ✅ DeSmuME headless, screenshots looked at (2026-11-11); hands-on feel not checked |
 | rehearsal demo | `lightenette-rehearsal.nds` boots straight into the rehearsal, no save chip or NitroFS; result block id `0x4C454852`. `python3 games/lightenette/tools/judge.py <log>` grades it against `expected.json` | see below |
 | acc-stage demo | `lightenette-acc-stage.nds`, same numbers as the title → Select scene; result block `0x0237F000`: magic `0x52455643`, id `0x4A44474C` | see below |
+| sys-irq demo | `lightenette-l2-sys-irq.nds`; item(s) `sys-irq-hblank`; expected screen: top blue / bottom red backdrop, IRQ counts; HBlank count 31557 (gate 31297..31560) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| sys-dma-vblank demo | `lightenette-l2-sys-dma-vblank.nds`; item(s) `sys-dma-vblank-frames`; expected screen: pink backdrop, `FRAMES VERIFIED: 120/120` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| sys-math demo | `lightenette-l2-sys-math.nds`; item(s) `sys-math-sqrt64`; expected screen: divide lines, `SQRT(1E12) = 1000000`, `LEN(3,4,0) = 20480/4096`, `ATAN2(1,1) = 4096` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| 3d-limits demo | `lightenette-l2-3d-limits.nds`; item(s) `3d-limits-ram, 3d-limits-overflow`; expected screen: grid of small triangles, `SUBMITTED 2980  RAM 2048`, `OVERFLOW FRAMES 47` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| acc-dual demo | `lightenette-l2-acc-dual.nds`; item(s) `acc-dual-over, acc-dual-passes, acc-dual-halves`; expected screen: top: block city with a seam down the middle (two passes); bottom: LATENCY 1, DUAL / ONE PASS / PASSES / HALVES lines with four OK | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| 2d-affine demo | `lightenette-l2-2d-affine.nds`; item(s) `2d-affine-pixels`; expected screen: top: a rotated affine tile picture (pseudo-random colours, black holes), no text (the judge frame shows BG2 alone) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| 2d-mosaic demo | `lightenette-l2-2d-mosaic.nds`; item(s) `2d-mosaic-pixels`; expected screen: top: the console text as 4x4 blocks (mosaic 3), coloured blocks at the bottom | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| 2d-obj-bitmap demo | `lightenette-l2-2d-obj-bitmap.nds`; item(s) `2d-obj-bitmap-pixels`; expected screen: a lit gradient disc (bitmap OBJ) below two text lines | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| snd-capture demo | `lightenette-l2-snd-capture.nds`; item(s) `snd-capture-signal`; expected screen: text only; the capture peak is in the block (values[5], about 0x3800) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 
 ## Auto QA run
 
@@ -36,6 +45,24 @@ tools/emu/emu.sh run ... 4000 ...`).
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`, 6 checkpoints). With QA off nothing changed: the rehearsal run through the
 test menu gives the same result block as before. The software run has no save chip (homebrew run for the SD card): the save mirror read back identical, the chip
 write is not verified. Real DS Lite + R4: not run yet.
+
+## Level 2 demos (2026-11-12)
+
+Nine demo ROMs `lightenette-l2-<name>.nds` carry the 12 level 2 items taken over from Corvane (the measurement code is
+Corvane's; the 2D pictures are generated at run time, no assets). Each writes its block at frame 120 (id = FNV-1a 32 of
+`l2-<name>`). Measured with the 2026-11-12 build (`mds.sh demos`, `emu.sh demos`, each ROM graded with
+`judge.py --demo lightenette-l2-<name> --profile <profile>`):
+
+| Emulator | all 12 items | profile |
+|---|---|---|
+| melonDS 1.1 software / GL classic / GL compute | OK (the informational `3d-limits-overflow` 47 and `acc-dual-halves` also match) | MATCH, no NG, no n/a |
+| DeSmuME (py-desmume 0.0.9) | the other 8 OK | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes` (polygon RAM counters read 0) |
+
+Values seen: HBlank 31557 (melonDS) / 31374 (DeSmuME), polygons 2048, overflow frames 47, acc-dual flags `0x1f` (DeSmuME `0x19`),
+capture peak about 0x3800 (melonDS) / 0x3cf2 (DeSmuME). Three headless runs of every demo agree between the three melonDS
+renderers except the `acc-dual` picture hashes (renderer differences, not graded). The auto QA run was repeated after the ARM7
+gained the sound read-outs the capture demo needs (PASS on soft / GL / compute, DeSmuME verdict 1, 6 checkpoints identical in two
+software runs, `tools/qa/lint.py` ok). Real DS Lite + R4: not run.
 
 ## Conclusion (2026-11-11)
 

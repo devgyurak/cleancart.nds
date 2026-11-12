@@ -16,6 +16,15 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 | 타이틀 → Select → 5막 | 위: 엣지 색 세 가지의 받침대 위 인형 3개가 있는 어두운 무대, 라인 폴리곤 줄, 등불. 아래: 인형마다 NOW/AIM 면, LIT/DARK, OK/TODO. D-pad나 드래그로 등불을 움직이고 L/R/A(또는 아래쪽 터치)로 등불 아래 인형을 돌립니다. 모두 밝히고 돌려 놓으면(A 뒤, B 앞, C 뒤) 20프레임 뒤 "CLEAR!", 등불이 자리 잡고 `SEAM`, `EDGE`, `LINE`, `LAMP`, `DARK`가 나옵니다. 스크립트: `30:SELECT:4,50:DOWN:4,60:DOWN:4,70:DOWN:4,80:DOWN:4,90:A:4,110:UP:8,130:LEFT:36,160:R:2,185:RIGHT:72,250:R:2`(결과 블록 ID `0x35544341`) | ✅ DeSmuME 헤드리스, 스크린샷 확인(2026-11-11), 조작감은 아직 직접 확인 전 |
 | 리허설 데모 | `lightenette-rehearsal.nds`는 세이브 칩과 NitroFS 없이 곧바로 리허설로 부팅, 결과 블록 ID `0x4C454852`. `python3 games/lightenette/tools/judge.py <로그>`가 `expected.json`과 대조 | 아래 참고 |
 | acc-stage 데모 | `lightenette-acc-stage.nds`, 타이틀 → Select 장면과 같은 값, 결과 블록 `0x0237F000`: 매직 `0x52455643`, ID `0x4A44474C` | 아래 참고 |
+| sys-irq 데모 | `lightenette-l2-sys-irq.nds`; 항목 `sys-irq-hblank`; 기대 화면: top blue / bottom red backdrop, IRQ counts; HBlank count 31557 (gate 31297..31560) | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| sys-dma-vblank 데모 | `lightenette-l2-sys-dma-vblank.nds`; 항목 `sys-dma-vblank-frames`; 기대 화면: pink backdrop, `FRAMES VERIFIED: 120/120` | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| sys-math 데모 | `lightenette-l2-sys-math.nds`; 항목 `sys-math-sqrt64`; 기대 화면: divide lines, `SQRT(1E12) = 1000000`, `LEN(3,4,0) = 20480/4096`, `ATAN2(1,1) = 4096` | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| 3d-limits 데모 | `lightenette-l2-3d-limits.nds`; 항목 `3d-limits-ram, 3d-limits-overflow`; 기대 화면: grid of small triangles, `SUBMITTED 2980  RAM 2048`, `OVERFLOW FRAMES 47` | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| acc-dual 데모 | `lightenette-l2-acc-dual.nds`; 항목 `acc-dual-over, acc-dual-passes, acc-dual-halves`; 기대 화면: top: block city with a seam down the middle (two passes); bottom: LATENCY 1, DUAL / ONE PASS / PASSES / HALVES lines with four OK | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| 2d-affine 데모 | `lightenette-l2-2d-affine.nds`; 항목 `2d-affine-pixels`; 기대 화면: top: a rotated affine tile picture (pseudo-random colours, black holes), no text (the judge frame shows BG2 alone) | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| 2d-mosaic 데모 | `lightenette-l2-2d-mosaic.nds`; 항목 `2d-mosaic-pixels`; 기대 화면: top: the console text as 4x4 blocks (mosaic 3), coloured blocks at the bottom | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| 2d-obj-bitmap 데모 | `lightenette-l2-2d-obj-bitmap.nds`; 항목 `2d-obj-bitmap-pixels`; 기대 화면: a lit gradient disc (bitmap OBJ) below two text lines | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| snd-capture 데모 | `lightenette-l2-snd-capture.nds`; 항목 `snd-capture-signal`; 기대 화면: text only; the capture peak is in the block (values[5], about 0x3800) | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
 
 ## 자동 QA 실행
 
@@ -36,6 +45,22 @@ tools/emu/emu.sh run ... 4000 ...`).
 소프트웨어 렌더러로 두 번 돌린 체크포인트 해시가 같습니다(`tools/qa/compare.py`, 6개). QA를 끈 상태는 달라진 것이 없습니다: 테스트 메뉴로 돌린 리허설
 결과 블록이 변경 전과 같습니다. 소프트웨어 실행은 SD 카드를 붙이려고 홈브루로 돌리므로 세이브 칩이 없습니다: 세이브 미러는 읽기 검증이 일치했고 칩 쓰기는
 검증하지 못했습니다. 실기 DS Lite + R4: 아직 안 돌림.
+
+## 레벨 2 데모 (2026-11-12)
+
+데모 ROM 9개 `lightenette-l2-<이름>.nds`가 Corvane에서 넘겨받은 레벨 2 항목 12개를 담습니다(측정 코드는 Corvane 것이고, 2D 그림은
+실행 중에 코드로 만들어 에셋이 없습니다). 각각 120프레임에 블록을 씁니다(ID = `l2-<이름>`의 FNV-1a 32). 2026-11-12 빌드로 측정
+(`mds.sh demos`, `emu.sh demos`, ROM마다 `judge.py --demo lightenette-l2-<이름> --profile <프로필>`로 판정):
+
+| 에뮬레이터 | 항목 12개 | 프로필 |
+|---|---|---|
+| melonDS 1.1 소프트웨어 / GL classic / GL compute | 모두 OK(정보용 `3d-limits-overflow` 47, `acc-dual-halves`도 일치) | MATCH, NG 없음, n/a 없음 |
+| DeSmuME (py-desmume 0.0.9) | 나머지 8개 OK | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes`(폴리곤 RAM 카운터가 0) |
+
+관측값: HBlank 31557(melonDS) / 31374(DeSmuME), 폴리곤 2048, 오버플로 프레임 47, acc-dual 플래그 `0x1f`(DeSmuME `0x19`), 캡처 피크 약
+0x3800(melonDS) / 0x3cf2(DeSmuME). 세 melonDS 렌더러의 값은 `acc-dual` 그림 해시(렌더러 차이, 판정 대상 아님)를 빼고 같습니다.
+캡처 데모에 필요한 사운드 판독을 ARM7에 추가한 뒤 자동 QA를 다시 돌렸습니다(soft / GL / compute PASS, DeSmuME 판정 1, 소프트웨어 두 번
+체크포인트 6개 동일, `tools/qa/lint.py` 통과). 실제 DS Lite + R4: 미실행.
 
 ## 결론 (2026-11-11)
 

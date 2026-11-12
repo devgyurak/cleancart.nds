@@ -30,8 +30,15 @@ those capture bits is clear (the capture did not finish), and an item that reads
 pixels ("pixels": true) is NG when a value is above 0x7FFF (the ROM's "not
 captured" marker 0xFFFF).
 
+Items can also be n/a: "na_when": [i, v] makes an item n/a when values[i] == v (no polygon counters
+in DeSmuME). Extra checks for the level 2 demo ROMs (boots "l2-<name>", ported from Corvane's judge):
+mask ((v & mask) == expect), nonzero ((v & mask) != 0), same (all values equal), ne (two values
+differ); "not_value" fails an item when a value equals it. Without --profile a gating item that is n/a is
+not a pass: the run exits 1 and prints NOT GRADED (use a profile, which lists the n/a items, or --allow-na).
+
 Profiles: expected.json "known" lists, per emulator version and renderer, the
-gating items that are expected to fail there. With --profile NAME the run passes
+gating items that are expected to fail there ("ng") and the items that are n/a there ("na"); only items of
+the boot being graded are compared. With --profile NAME the run passes
 (exit 0) only when the set of failing gating items equals that list exactly;
 newly failing and newly passing items are reported either way.
 
@@ -165,11 +172,19 @@ def channels(value, pack):
     return [value]
 
 
+def is_na(item, vals):
+    """na_when [i, v]: the item is n/a when values[i] == v. Raises IndexError when the value is missing."""
+    na = item.get('na_when')
+    return bool(na) and vals[na[0]] == na[1]
+
+
 def grade(item, vals):
     """Return (ok, got_text, want_text). Raises IndexError when a value is missing."""
     got = [vals[i] for i in item['values']]
     tol = item.get('tolerance', 0)
     check = item['check']
+    if 'not_value' in item and any(g == item['not_value'] for g in got):
+        return False, '/'.join('%d' % g for g in got), 'not %d' % item['not_value']
     done = item.get('done')
     if done is not None:
         mask = done['mask']
@@ -207,6 +222,14 @@ def grade(item, vals):
         return max(got) - min(got) <= tol, shown, 'all equal'
     if check == 'differ':
         return got[0] != got[1], '/'.join('%04x' % g for g in got), 'differ'
+    if check == 'mask':
+        return got[0] & item['mask'] == item['expect'], '%#x' % (got[0] & item['mask']), '%#x (mask %#x)' % (item['expect'], item['mask'])
+    if check == 'nonzero':
+        return got[0] & item['mask'] != 0, '%#x' % (got[0] & item['mask']), 'non-zero (mask %#x)' % item['mask']
+    if check == 'same':
+        return all(g == got[0] for g in got), '/'.join('%d' % g for g in got), 'all equal'
+    if check == 'ne':
+        return got[0] != got[1], '/'.join('%d' % g for g in got), 'differ'
     raise Fatal('expected.json: unknown check %r in item %s' % (check, item.get('id')))
 
 
@@ -244,7 +267,7 @@ def run(args):
     check_roles(exp)
     if args.list_profiles:
         for name, p in sorted(exp.get('known', {}).items()):
-            print('%-28s %s  (%d known NG)' % (name, p.get('emulator', ''), len(p.get('ng', []))))
+            print('%-28s %s  (%d known NG, %d n/a)' % (name, p.get('emulator', ''), len(p.get('ng', [])), len(p.get('na', []))))
         return 0
 
     if args.boot is not None and args.boot not in boots:
@@ -295,12 +318,23 @@ def run(args):
     roles = []
     lines = []
     prereq_ng = []
+    na = []          # ids of n/a items
+    ungraded = []    # gating items that were n/a
+    graded_ids = set()
     missing = 0
     for item in items:
         if boot not in item['boots']:
             continue
         info = not is_gating(item)
+        graded_ids.add(item['id'])
         try:
+            if is_na(item, vals):
+                lines.append('%-7s %-22s %s [%s]' % ('N/A', item['id'], 'not measurable (values[%d] == %d)' % tuple(item['na_when']),
+                                                      item['source']))
+                na.append(item['id'])
+                if not info:
+                    ungraded.append(item['id'])
+                continue
             ok, got, want = grade(item, vals)
         except IndexError:
             lines.append('%-5s %-22s value not in the log (use 64 result words)' % ('MISS', item['id']))
@@ -325,19 +359,29 @@ def run(args):
     print('ROLES ' + role_summary(roles))
 
     if profile is not None:
-        known_ng = set(profile.get('ng', []))
+        # Only the items of this boot take part (a profile covers every boot of the game).
+        known_ng = set(profile.get('ng', [])) & graded_ids
+        known_na = set(profile.get('na', [])) & graded_ids
         now_ng = set(failed)
         new_fail = sorted(now_ng - known_ng)
         new_pass = sorted(known_ng - now_ng)
+        for i in sorted(set(na) - known_na):
+            print('NEWLY N/A  %s (not in the profile)' % i)
+        for i in sorted(known_na - set(na)):
+            print('NO LONGER N/A  %s' % i)
         for i in new_fail:
             print('NEWLY FAILING  %s (not in the profile)' % i)
         for i in new_pass:
             print('NEWLY PASSING  %s (the profile expects NG; the emulator may have been fixed)' % i)
-        same = not new_fail and not new_pass
+        same = not new_fail and not new_pass and set(na) == known_na
         print('PROFILE %s (%s): %s' % (args.profile, profile.get('emulator', ''),
                                        'MATCH' if same else 'MISMATCH'))
         return 0 if same else 1
 
+    if ungraded and not args.allow_na:
+        print('NOT GRADED %d gating item(s) were n/a without a profile (first: %s); use --profile or --allow-na'
+              % (len(ungraded), ungraded[0]))
+        return 1    # a PASS must not be built from items nobody graded
     print('RESULT: %s' % ('NG (%d gating item%s failed)' % (len(failed), 's' * (len(failed) != 1))
                           if failed else 'OK'))
     return 1 if failed else 0
@@ -349,6 +393,7 @@ def main(argv):
     ap.add_argument('--boot', help='boot name; must agree with the item id in the block')
     ap.add_argument('--profile', help='emulator profile from expected.json "known"; exit 0 only if the NG set matches')
     ap.add_argument('--demo', help='ROM name prefix to keep in logs of several ROMs (mds.sh demos)')
+    ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('logs', nargs='*')
     args = ap.parse_args(argv)

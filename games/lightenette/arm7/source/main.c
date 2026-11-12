@@ -55,6 +55,10 @@ static void send_input(void)
     pkt.second = rtc_now.seconds;
     pkt.seq = frame_seq;
     pkt.battery = (uint16_t)getBatteryLevel();
+    pkt.snd_busy = snd7_busy_mask();
+    pkt.cap_peak = snd7_cap_peak();
+    pkt.cap_busy = snd7_cap_busy();
+    pkt.pad = 0;
 
     fifoSendDatamsg(CV_FIFO_INPUT, sizeof(pkt), (u8 *)&pkt);
 

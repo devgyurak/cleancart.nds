@@ -56,7 +56,8 @@ NITRO    := build/nitrofs
 STAMP    := $(GEN)/.stamp
 
 # Demo ROMs: the judge scene as its own ROM (names: arm9/source/demo/demo.c).
-DEMOS := acc-stage rehearsal
+DEMOS := acc-stage rehearsal l2-sys-irq l2-sys-dma-vblank l2-sys-math l2-3d-limits l2-acc-dual \
+         l2-2d-affine l2-2d-mosaic l2-2d-obj-bitmap l2-snd-capture
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
@@ -168,7 +169,8 @@ release:
 	@# The emulator-test kit: the rehearsal ROMs with the file that grades them.
 	@mkdir -p $(RELEASE)/judge && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/ && \
-		cp lightenette-rehearsal.nds lightenette-acc-stage.nds $(RELEASE)/judge/
+		cp lightenette-rehearsal.nds lightenette-acc-stage.nds $(RELEASE)/judge/ && \
+		for d in $(filter l2-%,$(DEMOS)); do cp lightenette-$$d.nds $(RELEASE)/judge/ || exit 1; done
 
 clean:
 	@echo "  CLEAN"

@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#build)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#build)
-[![Accuracy items: 23](https://img.shields.io/badge/accuracy%20items-23-orange)](expected.json)
+[![Accuracy items: 39](https://img.shields.io/badge/accuracy%20items-39-orange)](expected.json)
 
 [한국어](README-KO.md)
 
@@ -53,7 +53,7 @@ Docker is all you need.
 ./build.sh                    # lightenette.nds
 ./build.sh SAVE=flash         # lightenette-save-flash.nds
 ./build.sh SAVE=fram          # lightenette-save-fram.nds
-./build.sh demos              # lightenette-acc-stage.nds, lightenette-rehearsal.nds
+./build.sh demos              # acc-stage, rehearsal and the nine l2-* demo ROMs
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: what a lightenette-vX.Y.Z tag ships
 ./build.sh clean
 ```
@@ -87,12 +87,30 @@ release ships the `expected.json` that matches its ROM, so pin the pair (ROM + `
 `judge.py`) from the same `lightenette-vX.Y.Z` release. The software renderer of melonDS 1.1 is the
 current all-OK reference; the other renderers' known differences are listed in [docs/QA.md](docs/QA.md).
 
+### Level 2 demo ROMs
+
+Lightenette is the level 2 (edge) game ([docs/LEVELS.md](../../docs/LEVELS.md)). Besides the display
+edge cases above it ships nine small demo ROMs, `lightenette-l2-<name>.nds`, each a boot of `expected.json`
+(`l2-sys-irq`, `l2-sys-dma-vblank`, `l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`,
+`l2-2d-obj-bitmap`, `l2-snd-capture`). Each runs 120 frames and writes the usual result block (id = FNV-1a 32 of the ROM's
+demo name, e.g. `l2-sys-irq`; values from `words[3:]`). They carry 12 level 2 items: HBlank IRQ count, DMA at VBlank, the
+64-bit hardware square root, polygon RAM limits, two-pass rendering through the capture, affine BG / mosaic / bitmap OBJ
+pixels and the sound capture signal. Grade one ROM at a time:
+
+```sh
+tools/melonds/mds.sh demos <folder with the l2 ROMs> > l2.log     # RENDERER=gl|compute
+python3 games/lightenette/tools/judge.py --demo lightenette-l2-acc-dual --profile melonds-1.1-software l2.log
+```
+
+An item that an emulator cannot measure (polygon RAM counters in DeSmuME) is n/a (`na_when`); without `--profile` a
+gating n/a item is not a pass (`NOT GRADED`, exit 1) unless you add `--allow-na`. The profiles list the n/a items.
+
 ## Layout
 
 ```
 arm9/source/game/   scenes: title, acts 1-5, credits and licence viewer, rehearsal
 arm9/source/judge/  accuracy judge (capture, pixel counts, result block)
-arm9/source/demo/   demo ROM entry (acc-stage, rehearsal)
+arm9/source/demo/   demo ROM entry (acc-stage, rehearsal) and the level 2 demos (l2.c)
 arm9/source/core/   system, input, DMA, save, sound (corvane layers)
 arm9/source/gfx/    2D/3D layers (corvane layers)
 arm7/               own ARM7 core
