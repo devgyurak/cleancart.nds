@@ -143,7 +143,7 @@ class Judge(unittest.TestCase):
 
     def test_other_games_lines_are_ignored(self):
         exp = load()
-        text = line(exp, 'io-cart', [0, 0]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.OTHER_GAMES[0])
+        text = line(exp, 'io-cart', [0, 0, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.OTHER_GAMES[0])
         err, old = io.StringIO(), sys.stderr
         sys.stderr = err
         try:
@@ -151,11 +151,11 @@ class Judge(unittest.TestCase):
         finally:
             sys.stderr = old
         self.assertIn('ignored', err.getvalue())
-        self.assertEqual(len(judge.parse_blocks(line(exp, 'io-cart', [0, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.GAME))), 1)
+        self.assertEqual(len(judge.parse_blocks(line(exp, 'io-cart', [0, 1, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.GAME))), 1)
 
     def test_env_items_are_n_a_on_hardware(self):
         exp = load()
-        rc, r = run_judge(line(exp, 'io-cart', [0, 0]), '--hardware')
+        rc, r = run_judge(line(exp, 'io-cart', [0, 0, 1]), '--hardware')
         self.assertEqual((rc, r['gating_failing']), (0, []))
         self.assertEqual(r['items']['io-cart-ok'], 'NA')
 

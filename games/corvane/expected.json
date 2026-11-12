@@ -128,9 +128,8 @@
    "min": 119,
    "max": 121,
    "source": "rom",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS Inter Process Communication"
   },
   {
@@ -159,9 +158,8 @@
    "min": 1,
    "max": 2,
    "source": "unconfirmed",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "none"
   },
   {
@@ -247,9 +245,8 @@
    "min": 118,
    "max": 121,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS Interrupts"
   },
   {
@@ -263,9 +260,8 @@
    "min": 19,
    "max": 20,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS Timers"
   },
   {
@@ -279,9 +275,8 @@
    "min": 15,
    "max": 16,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS Timers"
   },
   {
@@ -338,7 +333,8 @@
    "expect": 1,
    "source": "rom",
    "env": "cart",
-   "role": "target",
+   "role": "relocate",
+   "to": "hushwell",
    "level": 1,
    "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
   },
@@ -354,8 +350,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
   {
@@ -370,8 +366,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
   {
@@ -549,9 +545,9 @@
    "max": 1,
    "source": "unconfirmed",
    "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "to": "hushwell",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad"
   },
   {
    "id": "2d-engines-powercnt",
@@ -1198,9 +1194,9 @@
    ],
    "source": "unconfirmed",
    "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "to": "lightenette",
+   "level": 2,
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-test-inside",
@@ -1290,8 +1286,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Protocol"
   },
   {
@@ -1320,8 +1316,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1336,8 +1332,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1352,8 +1348,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1368,8 +1364,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1384,8 +1380,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1400,8 +1396,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1416,8 +1412,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1432,8 +1428,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1448,8 +1444,8 @@
    "source": "rom",
    "env": "cart",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Cartridge Backup"
   },
   {
@@ -1560,8 +1556,8 @@
    "source": "GBATEK",
    "env": "harness",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Touch Screen Controller"
   },
   {
@@ -1577,8 +1573,8 @@
    "source": "GBATEK",
    "env": "harness",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Touch Screen Controller"
   },
   {
@@ -1654,8 +1650,7 @@
    "mask": 2,
    "expect": 2,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control"
   },
@@ -1703,9 +1698,8 @@
    "check": "ne",
    "not_value": 65535,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
   },
   {
@@ -1718,8 +1712,7 @@
    ],
    "check": "ne",
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
+   "role": "target",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Color Special Effects",
    "not_value": 65535
@@ -1808,9 +1801,9 @@
    "expect": 8,
    "source": "unconfirmed",
    "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "to": "lightenette",
+   "level": 2,
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "acc-dual-latency-flag",
@@ -2181,9 +2174,8 @@
    "check": "eq",
    "expect": 0,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:LCD OBJ - OAM Rotation/Scaling Parameters"
   },
   {
@@ -2525,8 +2517,8 @@
    "expect": 3,
    "source": "GBATEK",
    "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "to": "hushwell",
+   "level": 1,
    "level_basis": "gbatek:DS Sound Capture"
   },
   {

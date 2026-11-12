@@ -66,9 +66,9 @@ class Judge(unittest.TestCase):
 
     def test_good_and_bad_block(self):
         exp = load()
-        rc, r = run_judge(line(exp, 'io-cart', [0, 1]))
+        rc, r = run_judge(line(exp, 'io-cart', [0, 1, 1]))
         self.assertEqual((rc, r['gating_failing']), (0, []))
-        rc, r = run_judge(line(exp, 'io-cart', [0, 0]))
+        rc, r = run_judge(line(exp, 'io-cart', [0, 0, 1]))
         self.assertEqual((rc, r['gating_failing']), (1, ['io-cart-ok']))
 
     def test_relocate_items_are_informational(self):
@@ -127,7 +127,7 @@ class Judge(unittest.TestCase):
 
     def test_gating_change_breaks_a_profile(self):
         exp = load()
-        rc, _ = run_judge(line(exp, 'io-cart', [0, 0]), '--profile', 'melonds-1.1-software')
+        rc, _ = run_judge(line(exp, 'io-cart', [0, 0, 1]), '--profile', 'melonds-1.1-software')
         self.assertEqual(rc, 1)
 
     def test_not_value_and_new_checks(self):
@@ -150,7 +150,7 @@ class Judge(unittest.TestCase):
 
     def test_other_games_lines_are_ignored(self):
         exp = load()
-        text = line(exp, 'io-cart', [0, 0]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.OTHER_GAMES[0])
+        text = line(exp, 'io-cart', [0, 0, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.OTHER_GAMES[0])
         err, old = io.StringIO(), sys.stderr
         sys.stderr = err
         try:
@@ -158,11 +158,11 @@ class Judge(unittest.TestCase):
         finally:
             sys.stderr = old
         self.assertIn('ignored', err.getvalue())
-        self.assertEqual(len(judge.parse_blocks(line(exp, 'io-cart', [0, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.GAME))), 1)
+        self.assertEqual(len(judge.parse_blocks(line(exp, 'io-cart', [0, 1, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.GAME))), 1)
 
     def test_env_items_are_n_a_on_hardware(self):
         exp = load()
-        rc, r = run_judge(line(exp, 'io-cart', [0, 0]), '--hardware')
+        rc, r = run_judge(line(exp, 'io-cart', [0, 0, 1]), '--hardware')
         self.assertEqual((rc, r['gating_failing']), (0, []))
         self.assertEqual(r['items']['io-cart-ok'], 'NA')
 
