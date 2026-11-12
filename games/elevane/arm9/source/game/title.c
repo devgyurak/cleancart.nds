@@ -38,7 +38,7 @@ EvScene scene_title(void)
     for (;;)
     {
         scene_frame_end();
-        if (qa_title_poll())
+        if (qa_title_poll() || qa_marker_poll())
         {
             // Hidden auto QA mode (core/qa.h): the puzzle list, like Start.
             snd_sfx(CV_SFX_CHIME, 100, 64);

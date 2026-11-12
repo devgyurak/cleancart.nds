@@ -361,3 +361,11 @@ melonDS QA.
 - Determinism: for stage 1, the stage state memory (CvStage, 25.5 KB) of a run recorded
   with input and of its replay from the records screen was identical at frames 300 and
   600 (the only differing bytes were heap pointers and the message string).
+
+## Starting QA without the keys (SD marker)
+
+Put an empty file `cleancart/corvane/autoqa` on the SD card (the folder must exist). The first title
+screen of the boot starts the same QA run as the key combo and renames the file to
+`autoqa.used-<date>-<time>` before it starts, so the run happens once. If the rename fails nothing
+starts and `autoqa-error.log` gets a line. The log's `qa start` line says `start=marker` or `start=keys`.
+Headless: `SDDIR=out/x tools/melonds/mds.sh run …` with `out/x/cleancart/corvane/autoqa` and no key events.

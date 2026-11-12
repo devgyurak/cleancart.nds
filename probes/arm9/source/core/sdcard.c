@@ -95,6 +95,42 @@ bool sd_append(const char *path, const void *data, u32 len)
     return ok;
 }
 
+int sd_marker_take(const char *kit, const char *name)
+{
+    char rel[48];
+    snprintf(rel, sizeof(rel), "cleancart/%s", kit);
+    if (!sd_dir_exists(rel))
+        return 0;
+    const char *drive = fatGetDefaultDrive();
+    char path[128];
+    snprintf(path, sizeof(path), "%s%s/%s", drive, rel, name);
+    if (!sd_exists(path))
+        return 0;
+    char used[160];
+    snprintf(used, sizeof(used), "%s.used-20%02u%02u%02u-%02u%02u%02u", path, cv_arm7.year,
+             cv_arm7.month, cv_arm7.day, cv_arm7.hour, cv_arm7.minute, cv_arm7.second);
+    // A fixed clock (emulators) can repeat the name: an old .used file is never replaced.
+    if (sd_exists(used))
+    {
+        last_errno = EEXIST;
+    }
+    else
+    {
+        bool owner = cart_bus_claim();
+        int rc = rename(path, used);
+        if (rc != 0)
+            last_errno = errno;
+        cart_bus_release(owner);
+        if (rc == 0)
+            return 1;
+    }
+    char note_path[128], note[48];
+    snprintf(note_path, sizeof(note_path), "%s%s/%s-error.log", drive, rel, name);
+    int n = snprintf(note, sizeof(note), "rename failed errno=%d\n", last_errno);
+    sd_append(note_path, note, (u32)n);
+    return -1;
+}
+
 // ---------------------------------------------------------------------------
 // Result block
 

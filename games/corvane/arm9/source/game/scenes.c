@@ -389,7 +389,7 @@ CvScene scene_title(void)
         title_logo_zoom(zoom);
         title_sky(f);
         frame_end();
-        if (qa_title_poll())
+        if (qa_title_poll() || qa_marker_poll())
         {
             // Hidden auto QA mode (core/qa.h): a normal new game from stage 1.
             start_stage = 1;
