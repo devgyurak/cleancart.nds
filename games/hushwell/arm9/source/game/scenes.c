@@ -322,7 +322,7 @@ CvScene scene_title(void)
         title_logo(f);
         title_rain(f);
         frame_end();
-        if (qa_title_poll())
+        if (qa_title_poll() || qa_marker_poll())
         {
             // Hidden auto QA mode (core/qa.h): a normal new game from the prologue.
             start_chapter = 0;

@@ -216,3 +216,11 @@ replace melonDS QA.
 - Not covered by the smoke tests: the
   swarm polygon overflow (DeSmuME reports 0), what the reversed recording actually sounds like
   and the microphone (headless runs have no audio input), and anything in melonDS.
+
+## Starting QA without the keys (SD marker)
+
+Put an empty file `cleancart/hushwell/autoqa` on the SD card (the folder must exist). The first title
+screen of the boot starts the same QA run as the key combo and renames the file to
+`autoqa.used-<date>-<time>` before it starts, so the run happens once. If the rename fails nothing
+starts and `autoqa-error.log` gets a line. The log's `qa start` line says `start=marker` or `start=keys`.
+Headless: `SDDIR=out/x tools/melonds/mds.sh run …` with `out/x/cleancart/hushwell/autoqa` and no key events.

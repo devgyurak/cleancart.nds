@@ -36,6 +36,13 @@ bool sd_exists(const char *path);
 bool sd_append(const char *path, const void *data, u32 len);
 int  sd_errno(void);
 
+// Marker file <drive>cleancart/<kit>/<name> (auto QA start: name "autoqa"). When it exists it is
+// renamed to <name>.used-<date>-<time> and 1 is returned, so the next boot finds nothing even when
+// the power goes out right after. 0: no marker (or no card). -1: the marker exists but could not be
+// renamed; then nothing may start, and `rename failed errno=N` is appended to
+// cleancart/<kit>/<name>-error.log (sd_errno() holds the errno).
+int sd_marker_take(const char *kit, const char *name);
+
 // Writes cleancart/<kit>/res-<date>-<time>-<kit>-<name>.log when that folder
 // exists. Returns true only when the file was written and read back equal.
 // Call after the block's magic is set and the measurement is over.

@@ -33,3 +33,11 @@ games/elevane/elevane.nds 20000 out/ev/x "300:L:140,300:R:140,300:X:140,300:Y:14
 ## Verified so far
 
 See the pull request that introduced the skeleton for what was run where.
+
+## Starting QA without the keys (SD marker)
+
+Put an empty file `cleancart/elevane/autoqa` on the SD card (the folder must exist). The first title
+screen of the boot starts the same QA run as the key combo and renames the file to
+`autoqa.used-<date>-<time>` before it starts, so the run happens once. If the rename fails nothing
+starts and `autoqa-error.log` gets a line. The log's `qa start` line says `start=marker` or `start=keys`.
+Headless: `SDDIR=out/x tools/melonds/mds.sh run …` with `out/x/cleancart/elevane/autoqa` and no key events.
