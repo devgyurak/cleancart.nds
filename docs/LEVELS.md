@@ -78,7 +78,7 @@ Rules (`judge.py` of every game and `scripts/mklevels.py --check` enforce them; 
 
 - a `target` item has `level == target_level`; a `prerequisite` has `level <= target_level`;
 - an item above the target level can only be `relocate`; `relocate` needs `"to"`;
-- the final state has no `relocate` item (until then `--check` only warns).
+- no item stays `relocate`: `mklevels.py --check` fails while one is left (the marker is only for work in progress).
 
 Exit codes stay 0/1/2. The output adds `ROLES target a/b OK · prerequisite a/b OK · relocate n informational`.
 Split an item rather than move it whole when only part of it is above the target (a loose "about once per line" range is L1

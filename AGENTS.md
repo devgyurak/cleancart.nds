@@ -6,8 +6,10 @@ generated assets, plus clearly noticed third-party runtime libraries.
 
 Purpose: homebrew for emulator developers to develop against and verify with. Each ROM is a
 complete game that also judges itself (result block + `expected.json` + `judge.py`), usable in CI,
-and licence-clean. Every judged item carries a difficulty level L1–L4 (`docs/LEVELS.md`). See the
-Purpose section of `README.md`.
+and licence-clean. Every judged item carries a difficulty level L1–L4 and every game has one
+target level (`docs/LEVELS.md`): L1 Corvane (graphics and system) and Hushwell (sound and I/O),
+L2 Lightenette, L3 Elevane. Games hold no L4 item: L4 lives in `probes/`, a collection of
+research probe ROMs that is not a game. See the Purpose section of `README.md`.
 
 This file is the single source of truth for both Claude Code and Codex.
 `CLAUDE.md` only imports it. Game-specific notes live in `games/<game>/AGENTS.md`.
@@ -112,6 +114,7 @@ LICENSE / CONTRIBUTING.md     Apache-2.0 for everything outside games/; issues-o
 .github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 games/<game>/                 one game: Makefile, build.sh, Dockerfile, sources, docs
                               (corvane, hushwell, lightenette, elevane)
+probes/                       L4 research probes (not a game: no QA mode, no play-through; see probes/AGENTS.md)
 ```
 
 ## Rules (read before editing matching files)
@@ -162,8 +165,11 @@ Claude definitions are canonical (`.claude/agents/`). After editing one, run
    reaches the credits with `RESULT PASS`, the log passes `tools/qa/parse_log.py`, DeSmuME reaches
    the end too, two runs give identical checkpoint hashes, `tools/qa/lint.py` passes, and with QA off
    nothing changed. Games with `expected.json` + `judge.py` also run it on all four renderers and
-   match the known profiles.
-5. Every game ships `expected.json` + `tools/judge.py`, every judged item has a `level`, and
-   `python3 scripts/mklevels.py --check` passes (it keeps the level columns and the "Tests by level"
-   list of the root READMEs in sync; run it without `--check` to regenerate).
+   match the known profiles. `probes/` is the exception: it is not a game, so it has no QA mode and no
+   play-through; its demo ROMs reach their checkpoint on all four emulators and match the recorded profiles.
+5. Every game ships `expected.json` + `tools/judge.py` with a `target_level`, an `area`, and for every
+   judged item a `level` and a `role` (`target` / `prerequisite`; no `relocate` is left). `python3
+   scripts/mklevels.py --check` passes (role rules, GBATEK section names, and the level cells and the
+   "Games by level" list of the root READMEs in sync; run it without `--check` to regenerate;
+   `--map` prints the GBATEK section x level x game table).
 6. Report honestly what was verified where (DeSmuME ≠ melonDS ≠ hardware).

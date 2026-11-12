@@ -41,7 +41,7 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../..
 
 ## Judging
 
-`expected.json` + `tools/judge.py` grade the demo result blocks (see `docs/QA.md`, "Judging"; shipped in
+`expected.json` + `tools/judge.py` grade the demo result blocks (target level 1, area "graphics and system"; sound and I/O demos belong to Hushwell, L2 to Lightenette, L3 to Elevane, L4 to `probes/`; see `docs/QA.md`, "Judging"; shipped in
 `build/release/judge`). Every item has `level` 1-4 and `level_basis` (`../../docs/LEVELS.md`). When a demo's
 `finish()` values change, update `expected.json` and re-measure every profile (`judge.py --profile NAME`);
 expected values come from GBATEK, a report or the ROM's own logic, never from "what melonDS printed" (then the
