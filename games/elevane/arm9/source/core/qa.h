@@ -3,7 +3,8 @@
 //
 // Auto QA mode: the game plays itself to the end and writes a QA log (see
 // qalog.h). It lives in the same ROM as the release build and stays hidden:
-// hold L+R+X+Y on the title screen for 120 frames. Nothing is drawn for it.
+// hold L+R+X+Y on the title screen for 120 frames, or (SD card) a marker file
+// cleancart/<game>/autoqa that is renamed when the run starts. Nothing is drawn for it.
 //
 // QA mode may only
 //   - feed input (the autopilot, through core/input.c, like replay playback),
@@ -43,6 +44,9 @@ bool qa_active(void);
 // Title screen: call once per frame after input_update(). True on the frame
 // the combo completes (QA is active from then on); never while a replay plays.
 bool qa_title_poll(void);
+// Title screen, next to qa_title_poll(): true when <drive>cleancart/<game>/autoqa existed (it is
+// renamed to autoqa.used-<date>-<time> first) and the run started. Checks the card once per boot.
+bool qa_marker_poll(void);
 
 // core/input.c: fills `out` and returns true while QA owns the input.
 bool qa_autopilot(QaInput *out);

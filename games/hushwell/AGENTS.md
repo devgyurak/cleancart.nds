@@ -124,3 +124,5 @@ folder: whoever prepares the card does. Without the folder (every emulator CI ru
 nothing is written and nothing on screen changes. The demo then shows `RESULT SAVED` under the checkpoint. `tools/qa/ingest.py SD` copies the logs to
 `build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
 emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).
+
+**QA marker start**: `qa_marker_poll()` (core/qa.c) starts the same run from `cleancart/hushwell/autoqa` on the SD card (renamed to `autoqa.used-*` first, once per boot, on the first title frame); the log says `start=marker`. See skill `nds-qa-mode`.

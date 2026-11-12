@@ -8,6 +8,7 @@
 #include "core/qalog.h"
 #include "core/rng.h"
 #include "core/save.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 
 static bool active;
@@ -38,6 +39,19 @@ int qa_rtc_hour(void)
     return QA_RTC_HOUR;
 }
 
+static void start_run(const char *how)
+{
+    active = true;
+    run_start = cv_frame;
+    last_frame = cv_frame;
+    lag_since_cp = 0;
+    save_backup = cv_save;
+    replay_backup_size = save_load_replay(replay_backup, sizeof(replay_backup));
+    qa_game_reset();
+    qalog_open(qa_game_name(), 0);
+    qalog_line("qa", "start", "start=%s combo=%d", how, QA_COMBO_FRAMES);
+}
+
 bool qa_title_poll(void)
 {
     if (active || replay_playing() || replay_recording())
@@ -52,15 +66,22 @@ bool qa_title_poll(void)
     if (combo < QA_COMBO_FRAMES)
         return false;
     combo = 0;
-    active = true;
-    run_start = cv_frame;
-    last_frame = cv_frame;
-    lag_since_cp = 0;
-    save_backup = cv_save;
-    replay_backup_size = save_load_replay(replay_backup, sizeof(replay_backup));
-    qa_game_reset();
-    qalog_open(qa_game_name(), 0);
-    qalog_line("qa", "start", "combo=%d", QA_COMBO_FRAMES);
+    start_run("keys");
+    return true;
+}
+
+// Once per boot, on the first title frame that is not a replay: a marker file on the SD card
+// starts the same run as the key combo. The marker is renamed before anything starts, so a
+// power cut or a crash never repeats the run; a failed rename starts nothing.
+bool qa_marker_poll(void)
+{
+    static bool checked;
+    if (checked || active || replay_playing() || replay_recording())
+        return false;
+    checked = true;
+    if (sd_marker_take(qa_game_name(), "autoqa") != 1)
+        return false;
+    start_run("marker");
     return true;
 }
 
