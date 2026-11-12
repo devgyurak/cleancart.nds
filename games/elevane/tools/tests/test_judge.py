@@ -187,6 +187,77 @@ class Judge(unittest.TestCase):
             with self.assertRaises(judge.Fatal):
                 judge.check_roles(bad)
 
+    # --- level 3 demo blocks ("demos" in expected.json, 16 words each) --------------------------
+    def demo_ids(self):
+        with open(EXP) as f:
+            return json.load(f)['demos']
+
+    def demo_text(self, name, **vals):
+        v = [0] * 13
+        for k, x in vals.items():
+            v[int(k[1:])] = x
+        return '%s RESULT %s\n' % ('elevane-' + name, ' '.join('%08x' % w for w in
+                                                               [judge.MAGIC, self.demo_ids()[name], 120] + v))
+
+    def run_log(self, log, *extra):
+        import io
+        import tempfile
+        with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as f:
+            f.write(log)
+        try:
+            out, err = io.StringIO(), io.StringIO()
+            o, e, sys.stdout, sys.stderr = sys.stdout, sys.stderr, out, err
+            try:
+                rc = judge.main(['--expected', EXP, '--json'] + list(extra) + [f.name])
+            finally:
+                sys.stdout, sys.stderr = o, e
+        finally:
+            os.unlink(f.name)
+        return rc, (json.loads(out.getvalue()) if out.getvalue() else None)
+
+    def test_demo_ids_are_fnv1a_of_the_names(self):
+        for name, bid in self.demo_ids().items():
+            h = 2166136261
+            for c in name.encode():
+                h = ((h ^ c) * 16777619) & 0xFFFFFFFF
+            self.assertEqual(h, bid, name)
+
+    def test_demo_blocks_are_graded_alone(self):
+        log = self.demo_text('l3-acc-dual', v0=1, v3=0x1f) + self.demo_text('l3-sys-dma-hblank', v4=22, v6=1)
+        rc, r = self.run_log(log)
+        self.assertEqual(rc, 0)
+        self.assertEqual(r['demos'], ['l3-acc-dual', 'l3-sys-dma-hblank'])
+        self.assertEqual(r['items']['acc-dual-latency'], 'OK')
+        self.assertEqual(r['items']['sys-dma-hblank-pixels'], 'OK')
+        self.assertNotIn('puzzles-delivered', r['items'])          # no rehearsal block in the log
+
+    def test_demo_gating_failure_and_informational(self):
+        rc, r = self.run_log(self.demo_text('l3-sys-dma-hblank', v5=3))
+        self.assertEqual((rc, r['gating_failing']), (1, ['sys-dma-hblank-pixels']))
+        rc, r = self.run_log(self.demo_text('l3-acc-dual', v0=2, v3=0))   # unconfirmed: informational
+        self.assertEqual((rc, r['failing']), (0, ['acc-dual-latency', 'acc-dual-latency-flag']))
+
+    def test_demo_and_rehearsal_blocks_in_one_log(self):
+        log = 'elevane-rehearsal ' + text(block()) + self.demo_text('l3-acc-dual', v0=1, v3=0x10)
+        rc, r = self.run_log(log)
+        self.assertEqual((rc, r['failing']), (0, []))
+        self.assertIn('puzzles-delivered', r['items'])
+        self.assertIn('acc-dual-latency-flag', r['items'])
+
+    def test_unfinished_or_short_demo_block_is_exit_2(self):
+        rc, _ = self.run_log(self.demo_text('l3-acc-dual').replace(' 52455643 ', ' 00000000 ', 1))
+        self.assertEqual(rc, 2)
+        rc, _ = self.run_log(' '.join(self.demo_text('l3-acc-dual').split()[:10]) + '\n')
+        self.assertEqual(rc, 2)
+
+    def test_every_demo_item_names_a_listed_demo(self):
+        with open(EXP) as f:
+            exp = json.load(f)
+        for it in exp['items']:
+            if 'demo' in it:
+                self.assertIn(it['demo'], exp['demos'], it['id'])
+                self.assertTrue(it['demo'].startswith('l3-'), it['id'])
+
 
 if __name__ == '__main__':
     unittest.main()

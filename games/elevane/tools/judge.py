@@ -20,8 +20,13 @@ values[0..17] in hex and a CRC when it ends) instead of a log: `judge.py --value
 all 18 values and the CRC, hex only. A missing value, a character that is not a hex digit or a
 CRC that does not match is exit code 2 (never a pass built from numbers nobody typed).
 
-Words: w0 magic, w1 id, w2 frame, w3.. values[0..60]. The id must be the rehearsal's
-("EVRH"). Each expected item is graded OK or NG. Items whose source is "unconfirmed"
+Words: w0 magic, w1 id, w2 frame, w3.. values[0..60]. The id names the ROM: the rehearsal's
+("EVRH", boot.item_id) or one of the level 3 demos listed under "demos" in expected.json
+(id = FNV-1a 32 of the demo name, e.g. "l3-acc-dual"; those blocks carry values[0..12], 16 words
+are enough). An item without "demo" is graded from the rehearsal block, one with "demo" from that
+demo's block. Blocks of several ROMs may be in one log (one `<rom> RESULT ...` line each, e.g. the
+output of `tools/melonds/mds.sh demos`); items whose ROM is not in the log are not graded, and with
+--profile only the listed items of the ROMs present are compared. Each expected item is graded OK or NG. Items whose source is "unconfirmed"
 are informational: they print INFO and never fail the run. An item can depend on a
 flag bit ("requires": {"value": i, "bit": b}); when it is clear the item is n/a
 (DeSmuME has no polygon RAM counters, so those items cannot be graded there).
@@ -44,6 +49,7 @@ import sys
 
 BLOCK_WORDS = 64
 MAGIC = 0x52455643
+DEMO_WORDS = 16      # a demo block: magic, id, frame, values[0..12]
 SHOWN_VALUES = 18   # values[0..17] are what the rehearsal prints (rehearsal.h)
 
 
@@ -61,9 +67,9 @@ class Fatal(Exception):
     """A usage or input problem: exit code 2."""
 
 
-def parse_block(text, demo=None):
-    """The last RESULT block in the text as a list of ints, or None."""
-    found = None
+def parse_blocks(text, demo=None):
+    """{block id: words}: every RESULT line, the last one of an id wins."""
+    blocks = {}
     for line in text.splitlines():
         m = re.match(r'^(?:(\S+)\s+)?RESULT((?:\s+[0-9a-fA-F]{1,8})+)\s*$', line.strip())
         if not m:
@@ -72,8 +78,8 @@ def parse_block(text, demo=None):
             continue
         words = [int(w, 16) for w in m.group(2).split()]
         if len(words) >= 8:
-            found = words
-    return found
+            blocks[words[1]] = words
+    return blocks
 
 
 def grade(item, vals):
@@ -81,8 +87,22 @@ def grade(item, vals):
     req = item.get('requires')
     if req and not (vals[req['value']] >> req['bit'] & 1):
         return 'NA'
-    v = vals[item['values'][0]]
+    na = item.get('na_when')
+    if na and vals[na[0]] == na[1]:
+        return 'NA'
+    vs = [vals[i] for i in item['values']]
+    v = vs[0]
     kind = item['check']
+    if 'not_value' in item and any(x == item['not_value'] for x in vs):
+        return 'NG'
+    if kind == 'mask':
+        return 'OK' if (v & item['mask']) == item['expect'] else 'NG'
+    if kind == 'nonzero':
+        return 'OK' if (v & item['mask']) != 0 else 'NG'
+    if kind == 'same':
+        return 'OK' if all(x == v for x in vs) else 'NG'
+    if kind == 'ne':
+        return 'OK' if vs[0] != vs[1] else 'NG'
     if kind == 'bit':
         return 'OK' if v >> item['bit'] & 1 else 'NG'
     if kind == 'eq':
@@ -212,27 +232,50 @@ def run(args):
             text = sys.stdin.read()
     except OSError as e:
         raise Fatal('cannot read log: %s' % e)
-    words = parse_block(text, args.demo)
-    if words is None:
+    blocks = parse_blocks(text, args.demo)
+    if not blocks:
         raise Fatal('no RESULT line in the log')
-    if len(words) < BLOCK_WORDS:
-        raise Fatal('the RESULT line carries %d words, not %d (RESULT_WORDS=64 missing for emu.sh?)'
-                    % (len(words), BLOCK_WORDS))
-    words = words[:BLOCK_WORDS]
-    if words[0] != MAGIC:
-        raise Fatal('result block magic is %08x, not %08x (the ROM did not finish)' % (words[0], MAGIC))
     boot = exp['boot']
-    if words[1] != boot['item_id']:
-        raise Fatal('result block id %08x is not the rehearsal (%08x)' % (words[1], boot['item_id']))
-    if words[2] < boot['frames_min']:
-        raise Fatal('only %d frames ran, the rehearsal needs at least %d' % (words[2], boot['frames_min']))
-    vals = words[3:]
+    ids = {boot['item_id']: None}          # block id -> demo name (None: the rehearsal)
+    for name, bid in exp.get('demos', {}).items():
+        ids[bid] = name
+    present = {}                            # demo name (None: the rehearsal) -> values
+    frames = {}
+    for bid, words in blocks.items():
+        if bid not in ids:
+            if len(blocks) == 1:
+                raise Fatal('result block id %08x is not the rehearsal (%08x) nor one of the level 3 demos'
+                            % (bid, boot['item_id']))
+            print('warning: result block with unknown id %08x ignored' % bid, file=sys.stderr)
+            continue
+        name = ids[bid]
+        label = 'the rehearsal' if name is None else name
+        need = BLOCK_WORDS if name is None else DEMO_WORDS
+        if len(words) < need:
+            raise Fatal('%s: the RESULT line carries %d words, not %d (RESULT_WORDS=%d missing for emu.sh?)'
+                        % (label, len(words), need, need))
+        words = words[:BLOCK_WORDS]
+        if words[0] != MAGIC:
+            raise Fatal('%s: result block magic is %08x, not %08x (the ROM did not finish)'
+                        % (label, words[0], MAGIC))
+        if name is None and words[2] < boot['frames_min']:
+            raise Fatal('only %d frames ran, the rehearsal needs at least %d' % (words[2], boot['frames_min']))
+        present[name] = words[3:] + [0] * (61 - len(words[3:]))
+        frames[name] = words[2]
+    if not present:
+        raise Fatal('no result block of this game in the log')
+    words = [0, boot['item_id'] if None in present else next(b for b, n in ids.items() if n in present),
+             frames.get(None, next(iter(frames.values())))]
 
     results = []
     for item in exp['items']:
+        vals = present.get(item.get('demo'))
+        if vals is None:
+            continue      # the log has no block of this item's ROM
         g = grade(item, vals)
         gating = is_gating(item)
         results.append((item, g, gating))
+    seen = {i['id'] for (i, _, _) in results}
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
@@ -243,8 +286,8 @@ def run(args):
         prof = exp.get('known', {}).get(args.profile)
         if prof is None:
             raise Fatal('unknown profile %r (see --list-profiles)' % args.profile)
-        want = sorted(prof['ng'])
-        want_na = sorted(prof.get('na', []))
+        want = sorted(w for w in prof['ng'] if w in seen)
+        want_na = sorted(w for w in prof.get('na', []) if w in seen)
         rc = 0 if failing == want and na == want_na else 1
     else:
         rc = 1 if gating_fail else 0
@@ -256,11 +299,11 @@ def run(args):
         print('NOT GRADED %d gating item(s) were n/a without a profile (first: %s); use --profile or --allow-na'
               % (len(ungraded), ungraded[0]), file=sys.stderr)
     if args.json:
-        print(json.dumps({'frame': words[2], 'failing': failing, 'gating_failing': gating_fail,
+        print(json.dumps({'frame': words[2], 'demos': sorted(n for n in present if n), 'failing': failing, 'gating_failing': gating_fail,
                           'items': {i['id']: g for (i, g, _) in results}, 'exit': rc},
                          indent=1, sort_keys=True))
         return rc
-    print('frame %d, block id %08x' % (words[2], words[1]))
+    print('frame %d, block id %08x%s' % (words[2], words[1], ''.join(', ' + n for n in sorted(n for n in present if n))))
     prereq_ng = sorted(i['id'] for (i, g, _) in results if g == 'NG' and i['role'] == 'prerequisite'
                        and i['id'] not in (prof.get('ng', []) if prof else []))
     if prereq_ng:
@@ -271,10 +314,10 @@ def run(args):
     print('LEVELS ' + level_summary([(i['level'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
     print('ROLES ' + role_summary([(i['role'], g == 'OK') for (i, g, _) in results if g != 'NA']))
     if prof is not None:
-        want = sorted(prof['ng'])
+        want = sorted(w for w in prof['ng'] if w in seen)
         new_fail = [i for i in failing if i not in want]
         new_pass = [i for i in want if i not in failing]
-        want_na = sorted(prof.get('na', []))
+        want_na = sorted(w for w in prof.get('na', []) if w in seen)
         print('profile %s: %s' % (args.profile, 'MATCH' if rc == 0 else 'MISMATCH'))
         for i in new_fail:
             print('  NEWLY FAILING %s' % i)

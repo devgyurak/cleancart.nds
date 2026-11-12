@@ -64,7 +64,7 @@ Docker만 있으면 됩니다.
 ./build.sh                    # elevane.nds
 ./build.sh SAVE=flash         # elevane-save-flash.nds
 ./build.sh SAVE=fram          # elevane-save-fram.nds
-./build.sh demos              # elevane-rehearsal.nds
+./build.sh demos              # elevane-rehearsal.nds + the nine elevane-l3-*.nds demos
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: elevane-vX.Y.Z 태그가 배포하는 것
 ./build.sh clean
 ```
@@ -75,7 +75,7 @@ Docker만 있으면 됩니다.
 
 ## 에뮬레이터 테스트로 쓰기
 
-`build/release/judge/`에 리허설 ROM, `expected.json`, `judge.py`, `compare.py`가 있습니다. 리허설은 장마다 첫
+`build/release/judge/`에 리허설 ROM, 레벨 3 데모 ROM 아홉 개(`elevane-l3-*.nds`), `expected.json`, `judge.py`, `compare.py`가 있습니다. 리허설은 장마다 첫
 퍼즐을 풀고 감상 프리셋 두 개를 돌린 뒤 `0x0237F000`에 결과 블록을 남깁니다(형식:
 `arm9/source/game/rehearsal.h`).
 
@@ -95,6 +95,12 @@ python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380
 OpenGL classic, compute). 알려진 결과: master GL과 Compute는 감상 프리셋 1의 왼쪽 절반을 비웁니다
 (melonDS #2618 결함, 플레이에는 영향 없음). 리어 플레인 프리셋 2는 모든 GL 렌더러에서 한쪽만 보입니다
 (별개 결함). 문서·보고·ROM 논리 출처가 없는 항목은 실기 값이 생길 때까지 `unconfirmed`입니다.
+
+레벨 3 데모 아홉 개(`l3-sys-dma-hblank`, `l3-acc-dual`, `l3-acc-split-*`)는 디스플레이 캡처 경로 지연, 같은 화면 2패스
+방식, HBlank DMA 배경을 시험합니다. 각 데모는 120프레임에 16워드 결과 블록을 남기며, 그 줄들
+(예: `tools/melonds/mds.sh demos <폴더>`의 출력)을 같은 `judge.py`에 리허설 블록과 함께 또는 따로 넣으면 됩니다.
+`acc-split-*-latency` 여섯 항목은 우리가 돌린 모든 에뮬레이터에서 2프레임이 나와(기대값 0 또는 1, `unconfirmed`)
+모든 프로필에서 참고용 NG입니다.
 
 ## 문서
 
