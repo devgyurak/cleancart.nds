@@ -53,7 +53,7 @@ Docker is all you need.
 ./build.sh                    # lightenette.nds
 ./build.sh SAVE=flash         # lightenette-save-flash.nds
 ./build.sh SAVE=fram          # lightenette-save-fram.nds
-./build.sh demos              # acc-stage, rehearsal and the nine l2-* demo ROMs
+./build.sh demos              # acc-stage, rehearsal and the ten l2-* demo ROMs
 ./build.sh -j8 release        # build/release/{rom,demos,judge}: what a lightenette-vX.Y.Z tag ships
 ./build.sh clean
 ```
@@ -90,12 +90,12 @@ current all-OK reference; the other renderers' known differences are listed in [
 ### Level 2 demo ROMs
 
 Lightenette is the level 2 (edge) game ([docs/LEVELS.md](../../docs/LEVELS.md)). Besides the display
-edge cases above it ships nine small demo ROMs, `lightenette-l2-<name>.nds`, each a boot of `expected.json`
+edge cases above it ships ten small demo ROMs, `lightenette-l2-<name>.nds`, each a boot of `expected.json`
 (`l2-sys-irq`, `l2-sys-dma-vblank`, `l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`,
-`l2-2d-obj-bitmap`, `l2-snd-capture`). Each runs 120 frames and writes the usual result block (id = FNV-1a 32 of the ROM's
-demo name, e.g. `l2-sys-irq`; values from `words[3:]`). They carry 12 level 2 items: HBlank IRQ count, DMA at VBlank, the
+`l2-2d-obj-bitmap`, `l2-snd-capture`, `l2-snd-wave`). Each runs 120 frames and writes the usual result block (id = FNV-1a 32 of the ROM's
+demo name, e.g. `l2-sys-irq`; values from `words[3:]`). They carry 13 level 2 items: HBlank IRQ count, DMA at VBlank, the
 64-bit hardware square root, polygon RAM limits, two-pass rendering through the capture, affine BG / mosaic / bitmap OBJ
-pixels and the sound capture signal. Grade one ROM at a time:
+pixels, the sound capture signal and the exact left-mixer swing of a hard-right PSG pan (`snd-wave-pan-right-exact`: GBATEK mixing gives at most 2, melonDS 1.1 reads 3, a known NG on its three profiles). Grade one ROM at a time:
 
 ```sh
 tools/melonds/mds.sh demos <folder with the l2 ROMs> > l2.log     # RENDERER=gl|compute

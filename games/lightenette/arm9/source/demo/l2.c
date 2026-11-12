@@ -511,6 +511,54 @@ static void d_snd_capture(void)
     finish(1, 0, 0, 0);
 }
 
+// Plays a PSG square wave (duty 3: (3 + 1) x 12.5 % = a 50 % square wave) at pan `pan` and
+// records the left mixer through capture unit 0 (PCM8, 32768 Hz, a quarter of a second).
+// Returns the peak-to-peak size of the recording.
+#define WAVE_RATE 32768
+#define WAVE_LEN  8192
+static s8 wave_buf[WAVE_LEN] __attribute__((aligned(32)));
+
+static u32 wave_swing(int note, int vol, int pan)
+{
+    snd_psg_pan(8, 3, vol, note, pan);
+    for (int f = 0; f < 6; f++)
+        vsync();
+    snd_record(wave_buf, WAVE_LEN, WAVE_RATE);
+    for (int f = 0; f < 22; f++)          // 0.25 s is 15 frames; the rest is margin
+        vsync();
+    snd_record_stop();
+    snd_stop_channels(1u << 8);
+    vsync();
+    vsync();
+    DC_InvalidateRange(wave_buf, WAVE_LEN);
+    int lo = 127, hi = -128;
+    for (int i = 0; i < WAVE_LEN; i++)
+    {
+        lo = wave_buf[i] < lo ? wave_buf[i] : lo;
+        hi = wave_buf[i] > hi ? wave_buf[i] : hi;
+    }
+    return (u32)(hi - lo);
+}
+
+static void d_snd_wave(void)
+{
+    con_2d();
+    demo_title("SND-WAVE");
+    con_printf("PSG PAN -> LEFT MIXER RECORD\n");
+    u32 s_left = wave_swing(69, 100, 0);      // A4, pan 0 (hard left): the audible reference
+    u32 s_right = wave_swing(69, 100, 126);   // pan 126 (hard right): the left mixer stays all but silent
+    con_printf("P2P PAN0 %lu PAN126 %lu\n", (unsigned long)s_left, (unsigned long)s_right);
+    // Judge (GBATEK, DS Sound Channels): pan 126 mixes the left side with 2/128, a swing of at
+    // most 2. values[6] bit 0 is the guard: the pan 0 reference was audible (swing above 16),
+    // so a silent or unfinished record cannot pass.
+    while (cv_frame < CHECKPOINT)
+        vsync();
+    CV_RESULT->values[4] = s_right;
+    CV_RESULT->values[5] = s_left;
+    CV_RESULT->values[6] = s_left > 16;
+    finish(s_left, s_right, 0, 0);
+}
+
 // ---------------------------------------------------------------------------
 // Dual-screen 3D and two-pass rendering through the display capture (melonDS
 // issues #2618 and #2619). A block city is shown as a front view (top) and a
@@ -884,6 +932,7 @@ static const L2Entry l2_demos[] = {
     { "l2-2d-mosaic", d_2d_mosaic },
     { "l2-2d-obj-bitmap", d_2d_obj_bitmap },
     { "l2-snd-capture", d_snd_capture },
+    { "l2-snd-wave", d_snd_wave },
 };
 
 bool l2_demo_run(const char *name)

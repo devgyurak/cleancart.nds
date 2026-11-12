@@ -24,6 +24,7 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | 2d-affine demo | `lightenette-l2-2d-affine.nds`; item(s) `2d-affine-pixels`; expected screen: top: a rotated affine tile picture (pseudo-random colours, black holes), no text (the judge frame shows BG2 alone) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | 2d-mosaic demo | `lightenette-l2-2d-mosaic.nds`; item(s) `2d-mosaic-pixels`; expected screen: top: the console text as 4x4 blocks (mosaic 3), coloured blocks at the bottom | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | 2d-obj-bitmap demo | `lightenette-l2-2d-obj-bitmap.nds`; item(s) `2d-obj-bitmap-pixels`; expected screen: a lit gradient disc (bitmap OBJ) below two text lines | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| snd-wave demo | `lightenette-l2-snd-wave.nds`; item(s) `snd-wave-pan-right-exact`; expected screen: text only, `P2P PAN0 199 PAN126 n` (n = 3 on melonDS, 1 on DeSmuME); the pan 126 swing is values[4], the pan 0 reference values[5], the guard values[6] | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | snd-capture demo | `lightenette-l2-snd-capture.nds`; item(s) `snd-capture-signal`; expected screen: text only; the capture peak is in the block (values[5], about 0x3800) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 
 ## Auto QA run
@@ -48,21 +49,24 @@ write is not verified. Real DS Lite + R4: not run yet.
 
 ## Level 2 demos (2026-11-12)
 
-Nine demo ROMs `lightenette-l2-<name>.nds` carry the 12 level 2 items taken over from Corvane (the measurement code is
+Ten demo ROMs `lightenette-l2-<name>.nds` carry the 13 level 2 items taken over from Corvane (the measurement code is
 Corvane's; the 2D pictures are generated at run time, no assets). Each writes its block at frame 120 (id = FNV-1a 32 of
 `l2-<name>`). Measured with the 2026-11-12 build (`mds.sh demos`, `emu.sh demos`, each ROM graded with
 `judge.py --demo lightenette-l2-<name> --profile <profile>`):
 
-| Emulator | all 12 items | profile |
+| Emulator | all 13 items | profile |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute | OK (the informational `3d-limits-overflow` 47 and `acc-dual-halves` also match) | MATCH, no NG, no n/a |
-| DeSmuME (py-desmume 0.0.9) | the other 8 OK | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes` (polygon RAM counters read 0) |
+| melonDS 1.1 software / GL classic / GL compute | OK except `snd-wave-pan-right-exact` (swing 3 at pan 126, want 0..2); the informational `3d-limits-overflow` 47 and `acc-dual-halves` also match | MATCH: known NG `snd-wave-pan-right-exact`, no n/a |
+| DeSmuME (py-desmume 0.0.9) | the other 9 OK (`snd-wave-pan-right-exact` reads 1) | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes` (polygon RAM counters read 0) |
 
 Values seen: HBlank 31557 (melonDS) / 31374 (DeSmuME), polygons 2048, overflow frames 47, acc-dual flags `0x1f` (DeSmuME `0x19`),
 capture peak about 0x3800 (melonDS) / 0x3cf2 (DeSmuME). Three headless runs of every demo agree between the three melonDS
 renderers except the `acc-dual` picture hashes (renderer differences, not graded). The auto QA run was repeated after the ARM7
 gained the sound read-outs the capture demo needs (PASS on soft / GL / compute, DeSmuME verdict 1, 6 checkpoints identical in two
-software runs, `tools/qa/lint.py` ok). Real DS Lite + R4: not run.
+software runs, `tools/qa/lint.py` ok). It was repeated once more after the ARM7 gained the PSG pan field and the left-mixer recording
+(`l2-snd-wave`): PASS at frame 2090 on soft / GL / compute, DeSmuME `MATCH`, two software runs identical, lint ok, and the main ROM's `QARN` block (64 words) is
+word for word the same as the previous build's. `l2-snd-wave` reads swing 199 at pan 0 and 3 (melonDS, all three renderers) / 1 (DeSmuME) at pan 126.
+Real DS Lite + R4: not run.
 
 ## Conclusion (2026-11-11)
 

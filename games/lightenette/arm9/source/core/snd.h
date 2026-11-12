@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
-// ARM9 side of the sound protocol: packs requests into Corvane FIFO words.
+// ARM9 side of the sound protocol: packs requests into Hushwell FIFO words.
 
 #ifndef CV_SND_H
 #define CV_SND_H
@@ -17,10 +17,14 @@ void snd_bgm_stop(void);
 void snd_bgm_mask(u8 mask);
 void snd_stream_start(const void *pcm8, u32 bytes, u32 rate, int vol);
 void snd_stream_stop(void);
+// Records the left mixer (PCM8) into `buf` (main RAM, 32-byte aligned).
+void snd_record(void *buf, u32 bytes, u32 rate);
+void snd_record_stop(void);
 void snd_echo(bool on);
 void snd_master(int vol);
 void snd_speaker(bool on);
 void snd_psg(int ch, int duty, int vol, int note);
+void snd_psg_pan(int ch, int duty, int vol, int note, int pan); // pan 0 (left) .. 126 (right)
 void snd_stop_channels(u16 mask);
 
 extern int cv_bgm_volume;  // settings (0..127)

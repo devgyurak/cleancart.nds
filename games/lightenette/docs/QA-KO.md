@@ -24,6 +24,7 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 | 2d-affine 데모 | `lightenette-l2-2d-affine.nds`; 항목 `2d-affine-pixels`; 기대 화면: top: a rotated affine tile picture (pseudo-random colours, black holes), no text (the judge frame shows BG2 alone) | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
 | 2d-mosaic 데모 | `lightenette-l2-2d-mosaic.nds`; 항목 `2d-mosaic-pixels`; 기대 화면: top: the console text as 4x4 blocks (mosaic 3), coloured blocks at the bottom | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
 | 2d-obj-bitmap 데모 | `lightenette-l2-2d-obj-bitmap.nds`; 항목 `2d-obj-bitmap-pixels`; 기대 화면: a lit gradient disc (bitmap OBJ) below two text lines | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
+| snd-wave 데모 | `lightenette-l2-snd-wave.nds`; 항목 `snd-wave-pan-right-exact`; 기대 화면: 텍스트만, `P2P PAN0 199 PAN126 n`(n은 melonDS 3, DeSmuME 1); 팬 126 진폭은 values[4], 팬 0 기준은 values[5], 가드는 values[6] | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
 | snd-capture 데모 | `lightenette-l2-snd-capture.nds`; 항목 `snd-capture-signal`; 기대 화면: text only; the capture peak is in the block (values[5], about 0x3800) | melonDS 1.1 soft/GL/compute, DeSmuME 헤드리스, 2026-11-12; "레벨 2 데모" 참고 |
 
 ## 자동 QA 실행
@@ -48,19 +49,19 @@ tools/emu/emu.sh run ... 4000 ...`).
 
 ## 레벨 2 데모 (2026-11-12)
 
-데모 ROM 9개 `lightenette-l2-<이름>.nds`가 Corvane에서 넘겨받은 레벨 2 항목 12개를 담습니다(측정 코드는 Corvane 것이고, 2D 그림은
+데모 ROM 10개 `lightenette-l2-<이름>.nds`가 레벨 2 항목 13개를 담습니다(측정 코드는 Corvane 것이고, 2D 그림은
 실행 중에 코드로 만들어 에셋이 없습니다). 각각 120프레임에 블록을 씁니다(ID = `l2-<이름>`의 FNV-1a 32). 2026-11-12 빌드로 측정
 (`mds.sh demos`, `emu.sh demos`, ROM마다 `judge.py --demo lightenette-l2-<이름> --profile <프로필>`로 판정):
 
-| 에뮬레이터 | 항목 12개 | 프로필 |
+| 에뮬레이터 | 항목 13개 | 프로필 |
 |---|---|---|
-| melonDS 1.1 소프트웨어 / GL classic / GL compute | 모두 OK(정보용 `3d-limits-overflow` 47, `acc-dual-halves`도 일치) | MATCH, NG 없음, n/a 없음 |
-| DeSmuME (py-desmume 0.0.9) | 나머지 8개 OK | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes`(폴리곤 RAM 카운터가 0) |
+| melonDS 1.1 소프트웨어 / GL classic / GL compute | `snd-wave-pan-right-exact`(팬 126 진폭 3, 기대 0..2)를 제외하고 OK; 정보용 `3d-limits-overflow` 47, `acc-dual-halves`도 일치 | MATCH: 알려진 NG `snd-wave-pan-right-exact`, n/a 없음 |
+| DeSmuME (py-desmume 0.0.9) | 나머지 9개 OK(`snd-wave-pan-right-exact`는 1) | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes`(폴리곤 RAM 카운터가 0) |
 
 관측값: HBlank 31557(melonDS) / 31374(DeSmuME), 폴리곤 2048, 오버플로 프레임 47, acc-dual 플래그 `0x1f`(DeSmuME `0x19`), 캡처 피크 약
 0x3800(melonDS) / 0x3cf2(DeSmuME). 세 melonDS 렌더러의 값은 `acc-dual` 그림 해시(렌더러 차이, 판정 대상 아님)를 빼고 같습니다.
 캡처 데모에 필요한 사운드 판독을 ARM7에 추가한 뒤 자동 QA를 다시 돌렸습니다(soft / GL / compute PASS, DeSmuME 판정 1, 소프트웨어 두 번
-체크포인트 6개 동일, `tools/qa/lint.py` 통과). 실제 DS Lite + R4: 미실행.
+체크포인트 6개 동일, `tools/qa/lint.py` 통과). ARM7에 PSG 팬 필드와 왼쪽 믹서 녹음(`l2-snd-wave`)이 들어간 뒤 한 번 더 돌렸습니다: soft / GL / compute 모두 프레임 2090에서 PASS, DeSmuME `MATCH`, 소프트웨어 2회 동일, lint 통과, 메인 ROM의 `QARN` 블록(64워드)은 이전 빌드와 워드 단위로 같습니다. `l2-snd-wave`는 팬 0에서 진폭 199, 팬 126에서 3(melonDS 세 렌더러) / 1(DeSmuME)을 읽습니다. 실제 DS Lite + R4: 미실행.
 
 ## 결론 (2026-11-11)
 

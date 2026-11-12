@@ -107,6 +107,13 @@
       "item_id_text": "l2-snd-capture",
       "frames": 120,
       "note": "level 2 demo (Corvane demo snd-capture): the two sound capture units record the mixer output of the song; values[4] capture unit busy bits, values[5] peak of the rings. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-snd-wave": {
+      "rom": "lightenette-l2-snd-wave.nds",
+      "item_id": 956807109,
+      "item_id_text": "l2-snd-wave",
+      "frames": 120,
+      "note": "level 2 demo (split from Hushwell's snd-wave): a PSG square wave (duty 3, A4) is recorded from the left mixer through capture unit 0 at pan 0 and at pan 126; values[4] peak-to-peak at pan 126, values[5] peak-to-peak at pan 0 (the audible reference), values[6] bit 0 = reference swing above 16. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
     }
   },
   "items": [
@@ -1018,12 +1025,39 @@
       "role": "prerequisite",
       "level": 1,
       "level_basis": "gbatek:DS Sound Capture"
+    },
+    {
+      "id": "snd-wave-pan-right-exact",
+      "title": "Pan 126 (hard right) mixes the left side with 2/128 (GBATEK rounding): the left mixer swing is at most 2, while the pan 0 reference is audible (swing above 16)",
+      "boots": [
+        "l2-snd-wave"
+      ],
+      "frame": {
+        "l2-snd-wave": 120
+      },
+      "demo": "l2-snd-wave",
+      "values": [
+        4
+      ],
+      "check": "range",
+      "min": 0,
+      "max": 2,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Sound Channels"
     }
   ],
   "known": {
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-      "ng": [],
+      "ng": [
+        "snd-wave-pan-right-exact"
+      ],
       "na": []
     },
     "melonds-1.1-gl-classic": {
@@ -1037,7 +1071,8 @@
         "act3-lantern-equal",
         "act5-seam",
         "act5-edge-3-colours",
-        "act5-lantern-equal"
+        "act5-lantern-equal",
+        "snd-wave-pan-right-exact"
       ],
       "na": []
     },
@@ -1046,7 +1081,8 @@
       "ng": [
         "lantern-blend-equal",
         "act3-lantern-equal",
-        "act5-lantern-equal"
+        "act5-lantern-equal",
+        "snd-wave-pan-right-exact"
       ],
       "na": []
     },

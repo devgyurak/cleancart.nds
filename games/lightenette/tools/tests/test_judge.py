@@ -131,6 +131,21 @@ class Level2Boots(unittest.TestCase):
         # the same block on an emulator that must measure it
         self.assertEqual(run_judge(['--profile', 'melonds-1.1-software'], log)[0], 1)
 
+    def test_snd_wave_pan_exact(self):
+        # values[4] swing at pan 126, values[5] the pan 0 reference, values[6] bit 0 the guard
+        for right, left, want in ((2, 199, 0), (1, 199, 0), (3, 199, 1), (0, 0, 1)):
+            log = block_line('x', boot_id('l2-snd-wave'), [left, right, 0, 0, right, left, int(left > 16)])
+            self.assertEqual(run_judge([], log)[0], want, (right, left))
+        # a silent record (swing 0 at pan 126 too) must not pass: guard bit clear
+        log = block_line('x', boot_id('l2-snd-wave'), [0, 0, 0, 0, 0, 0, 0])
+        rc, out = run_judge([], log)
+        self.assertEqual(rc, 1)
+        self.assertIn('snd-wave-pan-right-exact', out)
+        # melonDS reads 3 on 1.1: a known NG there, not on DeSmuME
+        log = block_line('x', boot_id('l2-snd-wave'), [199, 3, 0, 0, 3, 199, 1])
+        self.assertEqual(run_judge(['--profile', 'melonds-1.1-software'], log)[0], 0)
+        self.assertEqual(run_judge(['--profile', 'desmume-pydesmume-0.0.9'], log)[0], 1)
+
     def test_profile_ignores_other_boots(self):
         log = block_line('x', boot_id('l2-sys-math'), [0, 1000000, 0x5000, 0x1000])
         self.assertEqual(run_judge(['--profile', 'melonds-1.1-gl-classic'], log)[0], 0)

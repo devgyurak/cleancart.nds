@@ -57,7 +57,7 @@ STAMP    := $(GEN)/.stamp
 
 # Demo ROMs: the judge scene as its own ROM (names: arm9/source/demo/demo.c).
 DEMOS := acc-stage rehearsal l2-sys-irq l2-sys-dma-vblank l2-sys-math l2-3d-limits l2-acc-dual \
-         l2-2d-affine l2-2d-mosaic l2-2d-obj-bitmap l2-snd-capture
+         l2-2d-affine l2-2d-mosaic l2-2d-obj-bitmap l2-snd-capture l2-snd-wave
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
