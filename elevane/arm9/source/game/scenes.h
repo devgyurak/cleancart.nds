@@ -12,6 +12,7 @@ typedef enum {
     SC_TITLE,
     SC_SELECT,
     SC_PLAY,
+    SC_SHOWCASE,
     SC_CREDITS,
 } EvScene;
 
@@ -26,6 +27,7 @@ void scene_text_screens(CvText *main_text, CvText *sub_text);
 EvScene scene_title(void);
 EvScene scene_select(void);
 EvScene scene_play(void);
+EvScene scene_showcase(void);
 EvScene scene_credits(void);
 
 #endif // EV_SCENES_H

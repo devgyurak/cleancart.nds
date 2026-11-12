@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     snd_master(cv_save.volume);
     g3_init();
 
-    static const char *const scene_names[] = { "title", "select", "play", "credits" };
+    static const char *const scene_names[] = { "title", "select", "play", "showcase", "credits" };
     EvScene scene = SC_TITLE;
     for (;;)
     {
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
         {
             case SC_SELECT:  scene = scene_select(); break;
             case SC_PLAY:    scene = scene_play(); break;
+            case SC_SHOWCASE: scene = scene_showcase(); break;
             case SC_CREDITS: scene = scene_credits(); break;
             case SC_TITLE:
             default:         scene = scene_title(); break;
