@@ -41,8 +41,8 @@ A collection of homebrew games for emulator developers to develop against and ve
 | Game | Description and what it tests | Judging | Levels | Docs |
 |---|---|---|---|---|
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen.<br>Tests: 2D engines, 3D engine, ARM7 sound, DMA/timers/IPC/interrupts, cart, save, RTC, touch and power I/O. | automatic for all 75 demos (`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 target 81 · prerequisite 0 · to relocate 78<!-- /cell --> | [README](games/corvane/README.md) · [QA checklist](games/corvane/docs/QA.md) · [Assets](games/corvane/ASSETS.md) |
-| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound.<br>Tests: 2D engines, 3D engine (lighting, fog, texturing), ARM7 sound, DMA/timers/IPC/interrupts, cart, save, RTC, touch and power I/O. | automatic for the sound and I/O demos and the QA run (`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 target 41 · prerequisite 4 · to relocate 0<!-- /cell --> | [README](games/hushwell/README.md) · [QA checklist](games/hushwell/docs/QA.md) · [Assets](games/hushwell/ASSETS.md) |
-| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 11 · prerequisite 13 · to relocate 3<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound.<br>Tests: 2D engines, 3D engine (lighting, fog, texturing), ARM7 sound, DMA/timers/IPC/interrupts, cart, save, RTC, touch and power I/O. | automatic for all 66 demos and the QA run (`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 target 41 · prerequisite 4 · to relocate 0<!-- /cell --> | [README](games/hushwell/README.md) · [QA checklist](games/hushwell/docs/QA.md) · [Assets](games/hushwell/ASSETS.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 23 · prerequisite 13 · to relocate 3<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 13 · prerequisite 5 · to relocate 6<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
@@ -190,11 +190,11 @@ target 41 · prerequisite 4 · to relocate 0
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Lightenette (11 target items)</summary>
+<details><summary><b>L2 Edge</b> · Lightenette (23 target items)</summary>
 
 #### Lightenette · display edge cases
 
-target 11 · prerequisite 13 · to relocate 3
+target 23 · prerequisite 13 · to relocate 3
 
 - `seam-uv` · Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
 - `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) _(informational)_ · [expected.json](games/lightenette/expected.json)
@@ -207,6 +207,18 @@ target 11 · prerequisite 13 · to relocate 3
 - `act5-edge-3-colours` · Act 5 plinths get all three edge-marking colours (melonDS #2549) · [expected.json](games/lightenette/expected.json)
 - `act5-line-polygon` · Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator _(informational)_ · [expected.json](games/lightenette/expected.json)
 - `act5-lantern-equal` · Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
+- `sys-irq-hblank` · HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297) · [expected.json](games/lightenette/expected.json)
+- `sys-dma-vblank-frames` · A DMA started at VBlank has uploaded the palette in every one of 120 frames · [expected.json](games/lightenette/expected.json)
+- `sys-math-sqrt64` · 64-bit hardware square root of 10^12 is 10^6 · [expected.json](games/lightenette/expected.json)
+- `3d-limits-ram` · Polygon RAM holds 2048 polygons: it is full at the end of the overload run · [expected.json](games/lightenette/expected.json)
+- `3d-limits-overflow` · Frames in which 600-2980 submitted triangles overflowed polygon RAM _(informational)_ · [expected.json](games/lightenette/expected.json)
+- `acc-dual-over` · The whole city in one pass overflows polygon RAM · [expected.json](games/lightenette/expected.json)
+- `acc-dual-passes` · Two half passes fit polygon RAM · [expected.json](games/lightenette/expected.json)
+- `acc-dual-halves` · Both halves of the blended two-pass picture have pixels _(informational)_ · [expected.json](games/lightenette/expected.json)
+- `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
+- `2d-mosaic-pixels` · With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels) · [expected.json](games/lightenette/expected.json)
+- `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
+- `snd-capture-signal` · The capture rings hold a non-silent signal (the song reached the mixer output) · [expected.json](games/lightenette/expected.json)
 
 </details>
 

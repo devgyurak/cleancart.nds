@@ -111,6 +111,11 @@ typedef struct {
     uint8_t  year, month, day, hour, minute, second;
     uint16_t seq;       // ARM7 frame counter
     uint16_t battery;
+    // Sound state for the demo judge (read-only registers of the ARM7's own engine).
+    uint16_t snd_busy;  // bit n: SOUNDCNT of channel n has Start/Busy set
+    uint16_t cap_peak;  // largest |sample| in the echo capture rings (0 when the echo is off)
+    uint8_t  cap_busy;  // bit 0 / 1: capture unit 0 / 1 Start/Busy
+    uint8_t  pad;
 } CvInputPacket;
 
 #define CV_KEYXY_X    (1 << 0)

@@ -44,6 +44,69 @@
       "item_id_text": "QARN",
       "frames": 4000,
       "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the normal flow title, acts 1-5 with the rehearsal's scripts, credits, then the accuracy judge once; the block uses the rehearsal's layout (values[0..44]) and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags). Ends at about frame 2090 after the combo (melonDS)"
+    },
+    "l2-sys-irq": {
+      "rom": "lightenette-l2-sys-irq.nds",
+      "item_id": 1414528060,
+      "item_id_text": "l2-sys-irq",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-irq): IRQ counts over 120 frames (VBlank, HBlank, VCOUNT 96, 10 Hz timer, key IRQ). Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-sys-dma-vblank": {
+      "rom": "lightenette-l2-sys-dma-vblank.nds",
+      "item_id": 619872727,
+      "item_id_text": "l2-sys-dma-vblank",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-dma-vblank): a palette DMA started at VBlank in each of 120 frames. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-sys-math": {
+      "rom": "lightenette-l2-sys-math.nds",
+      "item_id": 404087652,
+      "item_id_text": "l2-sys-math",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-math): hardware divide, 64-bit square root, vector length, atan2. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-3d-limits": {
+      "rom": "lightenette-l2-3d-limits.nds",
+      "item_id": 1911496040,
+      "item_id_text": "l2-3d-limits",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 3d-limits): 600-2980 triangles per frame against the 2048-polygon RAM; values[0] overflow frames, values[1] polygons in RAM. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-acc-dual": {
+      "rom": "lightenette-l2-acc-dual.nds",
+      "item_id": 2329324468,
+      "item_id_text": "l2-acc-dual",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo acc-dual): dual-screen 3D and two-pass rendering through the display capture; values[3] is a flag word (bit 1 one pass overflows, 2 two passes fit, 3 both halves have pixels). Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-affine": {
+      "rom": "lightenette-l2-2d-affine.nds",
+      "item_id": 2673561160,
+      "item_id_text": "l2-2d-affine",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-affine): a rotated affine BG captured and compared with the GBATEK mapping (picture generated at run time); values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-mosaic": {
+      "rom": "lightenette-l2-2d-mosaic.nds",
+      "item_id": 1186310803,
+      "item_id_text": "l2-2d-mosaic",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-mosaic): a 4x4 BG mosaic captured and compared pixel by pixel; values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-obj-bitmap": {
+      "rom": "lightenette-l2-2d-obj-bitmap.nds",
+      "item_id": 590847140,
+      "item_id_text": "l2-2d-obj-bitmap",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-obj-bitmap): a 16bpp bitmap OBJ captured and compared texel by texel (picture generated at run time); values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-snd-capture": {
+      "rom": "lightenette-l2-snd-capture.nds",
+      "item_id": 1426653278,
+      "item_id_text": "l2-snd-capture",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo snd-capture): the two sound capture units record the mixer output of the song; values[4] capture unit busy bits, values[5] peak of the rings. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
     }
   },
   "items": [
@@ -774,12 +837,286 @@
       "level": 1,
       "level_basis": "none",
       "model": null
+    },
+    {
+      "id": "sys-irq-hblank",
+      "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297)",
+      "boots": [
+        "l2-sys-irq"
+      ],
+      "frame": {
+        "l2-sys-irq": 120
+      },
+      "demo": "l2-sys-irq",
+      "values": [
+        1
+      ],
+      "check": "range",
+      "min": 31297,
+      "max": 31560,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD Dimensions and Timings"
+    },
+    {
+      "id": "sys-dma-vblank-frames",
+      "title": "A DMA started at VBlank has uploaded the palette in every one of 120 frames",
+      "boots": [
+        "l2-sys-dma-vblank"
+      ],
+      "frame": {
+        "l2-sys-dma-vblank": 120
+      },
+      "demo": "l2-sys-dma-vblank",
+      "values": [
+        0
+      ],
+      "check": "eq",
+      "expect": 120,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS DMA Transfers"
+    },
+    {
+      "id": "sys-math-sqrt64",
+      "title": "64-bit hardware square root of 10^12 is 10^6",
+      "boots": [
+        "l2-sys-math"
+      ],
+      "frame": {
+        "l2-sys-math": 120
+      },
+      "demo": "l2-sys-math",
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 1000000,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "3d-limits-ram",
+      "title": "Polygon RAM holds 2048 polygons: it is full at the end of the overload run",
+      "boots": [
+        "l2-3d-limits"
+      ],
+      "frame": {
+        "l2-3d-limits": 120
+      },
+      "demo": "l2-3d-limits",
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 2048,
+      "na_when": [
+        1,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "3d-limits-overflow",
+      "title": "Frames in which 600-2980 submitted triangles overflowed polygon RAM",
+      "boots": [
+        "l2-3d-limits"
+      ],
+      "frame": {
+        "l2-3d-limits": 120
+      },
+      "demo": "l2-3d-limits",
+      "values": [
+        0
+      ],
+      "check": "eq",
+      "expect": 47,
+      "na_when": [
+        1,
+        0
+      ],
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "acc-dual-over",
+      "title": "The whole city in one pass overflows polygon RAM",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 2,
+      "mask": 2,
+      "na_when": [
+        4,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "acc-dual-passes",
+      "title": "Two half passes fit polygon RAM",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 4,
+      "mask": 4,
+      "na_when": [
+        5,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "acc-dual-halves",
+      "title": "Both halves of the blended two-pass picture have pixels",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 8,
+      "mask": 8,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
+    },
+    {
+      "id": "2d-affine-pixels",
+      "title": "Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples)",
+      "boots": [
+        "l2-2d-affine"
+      ],
+      "frame": {
+        "l2-2d-affine": 120
+      },
+      "demo": "l2-2d-affine",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O BG Rotation/Scaling"
+    },
+    {
+      "id": "2d-mosaic-pixels",
+      "title": "With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels)",
+      "boots": [
+        "l2-2d-mosaic"
+      ],
+      "frame": {
+        "l2-2d-mosaic": 120
+      },
+      "demo": "l2-2d-mosaic",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O Mosaic Function"
+    },
+    {
+      "id": "2d-obj-bitmap-pixels",
+      "title": "A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out)",
+      "boots": [
+        "l2-2d-obj-bitmap"
+      ],
+      "frame": {
+        "l2-2d-obj-bitmap": 120
+      },
+      "demo": "l2-2d-obj-bitmap",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Video OBJs"
+    },
+    {
+      "id": "snd-capture-signal",
+      "title": "The capture rings hold a non-silent signal (the song reached the mixer output)",
+      "boots": [
+        "l2-snd-capture"
+      ],
+      "frame": {
+        "l2-snd-capture": 120
+      },
+      "demo": "l2-snd-capture",
+      "values": [
+        5
+      ],
+      "check": "range",
+      "min": 1,
+      "max": 65535,
+      "source": "rom",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Sound Capture"
     }
   ],
   "known": {
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-      "ng": []
+      "ng": [],
+      "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
@@ -793,7 +1130,8 @@
         "act5-seam",
         "act5-edge-3-colours",
         "act5-lantern-equal"
-      ]
+      ],
+      "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
@@ -801,7 +1139,8 @@
         "lantern-blend-equal",
         "act3-lantern-equal",
         "act5-lantern-equal"
-      ]
+      ],
+      "na": []
     },
     "desmume-pydesmume-0.0.9": {
       "emulator": "DeSmuME through py-desmume 0.0.9 (tools/emu)",
@@ -809,6 +1148,12 @@
         "lantern-blend-equal",
         "act3-lantern-equal",
         "act5-lantern-equal"
+      ],
+      "na": [
+        "3d-limits-ram",
+        "3d-limits-overflow",
+        "acc-dual-over",
+        "acc-dual-passes"
       ]
     }
   },
