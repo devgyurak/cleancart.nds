@@ -477,8 +477,9 @@ static void d_sys_dma_disp(void)
     for (int y = 4; y < 192; y += 8)
         for (int x = 4; x < 256; x += 8, n++)
         {
+            // capture source B (FIFO): bit 15 of the stored pixel is unused, compare the colour only
             u16 px = probe_px(x, y);
-            bad += !(px & 0x8000) || (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
+            bad += (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
         }
     probe_release();
     probe_values(n, bad, done);
@@ -921,6 +922,7 @@ static void d_2d_obj_bitmap(void)
     u32 count = oam_count(ENG_MAIN);
     // Judge: one bitmap sprite with alpha field 15 shows the opaque texels (bit 15 set) of its
     // 16bpp picture unchanged.
+    REG_BLDCNT = 0;     // the demo's blend setup must not touch the probe
     oam_clear(ENG_MAIN);
     oam_add(ENG_MAIN, 96, 110, SPR_64x64, 64, 15, 0, SPRF_BITMAP, 0);
     vsync();
@@ -986,11 +988,11 @@ static void d_2d_obj_line(void)
         vsync();
     }
     u32 count = oam_count(ENG_MAIN);
-    // Judge: 120 sprites of 16 pixels on one line cost more than the per-line budget of the
-    // OBJ renderer (GBATEK: 1210 cycles, a plain OBJ costs its width), so the last ones are never
-    // drawn. Sprite i is in colour group i / 30 with priority 3 - group, so the highest group
-    // that shows up on the line says how far the renderer got: group 3 (sprites 90-119) must be
-    // missing and a later group (1 or 2) present.
+    // Judge (informational): the OBJ renderer has a per-line budget in cycles (a plain OBJ costs its
+    // width). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load (120 x 16 = 1920)
+    // may or may not exceed it; no emulator drops sprites. Sprite i is in colour group i / 30 with priority 3 - group, so the highest group
+    // that shows up on the line says how far the renderer got: group 3 (sprites 90-119) is
+    // present when nothing is dropped.
     for (int g = 1; g < 4; g++)
         for (int k = 1; k < 16; k++)
             CV_PAL_OBJ_MAIN[g * 16 + k] = g == 1 ? RGB15(31, 0, 0) : g == 2 ? RGB15(0, 31, 0) : RGB15(0, 0, 31);
@@ -1269,8 +1271,9 @@ static void d_2d_display(void)
     for (int y = 4; y < 192; y += 8)
         for (int x = 4; x < 256; x += 8, n++)
         {
+            // capture source B (FIFO): bit 15 of the stored pixel is unused, compare the colour only
             u16 px = probe_px(x, y);
-            bad += !(px & 0x8000) || (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
+            bad += (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
         }
     probe_release();
     probe_values(n, bad, done);

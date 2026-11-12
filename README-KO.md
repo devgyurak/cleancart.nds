@@ -141,7 +141,7 @@
 - `sys-dma-disp-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/corvane/expected.json)
 - `2d-display-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/corvane/expected.json)
 - `2d-display-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/corvane/expected.json)
-- `2d-display-vram` · The frame the VRAM display mode showed is in bank A unchanged (768 samples) · [expected.json](games/corvane/expected.json)
+- `2d-display-vram` · Sanity check: the frame the VRAM display mode showed is still in bank A (read back through LCDC, 768 samples); it does not judge the display itself · [expected.json](games/corvane/expected.json)
 - `snd-mix-voices` · Song and effects together use 8 to 16 channels (SOUNDCNT Start/Busy) at the busiest frame · [expected.json](games/corvane/expected.json)
 - `snd-pcm-oneshot` · A PCM8 one-shot is playing at frame 5 (a channel is busy) · [expected.json](games/corvane/expected.json)
 - `snd-pcm-loops` · The PCM8 and PCM16 loops started at frames 60 and 80 are still busy at the checkpoint · [expected.json](games/corvane/expected.json)
@@ -216,7 +216,7 @@ _판정기 작성 중_
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/corvane/expected.json)
 - `2d-mosaic-pixels` · With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels) · [expected.json](games/corvane/expected.json)
 - `2d-obj-affine-pixels` · An affine sprite with the identity matrix, plain and double-size, shows exactly its tile texels · [expected.json](games/corvane/expected.json)
-- `2d-obj-bitmap-pixels` · A bitmap sprite with alpha field 15 shows the opaque texels of its 16bpp picture unchanged · [expected.json](games/corvane/expected.json)
+- `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/corvane/expected.json)
 - `snd-capture-busy` · Both sound capture units run in repeat mode (Start/Busy of capture 0 and 1) · [expected.json](games/corvane/expected.json)
 - `snd-capture-signal` · The capture rings hold a non-silent signal (the song reached the mixer output) · [expected.json](games/corvane/expected.json)
 
@@ -285,9 +285,9 @@ _판정기 작성 중_
 - `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `acc-dual-halves` · Both halves of the blended two-pass picture have pixels _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618 area) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line: the last group (sprites 90-119) should be dropped by the per-line OBJ budget that GBATEK describes (about 1210 cycles); no emulator drops them, the exact accounting is not confirmed _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](games/corvane/expected.json)
 
 #### Elevane
 

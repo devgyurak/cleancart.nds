@@ -1762,7 +1762,7 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "sys-dma-hblank-pixels",
@@ -1801,7 +1801,7 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-affine-pixels",
@@ -1854,7 +1854,7 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-mosaic-pixels",
@@ -1907,7 +1907,7 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-obj-normal-pixels",
@@ -1947,7 +1947,7 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-obj-affine-pixels",
@@ -1960,7 +1960,7 @@
    "expect": 0,
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:LCD OBJ - Rotation/Scaling"
+   "level_basis": "gbatek:LCD OBJ - OAM Rotation/Scaling Parameters"
   },
   {
    "id": "2d-obj-affine-samples",
@@ -1987,12 +1987,12 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-obj-bitmap-pixels",
    "demo": "2d-obj-bitmap",
-   "title": "A bitmap sprite with alpha field 15 shows the opaque texels of its 16bpp picture unchanged",
+   "title": "A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out)",
    "values": [
     5
    ],
@@ -2000,7 +2000,7 @@
    "expect": 0,
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:LCD OBJ - Bitmap OBJs"
+   "level_basis": "gbatek:DS Video OBJs"
   },
   {
    "id": "2d-obj-bitmap-samples",
@@ -2027,12 +2027,12 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-obj-line-budget",
    "demo": "2d-obj-line",
-   "title": "120 sprites of 16 pixels on one line: the last group (sprites 90-119) should be dropped by the per-line OBJ budget that GBATEK describes (about 1210 cycles); no emulator drops them, the exact accounting is not confirmed",
+   "title": "120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational)",
    "values": [
     8
    ],
@@ -2080,12 +2080,12 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "sys-dma-disp-pixels",
    "demo": "sys-dma-disp",
-   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
    "values": [
     5
    ],
@@ -2119,12 +2119,12 @@
    "expect": 1,
    "source": "rom",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-display-pixels",
    "demo": "2d-display",
-   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented",
+   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
    "values": [
     5
    ],
@@ -2150,7 +2150,7 @@
   {
    "id": "2d-display-vram",
    "demo": "2d-display",
-   "title": "The frame the VRAM display mode showed is in bank A unchanged (768 samples)",
+   "title": "Sanity check: the frame the VRAM display mode showed is still in bank A (read back through LCDC, 768 samples); it does not judge the display itself",
    "values": [
     8
    ],
