@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Chapter 3, clock tower: 6x6 grid, piles of height 1-5 (stack mode). The star rating
+# compares your blocks with par, the fewest that deliver the order.
+
+[3-01] name="Base Courses" chapter=3 mode=stack grid=6x6x5
+h = 111111/122221/123321/123321/122221/111111
+
+[3-02] name="Spire" chapter=3 mode=stack grid=6x6x5
+h = 000000/002200/025520/025520/002200/000000
+
+[3-03] name="Twin Chimneys" chapter=3 mode=stack grid=6x6x5
+h = 500005/500005/111111/000000/000000/000000
+
+[3-04] name="Stair Hall" chapter=3 mode=stack grid=6x6x5
+h = 123450/123450/123450/123450/123450/123450
+
+[3-05] name="Bell Frame" chapter=3 mode=stack grid=6x6x5
+h = 555555/500005/500005/500005/500005/555555
+
+[3-06] name="Pendulum" chapter=3 mode=stack grid=6x6x5
+h = 003300/003300/003300/003300/011110/111111
+
+[3-07] name="Dial" chapter=3 mode=stack grid=6x6x5
+h = 123321/234432/345543/345543/234432/123321
+
+[3-08] name="Belfry" chapter=3 mode=stack grid=6x6x5
+h = 443344/430034/300003/300003/430034/443344

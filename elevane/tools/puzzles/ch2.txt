@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Chapter 2, warehouse: 5x5 grid, piles of height 1-3 (stack mode). Turn the top view with
+# L/R to read the structure from the sides while building it.
+
+[2-01] name="Loading Bay" chapter=2 mode=stack grid=5x5x3
+h = 33000/33000/11111/00000/00000
+
+[2-02] name="Pallet Stairs" chapter=2 mode=stack grid=5x5x3
+h = 12300/12300/12300/12300/00000
+
+[2-03] name="Crate Wall" chapter=2 mode=stack grid=5x5x3
+h = 33333/00000/00000/00000/11111
+
+[2-04] name="Forklift Lane" chapter=2 mode=stack grid=5x5x3
+h = 20002/20002/20002/20002/33333
+
+[2-05] name="Shelf Rows" chapter=2 mode=stack grid=5x5x3
+h = 33333/11111/33333/11111/33333
+
+[2-06] name="Zigzag Aisle" chapter=2 mode=stack grid=5x5x3
+h = 30000/33000/03300/00330/00033
+
+[2-07] name="Corner Silo" chapter=2 mode=stack grid=5x5x3
+h = 33300/32300/33300/00011/00011
+
+[2-08] name="Cross Dock" chapter=2 mode=stack grid=5x5x3
+h = 00300/00300/33333/00300/00300

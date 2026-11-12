@@ -12,15 +12,25 @@
 extern int ev_chapter, ev_index;
 extern bool ev_view3d;   // false: 2D grid only, no 3D at all
 
-// The rehearsal's input driver, called once per frame after the real input was read.
-extern void (*ev_play_hook)(void);
+// Hooks and read-outs for the rehearsal, the auto QA pilot and the showcase.
+extern void (*ev_play_hook)(void);        // called once per frame after the real input was read
+extern unsigned ev_delivered_total;       // puzzles delivered since boot
+unsigned play_serial(void);               // changes when a puzzle is loaded
+int play_mode(void);                      // 0 piles (stack), 1 layers
+int play_nparts(void);
+int play_part_index(void);
+int play_layer(void);                     // work layer, -1 = TOP
 void play_cursor(int *x, int *y);
-bool play_matched(void);
+bool play_matched(void);                  // every part matches its order
 bool play_delivered(void);
+int play_blocks(void);                    // all parts
+int play_par(void);
 
-// The structure being built, for the showcase mode.
+// The part being built, for the showcase mode and the scripted player.
 const PzGrid *play_grid(void);
 const PzPart *play_part(void);
+const PzGrid *play_grid_n(int k);
+const PzPart *play_part_n(int k);
 
 // Showcase presets and the numbers one run measures (the rehearsal block carries them).
 enum { SHOW_HDMA, SHOW_REAR };

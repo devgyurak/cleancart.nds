@@ -55,6 +55,9 @@ bool pz_matches(const PzPart *p, const PzGrid *g);   // both views right
 int  pz_blocks(const PzGrid *g, const PzPart *p);
 // Face-adjacent support: every block reaches z = 0 (always true for piles)
 bool pz_supported(const PzPart *p, const PzGrid *g);
+// Cells that do not reach the floor, as a grid of the same shape (bit z set = floating).
+void pz_floating(const PzPart *p, const PzGrid *g, PzGrid *out);
+int  pz_top(const PzGrid *g, int x, int y);   // 1 + highest block, 0 for an empty column
 int  pz_stars(int blocks, int par);                // 3, 2 or 1
 
 #endif // EV_PUZZLE_H

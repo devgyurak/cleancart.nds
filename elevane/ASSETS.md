@@ -16,7 +16,7 @@ The PNG files in `docs/images/` (if any) are README screenshots captured from th
 built ROM. They are documentation, not assets: the build never reads them and they
 are not in the ROM.
 
-Chapter 1's eight puzzles are in; chapters 2-5 add their puzzle files later.
+All 40 puzzles (chapters 1-5) are in `tools/puzzles/ch*.txt`.
 
 | File (output) | Contents | Generator | Source / licence |
 |---|---|---|---|

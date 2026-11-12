@@ -135,22 +135,19 @@ int pz_blocks(const PzGrid *g, const PzPart *p)
     return n;
 }
 
-bool pz_supported(const PzPart *p, const PzGrid *g)
+// Flood fill from the floor layer through face-adjacent blocks; `reach` gets the cells reached.
+static int flood(const PzPart *p, const PzGrid *g, PzGrid *reach)
 {
-    // Flood fill from the floor layer through face-adjacent blocks.
-    u8 seen[PZ_MAX_DIM][PZ_MAX_DIM] = { { 0 } };
     u8 stack[PZ_MAX_DIM * PZ_MAX_DIM * PZ_MAX_DIM][3];
-    int sp = 0, total = 0, reached = 0;
+    int sp = 0, reached = 0;
+    memset(reach, 0, sizeof(*reach));
     for (int y = 0; y < p->d; y++)
         for (int x = 0; x < p->w; x++)
-        {
-            total += pz_height(g, x, y);
             if (g->cell[y][x] & 1)
             {
-                seen[y][x] |= 1;
+                reach->cell[y][x] |= 1;
                 stack[sp][0] = x; stack[sp][1] = y; stack[sp][2] = 0; sp++;
             }
-        }
     while (sp)
     {
         sp--;
@@ -162,14 +159,39 @@ bool pz_supported(const PzPart *p, const PzGrid *g)
             int nx = x + nb[i][0], ny = y + nb[i][1], nz = z + nb[i][2];
             if (nx < 0 || ny < 0 || nz < 0 || nx >= p->w || ny >= p->d || nz >= p->h)
                 continue;
-            if ((g->cell[ny][nx] >> nz & 1) && !(seen[ny][nx] >> nz & 1))
+            if ((g->cell[ny][nx] >> nz & 1) && !(reach->cell[ny][nx] >> nz & 1))
             {
-                seen[ny][nx] |= 1 << nz;
+                reach->cell[ny][nx] |= 1 << nz;
                 stack[sp][0] = nx; stack[sp][1] = ny; stack[sp][2] = nz; sp++;
             }
         }
     }
-    return reached == total;
+    return reached;
+}
+
+bool pz_supported(const PzPart *p, const PzGrid *g)
+{
+    PzGrid reach;
+    return flood(p, g, &reach) == pz_blocks(g, p);
+}
+
+void pz_floating(const PzPart *p, const PzGrid *g, PzGrid *out)
+{
+    PzGrid reach;
+    flood(p, g, &reach);
+    memset(out, 0, sizeof(*out));
+    for (int y = 0; y < p->d; y++)
+        for (int x = 0; x < p->w; x++)
+            out->cell[y][x] = g->cell[y][x] & ~reach.cell[y][x];
+}
+
+int pz_top(const PzGrid *g, int x, int y)
+{
+    int t = 0;
+    for (int z = 0; z < PZ_MAX_DIM; z++)
+        if (g->cell[y][x] >> z & 1)
+            t = z + 1;
+    return t;
 }
 
 int pz_stars(int blocks, int par)

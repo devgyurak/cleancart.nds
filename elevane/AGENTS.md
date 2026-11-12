@@ -8,7 +8,7 @@ Repo-wide rules are in `../AGENTS.md`. Created from lightenette (which came from
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's
 layers (keep fixes in sync when they apply to all games).
 
-Status: chapter 1 is playable (title, puzzle list, play). The scope for v0.1.0 is five chapters with eight puzzles each,
+Status: all five chapters (40 puzzles) are playable. Not yet: saved progress and stars, a pause menu. The scope for v0.1.0 is five chapters with eight puzzles each,
 a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later changes.
 
 ## Design principles
@@ -37,14 +37,14 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (puzzle list),
-  `play.c` (one puzzle: input, judge, both 3D views, the text overlay and the 2D-grid mode), `puzzle.c/.h` (the
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (chapter and puzzle list, every chapter open),
+  `play.c` (one puzzle: input, judge, both 3D views, the text overlay and the 2D-grid mode, view turning, work layer, parts), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot), `puzzle.c/.h` (the
   `cv_puzzles` blob, silhouettes, judge, stars; pure logic), `credits.c` (credits and the licence viewer; NitroFS
   needed only here), `qa_game.c` + `qa_tune.h`.
 - `arm9/source/gfx/dual.c`: 3D on both screens (see below).
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them
   identical to corvane's/lightenette's). Title: hold **L+R+X+Y for 120 frames** (press L and R
-  before X). The run is title → credits → title → `RESULT PASS`.
+  before X). The run is title → puzzle list → all 40 puzzles (the scripted player, `game/qa_game.c` starts each chapter from the list) → list → title → credits → title → `RESULT PASS`; a checkpoint per chapter.
 - `arm9/source/game/rehearsal.c/.h` (+ `demo/demo.c`): the rehearsal. A per-frame hook (`ev_play_hook`) replaces the
   input with a script derived from each puzzle's stored solution (cursor to the next short column, A until it
   reaches its height, wait, A delivers, Start leaves). The block (id `EVRH`, layout in `rehearsal.h`, 18 values) holds
@@ -106,8 +106,26 @@ unconfirmed. Expected: preset 1 hole count 0 on melonDS 1.1 (all renderers) and 
 left half black, master Compute grey (`BLEND 6144`, the #2618 defect); preset 2 is wrong on one side on GL and
 Compute (1.1 and master), a separate defect.
 
+## Chapters (tools/puzzles/ch*.txt, `python3 tools/puzzle_check.py`)
+
+| Chapter | Grid / height | Mode | New |
+|---|---|---|---|
+| 1 Apprentice | 4x4, 1-2 | stack (piles) | touch stacking, reading two views |
+| 2 Warehouse | 5x5, 1-3 | stack | L/R turns the top screen to the right, back, left side (the order has only front and plan) |
+| 3 Clock tower | 6x6, 1-5 | stack | par: the star rating is blocks against par (the fewest that deliver the order) |
+| 4 Bridges | 5x1 to 8x4, 2-4 | layers | the work layer (Y + up/down, or the layer bar on the right of the bottom screen), arches, support rule |
+| 5 The city | up to 8x8, 2-5 | layers | several structures per order (Y tap = next part), each with its own views and par; delivered when all match |
+
+Stack mode: A raises the column, B lowers it. Layers mode: with a work layer chosen A/tap switches that layer's cell on,
+B off (long touch empties the column); layer TOP behaves like a pile. Blocks that do not reach the floor through face-adjacent
+blocks are drawn magenta, "FLOATING BLOCKS!" shows and the order cannot match. 2D grid: a number is the column's top height
+(green = a gap under the top block), with a layer chosen `#`/`.` shows that layer. The grids are 4-8 wide (the work order
+planned 8x4 for chapter 4; the puzzles use the grid that fits each shape). Par is proven minimal except where the search hit
+its node limit: those puzzles (4-07, 5-01 p1, 5-04 p1, 5-05 p1, 5-07 p2, 5-08 p1 and p2) use the maker's count as the
+reference and the pack flags them (`reference`).
+
 ## Controls (melonDS keys in brackets)
 
-Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, Select (Backspace) 2D grid / 3D, X (S) showcase (A switches preset, B back), Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
+Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down puzzle, left/right chapter, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, L/R (Q/W) turn the top view, Y (A) + up/down the work layer (chapter 4 on), a Y tap the next part, Select (Backspace) 2D grid / 3D, X (S) showcase (A switches preset, B back), Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
 Y (A) is free in this game and is meant for choosing the work layer in chapter 4 (Y + D-pad up/down).
 More actions are listed here as scenes land.

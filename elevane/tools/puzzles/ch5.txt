@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Chapter 5, the city: several structures per order (Y tap switches between them),
+# layers mode. Every part has its own front and plan view and its own par.
+
+[5-01] name="Street Corner" chapter=5 mode=layers grid=4x4x3
+z0 = ####/#..#/#..#/####
+z1 = #..#/..../..../#..#
+z2 = #..#/..../..../#..#
+part grid=3x3x2
+z0 = ###/###/###
+z1 = .#./###/.#.
+
+[5-02] name="Market Square" chapter=5 mode=layers grid=5x5x2
+z0 = #.#.#/...../#.#.#/...../#.#.#
+z1 = #.#.#/...../#.#.#/...../#.#.#
+part grid=4x2x2
+z0 = ####/####
+z1 = .##./.##.
+part grid=2x2x3
+z0 = ##/##
+z1 = #./..
+z2 = #./..
+
+[5-03] name="River Crossing" chapter=5 mode=layers grid=8x2x3
+z0 = #......#/#......#
+z1 = #......#/#......#
+z2 = ########/########
+part grid=3x3x3
+z0 = ###/#.#/###
+z1 = #.#/.../#.#
+z2 = ###/#.#/###
+
+[5-04] name="Cathedral" chapter=5 mode=layers grid=5x5x4
+z0 = #####/#...#/#...#/#...#/#####
+z1 = #####/#...#/#...#/#...#/#####
+z2 = ..#../...../#...#/...../..#..
+part grid=3x3x4
+z0 = ###/###/###
+z1 = .#./.#./.#.
+z2 = .#./.#./.#.
+z3 = .#./.#./.#.
+
+[5-05] name="Harbour" chapter=5 mode=layers grid=8x3x3
+z0 = ########/#......#/########
+z1 = #......#/......../#......#
+z2 = ########/......../########
+part grid=2x2x2
+z0 = ##/##
+z1 = ##/##
+
+[5-06] name="Skyline" chapter=5 mode=layers grid=6x3x5
+z0 = ##.##./##.##./......
+z1 = ##.##./##.##./......
+z2 = ##.##./....../......
+part grid=3x3x5
+z0 = ###/###/###
+z1 = .#./.#./.#.
+z2 = .#./.#./.#.
+z3 = .#./.#./.#.
+z4 = .#./.#./.#.
+part grid=2x3x3
+z0 = ##/##/##
+z1 = #./#./#.
+z2 = #./#./#.
+
+[5-07] name="Old Town" chapter=5 mode=layers grid=6x6x2
+z0 = ######/#....#/#.##.#/#.##.#/#....#/######
+z1 = #....#/....../....../....../....../#....#
+part grid=4x4x3
+z0 = ####/#..#/#..#/####
+z1 = #..#/..../..../#..#
+z2 = ####/#..#/#..#/####
+
+[5-08] name="Metropolis" chapter=5 mode=layers grid=8x8x3
+z0 = ########/#......#/#.####.#/#.#..#.#/#.#..#.#/#.####.#/#......#/########
+z1 = ########/#......#/#......#/#......#/#......#/#......#/#......#/########
+z2 = ########/#......#/#......#/#......#/#......#/#......#/#......#/########
+part grid=4x4x4
+z0 = ####/####/####/####
+z1 = .##./.##./.##./.##.
+z2 = .##./.##./.##./.##.
+z3 = .##./.##./.##./.##.
+part grid=3x2x3
+z0 = ###/###
+z1 = #.#/#.#
+z2 = ###/###
