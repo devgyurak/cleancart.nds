@@ -102,6 +102,32 @@ melonDS 버전: ______  검수자: ______  날짜: ______
 | io-touch | 펜 위치에 조준점, 픽셀/원시 값 | 터치 중, x, y, 원시 x | |
 | io-power | A: 위 백라이트, B: 스피커, 뚜껑을 닫으면 절전 | 배터리, 뚜껑, 백라이트, 스피커 | |
 
+## 판정(`expected.json`, `tools/judge.py`)
+
+각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 97개, 65개 데모 중 49개). 항목마다
+1~4의 `level`과 `level_basis`가 있으며([docs/LEVELS-KO.md](../../../docs/LEVELS-KO.md)), 레벨은 판정에 영향을 주지 않습니다.
+
+| 종류 | 판정하는 것 | 예 |
+|---|---|---|
+| (a) 자체 검사, 문서화된 상수 | 오류 수 0, `sqrt(10^12)` = 1000000, CRC 일치, 폴리곤 2048 | sys-wram, sys-dma-*, sys-bios, sys-math, 3d-limits |
+| (b) 레지스터 되읽기 | 레지스터가 데모가 쓴 값을 그대로 돌려줌(쓰기 전용 레지스터는 판정하지 않음) | 2d-engines, 2d-window, 2d-blend, 3d-toon, 3d-compose |
+| (c) 타이밍 수치 | GBATEK 수치(프레임당 263줄, 버스 33.513982 MHz)에서 유도한 범위 안의 횟수 | sys-irq, sys-timer, sys-dma-vblank |
+| (d) 화면·소리로만 확인 | 아직 판정하지 않음 | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-normal, 2d-obj-affine, 2d-obj-bitmap, 2d-obj-line, 2d-vram, 2d-display, snd-mix, snd-pcm, snd-adpcm, snd-psg, snd-capture, snd-stream |
+
+출처: `GBATEK`과 `rom` 항목은 판정에 반영(gating)되고, `unconfirmed`(아직 실기 값이 없음, 예: 모델의 폴리곤 수)는 참고용입니다.
+DeSmuME는 폴리곤 카운터가 0이라 해당 항목이 n/a입니다(`na_when`).
+
+```sh
+tools/melonds/mds.sh demos games/hushwell/build/release/demos > demos.log     # GL 렌더러는 RENDERER=gl|compute
+python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
+RESULT_WORDS=16 tools/emu/emu.sh demos games/hushwell > ds.log && python3 games/hushwell/tools/judge.py --profile desmume-pydesmume-0.0.9 ds.log
+```
+
+known 프로필(2026-11-12 측정, 실기 값은 아직 없음): melonDS 1.1 소프트웨어·GL(Classic)·GL(Compute)는 전부 통과하고,
+DeSmuME는 폴리곤 카운터가 없어(해당 항목 n/a) 참고용 항목 둘(키 IRQ 수, `VEC_TEST` z)이 다릅니다. 이 게임의 장면에 달린 값(폴리곤 수,
+2d-text의 HUD 레지스터 값, 서브 엔진의 WINOUT, 로고의 CRC)은 Hushwell 고유의 값이라 Corvane과 다릅니다. `hushwell.nds`의 자동 QA 실행은
+데모 `qa`로 판정합니다(`--demo qa`): melonDS 1.1(소프트웨어)과 DeSmuME에서 `RESULT PASS`. (d) 종류의 데모 16개는 이후 변경에서 ROM 안 판정을 넣습니다.
+
 ## 본 빌드 체크리스트
 
 | 항목 | 확인 방법 | melonDS 결과 |

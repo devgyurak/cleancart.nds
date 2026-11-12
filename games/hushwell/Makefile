@@ -163,8 +163,10 @@ demos:
 	@for d in $(DEMOS); do $(MAKE) --no-print-directory DEMO=$$d || exit 1; done
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
-# build/release/rom (game + save variants) and build/release/demos, each
-# with the licence texts and notices a binary distribution has to carry.
+# build/release/rom (game + save variants), build/release/demos and
+# build/release/judge (expected.json + judge.py for the demo ROMs; the ROMs are
+# the ones in demos, not copied again), each with the licence texts and
+# notices a binary distribution has to carry.
 RELEASE := build/release
 
 release:
@@ -179,6 +181,9 @@ release:
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/$$d/ || exit 1; done
 	@cp hushwell.nds hushwell-save-flash.nds hushwell-save-fram.nds $(RELEASE)/rom/
 	@for d in $(DEMOS); do cp hushwell-$$d.nds $(RELEASE)/demos/ || exit 1; done
+	@# The emulator-test kit: the file that grades the demo ROMs' result blocks.
+	@mkdir -p $(RELEASE)/judge && \
+		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/
 
 clean:
 	@echo "  CLEAN"

@@ -56,6 +56,15 @@ pause + X lights on, Y vision mask off, B developer console, R frame step.
 5 well: shaft descent opening, dual-screen 3D chase (`VL_DUAL3D`), swarm polygon overflow, OBJ line limit, per-engine blackouts, AA.
 Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM7 capture 0 timed by channel 1), REV streams it reversed, PHOTO captures the screen into bank D (not in chapter 4 or the chase). The ARM7 samples the microphone each VBlank (`CvInputPacket.mic`).
 
+## Judging
+
+`expected.json` + `tools/judge.py` grade the demo result blocks and the auto QA run (demo `qa`); see `docs/QA.md`,
+"Judging". They started as Corvane's (same demo names, same documented items); values that depend on this game's scenes
+(polygon counts, HUD registers, the logo CRC) are Hushwell's own. Every item has `level` 1-4 and `level_basis`
+(`../../docs/LEVELS.md`). When a demo's `finish()` values change, update `expected.json` and re-measure every profile.
+Expected values come from GBATEK, a report or the ROM's own logic; measured-only ones are `unconfirmed`. 16 demos (screen or
+sound only) are not judged yet; the game's chapters are not judged beyond the QA run.
+
 ## Contracts other code depends on
 
 - **Map file** format is documented at the top of `tools/cvtools/maps.py`; the build

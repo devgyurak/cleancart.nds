@@ -185,6 +185,24 @@ licenses/           third-party licence texts (also shipped in the ROM's NitroFS
   need checking in melonDS.
 - No testing on real hardware.
 
+## Using it as an emulator test
+
+`build/release/judge/` (the `hushwell-vX.Y.Z-judge` release file) holds `expected.json` and `judge.py` for the demo ROMs
+of `build/release/demos/` (the `-demos` release file; they are not copied twice). Run every demo ROM for at least 120
+frames, print its result block at `0x0237F000` as a `RESULT <hex words>` line (16 words or more) and grade the log:
+
+```sh
+tools/melonds/mds.sh demos games/hushwell/build/release/demos > demos.log     # RENDERER=gl|compute
+python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
+```
+
+`judge.py` exits 0 on pass, 1 when a gating item fails or the profile differs, 2 when there is no usable input (a demo
+is missing; `--partial` or `--demo NAME` grade only what is in the log). Every item has a `level` from 1 to 4
+([docs/LEVELS.md](../../docs/LEVELS.md)) and `judge.py` prints a per-level summary; the level never changes a verdict. Four
+profiles are recorded (melonDS 1.1 software, GL Classic, GL Compute; DeSmuME); nothing has been measured on real hardware yet.
+49 of the 65 demos are judged so far; the other 16 (screen or sound only) are listed in
+[docs/QA.md](docs/QA.md#judging-expectedjson-toolsjudgepy). The chapters of the game itself are not judged beyond the auto QA run (demo `qa`).
+
 ## Choices for the design document's open questions
 
 | Question | Choice |

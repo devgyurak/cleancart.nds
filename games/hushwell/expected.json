@@ -1,0 +1,1484 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
+ "schema": 2,
+ "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. Pure ROM constants and demos that are checked by eye only (screens, sound) are listed in docs/QA.md and are not judged yet.",
+ "block": {
+  "address": "0x0237F000",
+  "magic": 1380275779
+ },
+ "sources": {
+  "GBATEK": "documented hardware behaviour; gating",
+  "report:<ref>": "a hardware report by a third party; gating",
+  "hw:<model>": "measured by us on real hardware; gating",
+  "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+  "unconfirmed": "no hardware value yet; informational only, never fails the run"
+ },
+ "checks": {
+  "eq": "values[i] == expect",
+  "range": "min <= values[i] <= max",
+  "mask": "(values[i] & mask) == expect",
+  "same": "values[i] == values[j] (two indexes)",
+  "na_when": "[i, v]: the item is n/a when values[i] == v (the emulator has no such counter; DeSmuME reads 0 for the polygon counters)",
+  "optional": "demos listed in \"optional\" need no RESULT line (qa: the block of the main ROM's auto QA run; grade it with --demo qa)"
+ },
+ "demos": {
+  "sys-ipc": 3150461633,
+  "sys-wram": 45733482,
+  "sys-irq": 3050090109,
+  "sys-timer": 3591142110,
+  "sys-dma-now": 2539675920,
+  "sys-dma-vblank": 2140408880,
+  "sys-dma-hblank": 3748157494,
+  "sys-dma-cart": 2418294358,
+  "sys-dma-gfx": 1841165499,
+  "sys-dma-disp": 1223439124,
+  "sys-dma-fill": 2641824089,
+  "sys-bios": 2195310490,
+  "sys-math": 3680079643,
+  "sys-keys": 539658817,
+  "2d-engines": 1970426969,
+  "2d-text": 3307310817,
+  "2d-affine": 2800304157,
+  "2d-bitmap": 881577345,
+  "2d-mosaic": 4232450678,
+  "2d-obj-normal": 1981302557,
+  "2d-obj-affine": 693190689,
+  "2d-obj-bitmap": 3789110325,
+  "2d-obj-map2d": 2120687742,
+  "2d-obj-line": 137571140,
+  "2d-extpal": 2796382190,
+  "2d-window": 749661798,
+  "2d-blend": 421289745,
+  "2d-brightness": 3646205057,
+  "2d-vram": 1480951308,
+  "2d-capture": 1926308232,
+  "2d-display": 500307856,
+  "3d-fifo": 3328708799,
+  "3d-matrix": 2932572708,
+  "3d-light": 1344621335,
+  "3d-clip": 3187887747,
+  "3d-tex-a3i5": 1669782815,
+  "3d-tex-a5i3": 3132503843,
+  "3d-tex-pal4": 452747054,
+  "3d-tex-pal16": 2505474529,
+  "3d-tex-pal256": 656952159,
+  "3d-tex-4x4": 2032986819,
+  "3d-tex-direct": 2220781376,
+  "3d-poly": 2601623615,
+  "3d-toon": 7468005,
+  "3d-edge": 3396859812,
+  "3d-fog": 2783452743,
+  "3d-aa": 467350367,
+  "3d-depth": 1801626962,
+  "3d-test": 1553889453,
+  "3d-compose": 2230188539,
+  "3d-limits": 3569651277,
+  "snd-mix": 1959406791,
+  "snd-pcm": 1889169133,
+  "snd-adpcm": 1871762358,
+  "snd-psg": 1187068991,
+  "snd-capture": 4174014751,
+  "snd-stream": 1981913095,
+  "io-cart": 2124619194,
+  "io-save-eeprom": 3537099980,
+  "io-save-flash": 2897808550,
+  "io-save-fram": 2035996814,
+  "io-firmware": 2262935645,
+  "io-rtc": 1590775779,
+  "io-touch": 4078676555,
+  "io-power": 2563074333,
+  "qa": 1314013521
+ },
+ "items": [
+  {
+   "id": "sys-ipc-sync",
+   "demo": "sys-ipc",
+   "title": "IPCSYNC data written by the ARM9 is what the ARM7 reads (0xA)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 10,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Inter Process Communication"
+  },
+  {
+   "id": "sys-ipc-packets",
+   "demo": "sys-ipc",
+   "title": "The ARM7 input packet arrives once per frame: 120 packets in 120 frames (1 off allowed)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 119,
+   "max": 121,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Inter Process Communication"
+  },
+  {
+   "id": "sys-ipc-keyxy",
+   "demo": "sys-ipc",
+   "title": "EXTKEYIN with nothing pressed: X and Y released, pen up, hinge open (bits 0,1,3,6,7 = 1,1,1,1,0)",
+   "values": [
+    3
+   ],
+   "check": "mask",
+   "mask": 203,
+   "expect": 75,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad Input"
+  },
+  {
+   "id": "sys-ipc-ping",
+   "demo": "sys-ipc",
+   "title": "FIFO ping round trip takes one or two frames (our protocol, no hardware value)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-wram-errors",
+   "demo": "sys-wram",
+   "title": "The 32 KB shared WRAM pattern reads back without errors after the ARM9 takes it",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Memory Control"
+  },
+  {
+   "id": "sys-wram-crc",
+   "demo": "sys-wram",
+   "title": "GetCRC16 of the 32 KB pattern (CRC-16/MODBUS, checked independently in Python)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 50393,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:BIOS Misc Functions"
+  },
+  {
+   "id": "sys-wram-back",
+   "demo": "sys-wram",
+   "title": "WRAMCNT reads 3 after the ARM9 hands the WRAM back to the ARM7",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 3,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Memory Control"
+  },
+  {
+   "id": "sys-irq-vblank",
+   "demo": "sys-irq",
+   "title": "One VBlank IRQ per frame: 120 in 120 frames",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 120,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:DS Interrupts"
+  },
+  {
+   "id": "sys-irq-hblank",
+   "demo": "sys-irq",
+   "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame, not fewer than the 192 visible lines",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 23040,
+   "max": 31560,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD Timings"
+  },
+  {
+   "id": "sys-irq-vcount",
+   "demo": "sys-irq",
+   "title": "The VCOUNT IRQ at line 96 fires once per frame (1 off allowed)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 118,
+   "max": 121,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Interrupts"
+  },
+  {
+   "id": "sys-irq-timer",
+   "demo": "sys-irq",
+   "title": "A 10 Hz timer IRQ fires about 20 times in 120 frames (2.006 s)",
+   "values": [
+    3
+   ],
+   "check": "range",
+   "min": 18,
+   "max": 21,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Timers"
+  },
+  {
+   "id": "sys-timer-beats",
+   "demo": "sys-timer",
+   "title": "An 8 Hz timer IRQ fires about 16 times in 120 frames (2.006 s)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 15,
+   "max": 17,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Timers"
+  },
+  {
+   "id": "sys-dma-now-errors",
+   "demo": "sys-dma-now",
+   "title": "4 KB RAM to RAM DMA copy has no errors",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS DMA Transfers"
+  },
+  {
+   "id": "sys-dma-vblank-frames",
+   "demo": "sys-dma-vblank",
+   "title": "A DMA started at VBlank has uploaded the palette in every one of 120 frames",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 120,
+   "source": "GBATEK",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers"
+  },
+  {
+   "id": "sys-dma-fill-errors",
+   "demo": "sys-dma-fill",
+   "title": "DMA fill of 32 KB VRAM and 4 KB RAM has no errors",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS DMA Transfers"
+  },
+  {
+   "id": "sys-dma-cart-found",
+   "demo": "sys-dma-cart",
+   "title": "probe.bin is found through FNT/FAT in the cart image",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
+  },
+  {
+   "id": "sys-dma-cart-dma",
+   "demo": "sys-dma-cart",
+   "title": "Raw cart DMA read of probe.bin gives the expected CRC16",
+   "values": [
+    1,
+    3
+   ],
+   "check": "same",
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "sys-dma-cart-nitro",
+   "demo": "sys-dma-cart",
+   "title": "NitroFS read of probe.bin gives the expected CRC16",
+   "values": [
+    2,
+    3
+   ],
+   "check": "same",
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "sys-dma-gfx-polys",
+   "demo": "sys-dma-gfx",
+   "title": "The DMA-fed display list cube shows its visible faces as polygons at the checkpoint (scene count)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 2,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-bios-lz77",
+   "demo": "sys-bios",
+   "title": "LZ77 decompression into VRAM equals the one into WRAM",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:BIOS Decompression Functions"
+  },
+  {
+   "id": "sys-bios-fastset",
+   "demo": "sys-bios",
+   "title": "CpuFastSet copies the CpuSet fill value 0x12345678",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 305419896,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:BIOS Memory Copy"
+  },
+  {
+   "id": "sys-bios-div",
+   "demo": "sys-bios",
+   "title": "BIOS Div 1000 / 7 = 142",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 142,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:BIOS Arithmetic Functions"
+  },
+  {
+   "id": "sys-bios-crc",
+   "demo": "sys-bios",
+   "title": "GetCRC16 of the decompressed logo (an asset of this game)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 65477,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:BIOS Misc Functions"
+  },
+  {
+   "id": "sys-math-div",
+   "demo": "sys-math",
+   "title": "Hardware division equals software division for four operand pairs (incl. negative)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Maths"
+  },
+  {
+   "id": "sys-math-sqrt64",
+   "demo": "sys-math",
+   "title": "64-bit hardware square root of 10^12 is 10^6",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1000000,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Maths"
+  },
+  {
+   "id": "sys-math-len",
+   "demo": "sys-math",
+   "title": "Vector length of (3,4,0) is 5 in 20.12 fixed point",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 20480,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Maths"
+  },
+  {
+   "id": "sys-math-atan2",
+   "demo": "sys-math",
+   "title": "atan2(1,1) is 45 degrees = 4096 (our table-free routine)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 4096,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "sys-keys-held",
+   "demo": "sys-keys",
+   "title": "No key is held in a headless run",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad Input"
+  },
+  {
+   "id": "sys-keys-keyxy",
+   "demo": "sys-keys",
+   "title": "EXTKEYIN with nothing pressed (X, Y, pen released, hinge open)",
+   "values": [
+    2
+   ],
+   "check": "mask",
+   "mask": 203,
+   "expect": 75,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad Input"
+  },
+  {
+   "id": "sys-keys-irqs",
+   "demo": "sys-keys",
+   "title": "No key IRQ fires without a key press (0 or 1 for the first poll)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-engines-powercnt",
+   "demo": "2d-engines",
+   "title": "POWERCNT reads back as written with the screens swapped at the checkpoint",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 33295,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Power Control"
+  },
+  {
+   "id": "2d-engines-dispcnt",
+   "demo": "2d-engines",
+   "title": "DISPCNT of engine A reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 69904,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "2d-engines-dispcnt-sub",
+   "demo": "2d-engines",
+   "title": "DISPCNT of engine B reads back",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 65792,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "2d-text-bg3cnt-sub",
+   "demo": "2d-text",
+   "title": "BG3CNT of engine B (HUD) reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 19718,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O BG Control"
+  },
+  {
+   "id": "2d-text-bg0cnt-sub",
+   "demo": "2d-text",
+   "title": "BG0CNT of engine B (console lines) reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 3584,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O BG Control"
+  },
+  {
+   "id": "2d-bitmap-dispcnt",
+   "demo": "2d-bitmap",
+   "title": "DISPCNT with the 1024x512 large bitmap mode reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 66566,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "2d-bitmap-bg2cnt",
+   "demo": "2d-bitmap",
+   "title": "BG2CNT of the large bitmap reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 16387,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O BG Control"
+  },
+  {
+   "id": "2d-bitmap-phase",
+   "demo": "2d-bitmap",
+   "title": "The demo reached its second phase (nebula scroll)",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 2,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "2d-obj-map2d-dispcnt",
+   "demo": "2d-obj-map2d",
+   "title": "DISPCNT of engine B with 2D OBJ mapping reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 69632,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "2d-extpal-dispcnt",
+   "demo": "2d-extpal",
+   "title": "DISPCNT with the extended palette bits reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 3221295888,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Control"
+  },
+  {
+   "id": "2d-window-winin",
+   "demo": "2d-window",
+   "title": "WININ reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 7967,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Window Feature"
+  },
+  {
+   "id": "2d-window-winout",
+   "demo": "2d-window",
+   "title": "WINOUT reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 63,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Window Feature"
+  },
+  {
+   "id": "2d-window-winout-sub",
+   "demo": "2d-window",
+   "title": "WINOUT of engine B reads back",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 2305,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Window Feature"
+  },
+  {
+   "id": "2d-blend-bldcnt",
+   "demo": "2d-blend",
+   "title": "BLDCNT reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 9024,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Color Special Effects"
+  },
+  {
+   "id": "2d-blend-bldalpha",
+   "demo": "2d-blend",
+   "title": "BLDALPHA reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1546,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Color Special Effects"
+  },
+  {
+   "id": "2d-brightness-main",
+   "demo": "2d-brightness",
+   "title": "MASTER_BRIGHT of engine A reads back (fade to white)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 16391,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Color Special Effects"
+  },
+  {
+   "id": "2d-brightness-sub",
+   "demo": "2d-brightness",
+   "title": "MASTER_BRIGHT of engine B reads back (fade to black)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 32783,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Color Special Effects"
+  },
+  {
+   "id": "2d-capture-done",
+   "demo": "2d-capture",
+   "title": "The capture enable bit (bit 31 of DISPCAPCNT) has cleared by itself: the one-frame capture finished",
+   "values": [
+    0
+   ],
+   "check": "mask",
+   "mask": 2147483648,
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "2d-capture-cnt",
+   "demo": "2d-capture",
+   "title": "DISPCAPCNT reads back with the written source, size and write offset",
+   "values": [
+    0
+   ],
+   "check": "mask",
+   "mask": 2147483647,
+   "expect": 20054016,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O Display Capture"
+  },
+  {
+   "id": "3d-toon-control",
+   "demo": "3d-toon",
+   "title": "DISP3DCNT reads back with toon/highlight shading (overflow flags 12-13 clear)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1551,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control"
+  },
+  {
+   "id": "3d-edge-control",
+   "demo": "3d-edge",
+   "title": "DISP3DCNT reads back with edge marking (overflow flags 12-13 clear)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1581,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control"
+  },
+  {
+   "id": "3d-fog-control",
+   "demo": "3d-fog",
+   "title": "DISP3DCNT reads back with alpha-only fog (overflow flags 12-13 clear)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1741,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control"
+  },
+  {
+   "id": "3d-aa-control",
+   "demo": "3d-aa",
+   "title": "DISP3DCNT reads back with anti-aliasing (overflow flags 12-13 clear)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1565,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control"
+  },
+  {
+   "id": "3d-depth-control",
+   "demo": "3d-depth",
+   "title": "DISP3DCNT reads back with Z-buffering with a bitmap rear plane (overflow flags 12-13 clear)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 17933,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control"
+  },
+  {
+   "id": "3d-compose-bg0cnt",
+   "demo": "3d-compose",
+   "title": "BG0CNT (3D layer behind the sea) reads back",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 3,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O BG Control"
+  },
+  {
+   "id": "3d-compose-bg2cnt",
+   "demo": "3d-compose",
+   "title": "BG2CNT (sea in front of the 3D layer) reads back",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 7433,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:LCD I/O BG Control"
+  },
+  {
+   "id": "3d-tex-a3i5-poly",
+   "demo": "3d-tex-a3i5",
+   "title": "A fully visible A3I5 textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-a5i3-poly",
+   "demo": "3d-tex-a5i3",
+   "title": "A fully visible A5I3 textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-pal4-poly",
+   "demo": "3d-tex-pal4",
+   "title": "A fully visible 4-colour textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-pal16-poly",
+   "demo": "3d-tex-pal16",
+   "title": "A fully visible 16-colour textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-pal256-poly",
+   "demo": "3d-tex-pal256",
+   "title": "A fully visible 256-colour textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-4x4-poly",
+   "demo": "3d-tex-4x4",
+   "title": "A fully visible 4x4 compressed textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-tex-direct-poly",
+   "demo": "3d-tex-direct",
+   "title": "A fully visible direct colour textured quad is one polygon in polygon RAM",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    2,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-fifo-polys",
+   "demo": "3d-fifo",
+   "title": "FIFO demo scene: polygons in polygon RAM at the checkpoint (scene count)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 13,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-fifo-verts",
+   "demo": "3d-fifo",
+   "title": "FIFO demo scene: vertices in vertex RAM at the checkpoint (scene count)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 52,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-clip-polys",
+   "demo": "3d-clip",
+   "title": "Near-plane clipping scene: polygons at the checkpoint (scene count)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 55,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-light-polys",
+   "demo": "3d-light",
+   "title": "Lighting scene: polygons at the checkpoint (scene count)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 12,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-matrix-polys",
+   "demo": "3d-matrix",
+   "title": "Matrix-stack scene: polygons at the checkpoint (scene count)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 139,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-poly-polys",
+   "demo": "3d-poly",
+   "title": "Polygon attributes scene: polygons at the checkpoint (scene count)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 72,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-limits-ram",
+   "demo": "3d-limits",
+   "title": "Polygon RAM holds 2048 polygons: it is full at the end of the overload run",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 2048,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS 3D Video"
+  },
+  {
+   "id": "3d-limits-overflow",
+   "demo": "3d-limits",
+   "title": "Frames in which 600-2980 submitted triangles overflowed polygon RAM",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 47,
+   "na_when": [
+    1,
+    0
+   ],
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-inside",
+   "demo": "3d-test",
+   "title": "BOX_TEST says INSIDE in 102 of 120 frames (cube path across the view)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 102,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-pos-w",
+   "demo": "3d-test",
+   "title": "POS_TEST w result of the last frame",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 20904,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-vec-x",
+   "demo": "3d-test",
+   "title": "VEC_TEST x result of the last frame",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 2487,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "3d-test-vec-z",
+   "demo": "3d-test",
+   "title": "VEC_TEST z result of the last frame (the emulators differ by one here)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 4294964076,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "io-cart-ok",
+   "demo": "io-cart",
+   "title": "Stage 3 loads from NitroFS",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
+  },
+  {
+   "id": "io-cart-ready",
+   "demo": "io-cart",
+   "title": "Raw cart DMA is available",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "io-save-eeprom-write",
+   "demo": "io-save-eeprom",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-eeprom-reload",
+   "demo": "io-save-eeprom",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-eeprom-seq",
+   "demo": "io-save-eeprom",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-write",
+   "demo": "io-save-flash",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-reload",
+   "demo": "io-save-flash",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-seq",
+   "demo": "io-save-flash",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-write",
+   "demo": "io-save-fram",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-reload",
+   "demo": "io-save-fram",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-seq",
+   "demo": "io-save-fram",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-firmware-colour",
+   "demo": "io-firmware",
+   "title": "Favourite colour from the firmware user settings is 0-15",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 15,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings"
+  },
+  {
+   "id": "io-firmware-language",
+   "demo": "io-firmware",
+   "title": "Language from the firmware user settings is 0-7",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 7,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings"
+  },
+  {
+   "id": "io-firmware-name",
+   "demo": "io-firmware",
+   "title": "Name length from the firmware user settings is 0-10",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 10,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings"
+  },
+  {
+   "id": "io-rtc-month",
+   "demo": "io-rtc",
+   "title": "RTC month is 1-12",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 12,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-rtc-day",
+   "demo": "io-rtc",
+   "title": "RTC day is 1-31",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 31,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-rtc-hour",
+   "demo": "io-rtc",
+   "title": "RTC hour is 0-23",
+   "values": [
+    3
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 23,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-touch-up",
+   "demo": "io-touch",
+   "title": "The pen is up at the checkpoint (the scripted touch ended)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-touch-x",
+   "demo": "io-touch",
+   "title": "The last pen x is 120 (scripted touch at 120,100; one pixel of calibration error allowed)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 119,
+   "max": 121,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-touch-y",
+   "demo": "io-touch",
+   "title": "The last pen y is 100 (one pixel of calibration error allowed)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 99,
+   "max": 101,
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-power-lid",
+   "demo": "io-power",
+   "title": "The lid is open",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "level": 1,
+   "level_basis": "gbatek:DS Power Management"
+  },
+  {
+   "id": "qa-verdict",
+   "demo": "qa",
+   "title": "The auto QA run of hushwell.nds (hold L+R+X+Y on the title) reaches the credits with RESULT PASS: the QARN block reports verdict 1",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "level": 1,
+   "level_basis": "none"
+  }
+ ],
+ "known": {
+  "melonds-1.1-software": {
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-classic": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-compute": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "desmume-pydesmume-0.0.9": {
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=16",
+   "ng": [
+    "3d-test-vec-z",
+    "sys-keys-irqs"
+   ],
+   "na": [
+    "3d-clip-polys",
+    "3d-fifo-polys",
+    "3d-fifo-verts",
+    "3d-light-polys",
+    "3d-limits-overflow",
+    "3d-limits-ram",
+    "3d-matrix-polys",
+    "3d-poly-polys",
+    "3d-tex-4x4-poly",
+    "3d-tex-a3i5-poly",
+    "3d-tex-a5i3-poly",
+    "3d-tex-direct-poly",
+    "3d-tex-pal16-poly",
+    "3d-tex-pal256-poly",
+    "3d-tex-pal4-poly",
+    "sys-dma-gfx-polys"
+   ]
+  }
+ },
+ "known_note": "Measured 2026-11-12 on the release demo ROMs (./build.sh -j8 release). NG lists include informational (unconfirmed) items that failed. No real hardware has been measured. Scene-specific values (polygon counts, HUD register values, the logo CRC) are this game's own and differ from Corvane's.",
+ "optional": [
+  "qa"
+ ]
+}
