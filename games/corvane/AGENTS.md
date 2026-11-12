@@ -45,7 +45,8 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../..
 `build/release/judge`). Every item has `level` 1-4 and `level_basis` (`../../docs/LEVELS.md`). When a demo's
 `finish()` values change, update `expected.json` and re-measure every profile (`judge.py --profile NAME`);
 expected values come from GBATEK, a report or the ROM's own logic, never from "what melonDS printed" (then the
-item is `unconfirmed`). 16 demos (screen or sound only) are not judged yet.
+item is `unconfirmed`). The screen demos capture their own output (bank D, `probe_capture*` in `demo/demo.c`) and write `values[4..8]`;
+the ARM7 reports channel/capture state in `CvInputPacket` for the sound demos.
 
 ## Contracts other code depends on
 

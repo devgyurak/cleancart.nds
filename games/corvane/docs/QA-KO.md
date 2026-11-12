@@ -115,7 +115,7 @@ melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Cla
 
 ## 판정(`expected.json`, `tools/judge.py`)
 
-각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 116개, 75개 데모 중 59개). 항목마다
+각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 157개, 데모 75개 전부). 항목마다
 1~4의 `level`과 `level_basis`가 있으며([docs/LEVELS-KO.md](../../../docs/LEVELS-KO.md)), 레벨은 판정에 영향을 주지 않습니다.
 
 | 종류 | 판정하는 것 | 예 |
@@ -123,7 +123,7 @@ melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Cla
 | (a) 자체 검사, 문서화된 상수 | 오류 수 0, `sqrt(10^12)` = 1000000, CRC 일치, 폴리곤 2048 | sys-wram, sys-dma-*, sys-bios, sys-math, 3d-limits |
 | (b) 레지스터 되읽기 | 레지스터가 데모가 쓴 값을 그대로 돌려줌(쓰기 전용 레지스터는 판정하지 않음) | 2d-engines, 2d-window, 2d-blend, 3d-toon, 3d-compose |
 | (c) 타이밍 수치 | GBATEK 수치(프레임당 263줄, 버스 33.513982 MHz)에서 유도한 범위 안의 횟수 | sys-irq, sys-timer, sys-dma-vblank |
-| (d) 화면·소리로만 확인 | 아직 판정하지 않음 | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-normal, 2d-obj-affine, 2d-obj-bitmap, 2d-obj-line, 2d-vram, 2d-display, snd-mix, snd-pcm, snd-adpcm, snd-psg, snd-capture, snd-stream |
+| (d) 화면·소리 | ROM 안에서 판정: 데모가 자기 출력을 캡처(디스플레이 캡처로 뱅크 D)해 GBATEK 규칙과 픽셀을 비교하고, VRAM 매핑은 별칭으로 읽어 확인하고, 소리 데모는 ARM7가 알려 주는 채널·캡처 상태를 읽음 | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-*, 2d-vram, 2d-display, snd-* |
 
 출처: `GBATEK`과 `rom` 항목은 판정에 반영(gating)되고, `unconfirmed`(아직 실기 값이 없음, 예: 모델의 폴리곤 수)는 참고용입니다.
 DeSmuME는 폴리곤 카운터가 0이라 해당 항목이 n/a입니다(`na_when`).
@@ -137,8 +137,12 @@ RESULT_WORDS=16 tools/emu/emu.sh demos games/corvane > ds.log && python3 games/c
 known 프로필(2026-11-12 측정, 실기 값은 아직 없음): melonDS 1.1 소프트웨어는 전부 통과하고, GL(Classic)은
 acc-stage의 잘린 선·에지 마킹·랜턴 블렌드가, GL(Compute)은 랜턴 블렌드가 실패합니다(melonDS 이슈 #2008, #2503, #2549의
 경우로, Lightenette와 같습니다). DeSmuME는 랜턴 블렌드가 실패하고 폴리곤 카운터가 없으며, 참고용 항목 둘(키 IRQ 수,
-`VEC_TEST` z)이 다릅니다. (d) 종류의 데모 16개는 이후 변경에서 ROM 안 판정(디스플레이 캡처, Lightenette·Elevane와
-같은 방식)을 넣습니다. 소리 데모는 먼저 캡처 검증 방법이 필요합니다.
+`VEC_TEST` z)이 다릅니다. (d) 종류의 데모는 프로브 결과를 `values[4..8]`(비교한 샘플 수, 틀린 수, 캡처 완료, 부가 값)에 담습니다. 판정하지 않는 것: 서브 화면의
+줄 시작 DMA 막대(`sys-dma-disp`), 프로브한 픽셀 밖의 그림, 그리고 "채널이 동작 중 / 캡처 링이 무음이 아님"을 넘는 소리 내용.
+참고용(`unconfirmed`) 프로브: 메인 메모리 디스플레이 FIFO 캡처(`sys-dma-disp`, `2d-display`: DeSmuME에서 실패하고, 디스플레이가 같은
+FIFO를 읽는 동안 캡처에 무엇이 보이는지는 문서에 없음)와 줄당 OBJ 예산(`2d-obj-line`: GBATEK는 줄당 약 1210사이클이라 적지만 어느
+에뮬레이터도 마지막 스프라이트를 버리지 않고 정확한 계산은 확인하지 못함). ARM7는 입력 패킷(`CvInputPacket.snd_busy`, `cap_peak`,
+`cap_busy`)에 채널 상태를 담아 보냅니다.
 
 ## 정확도 교차 검증 (acc-stage)
 

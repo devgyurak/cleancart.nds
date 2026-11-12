@@ -116,7 +116,7 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 
 ## Judging (`expected.json`, `tools/judge.py`)
 
-The result block of each demo is graded by `tools/judge.py` against `expected.json` (116 items, 59 of the 75
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (157 items, all 75
 demos). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
 change a verdict.
 
@@ -125,7 +125,7 @@ change a verdict.
 | (a) self-check, documented constant | error counts 0, `sqrt(10^12)` = 1000000, CRC equal, 2048 polygons | sys-wram, sys-dma-*, sys-bios, sys-math, 3d-limits |
 | (b) register read-back | the register reads back the value the demo wrote (write-only registers are not judged) | 2d-engines, 2d-window, 2d-blend, 3d-toon, 3d-compose |
 | (c) timing figure | a count in a window derived from GBATEK (263 lines per frame, 33.513982 MHz bus) | sys-irq, sys-timer, sys-dma-vblank |
-| (d) screen or sound only | not judged yet | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-normal, 2d-obj-affine, 2d-obj-bitmap, 2d-obj-line, 2d-vram, 2d-display, snd-mix, snd-pcm, snd-adpcm, snd-psg, snd-capture, snd-stream |
+| (d) screen or sound | judged in the ROM: the demo captures its own output (display capture to bank D) and compares pixels with GBATEK's rules; VRAM mappings are read back through their aliases; the sound demos read the channel and capture state the ARM7 reports | sys-dma-hblank, sys-dma-disp, 2d-affine, 2d-mosaic, 2d-obj-*, 2d-vram, 2d-display, snd-* |
 
 Sources: `GBATEK` and `rom` items gate, `unconfirmed` ones (no hardware value yet, for example polygon counts of
 the models) are informational. Polygon counters read 0 in DeSmuME: those items are n/a there (`na_when`).
@@ -139,8 +139,12 @@ RESULT_WORDS=16 tools/emu/emu.sh demos games/corvane > ds.log && python3 games/c
 Known profiles (measured 2026-11-12, nothing on real hardware yet): melonDS 1.1 software passes everything; the GL (Classic)
 renderer fails acc-stage cut line, edge marking and lantern blend, GL (Compute) the lantern blend (the cases of
 melonDS issues #2008, #2503, #2549, as in Lightenette); DeSmuME fails the lantern blend, has no polygon counters and
-differs in two informational items (key IRQ count, `VEC_TEST` z). The 16 demos of kind (d) get ROM-side judging in a
-later change (display capture, as in Lightenette and Elevane); sound demos need a capture check first.
+differs in two informational items (key IRQ count, `VEC_TEST` z). The kind (d) demos report their probe in `values[4..8]` (samples compared, wrong, capture finished, extras). What stays
+unjudged: the sub screen's line-start DMA bars (`sys-dma-disp`), the pictures of the demos beyond the probed pixels, and the sound
+output beyond "channel busy / capture ring not silent". Informational (`unconfirmed`) probes: the main-memory display FIFO capture
+(`sys-dma-disp`, `2d-display`: fails in DeSmuME, what a capture sees while the display reads the same FIFO is not documented) and the
+per-line OBJ budget (`2d-obj-line`: GBATEK describes about 1210 cycles per line, but no emulator drops the last sprites and the exact
+accounting is not confirmed). The ARM7 reports its channel state in the input packet (`CvInputPacket.snd_busy`, `cap_peak`, `cap_busy`).
 
 ## Accuracy cross-check (acc-stage)
 

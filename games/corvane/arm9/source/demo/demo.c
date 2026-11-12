@@ -152,6 +152,88 @@ static void spin_cube(int f, CvTex tex, int32_t scale)
     glPopMatrix(1);
 }
 
+
+// ---------------------------------------------------------------------------
+// ROM-side judging. Demos that used to be checked by eye capture engine A's own
+// output (BG + OBJ) and compare pixels with what GBATEK says must appear; the
+// counts go to values[4..6] (n samples, n wrong, capture finished) and
+// tools/judge.py grades them. Bank D is the sub-engine OBJ bank in the menu
+// layout: it is the LCDC capture target for one frame and goes back afterwards.
+
+#define PROBE_CAP ((vu16 *)0x06860000)
+
+static bool probe_capture(void)
+{
+    vram_set(VB_D, 0, 0);
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)PROBE_CAP)[i] = 0;     // a pixel that was not captured has bit 15 clear
+    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);   // engine A output to bank D, 256x192
+    for (int f = 0; f < 4 && (REG_DISPCAPCNT & (1u << 31)); f++)
+        vsync();
+    return !(REG_DISPCAPCNT & (1u << 31));
+}
+
+// Same, but with capture source B = the main-memory display FIFO (GBATEK: display capture can
+// store the FIFO's pixels instead of the engine output).
+static bool probe_capture_fifo(void)
+{
+    vram_set(VB_D, 0, 0);
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)PROBE_CAP)[i] = 0;
+    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20) | CV_CAP_SRCB_FIFO | CV_CAP_SRC_B;
+    for (int f = 0; f < 4 && (REG_DISPCAPCNT & (1u << 31)); f++)
+        vsync();
+    return !(REG_DISPCAPCNT & (1u << 31));
+}
+
+static void probe_release(void)
+{
+    vram_set(VB_D, 4, 0);
+}
+
+static u16 probe_px(int x, int y)
+{
+    return PROBE_CAP[y * 256 + x];
+}
+
+static void probe_values(u32 n, u32 bad, bool done)
+{
+    volatile CvResult *r = CV_RESULT;
+    r->values[4] = n;
+    r->values[5] = bad;
+    r->values[6] = done;
+}
+
+// Sound judge: the ARM7 reports which of its 16 channels have Start/Busy set (SOUNDCNT bit 31)
+// and the state of the two capture units once per frame in the input packet.
+static u32 popcount16(u32 v)
+{
+    u32 n = 0;
+    for (; v; v &= v - 1)
+        n++;
+    return n;
+}
+
+// A w x h 4bpp 1D-mapped sprite from cv_sprite_tiles / cv_sprite_pal (palette 0) drawn
+// with its top left at (x0, y0): every opaque texel must show its colour.
+static void probe_sprite4(int x0, int y0, int w, int h, int tile, bool hflip, u32 *n, u32 *bad)
+{
+    const u8 *data = cv_sprite_tiles + tile * 32;
+    const u16 *pal = (const u16 *)cv_sprite_pal;
+    for (int y = 0; y < h; y++)
+        for (int x = 0; x < w; x++)
+        {
+            int sx = hflip ? w - 1 - x : x;
+            u8 b = data[((y >> 3) * (w >> 3) + (sx >> 3)) * 32 + (y & 7) * 4 + ((sx & 7) >> 1)];
+            u8 idx = (sx & 1) ? b >> 4 : b & 15;
+            if (!idx)
+                continue;
+            (*n)++;
+            u16 px = probe_px(x0 + x, y0 + y);
+            *bad += !(px & 0x8000) || (px & 0x7FFF) != (pal[idx] & 0x7FFF);
+        }
+}
+
 // ---------------------------------------------------------------------------
 // System
 
@@ -305,6 +387,18 @@ static void d_sys_dma_hblank(void)
     u32 h0 = cv_hblank_count;
     for (int f = 0; f < CHECKPOINT; f++)
         vsync();
+    // Judge: the HBlank DMA writes entry y into the backdrop for line y (GBATEK:
+    // an HBlank DMA runs at the start of every visible line's HBlank), so the
+    // captured backdrop of line y has line_table[y]'s colour.
+    bool done = probe_capture();
+    u32 n = 0, bad = 0;
+    for (int y = 8; y < 184; y += 8, n++)
+    {
+        u16 px = probe_px(250, y);
+        bad += !(px & 0x8000) || (px & 0x7FFF) != (line_table[y] & 0x7FFF);
+    }
+    probe_release();
+    probe_values(n, bad, done);
     finish(line_table[100], cv_hblank_count - h0, 0, 0);
 }
 
@@ -375,6 +469,20 @@ static void d_sys_dma_disp(void)
     irq_add_vblank(mmem_vblank);
     for (int f = 0; f < CHECKPOINT; f++)
         vsync();
+    // Judge: what the main-memory display FIFO delivers is the frame in main memory: capture it
+    // (source B = FIFO) and compare a grid of pixels. The sub screen's per-line bars (line-start DMA
+    // into the sub palette) cannot be captured and stay unjudged.
+    bool done = probe_capture_fifo();
+    u32 n = 0, bad = 0;
+    for (int y = 4; y < 192; y += 8)
+        for (int x = 4; x < 256; x += 8, n++)
+        {
+            // capture source B (FIFO): bit 15 of the stored pixel is unused, compare the colour only
+            u16 px = probe_px(x, y);
+            bad += (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
+        }
+    probe_release();
+    probe_values(n, bad, done);
     finish(mmem_frame[96 * 256 + 128], bars[50], 0, 0);
 }
 
@@ -580,6 +688,37 @@ static void d_2d_affine(void)
         last_bg3pa = inv;
         vsync();
     }
+    // Judge: BG2 alone with a fixed rotation. GBATEK: texel (u, v) of pixel (x, y) is
+    // (X + PA*x + PB*y, Y + PC*x + PD*y) >> 8, wrapped to the 128x128 map; the tile
+    // map and tile data are read back from VRAM, so the expected colour is exact.
+    REG_DISPCNT = MODE_4_2D | DISPLAY_BG2_ACTIVE;
+    {
+        int a = 3000;
+        int32_t c = cosLerp(a) >> 4, s = sinLerp(a) >> 4;
+        int32_t x0 = (128 << 8) - (c * 128 - s * 96), y0 = (128 << 8) - (s * 128 + c * 96);
+        REG_BG2PA = c; REG_BG2PB = -s; REG_BG2PC = s; REG_BG2PD = c;
+        REG_BG2X = x0;
+        REG_BG2Y = y0;
+        vsync();
+        vsync();
+        bool done = probe_capture();
+        u32 n = 0, bad = 0, opaque = 0;
+        for (int y = 4; y < 192; y += 16)
+            for (int x = 4; x < 256; x += 16, n++)
+            {
+                // BG2CNT has size bits 0: a 128x128 map (16x16 tiles) that wraps at 128.
+                int32_t u = ((x0 - s * y + c * x) >> 8) & 127;
+                int32_t v = ((y0 + c * y + s * x) >> 8) & 127;
+                u8 tile = *(vu8 *)(MAIN_BG + 28 * 2048 + (v >> 3) * 16 + (u >> 3));
+                u8 idx = *(vu8 *)(MAIN_BG + 0x8000 + tile * 64 + (v & 7) * 8 + (u & 7));
+                opaque += idx != 0;
+                u16 px = probe_px(x, y);
+                bad += !(px & 0x8000) || (px & 0x7FFF) != (CV_PAL_BG_MAIN[idx] & 0x7FFF);
+            }
+        probe_release();
+        probe_values(n, bad, done);
+        CV_RESULT->values[7] = opaque;
+    }
     finish(last_bg2pa & 0xFFFF, last_bg3pa & 0xFFFF, 0, 0);
 }
 
@@ -657,6 +796,24 @@ static void d_2d_mosaic(void)
             oam_add(ENG_MAIN, 20 + i * 28, 150, SPR_16x16, CV_SPR_EXPLODE2, 0, 0, SPRF_MOSAIC, 0);
         vsync();
     }
+    // Judge: with a 4x4 mosaic every 4x4 block of BG0 shows the pixel of its top left corner
+    // (GBATEK: the BG mosaic repeats the first pixel of each block).
+    fx_mosaic(FX_MAIN, 3, 3);
+    oam_clear(ENG_MAIN);
+    vsync();
+    vsync();
+    bool done = probe_capture();
+    u32 n = 0, bad = 0, steps = 0;
+    for (int y = 0; y < 192; y++)
+        for (int x = 0; x < 256; x++, n++)
+        {
+            u16 px = probe_px(x, y), org = probe_px(x & ~3, y & ~3);
+            bad += !(px & 0x8000) || px != org;
+            steps += (x & 3) == 0 && x > 0 && org != probe_px(x - 4, y & ~3);
+        }
+    probe_release();
+    probe_values(n, bad, done);
+    CV_RESULT->values[7] = steps;
     // MOSAIC is write-only: report the value fx_mosaic() last wrote.
     finish((u32)m * 0x1111, 0, 0, 0);
 }
@@ -686,7 +843,20 @@ static void d_2d_obj_normal(void)
         }
         vsync();
     }
-    finish(oam_count(ENG_MAIN), 0, 0, 0);
+    u32 count = oam_count(ENG_MAIN);
+    // Judge: a plain and a horizontally flipped 8x8 sprite show exactly their tile's texels.
+    oam_clear(ENG_MAIN);
+    oam_add(ENG_MAIN, 100, 150, SPR_8x8, CV_SPR_BULLET, 0, 0, 0, 0);
+    oam_add(ENG_MAIN, 140, 150, SPR_8x8, CV_SPR_NEEDLE, 0, 0, SPRF_HFLIP, 0);
+    vsync();
+    vsync();
+    bool done = probe_capture();
+    u32 n = 0, bad = 0;
+    probe_sprite4(100, 150, 8, 8, CV_SPR_BULLET, false, &n, &bad);
+    probe_sprite4(140, 150, 8, 8, CV_SPR_NEEDLE, true, &n, &bad);
+    probe_release();
+    probe_values(n, bad, done);
+    finish(count, 0, 0, 0);
 }
 
 static void d_2d_obj_affine(void)
@@ -715,7 +885,22 @@ static void d_2d_obj_affine(void)
         oam_add(ENG_MAIN, 112, 140, SPR_16x16, CV_SPR_EXPLODE1, 0, 0, SPRF_AFFINE | SPRF_DOUBLE, 5);
         vsync();
     }
-    finish(oam_count(ENG_MAIN), 0, 0, 0);
+    u32 count = oam_count(ENG_MAIN);
+    // Judge: with the identity matrix an affine sprite shows its tile's texels, and with
+    // the double-size flag the same 16x16 picture sits in the middle of a 32x32 box.
+    oam_clear(ENG_MAIN);
+    oam_affine(ENG_MAIN, 6, 0, 256, 256);
+    oam_add(ENG_MAIN, 60, 150, SPR_16x16, CV_SPR_EXPLODE1, 0, 0, SPRF_AFFINE, 6);
+    oam_add(ENG_MAIN, 140, 150, SPR_16x16, CV_SPR_EXPLODE1, 0, 0, SPRF_AFFINE | SPRF_DOUBLE, 6);
+    vsync();
+    vsync();
+    bool done = probe_capture();
+    u32 n = 0, bad = 0;
+    probe_sprite4(60, 150, 16, 16, CV_SPR_EXPLODE1, false, &n, &bad);
+    probe_sprite4(140 + 8, 150 + 8, 16, 16, CV_SPR_EXPLODE1, false, &n, &bad);
+    probe_release();
+    probe_values(n, bad, done);
+    finish(count, 0, 0, 0);
 }
 
 static void d_2d_obj_bitmap(void)
@@ -734,7 +919,30 @@ static void d_2d_obj_bitmap(void)
         oam_add(ENG_MAIN, 150, 100, SPR_64x64, 64, 6, 0, SPRF_BITMAP, 0);
         vsync();
     }
-    finish(oam_count(ENG_MAIN), 0, 0, 0);
+    u32 count = oam_count(ENG_MAIN);
+    // Judge: one bitmap sprite with alpha field 15 shows the opaque texels (bit 15 set) of its
+    // 16bpp picture unchanged.
+    REG_BLDCNT = 0;     // the demo's blend setup must not touch the probe
+    oam_clear(ENG_MAIN);
+    oam_add(ENG_MAIN, 96, 110, SPR_64x64, 64, 15, 0, SPRF_BITMAP, 0);
+    vsync();
+    vsync();
+    bool done = probe_capture();
+    u32 n = 0, bad = 0;
+    const u16 *bmp = (const u16 *)cv_cutin_bitmap;
+    for (int y = 0; y < 64; y++)
+        for (int x = 0; x < 64; x++)
+        {
+            u16 t = bmp[y * 64 + x];
+            if (!(t & 0x8000))
+                continue;
+            n++;
+            u16 px = probe_px(96 + x, 110 + y);
+            bad += !(px & 0x8000) || (px & 0x7FFF) != (t & 0x7FFF);
+        }
+    probe_release();
+    probe_values(n, bad, done);
+    finish(count, 0, 0, 0);
 }
 
 static void d_2d_obj_map2d(void)
@@ -779,7 +987,32 @@ static void d_2d_obj_line(void)
                     CV_SPR_BIGSHOT, 0, i & 3, 0, 0);
         vsync();
     }
-    finish(oam_count(ENG_MAIN), 0, 0, 0);
+    u32 count = oam_count(ENG_MAIN);
+    // Judge (informational): the OBJ renderer has a per-line budget in cycles (a plain OBJ costs its
+    // width). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load (120 x 16 = 1920)
+    // may or may not exceed it; no emulator drops sprites. Sprite i is in colour group i / 30 with priority 3 - group, so the highest group
+    // that shows up on the line says how far the renderer got: group 3 (sprites 90-119) is
+    // present when nothing is dropped.
+    for (int g = 1; g < 4; g++)
+        for (int k = 1; k < 16; k++)
+            CV_PAL_OBJ_MAIN[g * 16 + k] = g == 1 ? RGB15(31, 0, 0) : g == 2 ? RGB15(0, 31, 0) : RGB15(0, 0, 31);
+    oam_clear(ENG_MAIN);
+    for (int i = 0; i < 120; i++)
+        oam_add(ENG_MAIN, (i * 16) & 255, 150, SPR_16x16, CV_SPR_BIGSHOT, i / 30, 3 - i / 30, 0, 0);
+    vsync();
+    vsync();
+    bool done = probe_capture();
+    u32 mask = 0;
+    for (int x = 0; x < 256; x++)
+    {
+        u16 px = probe_px(x, 157) & 0x7FFF;
+        mask |= px == RGB15(31, 0, 0) ? 2 : px == RGB15(0, 31, 0) ? 4 : px == RGB15(0, 0, 31) ? 8 : 0;
+    }
+    probe_release();
+    probe_values(0, 0, done);
+    CV_RESULT->values[7] = mask;
+    CV_RESULT->values[8] = mask & 8 ? 3 : mask & 4 ? 2 : mask & 2 ? 1 : 0;   // highest group on the line
+    finish(count, 0, 0, 0);
 }
 
 static void d_2d_extpal(void)
@@ -902,8 +1135,51 @@ static void d_2d_brightness(void)
     finish(REG_MASTER_BRIGHT, REG_MASTER_BRIGHT_SUB, 0, 0);
 }
 
+// Judge: a bank keeps its contents when it moves between the LCDC window and the
+// engine address it is mapped to (GBATEK, VRAM bank mapping table). Each bank gets a
+// pattern through LCDC, is remapped, and is read back at the engine address.
+static void vram_alias(int bank, u32 lcdc, int mst, int ofs, u32 engine, u32 *n, u32 *bad)
+{
+    vu32 *l = (vu32 *)lcdc;
+    vram_set(bank, 0, 0);
+    for (int i = 0; i < 32; i++)
+        l[0x40 + i] = 0xC0DE0000u ^ (u32)(bank * 0x1111) ^ (u32)(i * 0x10001);
+    vram_set(bank, mst, ofs);
+    vu32 *e = (vu32 *)engine;
+    for (int i = 0; i < 32; i++, (*n)++)
+        *bad += e[0x40 + i] != (0xC0DE0000u ^ (u32)(bank * 0x1111) ^ (u32)(i * 0x10001));
+    vram_set(bank, 0, 0);
+}
+
+static void vram_probe(u32 *n, u32 *bad)
+{
+    for (int b = 0; b < 10; b++)
+        if (b != VB_WRAM)
+            CV_VRAMCNT(b) = 0;
+    // A-D: main BG at 0x06000000 + 0x20000 * offset; C also sub BG, D also sub OBJ.
+    vram_alias(VB_A, 0x06800000, 1, 0, 0x06000000, n, bad);
+    vram_alias(VB_B, 0x06820000, 1, 1, 0x06020000, n, bad);
+    vram_alias(VB_C, 0x06840000, 1, 2, 0x06040000, n, bad);
+    vram_alias(VB_D, 0x06860000, 1, 3, 0x06060000, n, bad);
+    vram_alias(VB_C, 0x06840000, 4, 0, 0x06200000, n, bad);
+    vram_alias(VB_D, 0x06860000, 4, 0, 0x06600000, n, bad);
+    vram_alias(VB_A, 0x06800000, 2, 0, 0x06400000, n, bad);
+    // E-I: main BG / OBJ for E-G, sub BG for H, sub BG and sub OBJ for I.
+    vram_alias(VB_E, 0x06880000, 1, 0, 0x06000000, n, bad);
+    vram_alias(VB_E, 0x06880000, 2, 0, 0x06400000, n, bad);
+    vram_alias(VB_F, 0x06890000, 1, 0, 0x06000000, n, bad);
+    vram_alias(VB_F, 0x06890000, 2, 0, 0x06400000, n, bad);
+    vram_alias(VB_G, 0x06894000, 1, 0, 0x06000000, n, bad);
+    vram_alias(VB_G, 0x06894000, 2, 0, 0x06400000, n, bad);
+    vram_alias(VB_H, 0x06898000, 1, 0, 0x06200000, n, bad);
+    vram_alias(VB_I, 0x068A0000, 1, 0, 0x06208000, n, bad);
+    vram_alias(VB_I, 0x068A0000, 2, 0, 0x06600000, n, bad);
+}
+
 static void d_2d_vram(void)
 {
+    u32 pn = 0, pbad = 0;
+    vram_probe(&pn, &pbad);
     con_2d();
     demo_title("2D-VRAM");
     static const char *const names[] = { "MENU", "TERRAIN", "SKY", "SPACE", "CORRIDOR",
@@ -925,6 +1201,7 @@ static void d_2d_vram(void)
     con_printf("         A B C D  E F G  H I\n");
     for (int f = 0; f < CHECKPOINT; f++)
         vsync();
+    probe_values(pn, pbad, true);
     finish(sum, 0, 0, 0);
 }
 
@@ -979,9 +1256,29 @@ static void d_2d_display(void)
     irq_add_vblank(mmem_vblank);
     for (int f = 60; f < CHECKPOINT; f++)
         vsync();
+    // Judge: the frame the VRAM display showed is still in bank A (read through LCDC, before the
+    // console remaps it) ...
+    u32 vn = 0, vbad = 0;
+    for (int y = 4; y < 192; y += 8)
+        for (int x = 4; x < 256; x += 8, vn++)
+            vbad += (fb[y * 256 + x] & 0x7FFF) != (RGB15(x >> 3, y / 6, 10) & 0x7FFF);
     con_2d();
     vram_layout(VL_MMEM);
     REG_DISPCNT = MODE_FIFO;
+    // ... and the main-memory display FIFO delivers the frame in main memory (capture source B).
+    bool done = probe_capture_fifo();
+    u32 n = 0, bad = 0;
+    for (int y = 4; y < 192; y += 8)
+        for (int x = 4; x < 256; x += 8, n++)
+        {
+            // capture source B (FIFO): bit 15 of the stored pixel is unused, compare the colour only
+            u16 px = probe_px(x, y);
+            bad += (px & 0x7FFF) != (mmem_frame[y * 256 + x] & 0x7FFF);
+        }
+    probe_release();
+    probe_values(n, bad, done);
+    CV_RESULT->values[7] = vn;
+    CV_RESULT->values[8] = vbad;
     finish(fb[0], mmem_frame[0], 0, 0);
 }
 
@@ -1406,12 +1703,17 @@ static void d_snd_mix(void)
     snd_bgm(CV_SONG_BOSS);
     static const int ids[] = { CV_SFX_SHOT, CV_SFX_EXPLODE, CV_SFX_LOCKON, CV_SFX_HIT,
                                CV_SFX_CRASH, CV_SFX_CHARGE, CV_SFX_MISSILE, CV_SFX_CURSOR };
+    u32 peak = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         if (f % 12 == 0)
             snd_sfx(ids[(f / 12) % 8], 110, (f * 9) & 127);
         vsync();
+        u32 b = popcount16(cv_arm7.snd_busy);
+        peak = b > peak ? b : peak;
     }
+    // Judge: the song takes several voices and the effects more, never beyond the 16 channels.
+    CV_RESULT->values[4] = peak;
     finish(CV_SONG_BOSS, 8, 0, 0);
 }
 
@@ -1421,6 +1723,7 @@ static void d_snd_pcm(void)
     demo_title("SND-PCM");
     con_printf("PCM8 ONE-SHOT, PCM16 ONE-SHOT\n");
     con_printf("PCM8 LOOP, PCM16 LOOP\n");
+    u32 early = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         if (f == 0) snd_sfx(CV_SFX_SHOT, 127, 64);
@@ -1428,7 +1731,13 @@ static void d_snd_pcm(void)
         if (f == 60) snd_sfx(CV_SFX_DRONE, 100, 30);
         if (f == 80) snd_sfx(CV_SFX_PAD, 90, 100);
         vsync();
+        if (f == 5)
+            early = popcount16(cv_arm7.snd_busy);
     }
+    // Judge: a one-shot is playing at frame 5, and the two loops started at frames 60 and 80
+    // are still running (Start/Busy stays set in repeat mode) at the checkpoint.
+    CV_RESULT->values[4] = early;
+    CV_RESULT->values[5] = popcount16(cv_arm7.snd_busy);
     finish(CV_SFX_DRONE, CV_SFX_PAD, 0, 0);
 }
 
@@ -1438,12 +1747,19 @@ static void d_snd_adpcm(void)
     demo_title("SND-ADPCM");
     con_printf("IMA-ADPCM JINGLE (ONE-SHOT)\n");
     con_printf("IMA-ADPCM HUM (LOOP)\n");
+    u32 early = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         if (f == 0) snd_sfx(CV_SFX_JINGLE, 127, 64);
         if (f == 90) snd_sfx(CV_SFX_HUM, 110, 64);
         vsync();
+        if (f == 5)
+            early = popcount16(cv_arm7.snd_busy);
     }
+    // Judge: the ADPCM jingle is playing at frame 5 and the hum loop, started at frame 90,
+    // is still running at the checkpoint.
+    CV_RESULT->values[4] = early;
+    CV_RESULT->values[5] = popcount16(cv_arm7.snd_busy);
     finish(CV_SFX_JINGLE, CV_SFX_HUM, 0, 0);
 }
 
@@ -1453,6 +1769,7 @@ static void d_snd_psg(void)
     demo_title("SND-PSG");
     con_printf("SQUARE 8-13: DUTY SWEEP\n");
     con_printf("NOISE 14-15\n");
+    u32 during = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         if (f % 10 == 0)
@@ -1464,8 +1781,17 @@ static void d_snd_psg(void)
         if (f == 100)
             snd_psg(14, 0, 70, 40);
         vsync();
+        if (f == 105)
+            during = cv_arm7.snd_busy;
     }
     snd_stop_channels(0xFF00);
+    vsync();
+    vsync();
+    vsync();
+    // Judge: the noise channel started at frame 100 is busy at frame 105, and stopping
+    // channels 8-15 clears their Start/Busy bits.
+    CV_RESULT->values[4] = during;
+    CV_RESULT->values[5] = cv_arm7.snd_busy & 0xFF00;
     finish(8, 15, 0, 0);
 }
 
@@ -1476,12 +1802,18 @@ static void d_snd_capture(void)
     con_printf("CAPTURE 0/1 -> CH 1/3 ECHO\n");
     snd_bgm(CV_SONG_STAGE3);
     snd_echo(true);
+    u32 peak = 0;
     for (int f = 0; f < CHECKPOINT; f++)
     {
         if (f % 40 == 0)
             snd_sfx(CV_SFX_SHOT, 127, 64);
         vsync();
+        peak = cv_arm7.cap_peak > peak ? cv_arm7.cap_peak : peak;
     }
+    // Judge: both capture units run (Start/Busy stays set in repeat mode) and have recorded
+    // the mixer output of the song: the rings are not silent.
+    CV_RESULT->values[4] = cv_arm7.cap_busy;
+    CV_RESULT->values[5] = peak;
     finish(1, 0, 0, 0);
 }
 
@@ -1497,6 +1829,8 @@ static void d_snd_stream(void)
         snd_stream_start(pcm, size & ~(CV_STREAM_HALF - 1), CV_STREAM_RATE, 110);
     for (int f = 0; f < CHECKPOINT; f++)
         vsync();
+    // Judge: the streaming channel is still running at the checkpoint.
+    CV_RESULT->values[4] = popcount16(cv_arm7.snd_busy);
     finish(size, CV_STREAM_RATE, 0, 0);
 }
 
