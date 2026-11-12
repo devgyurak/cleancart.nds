@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#빌드)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#빌드)
-[![Feature demos: 65](https://img.shields.io/badge/feature%20demos-65-orange)](docs/QA-KO.md)
+[![Feature demos: 66](https://img.shields.io/badge/feature%20demos-66-orange)](docs/QA-KO.md)
 
 [English](README.md)
 
@@ -19,7 +19,7 @@
 위 화면은 HUD가 거의 없는 1인칭 3D 시점입니다. 아래 화면에는 탐색할수록 채워지는
 손으로 그린 지도, 주운 테이프를 듣는 녹음기, 손전등 배터리, 그것이 가까워지면 바늘이
 흔들리는 무선 잡음 미터가 있습니다. 공포 연출 하나하나가 DS 하드웨어 기능 하나를
-쓰도록 만들었고, 같은 소스에서 기능 하나씩만 보여 주는 **기능 데모 ROM 65개**가
+쓰도록 만들었고, 같은 소스에서 기능 하나씩만 보여 주는 **기능 데모 ROM 66개**가
 함께 빌드됩니다.
 
 - 언어: C (게임, ARM9 + 자체 ARM7 코어), Python 3 (빌드 타임 도구)
@@ -36,7 +36,7 @@ Docker만 있으면 됩니다. `build.sh`가 고정된 BlocksDS 이미지에 Pyt
 ./build.sh SAVE=flash         # hushwell-save-flash.nds (FLASH 256 KB 변형)
 ./build.sh SAVE=fram          # hushwell-save-fram.nds  (FRAM 32 KB 변형)
 ./build.sh DEMO=3d-matrix     # hushwell-3d-matrix.nds  (기능 데모 하나)
-./build.sh demos              # 기능 데모 65개 전부
+./build.sh demos              # 기능 데모 66개 전부
 ./build.sh -j8 release        # build/release/{rom,demos}: hushwell-vX.Y.Z 태그가 배포하는 파일
 ./build.sh clean
 ```
@@ -164,12 +164,12 @@ licenses/           서드파티 라이선스 원문(ROM의 NitroFS에도 들어
 
 ### 검증 현황 (이 게임을 만든 세션 기준, 2026-11-10)
 
-- BlocksDS v1.25.0(고정 digest)으로 본 빌드와 데모 65개가 경고 없이 빌드됩니다.
+- BlocksDS v1.25.0(고정 digest)으로 본 빌드와 데모 66개가 경고 없이 빌드됩니다.
 - 헤드리스 DeSmuME 0.9.12(py-desmume) 자동 스모크 테스트: 부팅 → 경고문 → 타이틀 → 무선
   교신 → 모든 챕터(걷기, 지도, 녹음기, 손전등, 신호탄), 그것이 듣고 쫓고 공격하고 물러나기,
   사망 → 재시도, QA 챕터 클리어 → 양화면 엔딩 → 크레딧 → 기록 저장, 기록/설정/사운드 테스트
   화면, 데모 플레이, 5장 양화면 추격, 3장 필름과 다이얼, 4장 밤의 방문자, 우물 엔딩, 뚜껑
-  절전, 녹화한 플레이와 리플레이의 일치, 데모 65개 체크포인트 도달, 버튼과 터치 입력만으로
+  절전, 녹화한 플레이와 리플레이의 일치, 데모 66개 체크포인트 도달, 버튼과 터치 입력만으로
   타이틀부터 우물 엔딩까지 완주. 자세한 내용은 `docs/QA-KO.md`에 있습니다.
 - 깨끗한 빌드 두 번의 `hushwell.nds` SHA-256이 같습니다(재현 가능한 빌드).
 - **melonDS 검수는 아직 하지 않았습니다.** 기획서의 1차 목표(melonDS에서 완주)는
@@ -191,7 +191,7 @@ python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
 `judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 입력이 없으면 2로 끝납니다(데모가 빠졌을 때가
 그렇고, `--partial`이나 `--demo NAME`은 로그에 있는 것만 판정합니다). 모든 항목에는 1~4의 `level`이 있고
 ([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약을 출력합니다. 레벨은 판정에 영향을 주지 않습니다.
-프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은 아직 없습니다. 데모 65개 전부를 판정하며,
+프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은 아직 없습니다. 데모 66개 전부를 판정하며,
 화면·소리 데모는 캡처 프로브와 ARM7 채널 보고로 스스로 판정합니다(판정하지 않거나 참고용인 것은 [docs/QA-KO.md](docs/QA-KO.md)에 적혀 있습니다). 게임 본편의 챕터는 자동 QA
 실행(데모 `qa`) 말고는 아직 판정하지 않습니다.
 

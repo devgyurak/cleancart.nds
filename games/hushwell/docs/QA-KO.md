@@ -95,6 +95,7 @@ melonDS 버전: ______  검수자: ______  날짜: ______
 | snd-psg | 채널 8~13에서 듀티비가 바뀌는 비프, 노이즈 | 8, 15 | |
 | snd-capture | 기록 보관실 곡 + 에코 | 1 | |
 | snd-stream | 끊김 없는 빗소리와 저음 배경음 | 크기, 샘플레이트 | |
+| snd-wave | 440 Hz 파형의 레벨 변화 횟수와 왼쪽 믹서 녹음의 진폭(피크 대 피크)을 보여 주는 상태 줄 | A4·A3의 레벨 변화 횟수, 볼륨 100의 진폭, 오른쪽 팬의 진폭 | |
 | io-cart | NitroFS 파일 크기, 카트 DMA OK, 3장 맵 정보 | 합계, 로드 성공, 카트 DMA, 물건 수 | |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | 쓰기, 다시 읽기, seq +1, 칩 응답 | |
 | io-firmware | 이름, 선호 색 → 손전등 색, 오늘 생일 여부, 언어, 터치 보정 | 색, 언어, 이름 길이, 손전등 색 | |
@@ -104,7 +105,7 @@ melonDS 버전: ______  검수자: ______  날짜: ______
 
 ## 판정(`expected.json`, `tools/judge.py`)
 
-각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 138개, 데모 65개 전부와 QA 실행). 항목마다
+각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 143개, 데모 66개 전부와 QA 실행). 항목마다
 1~4의 `level`과 `level_basis`가 있으며([docs/LEVELS-KO.md](../../../docs/LEVELS-KO.md)), 레벨은 판정에 영향을 주지 않습니다.
 
 | 종류 | 판정하는 것 | 예 |
@@ -170,7 +171,8 @@ FIFO를 읽는 동안 캡처에 무엇이 보이는지는 문서에 없음)와 �
 melonDS 검수 전에, 이 게임을 만든 세션에서 헤드리스 DeSmuME 0.9.12(py-desmume, x86_64
 컨테이너, `tools/emu/`)로 다음을 확인했습니다. melonDS 검수를 대신하지 않습니다.
 
-- 데모 65개: 모두 120프레임 체크포인트 도달(결과 블록 매직 확인). DeSmuME는 폴리곤 RAM
+- 2026-11-12 (snd-wave, PSG 팬 필드): 릴리스 빌드 경고 없음. 데모 66개 전부를 헤드리스 melonDS 1.1(소프트웨어, GL Classic, GL Compute)과 DeSmuME로 판정해 `known` 프로필 4개를 다시 재고 모두 MATCH. SD 이미지를 붙인 melonDS 소프트 자동 QA는 `RESULT PASS`(체크포인트 6개, `parse_log.py`), 두 번째 실행의 체크포인트 해시가 같았고(`compare.py`) `lint.py`도 통과. 하지 않음: DeSmuME QA 실행, QA 끈 상태 비교.
+- 데모 66개: 모두 120프레임 체크포인트 도달(결과 블록 매직 확인). DeSmuME는 폴리곤 RAM
   사용량과 초과 플래그를 보고하지 않아 `3d-limits`와 `3d-fifo`의 폴리곤 수는 0으로 읽힙니다.
 - 본 빌드: 부팅 → 경고문 → 타이틀 → 무선 교신 → 여섯 챕터 각각 진입해 걷기(지도가 채워지며
   회전, 녹음기 열기, 손전등, 신호탄 발사), 달리는 소리를 들은 그것이 쫓아와 세 번 공격하고

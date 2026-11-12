@@ -37,7 +37,7 @@ enum {
     CV_SND_ECHO,         // a = 0 off, 1 on (sound capture feedback)
     CV_SND_MASTER,       // a = master volume 0..127
     CV_SND_SPEAKER,      // a = 0 mute amplifier, 1 enable
-    CV_SND_RAW_PSG,      // a = ch(4) | duty(3)<<4 | vol(7)<<7 | note(7)<<14
+    CV_SND_RAW_PSG,      // a = ch(4) | duty(3)<<4 | vol(7)<<7 | note(7)<<14 | (pan>>1 ^ 32)<<21 (0 = centre)
     CV_SND_RAW_STOP,     // a = channel mask (16 bits)
     CV_SND_BGM_MASK,     // a = BGM track mute mask (sound test)
     CV_SND_REC_STOP,     // stop a capture recording

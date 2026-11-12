@@ -24,6 +24,7 @@ void snd_echo(bool on);
 void snd_master(int vol);
 void snd_speaker(bool on);
 void snd_psg(int ch, int duty, int vol, int note);
+void snd_psg_pan(int ch, int duty, int vol, int note, int pan); // pan 0 (left) .. 126 (right)
 void snd_stop_channels(u16 mask);
 
 extern int cv_bgm_volume;  // settings (0..127)

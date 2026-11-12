@@ -69,7 +69,7 @@ DEMOS := \
   3d-tex-4x4 3d-tex-direct \
   3d-poly 3d-toon 3d-edge 3d-fog 3d-aa 3d-depth 3d-test 3d-compose \
   3d-limits \
-  snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream \
+  snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream snd-wave \
   io-cart io-save-eeprom io-save-flash io-save-fram io-firmware io-rtc \
   io-touch io-power
 

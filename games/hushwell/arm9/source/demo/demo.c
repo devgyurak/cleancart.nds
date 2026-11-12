@@ -1825,6 +1825,69 @@ static void d_snd_capture(void)
     finish(1, 0, 0, 0);
 }
 
+// Plays a PSG square wave and records the left mixer through capture unit 0 (PCM8, 32768 Hz,
+// a quarter of a second). Returns the peak-to-peak size and the number of level changes.
+#define WAVE_RATE 32768
+#define WAVE_LEN  8192
+static s8 wave_buf[WAVE_LEN] __attribute__((aligned(32)));
+
+static void wave_measure(int note, int vol, int pan, u32 *p2p, u32 *changes)
+{
+    snd_psg_pan(8, 4, vol, note, pan);    // duty 4: a 50 % square wave
+    for (int f = 0; f < 6; f++)
+        vsync();
+    snd_record(wave_buf, WAVE_LEN, WAVE_RATE);
+    for (int f = 0; f < 22; f++)          // 0.25 s is 15 frames; the rest is margin
+        vsync();
+    snd_record_stop();
+    snd_stop_channels(1u << 8);
+    vsync();
+    vsync();
+    DC_InvalidateRange(wave_buf, WAVE_LEN);
+    int lo = 127, hi = -128;
+    for (int i = 0; i < WAVE_LEN; i++)
+    {
+        lo = wave_buf[i] < lo ? wave_buf[i] : lo;
+        hi = wave_buf[i] > hi ? wave_buf[i] : hi;
+    }
+    u32 size = (u32)(hi - lo);
+    // Level changes with a hysteresis of a quarter of the swing (noise-proof).
+    int mid = (hi + lo) / 2, q = (int)size / 4, high = 0;
+    u32 n = 0;
+    for (int i = 0; i < WAVE_LEN && size >= 8; i++)
+    {
+        int v = wave_buf[i];
+        if (!high && v > mid + q) { high = 1; n++; }
+        else if (high && v < mid - q) { high = 0; n++; }
+    }
+    *p2p = size;
+    *changes = n;
+}
+
+static void d_snd_wave(void)
+{
+    con_2d();
+    demo_title("SND-WAVE");
+    con_printf("PSG SQUARE -> LEFT MIXER RECORD\n");
+    u32 s_a4, c_a4, s_a3, c_a3, s_half, c_half, s_right, c_right;
+    wave_measure(69, 100, 0, &s_a4, &c_a4);        // A4 440 Hz, hard left
+    wave_measure(57, 100, 0, &s_a3, &c_a3);        // A3 220 Hz
+    wave_measure(69, 50, 0, &s_half, &c_half);     // half the volume
+    wave_measure(69, 100, 126, &s_right, &c_right); // hard right: the left mixer stays silent
+    con_printf("A4 %lu A3 %lu P2P %lu/%lu/%lu\n", (unsigned long)c_a4, (unsigned long)c_a3,
+               (unsigned long)s_a4, (unsigned long)s_half, (unsigned long)s_right);
+    // Judge (GBATEK, DS Sound Channels / Sound Capture): a 440 Hz wave has about 220 level
+    // changes in 0.25 s and the octave below half as many; volume 50 is half of 100 (the swing
+    // ratio x100); pan 126 leaves the left mixer all but silent while pan 0 does not.
+    CV_RESULT->values[4] = c_a4;
+    CV_RESULT->values[5] = c_a3 ? c_a4 * 100 / c_a3 : 0;
+    CV_RESULT->values[6] = s_a4;
+    CV_RESULT->values[7] = s_half;
+    CV_RESULT->values[8] = s_half ? s_a4 * 100 / s_half : 0;
+    CV_RESULT->values[9] = s_right;
+    finish(c_a4, c_a3, s_a4, s_right);
+}
+
 static void d_snd_stream(void)
 {
     con_2d();
@@ -2048,6 +2111,7 @@ static const DemoEntry demos[] = {
     { "snd-mix", d_snd_mix },           { "snd-pcm", d_snd_pcm },
     { "snd-adpcm", d_snd_adpcm },       { "snd-psg", d_snd_psg },
     { "snd-capture", d_snd_capture },   { "snd-stream", d_snd_stream },
+    { "snd-wave", d_snd_wave },
     { "io-cart", d_io_cart },           { "io-save-eeprom", d_io_save },
     { "io-save-flash", d_io_save },     { "io-save-fram", d_io_save },
     { "io-firmware", d_io_firmware },   { "io-rtc", d_io_rtc },

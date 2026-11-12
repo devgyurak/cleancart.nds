@@ -96,6 +96,7 @@ melonDS version: ______  Tester: ______  Date: ______
 | snd-psg | beeps on channels 8–13 with changing duty, noise | 8, 15 | |
 | snd-capture | archive song + echo | 1 | |
 | snd-stream | seamless rain-and-drone ambience | size, sample rate | |
+| snd-wave | a status line with the level changes of a 440 Hz wave and the swings (peak-to-peak) of the left mixer record | level changes A4, A3, swing at volume 100, hard-right swing | |
 | io-cart | NitroFS file sizes, cart DMA OK, chapter 3 map info | total, load ok, cart DMA, object count | |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | write, reload, seq +1, chip answers | |
 | io-firmware | name, favourite colour → flashlight colour, birthday today, language, touch calibration | colour, language, name length, light colour | |
@@ -105,7 +106,7 @@ melonDS version: ______  Tester: ______  Date: ______
 
 ## Judging (`expected.json`, `tools/judge.py`)
 
-The result block of each demo is graded by `tools/judge.py` against `expected.json` (138 items, all 65
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (143 items, all 66
 demos and the QA run). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
 change a verdict.
 
@@ -174,7 +175,8 @@ Before melonDS QA, the session that created this game checked the following on
 headless DeSmuME 0.9.12 (py-desmume, x86_64 container, `tools/emu/`). This does not
 replace melonDS QA.
 
-- 65 demos: all reached the frame-120 checkpoint (result block magic checked). DeSmuME
+- 2026-11-12 (snd-wave, PSG pan field): the release build has no warnings; all 66 demos graded in headless melonDS 1.1 (software, GL classic, GL compute) and DeSmuME, every `known` profile re-measured and MATCH; the auto QA run in melonDS soft with an SD image reached `RESULT PASS` (6 checkpoints, `parse_log.py`), a second run had identical checkpoint hashes (`compare.py`), `lint.py` passed. Not run: the DeSmuME QA run, a QA-off comparison.
+- 66 demos: all reached the frame-120 checkpoint (result block magic checked). DeSmuME
   doesn't report polygon RAM usage or the overflow flag, so `3d-limits` and `3d-fifo`
   polygon counts read 0.
 - Main build: boot → warning → title → radio → each of the six chapters entered and
