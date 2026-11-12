@@ -12,13 +12,16 @@
 All output is a pure function of this source tree.
 """
 
+import glob
 import os
 import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import puzzle_check  # noqa: E402
 from cvtools import audio, codec, images  # noqa: E402
+from evpuzzle import pack as puzzle_pack  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
 
@@ -100,6 +103,20 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    # --- Puzzles ----------------------------------------------------------
+    # The build stops when a puzzle fails the checker (tools/puzzle_check.py).
+    here = os.path.dirname(os.path.abspath(__file__))
+    files = sorted(glob.glob(os.path.join(here, 'puzzles', 'ch*.txt')))
+    rows, entries, ok = puzzle_check.check(puzzle_check.load(files))
+    if not ok:
+        for r in rows:
+            for m in r['problems']:
+                print('puzzle %s: %s' % (r['id'], m), file=sys.stderr)
+        sys.exit('puzzle data failed the checker')
+    w.blob('cv_puzzles', puzzle_pack.pack(entries),
+           'puzzle orders, par and a minimal solution (tools/evpuzzle/pack.py)')
+    w.define('CV_NUM_PUZZLES', len(entries))
 
     # --- 3D ---------------------------------------------------------------
     # Only the paper grain ships: the other corvane textures, the sprite sheet and the

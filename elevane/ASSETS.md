@@ -16,8 +16,7 @@ The PNG files in `docs/images/` (if any) are README screenshots captured from th
 built ROM. They are documentation, not assets: the build never reads them and they
 are not in the ROM.
 
-This is the skeleton stage: the puzzle data and the voxel models arrive with the
-puzzle tools and add rows here.
+Chapter 1's eight puzzles are in; chapters 2-5 add their puzzle files later.
 
 | File (output) | Contents | Generator | Source / licence |
 |---|---|---|---|
@@ -26,5 +25,6 @@ puzzle tools and add rows here.
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the two songs `lantern` and `puppets` (the credits play `lantern`), composed by code | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
 | `cv_tex_paper` | 32x32 direct-colour paper texture; the only texture linked into the ROM | `images.textures()` `paper` | original, Apache-2.0 |
+| `cv_puzzles` | the puzzle orders (front and plan silhouettes), par block counts and a minimal solution per puzzle, packed by `tools/evpuzzle/pack.py` | `tools/puzzle_check.py` reading `tools/puzzles/ch*.txt` (the maker's structures, written by hand as height maps or layers) | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
 | banner icon (`icon.bmp`) | 32x32 4bpp icon | `images.icon()` | original, Apache-2.0 |
