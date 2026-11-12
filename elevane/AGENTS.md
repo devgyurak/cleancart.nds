@@ -71,6 +71,8 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   `python3 tools/puzzle_check.py [--chapter N] [--json] [--pack OUT]`; unit tests:
   `python3 -m unittest discover -s tools/tests`. The build stops when a puzzle fails the checker. Output is
   deterministic. To add a puzzle: append it to the chapter file, run the checker, read par.
+  The par proofs (`NODE_LIMIT` 150000) make a clean build take about 10 s longer than the usual
+  ~2 s asset step (exception to `python-tools.md`); `mkassets.py` only reruns when puzzle or tool files change.
 
 ## Frame structure (normal play)
 
@@ -94,7 +96,7 @@ half, fixed split x = 128 so each pass holds about 1140 polygons) one per frame;
 and overflow flags. Preset 1 (A switches): HBlank DMA, the path of melonDS #2618 (acc-split-hdma): engine A at the
 bottom only captures into bank D, the top screen is engine B's 16bpp bitmap BG2 in bank C filled one line per HBlank
 (BG2Y = -1); even calls draw the right pass alone, odd calls the left pass blended with bank D. The screen counts sub BG
-holes (transparent or black pixels, every 4th line) per kind of frame. Preset 2: rear plane (acc-split-rear): engine A
+holes (transparent or black pixels, every 8th line, the worst count seen per kind of frame) per kind of frame. Preset 2: rear plane (acc-split-rear): engine A
 on top, banks A and C alternate as capture target and rear plane colour (texture slot 2), bank B the far depth plane
 (slot 3), text on engine B (bank H). Both are optional extras: a wrong picture there never blocks play.
 Bank hand-over: entering the showcase leaves the dual 3D layout (`leave_3d`), `setup()` remaps every bank for the
@@ -103,7 +105,7 @@ off and clears `GL_CLEAR_BMP`; the puzzle then re-enters dual 3D from scratch (`
 0, sub bitmap re-set up) and its 20-frame fade-in covers the first two frames. The pile is kept (`resume`). The routing
 latency (1 call) is a constant: it is what every emulator and renderer measured in the corvane demos; hardware
 unconfirmed. Expected: preset 1 hole count 0 on melonDS 1.1 (all renderers) and master software; master GL shows the
-left half black, master Compute grey (`BLEND 6144`, the #2618 defect); preset 2 is wrong on one side on GL and
+left half black, master Compute grey (hole counts above 0 for both kinds of frame, the #2618 defect); preset 2 is wrong on one side on GL and
 Compute (1.1 and master), a separate defect.
 
 ## Chapters (tools/puzzles/ch*.txt, `python3 tools/puzzle_check.py`)

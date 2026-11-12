@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 Corvane contributors
 """Compare 1x screenshots of one emulator renderer with the same emulator's software renderer.
 
-    compare.py --ref PREFIX --test PREFIX (--frames 380,381,382,383 | --phase dual|showcase)
+    compare.py --ref PREFIX --test PREFIX ([--frames 380,381,382,383] --phase dual|showcase | --frames ... --max-diff N)
                [--tolerance 8] [--max-diff N] [--json] [--expected expected.json]
 
 PREFIX is the screenshot name the runner wrote up to the frame number: the files
@@ -12,8 +12,8 @@ with out path PREFIX). Both screens are in one 256x384 picture. A pixel differs 
 any channel is more than --tolerance levels off. Renderers rasterise a little
 differently, so the verdict is a count of differing pixels per frame against
 --max-diff, not an exact match; run consecutive frames (two in the dual screen
-phase, four in the showcase) so one-frame flicker shows. --phase takes the limit and the tolerance from expected.json ("screens"); --frames
-then names the frames, which are the ones listed there under "how" by default.
+phase, four in the showcase) so one-frame flicker shows. --phase takes the limit, the tolerance and the default frames from expected.json
+("screens"); --frames overrides the frames.
 Exit 0 when every frame is
 within the limit, 1 when a frame is over it, 2 for unreadable input.
 PNG decoding is done here (zlib only), no third-party packages.
@@ -111,6 +111,8 @@ def main(argv):
             return 2
         tol = scr['tolerance'] if tol is None else tol
         limit = scr['phases'][args.phase]['max_diff'] if limit is None else limit
+        if not args.frames:
+            args.frames = ','.join(str(n) for n in scr['phases'][args.phase]['frame_list'])
     tol = 8 if tol is None else tol
     if limit is None or not args.frames:
         print('ERROR give --frames and --max-diff, or --phase', file=sys.stderr)

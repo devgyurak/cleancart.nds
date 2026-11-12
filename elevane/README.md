@@ -20,8 +20,8 @@ emulators can use it as a regression test (see [Using it as an emulator test](#u
 its judge, the credits with the licence viewer and a hidden auto QA run that plays the whole
 game are done and run headless in DeSmuME and melonDS (software, GL and compute renderers).
 **Nothing has been measured on real hardware yet**: items whose expected value does not come
-from the documentation (GBATEK), a third-party report or the ROM's own logic stay
-informational until hardware values arrive. Hands-on feel in a desktop emulator has not been
+from the documentation (GBATEK) or the ROM's own logic stay informational until hardware
+values arrive. Hands-on feel in a desktop emulator has not been
 reviewed. Progress and stars are not saved yet.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)

@@ -4,8 +4,8 @@
 #
 # Builds Elevane inside the pinned BlocksDS container.
 #   ./build.sh                 -> elevane.nds
-#   ./build.sh DEMO=acc-stage  -> elevane-acc-stage.nds
-#   ./build.sh demos           -> every demo ROM (acc-stage, rehearsal)
+#   ./build.sh DEMO=rehearsal  -> elevane-rehearsal.nds
+#   ./build.sh demos           -> every demo ROM (rehearsal)
 #   ./build.sh SAVE=flash      -> save-chip variant
 set -eu
 

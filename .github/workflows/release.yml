@@ -7,7 +7,7 @@
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
 #   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
-#                ROMs, expected.json and judge.py; today only lightenette has one)
+#                ROMs, expected.json and judge.py; today lightenette and elevane have one)
 # The release job then zips each artifact and attaches the zips to a GitHub
 # Release named after the tag, so the ROMs outlive the artifact retention.
 # Only that job gets write access; the build job stays read-only.
@@ -89,7 +89,7 @@ jobs:
           path: ${{ steps.tag.outputs.game }}/build/release/demos/
           if-no-files-found: ignore
 
-      # Games that grade themselves (lightenette) ship the rehearsal ROMs with
+      # Games that grade themselves (lightenette, elevane) ship the rehearsal ROMs with
       # expected.json and judge.py; other games have no build/release/judge.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

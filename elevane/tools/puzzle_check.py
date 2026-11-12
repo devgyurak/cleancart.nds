@@ -54,6 +54,8 @@ def check(puzzles):
                 row['problems'].append(str(e))
             if row['par'] is not None and row['par'] > row['maker']:
                 row['problems'].append('par %d above the maker count %d' % (row['par'], row['maker']))
+            if row['exact'] is False and p.mode == 'stack':
+                row['problems'].append('a stack puzzle must be solved exactly (closed form)')
             ok = ok and not row['problems']
             rows.append(row)
         if len(parts) == len(p.parts):

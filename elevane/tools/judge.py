@@ -4,7 +4,7 @@
 """Judge an Elevane result block against expected.json.
 
     judge.py [--expected expected.json] [--profile NAME] [--list-profiles]
-             [--json] [--demo NAME] [--values HEX HEX ...] [LOGFILE ...]
+             [--json] [--demo NAME] [--values HEX x18 CRC] [LOGFILE ...]
 
 Reads run logs (stdin without files) and grades the last result block found.
 Log lines understood:
@@ -16,8 +16,9 @@ Log lines understood:
                          is accepted; --demo NAME keeps only that ROM's lines.
 
 --values grades the numbers a console showed on its screen (the rehearsal prints
-values[0..17] in hex when it ends) instead of a log: `judge.py --values 1ff 1 15c6 ...`
-(hex, in order, values missing at the end count as 0; the frame check is skipped).
+values[0..17] in hex and a CRC when it ends) instead of a log: `judge.py --values v0 ... v17 CRC`,
+all 18 values and the CRC, hex only. A missing value, a character that is not a hex digit or a
+CRC that does not match is exit code 2 (never a pass built from numbers nobody typed).
 
 Words: w0 magic, w1 id, w2 frame, w3.. values[0..60]. The id must be the rehearsal's
 ("EVRH"). Each expected item is graded OK or NG. Items whose source is "unconfirmed"
@@ -26,8 +27,9 @@ flag bit ("requires": {"value": i, "bit": b}); when it is clear the item is n/a
 (DeSmuME has no polygon RAM counters, so those items cannot be graded there).
 
 Profiles: expected.json "known" lists, per emulator version and renderer, the items
-(gating or not) expected to fail there. With --profile NAME the run passes (exit 0)
-only when the set of failing items equals that list exactly; newly failing and newly
+(gating or not) expected to fail there ("ng") and the ones that cannot be graded there
+("na"). With --profile NAME the run passes (exit 0) only when both sets equal the lists
+exactly (an item silently turning n/a is a regression too); newly failing and newly
 passing items are reported either way. Exit codes: 0 pass (all gating items OK, or the
 profile matched), 1 a gating item failed / the profile did not match, 2 no usable
 result (no or bad block, unknown profile, expected.json or a log unreadable).
@@ -42,6 +44,17 @@ import sys
 
 BLOCK_WORDS = 64
 MAGIC = 0x52455643
+SHOWN_VALUES = 18   # values[0..17] are what the rehearsal prints (rehearsal.h)
+
+
+def crc16(data):
+    """The BIOS GetCRC16 (poly 0xA001 reflected, start 0xFFFF)."""
+    crc = 0xFFFF
+    for b in data:
+        crc ^= b
+        for _ in range(8):
+            crc = (crc >> 1) ^ 0xA001 if crc & 1 else crc >> 1
+    return crc
 
 
 class Fatal(Exception):
@@ -106,9 +119,16 @@ def run(args):
     text = ''
     try:
         if args.values is not None:
-            vals_in = [int(v, 16) for v in args.values]
-            if not 1 <= len(vals_in) <= 61:
-                raise Fatal('--values wants 1 to 61 hex numbers')
+            if len(args.values) != SHOWN_VALUES + 1:
+                raise Fatal('--values wants %d hex numbers and the CRC (got %d)' % (SHOWN_VALUES, len(args.values)))
+            bad = [v for v in args.values if not re.fullmatch(r'[0-9a-fA-F]{1,8}', v)]
+            if bad:
+                raise Fatal('--values: not hex digits: %s' % ' '.join(bad))
+            vals_in = [int(v, 16) for v in args.values[:SHOWN_VALUES]]
+            want = crc16(b''.join(v.to_bytes(4, 'little') for v in vals_in))
+            if int(args.values[SHOWN_VALUES], 16) != want:
+                raise Fatal('--values: the CRC %s does not match the numbers (%04x): a digit was misread'
+                            % (args.values[SHOWN_VALUES], want))
             words = [MAGIC, exp["boot"]["item_id"], exp["boot"]["frames_min"]] + vals_in + [0] * (61 - len(vals_in))
             text = 'RESULT ' + ' '.join('%08x' % w for w in words) + '\n'
         elif args.logs:
@@ -122,7 +142,10 @@ def run(args):
     words = parse_block(text, args.demo)
     if words is None:
         raise Fatal('no RESULT line in the log')
-    words = (words + [0] * BLOCK_WORDS)[:BLOCK_WORDS]
+    if len(words) < BLOCK_WORDS:
+        raise Fatal('the RESULT line carries %d words, not %d (RESULT_WORDS=64 missing for emu.sh?)'
+                    % (len(words), BLOCK_WORDS))
+    words = words[:BLOCK_WORDS]
     if words[0] != MAGIC:
         raise Fatal('result block magic is %08x, not %08x (the ROM did not finish)' % (words[0], MAGIC))
     boot = exp['boot']
@@ -138,6 +161,7 @@ def run(args):
         gating = item['source'] != 'unconfirmed'
         results.append((item, g, gating))
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
+    na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
 
     rc = 0
@@ -147,7 +171,8 @@ def run(args):
         if prof is None:
             raise Fatal('unknown profile %r (see --list-profiles)' % args.profile)
         want = sorted(prof['ng'])
-        rc = 0 if failing == want else 1
+        want_na = sorted(prof.get('na', []))
+        rc = 0 if failing == want and na == want_na else 1
     else:
         rc = 1 if gating_fail else 0
 
@@ -164,11 +189,18 @@ def run(args):
         want = sorted(prof['ng'])
         new_fail = [i for i in failing if i not in want]
         new_pass = [i for i in want if i not in failing]
+        want_na = sorted(prof.get('na', []))
         print('profile %s: %s' % (args.profile, 'MATCH' if rc == 0 else 'MISMATCH'))
         for i in new_fail:
             print('  NEWLY FAILING %s' % i)
         for i in new_pass:
             print('  NEWLY PASSING %s' % i)
+        for i in na:
+            if i not in want_na:
+                print('  NEWLY N/A %s (the ROM could not grade it)' % i)
+        for i in want_na:
+            if i not in na:
+                print('  NO LONGER N/A %s' % i)
     else:
         print('%s (%d gating failing)' % ('PASS' if rc == 0 else 'FAIL', len(gating_fail)))
     return rc
@@ -182,7 +214,7 @@ def main(argv):
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--demo')
-    ap.add_argument('--values', nargs='+', metavar='HEX')
+    ap.add_argument('--values', nargs='+', metavar='HEX', help='the 18 values and the CRC the console showed')
     try:
         return run(ap.parse_args(argv))
     except Fatal as e:

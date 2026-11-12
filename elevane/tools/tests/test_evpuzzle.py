@@ -75,22 +75,27 @@ class Minimum(unittest.TestCase):
         p, s, o = one('[t] chapter=4 mode=layers grid=3x3x3\n'
                       'z0 = ###/###/###\nz1 = ###/###/###\nz2 = ###/###/###\n')
         r = solve.solve(o, p.mode, s, node_limit=3)
-        self.assertEqual((r.count, r.exact), (27, False))
+        self.assertFalse(r.exact)
+        self.assertLess(r.count, 27)   # pruned, not the maker's 27
+        self.assertEqual(solve.validate(o, p.mode, r.cells), [])
 
 
 class Data(unittest.TestCase):
     def files(self):
         return sorted(glob.glob(os.path.join(os.path.dirname(HERE), 'puzzles', 'ch*.txt')))
 
+    @classmethod
+    def setUpClass(cls):
+        # The full check takes seconds (par proofs): run it twice, share the results.
+        files = cls.files(cls)
+        cls.runs = [puzzle_check.check(puzzle_check.load(files)) for _ in range(2)]
+
     def test_every_shipped_puzzle_passes(self):
-        rows, _, ok = puzzle_check.check(puzzle_check.load(self.files()))
+        rows, _, ok = self.runs[0]
         self.assertTrue(ok, [r for r in rows if r['problems']])
 
     def test_output_is_deterministic(self):
-        blobs = []
-        for _ in range(2):
-            _, entries, _ = puzzle_check.check(puzzle_check.load(self.files()))
-            blobs.append(pack.pack(entries))
+        blobs = [pack.pack(entries) for _, entries, _ in self.runs]
         self.assertEqual(blobs[0], blobs[1])
 
     def test_chapter1_has_eight(self):

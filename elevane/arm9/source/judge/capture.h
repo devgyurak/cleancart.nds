@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
 // Display capture of the main engine into bank D (LCDC mode, VL_JUDGE layout)
-// for the judge and the acts. A capture that has not finished must never be
+// for the rehearsal's measurements. A capture that has not finished must never be
 // graded: cap_start() fills the bank with a sentinel first, so a stale picture
 // (from the previous act or capture) cannot pass for a fresh one, and callers
 // keep a "done" bit per capture next to the values they read.
 
-#ifndef LT_CAPTURE_H
-#define LT_CAPTURE_H
+#ifndef EV_CAPTURE_H
+#define EV_CAPTURE_H
 
 #include <nds.h>
 #include <stdbool.h>
@@ -30,4 +30,4 @@ static inline u16 cap_pixel(int x, int y)
     return CAP_BANK[y * 256 + x] & 0x7FFF;
 }
 
-#endif // LT_CAPTURE_H
+#endif // EV_CAPTURE_H
