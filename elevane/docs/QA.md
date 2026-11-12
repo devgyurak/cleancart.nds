@@ -6,7 +6,10 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 
 | Scene | Check | Status |
 |---|---|---|
-| Title | "ELEVANE" and the tagline on the top screen, X hint at the bottom of it; licence, ARM7 and save lines on the bottom screen. X → credits | headless run: see below; not yet by hand in melonDS |
+| Title | Start opens the puzzle list. "ELEVANE" and the tagline on the top screen, X hint at the bottom of it; licence, ARM7 and save lines on the bottom screen. X → credits | headless run: see below; not yet by hand in melonDS |
+| Title → Start (list) | "CHOOSE AN ORDER", eight chapter 1 orders; up/down, A starts, B back | ✅ headless DeSmuME (2026-11-11); not yet by hand in melonDS |
+| Puzzle (3D) | top: front elevation, blue blueprint wall = the order, blocks gold, blocks outside the order red; bottom: plan view, lit floor tiles = the order, cursor tile yellow; text overlay (ORDER/NOW grids, BLOCKS, PAR). D-pad moves, A +1, B -1, touch a plan cell +1, hold 30 frames empties it. Both views match: "MATCH! A: DELIVER", A delivers ("DELIVERED ***", stars by blocks vs par), A next puzzle, B list. Scripted solve of 1-01: `60:START,100:A,160:A,175:RIGHT,185:A,200:RIGHT,210:A,225:RIGHT,235:A,280:A` | ✅ DeSmuME; ✅ melonDS 1.1 soft, GL, compute with scripted touches (`160:T60/147:3,175:T105/147:3,190:T150/147:3,205:T196/147:3`): the screens match (≈300 of 98 304 pixels differ by more than 8 levels, text and edges only); hands-on feel in melonDS not yet checked |
+| Puzzle (2D grid) | Select: both screens text only, front grid on top (`#` block, `X` extra, `+` missing, `.` empty), plan heights below (cursor yellow); same rules, solvable without 3D. Select again returns to 3D | ✅ DeSmuME (solve in 2D, back to 3D) |
 | Title → X (credits) | scrolling credits (libnds, BlocksDS crts MPL-2.0 with source URL, picolibc, libgcc); X opens the licence viewer (every text of `licenses/`, X next file, B back); without NitroFS the viewer says "CART FILES NOT AVAILABLE" | not yet checked |
 
 ## Auto QA run

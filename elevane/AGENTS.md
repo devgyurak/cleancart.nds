@@ -8,7 +8,7 @@ Repo-wide rules are in `../AGENTS.md`. Created from lightenette (which came from
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's
 layers (keep fixes in sync when they apply to all games).
 
-Status: skeleton. The scope for v0.1.0 is five chapters with eight puzzles each,
+Status: chapter 1 is playable (title, puzzle list, play). The scope for v0.1.0 is five chapters with eight puzzles each,
 a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later changes.
 
 ## Design principles
@@ -36,8 +36,11 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `credits.c`
-  (credits and the licence viewer; NitroFS needed only here), `qa_game.c` + `qa_tune.h`.
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (puzzle list),
+  `play.c` (one puzzle: input, judge, both 3D views, the text overlay and the 2D-grid mode), `puzzle.c/.h` (the
+  `cv_puzzles` blob, silhouettes, judge, stars; pure logic), `credits.c` (credits and the licence viewer; NitroFS
+  needed only here), `qa_game.c` + `qa_tune.h`.
+- `arm9/source/gfx/dual.c`: 3D on both screens (see below).
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them
   identical to corvane's/lightenette's). Title: hold **L+R+X+Y for 120 frames** (press L and R
   before X). The run is title → credits → title → `RESULT PASS`.
@@ -56,8 +59,26 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   `python3 -m unittest discover -s tools/tests`. The build stops when a puzzle fails the checker. Output is
   deterministic. To add a puzzle: append it to the chapter file, run the checker, read par.
 
+## Frame structure (normal play)
+
+One `dual_begin_call()` per VBlank draws one view: even calls the front view (top screen), odd calls the plan view
+(bottom screen), so each screen refreshes at 30 fps. Engine A renders the view and a display capture copies the
+**whole engine A output** (3D + the BG1 text layer, so the 2D overlay is baked in) into bank D (front) or bank C
+(plan); engine B shows the other bank on the other screen (C as a 16bpp bitmap BG, D as twelve 64x64 bitmap OBJs).
+The routing for a frame is written one call after its geometry (latency 1, measured by corvane `acc-dual`).
+Banks (VL_DUAL3D): A, B texture (unused), C, D alternate LCDC / engine B, E main BG (font tiles at 0, text maps at
+2 KB blocks 28 = front view, 29 = plan view; `REG_BG1CNT` picks the map per frame), F OBJ, G texture palette.
+Nothing else may live in C or D. Both views are orthographic elevations (`ortho_camera`), so what is drawn is exactly
+what the silhouette check sees: the top screen has the order as a blue blueprint wall behind the blocks, the bottom
+screen has it as lit floor tiles; blocks outside the order are red. Touch hit testing is linear in that projection.
+
+**2D grid mode** (Select, any time in a puzzle): `scene_text_screens()` text on both screens, no 3D, no capture, same
+state and rules. Every puzzle must stay solvable in it. In 3D mode the same grid is drawn small in the corners.
+Mode changes tear the screens down and rebuild them (`enter_3d`/`leave_3d`/`enter_2d`). The showcase mode (HBlank
+DMA / rear plane presets) and its bank hand-over come with the showcase stage.
+
 ## Controls (melonDS keys in brackets)
 
-Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
+Title: Start (Return) opens the puzzle list, X (X) the credits. List: up/down, A (X) starts, B (Z) back. Puzzle: D-pad (arrows) moves the cursor, A (X) +1, B (Z) -1 (A delivers when both views match), touch a plan cell +1, hold ~0.5 s empties it, Select (Backspace) 2D grid / 3D, Start (Return) back to the list; after a delivery A goes on, B returns to the list. Title: X (X) opens the credits; in the credits X (X) opens the licence viewer, B (Z) goes back.
 Y (A) is free in this game and is meant for choosing the work layer in chapter 4 (Y + D-pad up/down).
 More actions are listed here as scenes land.
