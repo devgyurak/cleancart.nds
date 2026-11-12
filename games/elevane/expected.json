@@ -87,8 +87,8 @@
    "check": "bit",
    "bit": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -101,8 +101,8 @@
    "check": "bit",
    "bit": 2,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -115,8 +115,8 @@
    "check": "eq",
    "expect": 0,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -134,8 +134,8 @@
    },
    "source": "GBATEK",
    "role": "prerequisite",
-   "level": 2,
-   "level_basis": "gbatek:DS 3D Status",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control",
    "model": null
   },
   {
@@ -148,8 +148,8 @@
    "bit": 4,
    "source": "GBATEK",
    "role": "prerequisite",
-   "level": 2,
-   "level_basis": "gbatek:DS 3D Status",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control",
    "model": null
   },
   {
@@ -163,8 +163,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -179,8 +179,8 @@
    "mask": 16,
    "expect": 16,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -195,8 +195,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -211,8 +211,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -227,8 +227,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -243,8 +243,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -259,8 +259,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -275,8 +275,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -291,8 +291,8 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "role": "target",
-   "level": 3,
+   "role": "prerequisite",
+   "level": 2,
    "level_basis": "none",
    "model": null
   },
@@ -310,97 +310,83 @@
    "level": 3,
    "level_basis": "gbatek:DS DMA Transfers",
    "model": null
+  },
+  {
+   "id": "hdma-holes-zero",
+   "title": "Rehearsal preset 1 (HBlank DMA fills the sub BG bitmap one line per scanline; melonDS#2618): no transparent or black hole in any frame",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 5,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers",
+   "model": null
+  },
+  {
+   "id": "acc-split-hdma-holes",
+   "demo": "l3-acc-split-hdma",
+   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618; the demo form of hdma-holes-zero)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers",
+   "model": null
   }
  ],
  "known": {
   "desmume-pydesmume-0.0.9": {
    "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
-   "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
-   ],
+   "ng": [],
    "na": [
     "poly-passes"
    ]
   },
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-   "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-   "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-4ce2188-software": {
    "emulator": "melonDS master 4ce2188 (MELONDS_COMMIT=4ce2188), software renderer",
-   "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-4ce2188-gl-classic": {
    "emulator": "melonDS master 4ce2188, OpenGL (Classic) renderer",
    "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
+    "acc-split-hdma-holes",
+    "hdma-holes-zero"
    ],
    "na": []
   },
   "melonds-4ce2188-gl-compute": {
    "emulator": "melonDS master 4ce2188, OpenGL (Compute) renderer",
    "ng": [
-    "acc-split-tex-latency",
-    "acc-split-bg-latency",
-    "acc-split-relay-latency",
-    "acc-split-rear-latency",
-    "acc-split-rear-read-latency",
-    "acc-split-rear-write-latency"
+    "acc-split-hdma-holes",
+    "hdma-holes-zero"
    ],
    "na": []
   }
  },
- "known_note": "Measured 2026-11-11 (rehearsal items) and 2026-11-12 (all items, with the l3-* demos) with ./build.sh output, not on hardware. Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the failing items equal the list. When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile after checking.",
+ "known_note": "Measured 2026-11-12 with ./build.sh output (the rehearsal and all nine l3-* demos, fresh logs on every profile), not on hardware. Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the GATING failing set equals the list (informational items that changed are reported, not compared). melonDS master 4ce2188 GL/Compute fail the two HBlank DMA hole items (melonDS#2618). When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile after checking.",
  "screens": {
   "note": "1x screenshots of a renderer against the same emulator's software renderer (tools/compare.py --phase). Measured 2026-11-11: melonDS 1.1 GL/Compute differ by at most 305 (dual) and 1138 (showcase) pixels of 98304 (text edges and antialiasing); master 4ce2188 GL/Compute differ by 9000-17400 in the showcase (the #2618 defect). Frames are consecutive: two in the dual phase, four in the showcase (preset 1 alternates between two picture kinds).",
   "tolerance": 8,

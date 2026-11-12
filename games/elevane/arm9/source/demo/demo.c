@@ -491,6 +491,11 @@ static void d_acc_dual(void)
 
     u32 front_d = 0, plan_c = 0, cross = 0, hash_d = 0, hash_c = 0;
     u32 left = 0, right = 0, comp_hash = 0;
+    // Boot leaves a SwapBuffers pending (glInit): let it happen first, or every
+    // output of the measuring loop is one frame late (latency 2 instead of 1).
+    while (GFX_STATUS & (1u << 27))
+        ;
+    sys_vsync();
     for (int c = 0; c < CHECKPOINT; c++)
     {
         if (c == 3)
@@ -866,6 +871,11 @@ static void split_demo(int variant, const char *name)
 
     // hdma: alpha-0 pixels in the sub BG after each of the last 16 frames.
     u32 holes_p = 0, holes_q = 0, bad_p = 0, bad_q = 0;
+    // Boot leaves a SwapBuffers pending (glInit): let it happen first, or every
+    // output of the measuring loop is one frame late (latency 2 instead of 1).
+    while (GFX_STATUS & (1u << 27))
+        ;
+    sys_vsync();
     for (int c = 0; c < CHECKPOINT; c++)
     {
         if (c == 3)

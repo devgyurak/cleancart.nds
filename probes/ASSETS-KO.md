@@ -27,7 +27,7 @@ xorshift, 파이썬 `random` 미사용).
 | `cv_tex_panel`, `cv_tex_mesh` | 다이렉트 컬러 텍스처(패널, 구멍 뚫린 철망) | `images.textures()` | 직접 제작, Apache-2.0 |
 | `cv_toon_table` | 툰 셰이딩 테이블 | `images.toon_table()` | 직접 제작, Apache-2.0 |
 | 3D 모델 전부 | 기체·포대·드론·비행선·전투기·정거장·벽포·보스 파츠 | `arm9/source/gfx/models.c` (C 코드로 조립) | 직접 제작, Apache-2.0 |
-| `cv_smp_*` (20종) | 효과음·악기: shot, explode, bigboom, warning, jingle, lockon, missile, hit, cursor, select, bass, pad, kick, snare, hat, hum, charge, bomb, crash, drone | `audio.make_samples()` (사인·사각파·노이즈 합성, IMA-ADPCM 인코더 `codec.ima_adpcm`) | 직접 합성, Apache-2.0 |
+| `cv_smp_*` (14개 블롭; 사운드 뱅크는 20슬롯이고 6개는 비어 있음: lockon, missile, hit, cursor, select, crash) | 효과음·악기 (어떤 probe도 재생하지 않음; 생성기는 Corvane 것 그대로이며 줄이지 않음): shot, explode, bigboom, warning, jingle, bass, pad, kick, snare, hat, hum, charge, bomb, drone | `audio.make_samples()` (사인·사각파·노이즈 합성, IMA-ADPCM 인코더 `codec.ima_adpcm`) | 직접 합성, Apache-2.0 |
 | `cv_song_*` (9곡) | title, briefing, stage1–4, boss, ending, result (사운드 뱅크 때문에 링크될 뿐 어떤 probe도 재생하지 않음) | `audio.compose()` (시드 고정 작곡기: 진행·모티프·아르페지오·드럼을 코드로 생성) | 직접 작곡, Apache-2.0 |
 | `nitrofs/stage1.lz`, `stage4.lz` | 지형 높이맵·적 출현 스크립트 | `stages.py` (3d-fifo·3d-clip probe의 지형) | 직접 제작, Apache-2.0 |
 | `nitrofs/probe.bin` | 카트 DMA 검증용 2 KB 패턴(CRC 기대값 포함) | `mkassets.py` | 직접 제작, Apache-2.0 |

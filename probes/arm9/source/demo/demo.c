@@ -1133,6 +1133,11 @@ static void d_acc_dual(void)
 
     u32 front_d = 0, plan_c = 0, cross = 0, hash_d = 0, hash_c = 0;
     u32 left = 0, right = 0, comp_hash = 0;
+    // Boot leaves a SwapBuffers pending (glInit): let it happen first, or every
+    // output of the measuring loop is one frame late (latency 2 instead of 1).
+    while (GFX_STATUS & (1u << 27))
+        ;
+    sys_vsync();
     for (int c = 0; c < CHECKPOINT; c++)
     {
         if (c == 3)
@@ -1231,8 +1236,11 @@ static void d_acc_dual(void)
 // The bottom screen (engine B, bank H) carries the console; in hdma engine A
 // is at the bottom with the console on BG1 (bank E).
 
+// rear-plane: the rear-plane build of the probe collection (not a Corvane demo): the same
+//          scheme as rear, and at the last call it counts the opaque samples of the captured
+//          pass (the Elevane showcase preset 2 measurement).
 enum { SPLIT_TEX, SPLIT_BG, SPLIT_RELAY, SPLIT_REAR, SPLIT_REAR_READ, SPLIT_REAR_WRITE,
-       SPLIT_HDMA };
+       SPLIT_HDMA, SPLIT_REAR_PLANE };
 
 #define SPLIT_HDMA_SRC (*(vu32 *)(0x040000B0 + CV_DMA_CH_HBLANK * 12))
 #define SPLIT_HDMA_DST (*(vu32 *)(0x040000B4 + CV_DMA_CH_HBLANK * 12))
@@ -1243,7 +1251,8 @@ static int split_variant;
 
 static bool split_rear(void)
 {
-    return split_variant >= SPLIT_REAR && split_variant <= SPLIT_REAR_WRITE;
+    return (split_variant >= SPLIT_REAR && split_variant <= SPLIT_REAR_WRITE)
+        || split_variant == SPLIT_REAR_PLANE;
 }
 
 // hdma: even frames hold the right pass alone (P), odd frames blend (Q).
@@ -1282,6 +1291,7 @@ static void split_config(int s)
         case SPLIT_REAR:
         case SPLIT_REAR_READ:
         case SPLIT_REAR_WRITE:
+        case SPLIT_REAR_PLANE:
         {
             // Banks A and C take turns: one captures, the other is the rear
             // plane colour in texture slot 2.
@@ -1289,7 +1299,7 @@ static void split_config(int s)
             y = (s & 1) ? VB_A : VB_C;
             REG_DISPCNT = MODE_0_3D;
             vram_set(x, 0, 0);
-            if (split_variant != SPLIT_REAR)
+            if (split_variant == SPLIT_REAR_READ || split_variant == SPLIT_REAR_WRITE)
             {
                 // y is still LCDC here, holding last frame's capture.
                 vu16 *w = (vu16 *)(0x06800000 + (y == VB_A ? 0 : 0x40000));
@@ -1427,11 +1437,34 @@ static void split_geometry(int c)
     split_scene(c);
 }
 
+// rear-plane: opaque samples (every 12th pixel, 4096 in all; alpha bit set) of the bank that
+// split_config() just mapped to LCDC for capturing. It holds the pass captured two calls ago, drawn over the
+// rear plane (the pass before it): both halves of the picture are opaque only when the rear plane
+// colour reached the 3D engine. total / left half / right half.
+static u32 rear_n, rear_l, rear_r;
+
+static void rear_sample(int s)
+{
+    const vu16 *b = (s & 1) ? (const vu16 *)0x06840000 : (const vu16 *)0x06800000;   // C : A
+    rear_n = rear_l = rear_r = 0;
+    for (int i = 0; i < 256 * 192; i += 12)
+    {
+        u32 o = b[i] >> 15;
+        rear_n += o;
+        if (i % 256 < 128)
+            rear_l += o;
+        else
+            rear_r += o;
+    }
+}
+
 static void split_call(int c)
 {
     int s = c - dual_latency;
     if (c >= 8 && s >= 8)
         split_config(s);
+    if (split_variant == SPLIT_REAR_PLANE && c == CHECKPOINT - 1 && s >= 8)
+        rear_sample(s);
     split_geometry(c);
     g3_flush(false);
 }
@@ -1508,6 +1541,11 @@ static void split_demo(int variant, const char *name)
 
     // hdma: alpha-0 pixels in the sub BG after each of the last 16 frames.
     u32 holes_p = 0, holes_q = 0, bad_p = 0, bad_q = 0;
+    // Boot leaves a SwapBuffers pending (glInit): let it happen first, or every
+    // output of the measuring loop is one frame late (latency 2 instead of 1).
+    while (GFX_STATUS & (1u << 27))
+        ;
+    sys_vsync();
     for (int c = 0; c < CHECKPOINT; c++)
     {
         if (c == 3)
@@ -1551,6 +1589,15 @@ static void split_demo(int variant, const char *name)
         con_printf(" CAPTURE ONLY %lu (%lu FR)\n", (unsigned long)holes_p, (unsigned long)bad_p);
         con_printf(" BLEND        %lu (%lu FR)\n", (unsigned long)holes_q, (unsigned long)bad_q);
     }
+    if (variant == SPLIT_REAR_PLANE)
+    {
+        con_printf("REAR PLANE OPAQUE %lu OF 4096\n", (unsigned long)rear_n);
+        con_printf(" LEFT %lu RIGHT %lu\n", (unsigned long)rear_l, (unsigned long)rear_r);
+        volatile CvResult *r = CV_RESULT;
+        r->values[4] = rear_n;
+        r->values[5] = rear_l;
+        r->values[6] = rear_r;
+    }
     idle_fn = split_idle;
     finish((u32)dual_latency, (u32)variant, (u32)split_x(CHECKPOINT - dual_latency),
            bad_q << 8 | bad_p);
@@ -1558,6 +1605,7 @@ static void split_demo(int variant, const char *name)
 
 static void d_acc_split_rear(void)  { split_demo(SPLIT_REAR, "ACC-SPLIT-REAR"); }
 static void d_acc_split_hdma(void) { split_demo(SPLIT_HDMA, "ACC-SPLIT-HDMA"); }
+static void d_acc_rear_plane(void) { split_demo(SPLIT_REAR_PLANE, "ACC-REAR-PLANE"); }
 
 // ---------------------------------------------------------------------------
 
@@ -1577,6 +1625,7 @@ static const DemoEntry demos[] = {
     { "l4-3d-poly", d_3d_poly },             { "l4-3d-test", d_3d_test },
     { "l4-acc-stage", d_acc_stage },         { "l4-acc-dual", d_acc_dual },
     { "l4-acc-split-rear", d_acc_split_rear }, { "l4-acc-split-hdma", d_acc_split_hdma },
+    { "l4-acc-rear-plane", d_acc_rear_plane },
 };
 
 void demo_main(const char *name)

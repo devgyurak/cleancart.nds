@@ -4,7 +4,7 @@
 """Judge an Elevane result block against expected.json.
 
     judge.py [--expected expected.json] [--profile NAME] [--list-profiles]
-             [--json] [--demo NAME] [--values HEX x18 CRC] [LOGFILE ...]
+             [--json] [--demo NAME] [--partial] [--values HEX x18 CRC] [LOGFILE ...]
 
 Reads run logs (stdin without files) and grades the last result block found.
 Log lines understood:
@@ -25,17 +25,22 @@ Words: w0 magic, w1 id, w2 frame, w3.. values[0..60]. The id names the ROM: the 
 (id = FNV-1a 32 of the demo name, e.g. "l3-acc-dual"; those blocks carry values[0..12], 16 words
 are enough). An item without "demo" is graded from the rehearsal block, one with "demo" from that
 demo's block. Blocks of several ROMs may be in one log (one `<rom> RESULT ...` line each, e.g. the
-output of `tools/melonds/mds.sh demos`); items whose ROM is not in the log are not graded, and with
---profile only the listed items of the ROMs present are compared. Each expected item is graded OK or NG. Items whose source is "unconfirmed"
+output of `tools/melonds/mds.sh demos`). A full run (no --partial, --demo or --values) must contain
+the rehearsal block and the block of every demo that has an item, and must grade at least one
+`role: target` item (not n/a), otherwise exit 2; --partial / --demo / --values grade only what is
+present. A block whose magic is wrong (all zero: the ROM never finished) is exit 2, also for a demo.
+A malformed expected.json (missing keys) is exit 2. Each expected item is graded OK or NG. Items whose source is "unconfirmed"
 are informational: they print INFO and never fail the run. An item can depend on a
 flag bit ("requires": {"value": i, "bit": b}); when it is clear the item is n/a
 (DeSmuME has no polygon RAM counters, so those items cannot be graded there).
 
 Profiles: expected.json "known" lists, per emulator version and renderer, the items
 (gating or not) expected to fail there ("ng") and the ones that cannot be graded there
-("na"). With --profile NAME the run passes (exit 0) only when both sets equal the lists
-exactly (an item silently turning n/a is a regression too); newly failing and newly
-passing items are reported either way. Exit codes: 0 pass (all gating items OK, or the
+("na"). With --profile NAME the run passes (exit 0) only when the GATING failing set and the
+gating n/a set equal the lists exactly (an item silently turning n/a is a regression too);
+informational items that changed are only reported (INFO CHANGED). A failing gating
+prerequisite prints PREREQ NG (exit 1); a failing informational one prints PREREQ INFO and
+never changes the exit code. ROLES counts gating and informational items separately. Exit codes: 0 pass (all gating items OK, or the
 profile matched), 1 a gating item failed / the profile did not match, 2 no usable
 result (no or bad block, unknown profile, expected.json or a log unreadable).
 Standard library only.
@@ -67,9 +72,9 @@ class Fatal(Exception):
     """A usage or input problem: exit code 2."""
 
 
-def parse_blocks(text, demo=None):
-    """{block id: words}: every RESULT line, the last one of an id wins."""
-    blocks = {}
+def parse_lines(text, demo=None):
+    """[(rom name or None, words)]: every RESULT line in log order."""
+    out = []
     for line in text.splitlines():
         m = re.match(r'^(?:(\S+)\s+)?RESULT((?:\s+[0-9a-fA-F]{1,8})+)\s*$', line.strip())
         if not m:
@@ -78,8 +83,8 @@ def parse_blocks(text, demo=None):
             continue
         words = [int(w, 16) for w in m.group(2).split()]
         if len(words) >= 8:
-            blocks[words[1]] = words
-    return blocks
+            out.append((m.group(1), words))
+    return out
 
 
 def grade(item, vals):
@@ -126,6 +131,40 @@ def find_expected(arg):
     raise Fatal('expected.json not found next to judge.py or one folder up')
 
 
+def check_schema(exp):
+    """expected.json must have the keys this judge reads; a missing one is an input error (exit 2)."""
+    if not isinstance(exp, dict):
+        raise Fatal('expected.json must be a JSON object')
+    for key, typ in (('items', list), ('boot', dict), ('known', dict)):
+        if not isinstance(exp.get(key), typ):
+            raise Fatal('expected.json: "%s" is missing or not a %s' % (key, typ.__name__))
+    for key in ('item_id', 'frames_min'):
+        if not isinstance(exp['boot'].get(key), int):
+            raise Fatal('expected.json: boot.%s is missing or not a number' % key)
+    if not isinstance(exp.get('demos', {}), dict):
+        raise Fatal('expected.json: "demos" must be an object')
+    need = {'mask': ('mask', 'expect'), 'nonzero': ('mask',), 'bit': ('bit',), 'eq': ('expect',),
+            'ge': ('min',), 'le': ('max',), 'range': ('min', 'max'), 'same': (), 'ne': ()}
+    for it in exp['items']:
+        if not isinstance(it, dict):
+            raise Fatal('"items" must be a list of objects')
+        for key in ('id', 'title', 'values', 'check', 'source'):
+            if key not in it:
+                raise Fatal('item %r: key "%s" is missing' % (it.get('id'), key))
+        if not isinstance(it['values'], list) or not it['values'] or not all(isinstance(x, int) for x in it['values']):
+            raise Fatal('item %r: "values" must be a non-empty list of indices' % it['id'])
+        if it['check'] not in need:
+            raise Fatal('item %r: unknown check %r' % (it['id'], it['check']))
+        for key in need[it['check']]:
+            if key not in it:
+                raise Fatal('item %r: check %s needs "%s"' % (it['id'], it['check'], key))
+        if it.get('demo') is not None and it['demo'] not in exp.get('demos', {}):
+            raise Fatal('item %r: demo %r is not listed under "demos"' % (it['id'], it['demo']))
+    for name, p in exp['known'].items():
+        if not isinstance(p, dict) or not isinstance(p.get('ng'), list):
+            raise Fatal('profile %r: "ng" must be a list' % name)
+
+
 def check_levels(items):
     """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
     if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
@@ -168,15 +207,19 @@ def is_gating(item):
 
 
 def role_summary(rows):
-    """rows: (role, ok). target a/b OK . prerequisite a/b OK . relocate n informational."""
+    """rows: (role, ok, informational). target a/b OK . prerequisite a/b OK +n informational . relocate n informational."""
     parts = []
-    for role in ('target', 'prerequisite'):
-        sel = [r for r in rows if r[0] == role]
-        if sel:
-            parts.append('%s %d/%d OK' % (role, sum(1 for r in sel if r[1]), len(sel)))
-    n = sum(1 for r in rows if r[0] == 'relocate')
-    if n:
-        parts.append('relocate %d informational' % n)
+    for role in ('target', 'prerequisite', 'relocate'):
+        gate = [r for r in rows if r[0] == role and not r[2]]
+        info = [r for r in rows if r[0] == role and r[2]]
+        if not gate and not info:
+            continue
+        sx = role
+        if gate:
+            sx += ' %d/%d OK' % (sum(1 for r in gate if r[1]), len(gate))
+        if info:
+            sx += (' %d informational' if not gate else ' +%d informational') % len(info)
+        parts.append(sx)
     return ' \u00b7 '.join(parts)
 
 
@@ -197,18 +240,26 @@ def level_summary(rows):
     return ' \u00b7 '.join(parts)
 
 
+def known_rom(rom, exp):
+    """A ROM name in a log line that is ours (the rehearsal or one of the demos), or no name at all."""
+    return rom is None or 'rehearsal' in rom or any(d in rom for d in exp.get('demos', {}))
+
+
 def run(args):
     try:
         with open(find_expected(args.expected)) as f:
             exp = json.load(f)
     except (OSError, ValueError) as e:
         raise Fatal('cannot read expected.json: %s' % e)
-    check_levels(exp.get('items', []))
+    check_schema(exp)
+    check_levels(exp['items'])
     check_roles(exp)
     if args.list_profiles:
-        for name, p in sorted(exp.get('known', {}).items()):
-            print('%-34s %s' % (name, p['emulator']))
+        for name, p in sorted(exp['known'].items()):
+            print('%-34s %s' % (name, p.get('emulator', '')))
         return 0
+    # --demo / --values grade only what they name; so does --partial.
+    partial = bool(args.partial) or args.demo is not None or args.values is not None
     text = ''
     try:
         if args.values is not None:
@@ -232,8 +283,8 @@ def run(args):
             text = sys.stdin.read()
     except OSError as e:
         raise Fatal('cannot read log: %s' % e)
-    blocks = parse_blocks(text, args.demo)
-    if not blocks:
+    parsed = parse_lines(text, args.demo)
+    if not parsed:
         raise Fatal('no RESULT line in the log')
     boot = exp['boot']
     ids = {boot['item_id']: None}          # block id -> demo name (None: the rehearsal)
@@ -241,9 +292,17 @@ def run(args):
         ids[bid] = name
     present = {}                            # demo name (None: the rehearsal) -> values
     frames = {}
-    for bid, words in blocks.items():
+    for rom, words in parsed:
+        if words[0] != MAGIC:
+            # all zero (the ROM never finished) or garbage: never graded, never skipped
+            if known_rom(rom, exp):
+                raise Fatal('%s: result block magic is %08x, not %08x (the ROM did not finish)'
+                            % (rom or 'a RESULT line', words[0], MAGIC))
+            print('warning: result block of %s without magic ignored' % rom, file=sys.stderr)
+            continue
+        bid = words[1]
         if bid not in ids:
-            if len(blocks) == 1:
+            if len(parsed) == 1:
                 raise Fatal('result block id %08x is not the rehearsal (%08x) nor one of the level 3 demos'
                             % (bid, boot['item_id']))
             print('warning: result block with unknown id %08x ignored' % bid, file=sys.stderr)
@@ -255,15 +314,18 @@ def run(args):
             raise Fatal('%s: the RESULT line carries %d words, not %d (RESULT_WORDS=%d missing for emu.sh?)'
                         % (label, len(words), need, need))
         words = words[:BLOCK_WORDS]
-        if words[0] != MAGIC:
-            raise Fatal('%s: result block magic is %08x, not %08x (the ROM did not finish)'
-                        % (label, words[0], MAGIC))
         if name is None and words[2] < boot['frames_min']:
             raise Fatal('only %d frames ran, the rehearsal needs at least %d' % (words[2], boot['frames_min']))
         present[name] = words[3:] + [0] * (61 - len(words[3:]))
         frames[name] = words[2]
     if not present:
         raise Fatal('no result block of this game in the log')
+    if not partial:
+        want_roms = {None} | {i['demo'] for i in exp['items'] if i.get('demo')}
+        missing = sorted(('rehearsal' if n is None else n) for n in want_roms if n not in present)
+        if missing:
+            raise Fatal('missing blocks in a full run: %s (use --partial or --demo to grade only what is present)'
+                        % ', '.join(missing))
     words = [0, boot['item_id'] if None in present else next(b for b, n in ids.items() if n in present),
              frames.get(None, next(iter(frames.values())))]
 
@@ -275,20 +337,26 @@ def run(args):
         g = grade(item, vals)
         gating = is_gating(item)
         results.append((item, g, gating))
+    if not partial and not any(it['role'] == 'target' and g != 'NA' for (it, g, _) in results):
+        raise Fatal('no target item was graded (all n/a): this run says nothing about the target level')
     seen = {i['id'] for (i, _, _) in results}
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
+    gating_na = sorted(i['id'] for (i, g, gt) in results if g == 'NA' and gt)
+    gating_ids = {i['id'] for (i, _, gt) in results if gt}
 
     rc = 0
     prof = None
+    want = want_na = []
     if args.profile:
-        prof = exp.get('known', {}).get(args.profile)
+        prof = exp['known'].get(args.profile)
         if prof is None:
             raise Fatal('unknown profile %r (see --list-profiles)' % args.profile)
-        want = sorted(w for w in prof['ng'] if w in seen)
-        want_na = sorted(w for w in prof.get('na', []) if w in seen)
-        rc = 0 if failing == want and na == want_na else 1
+        # Only gating items decide the match; informational ones that changed are reported below.
+        want = sorted(w for w in prof['ng'] if w in gating_ids)
+        want_na = sorted(w for w in prof.get('na', []) if w in gating_ids)
+        rc = 0 if gating_fail == want and gating_na == want_na else 1
     else:
         rc = 1 if gating_fail else 0
 
@@ -304,31 +372,46 @@ def run(args):
                          indent=1, sort_keys=True))
         return rc
     print('frame %d, block id %08x%s' % (words[2], words[1], ''.join(', ' + n for n in sorted(n for n in present if n))))
-    prereq_ng = sorted(i['id'] for (i, g, _) in results if g == 'NG' and i['role'] == 'prerequisite'
-                       and i['id'] not in (prof.get('ng', []) if prof else []))
+    known_ng = prof['ng'] if prof else []
+    prereq_ng = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt and i['role'] == 'prerequisite'
+                       and i['id'] not in known_ng)
+    prereq_info = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and not gt and i['role'] == 'prerequisite'
+                         and i['id'] not in known_ng)
     if prereq_ng:
         print('PREREQ NG %s: the target-level verdicts of this game cannot be trusted' % ', '.join(prereq_ng))
+    if prereq_info:
+        print('PREREQ INFO %s: informational prerequisite(s) failed (unconfirmed, the exit code is unchanged)'
+              % ', '.join(prereq_info))
     for item, g, gating in results:
         tag = {'OK': 'OK  ', 'NG': 'NG  ' if gating else 'INFO', 'NA': 'n/a '}[g]
         print('%s %-24s %s' % (tag, item['id'], item['title']))
     print('LEVELS ' + level_summary([(i['level'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
-    print('ROLES ' + role_summary([(i['role'], g == 'OK') for (i, g, _) in results if g != 'NA']))
+    print('ROLES ' + role_summary([(i['role'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
     if prof is not None:
-        want = sorted(w for w in prof['ng'] if w in seen)
-        new_fail = [i for i in failing if i not in want]
-        new_pass = [i for i in want if i not in failing]
-        want_na = sorted(w for w in prof.get('na', []) if w in seen)
         print('profile %s: %s' % (args.profile, 'MATCH' if rc == 0 else 'MISMATCH'))
-        for i in new_fail:
-            print('  NEWLY FAILING %s' % i)
-        for i in new_pass:
-            print('  NEWLY PASSING %s' % i)
-        for i in na:
+        for i in gating_fail:
+            if i not in want:
+                print('  NEWLY FAILING %s' % i)
+        for i in want:
+            if i not in gating_fail:
+                print('  NEWLY PASSING %s' % i)
+        for i in gating_na:
             if i not in want_na:
                 print('  NEWLY N/A %s (the ROM could not grade it)' % i)
         for i in want_na:
-            if i not in na:
+            if i not in gating_na:
                 print('  NO LONGER N/A %s' % i)
+        # informational items: reported, never part of the match
+        info_ids = seen - gating_ids
+        for i in failing:
+            if i in info_ids and i not in prof['ng']:
+                print('  INFO CHANGED %s now fails (informational, not part of the match)' % i)
+        for i in sorted(w for w in prof['ng'] if w in info_ids):
+            if i not in failing:
+                print('  INFO CHANGED %s now passes (informational, not part of the match)' % i)
+        info_na_want = {w for w in prof.get('na', []) if w in info_ids}
+        for i in sorted(info_ids & (set(na) ^ info_na_want)):
+            print('  INFO CHANGED %s n/a state differs (informational)' % i)
     else:
         print('%s (%d gating failing)' % ('PASS' if rc == 0 else 'FAIL', len(gating_fail)))
     return rc
@@ -343,11 +426,16 @@ def main(argv):
     ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--demo')
+    ap.add_argument('--partial', action='store_true',
+                    help='grade only the blocks present (a full run needs the rehearsal and every demo)')
     ap.add_argument('--values', nargs='+', metavar='HEX', help='the 18 values and the CRC the console showed')
     try:
         return run(ap.parse_args(argv))
     except Fatal as e:
         print('ERROR %s' % e, file=sys.stderr)
+        return 2
+    except (KeyError, TypeError, IndexError, AttributeError, ValueError) as e:
+        print('ERROR malformed expected.json or log (%s: %s)' % (type(e).__name__, e), file=sys.stderr)
         return 2
 
 

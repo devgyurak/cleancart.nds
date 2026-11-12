@@ -39,7 +39,7 @@ class Judge(unittest.TestCase):
             out = io.StringIO()
             old, sys.stdout = sys.stdout, out
             try:
-                rc = judge.main(['--expected', EXP, '--json'] + list(extra) + [f.name])
+                rc = judge.main(['--expected', EXP, '--json', '--partial'] + list(extra) + [f.name])
             finally:
                 sys.stdout = old
         finally:
@@ -66,7 +66,7 @@ class Judge(unittest.TestCase):
     def test_profile_must_match_exactly(self):
         rc, _ = self.run_judge(block(), '--profile', 'melonds-1.1-gl-classic')
         self.assertEqual(rc, 0)
-        rc, _ = self.run_judge(block(v4=7), '--profile', 'melonds-1.1-gl-classic')   # newly failing
+        rc, _ = self.run_judge(block(flags=0x1df), '--profile', 'melonds-1.1-gl-classic')   # newly failing
         self.assertEqual(rc, 1)
 
     def test_every_item_has_a_level(self):
@@ -150,7 +150,7 @@ class Judge(unittest.TestCase):
             try:
                 with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as lf:
                     lf.write(text(block()))
-                rc = judge.main(['--expected', f.name, '--json', '--profile', 'melonds-1.1-software', lf.name])
+                rc = judge.main(['--expected', f.name, '--json', '--partial', '--profile', 'melonds-1.1-software', lf.name])
             finally:
                 sys.stdout = o
                 os.unlink(lf.name)
@@ -208,7 +208,7 @@ class Judge(unittest.TestCase):
             out, err = io.StringIO(), io.StringIO()
             o, e, sys.stdout, sys.stderr = sys.stdout, sys.stderr, out, err
             try:
-                rc = judge.main(['--expected', EXP, '--json'] + list(extra) + [f.name])
+                rc = judge.main(['--expected', EXP, '--json', '--partial'] + list(extra) + [f.name])
             finally:
                 sys.stdout, sys.stderr = o, e
         finally:
@@ -257,6 +257,171 @@ class Judge(unittest.TestCase):
             if 'demo' in it:
                 self.assertIn(it['demo'], exp['demos'], it['id'])
                 self.assertTrue(it['demo'].startswith('l3-'), it['id'])
+
+    # --- review fixes: exit codes, full runs, gating-only profiles, prerequisites ------------------
+    def cli(self, log, *extra, exp=None, json_out=False):
+        """Run judge.main on a log text; exp is an expected.json dict (default: the real one)."""
+        import io
+        import tempfile
+        paths = []
+        try:
+            exp_path = EXP
+            if exp is not None:
+                with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as ef:
+                    json.dump(exp, ef)
+                exp_path = ef.name
+                paths.append(ef.name)
+            with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as lf:
+                lf.write(log)
+            paths.append(lf.name)
+            out, err = io.StringIO(), io.StringIO()
+            o, e, sys.stdout, sys.stderr = sys.stdout, sys.stderr, out, err
+            try:
+                rc = judge.main(['--expected', exp_path] + (['--json'] if json_out else []) + list(extra) + [lf.name])
+            finally:
+                sys.stdout, sys.stderr = o, e
+        finally:
+            for pth in paths:
+                os.unlink(pth)
+        return rc, out.getvalue(), err.getvalue()
+
+    def real_exp(self):
+        with open(EXP) as f:
+            return json.load(f)
+
+    CLEAN_DEMOS = {'l3-acc-dual': dict(v0=1, v3=0x1f), 'l3-sys-dma-hblank': dict(v4=22, v6=1)}
+
+    def full_log(self, skip=(), **over):
+        log = '' if 'rehearsal' in skip else 'elevane-rehearsal ' + text(block())
+        for name in self.demo_ids():
+            if name in skip:
+                continue
+            vals = dict(self.CLEAN_DEMOS.get(name, {}))
+            vals.update(over.get(name, {}))
+            log += self.demo_text(name, **vals)
+        return log
+
+    def test_all_zero_block_is_exit_2(self):
+        for extra in ((), ('--partial',)):
+            rc, _, err = self.cli('RESULT ' + ' '.join(['0'] * 64) + '\n', *extra)
+            self.assertEqual(rc, 2, err)
+            # a demo block that is all zero (the demo never finished), named like mds.sh demos prints it
+            rc, _, err = self.cli('elevane-l3-acc-dual RESULT ' + ' '.join(['0'] * 16) + '\n', *extra)
+            self.assertEqual(rc, 2, err)
+        # one good block does not hide a zero block next to it
+        rc, _, _ = self.cli(self.demo_text('l3-sys-dma-hblank', v4=22, v6=1)
+                            + 'elevane-l3-acc-dual RESULT ' + ' '.join(['0'] * 16) + '\n', '--partial')
+        self.assertEqual(rc, 2)
+
+    def test_zero_block_of_a_foreign_rom_is_only_a_warning(self):
+        # emu.sh/mds.sh demos also run the save variants, which finish no block
+        rc, _, err = self.cli('elevane-save-flash RESULT ' + ' '.join(['0'] * 64) + '\n' + self.demo_text('l3-sys-dma-hblank', v4=22, v6=1),
+                              '--partial')
+        self.assertEqual(rc, 0)
+        self.assertIn('warning', err)
+
+    def test_full_run_needs_the_rehearsal_and_every_demo(self):
+        rc, _, err = self.cli(self.full_log(), json_out=True)
+        self.assertEqual(rc, 0, err)
+        rc, _, err = self.cli(self.full_log(skip=('rehearsal',)))
+        self.assertEqual(rc, 2)
+        self.assertIn('rehearsal', err)
+        rc, _, err = self.cli(self.full_log(skip=('l3-acc-split-hdma',)))
+        self.assertEqual(rc, 2)
+        self.assertIn('l3-acc-split-hdma', err)
+        rc, _, _ = self.cli(self.full_log(skip=('l3-acc-split-hdma',)), '--partial')     # --partial grades what is there
+        self.assertEqual(rc, 0)
+        rc, _, _ = self.cli(self.full_log(skip=('l3-acc-split-hdma',)), '--demo', 'elevane-l3-acc-dual')
+        self.assertEqual(rc, 0)
+
+    def test_full_run_without_a_graded_target_is_exit_2(self):
+        exp = self.real_exp()
+        # force n/a: bit 30 of values[0] is never set
+        for it in exp['items']:
+            if it['role'] == 'target':
+                it['requires'] = {'value': 0, 'bit': 30}
+        rc, _, err = self.cli(self.full_log(), '--allow-na', exp=exp)
+        self.assertEqual(rc, 2)
+        self.assertIn('no target item', err)
+        rc, _, _ = self.cli(self.full_log(), '--allow-na', '--partial', exp=exp)
+        self.assertEqual(rc, 0)
+
+    def test_hole_items_are_gating_level_3_targets(self):
+        exp = self.real_exp()
+        by = {i['id']: i for i in exp['items']}
+        for k in ('hdma-holes-zero', 'acc-split-hdma-holes'):
+            self.assertEqual((by[k]['role'], by[k]['level'], by[k]['source']), ('target', 3, 'GBATEK'), k)
+        self.assertIn('2618', by['hdma-holes-zero']['title'])
+        self.assertIn('2618', by['acc-split-hdma-holes']['title'])
+        rc, out, _ = self.cli(self.full_log(**{'l3-acc-split-hdma': dict(v3=0x808)}), json_out=True)
+        self.assertEqual(rc, 1)
+        self.assertEqual(json.loads(out)['gating_failing'], ['acc-split-hdma-holes'])
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block(flags=0x1df)), '--partial', json_out=True)
+        self.assertEqual((rc, json.loads(out)['gating_failing']), (1, ['hdma-holes-zero']))
+
+    def test_profile_compares_gating_items_only(self):
+        # an informational item that changed is reported, the profile still matches
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block(v4=7)), '--partial', '--profile', 'melonds-1.1-software')
+        self.assertEqual(rc, 0)
+        self.assertIn('INFO CHANGED dual-cross-zero', out)
+        self.assertIn('MATCH', out)
+        # a gating item that changed is a mismatch
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block(flags=0x1df)), '--partial', '--profile', 'melonds-1.1-software')
+        self.assertEqual(rc, 1)
+        self.assertIn('NEWLY FAILING hdma-holes-zero', out)
+        # and a gating item the profile lists as failing that now passes
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block()), '--partial', '--profile', 'melonds-4ce2188-gl-classic')
+        self.assertEqual(rc, 1)
+        self.assertIn('NEWLY PASSING hdma-holes-zero', out)
+        # the n/a set is compared for gating items only: a profile that lists an informational item as n/a still matches
+        exp = self.real_exp()
+        exp['known']['melonds-1.1-software']['na'] = ['dual-front']
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block()), '--partial', '--profile', 'melonds-1.1-software', exp=exp)
+        self.assertEqual(rc, 0, out)
+
+    def test_prerequisite_semantics(self):
+        # gating prerequisite fails: PREREQ NG first, exit 1
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block(flags=0x1fe)), '--partial')
+        self.assertEqual(rc, 1)
+        self.assertTrue(out.splitlines()[1].startswith('PREREQ NG puzzles-delivered'), out)
+        # informational prerequisite fails: PREREQ INFO, exit code unchanged
+        rc, out, _ = self.cli('elevane-rehearsal ' + text(block(v4=7)), '--partial')
+        self.assertEqual(rc, 0)
+        self.assertIn('PREREQ INFO dual-cross-zero', out)
+        self.assertNotIn('PREREQ NG', out)
+
+    def test_roles_count_gating_and_informational_apart(self):
+        rows = [('target', True, False), ('target', True, False), ('prerequisite', True, False),
+                ('prerequisite', False, False), ('prerequisite', True, True), ('prerequisite', False, True),
+                ('relocate', False, True)]
+        self.assertEqual(judge.role_summary(rows),
+                         'target 2/2 OK \u00b7 prerequisite 1/2 OK +2 informational \u00b7 relocate 1 informational')
+        self.assertEqual(judge.role_summary([('prerequisite', True, True)]), 'prerequisite 1 informational')
+        rc, out, _ = self.cli(self.full_log())
+        self.assertEqual(rc, 0)
+        self.assertIn('ROLES target 3/3 OK \u00b7 prerequisite 5/5 OK +12 informational', out)
+
+    def test_malformed_expected_is_exit_2_not_a_traceback(self):
+        log = 'elevane-rehearsal ' + text(block())
+        exp = self.real_exp()
+        del exp['items']
+        self.assertEqual(self.cli(log, '--partial', exp=exp)[0], 2)
+        for key in ('source', 'check', 'title', 'values', 'id', 'level', 'role'):
+            exp = self.real_exp()
+            del exp['items'][3][key]
+            rc, _, err = self.cli(log, '--partial', exp=exp)
+            self.assertEqual(rc, 2, key)
+            self.assertNotIn('Traceback', err)
+        exp = self.real_exp()
+        del exp['items'][3]['expect' if 'expect' in exp['items'][3] else 'bit']
+        self.assertEqual(self.cli(log, '--partial', exp=exp)[0], 2)
+        for key in ('boot', 'known'):
+            exp = self.real_exp()
+            del exp[key]
+            self.assertEqual(self.cli(log, '--partial', exp=exp)[0], 2, key)
+        exp = self.real_exp()
+        exp['items'][0]['demo'] = 'l3-nope'
+        self.assertEqual(self.cli(log, '--partial', exp=exp)[0], 2)
 
 
 if __name__ == '__main__':
