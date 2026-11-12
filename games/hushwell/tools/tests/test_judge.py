@@ -72,11 +72,12 @@ class Judge(unittest.TestCase):
         self.assertEqual((rc, r['gating_failing']), (1, ['io-cart-ok']))
 
     def test_relocate_items_are_informational(self):
+        # no item is waiting to move any more; the rule still holds for one that would be
+        self.assertFalse(judge.is_gating({'source': 'GBATEK', 'role': 'relocate'}))
+        self.assertTrue(judge.is_gating({'source': 'GBATEK', 'role': 'target'}))
+        self.assertFalse(judge.is_gating({'source': 'unconfirmed', 'role': 'prerequisite'}))
         exp = load()
-        # sys-math-div is a graphics/system item of Corvane's area: it moves out, so a bad value never gates
-        rc, r = run_judge(line(exp, 'sys-math', [1, 1000000, 0x5000, 4096]))
-        self.assertEqual((rc, r['gating_failing']), (0, []))
-        self.assertEqual(r['items']['sys-math-div'], 'NG')
+        self.assertEqual([i['id'] for i in exp['items'] if i['role'] == 'relocate'], [])
 
     def test_roles_are_checked(self):
         exp = load()
@@ -101,7 +102,7 @@ class Judge(unittest.TestCase):
     def test_missing_demo_is_an_input_error_without_partial(self):
         exp = load()
         with tempfile.NamedTemporaryFile('w', suffix='.log', delete=False) as f:
-            f.write(line(exp, 'sys-math', [0, 1000000, 0x5000, 4096]))
+            f.write(line(exp, 'io-cart', [0, 1, 1]))
         try:
             err, old = io.StringIO(), sys.stderr
             sys.stderr = err
@@ -115,7 +116,7 @@ class Judge(unittest.TestCase):
 
     def test_short_block_is_an_input_error(self):
         exp = load()
-        words = [exp['block']['magic'], exp['demos']['sys-math'], 120, 0, 0]
+        words = [exp['block']['magic'], exp['demos']['io-cart'], 120, 0, 0]
         rc, _ = run_judge('RESULT ' + ' '.join('%08x' % w for w in words) + '\n')
         self.assertEqual(rc, 2)
 

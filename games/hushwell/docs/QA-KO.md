@@ -105,7 +105,7 @@ melonDS 버전: ______  검수자: ______  날짜: ______
 
 ## 판정(`expected.json`, `tools/judge.py`)
 
-각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 143개, 데모 66개 전부와 QA 실행). 항목마다
+각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 45개: 소리·입출력 데모, IPC·키 입력 전제 조건, QA 실행. 데모 ROM 66개는 모두 그대로 빌드·실행되지만 그래픽·시스템 데모의 판정은 그 영역을 맡은 Corvane이 합니다). 항목마다
 1~4의 `level`과 `level_basis`가 있으며([docs/LEVELS-KO.md](../../../docs/LEVELS-KO.md)), 레벨은 판정에 영향을 주지 않습니다.
 
 | 종류 | 판정하는 것 | 예 |

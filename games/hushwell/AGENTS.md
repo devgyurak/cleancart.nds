@@ -58,7 +58,7 @@ Recorder (all chapters): REC captures the left mixer into RAM (`snd_record`, ARM
 
 ## Judging
 
-`expected.json` + `tools/judge.py` grade the demo result blocks and the auto QA run (demo `qa`); see `docs/QA.md`,
+`expected.json` + `tools/judge.py` grade the sound and I/O demo result blocks (target level 1, area "sound and I/O"; the IPC items are prerequisites) and the auto QA run (demo `qa`); the graphics and system demos still build but Corvane judges them; see `docs/QA.md`,
 "Judging". They started as Corvane's (same demo names, same documented items); values that depend on this game's scenes
 (polygon counts, HUD registers, the logo CRC) are Hushwell's own. Every item has `level` 1-4 and `level_basis`
 (`../../docs/LEVELS.md`). When a demo's `finish()` values change, update `expected.json` and re-measure every profile.

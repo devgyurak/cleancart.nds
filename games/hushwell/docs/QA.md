@@ -106,8 +106,8 @@ melonDS version: ______  Tester: ______  Date: ______
 
 ## Judging (`expected.json`, `tools/judge.py`)
 
-The result block of each demo is graded by `tools/judge.py` against `expected.json` (143 items, all 66
-demos and the QA run). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (45 items: the sound and I/O
+demos, the IPC and keypad prerequisites, and the QA run; the 66 demo ROMs still all build and run, but the graphics and system demos are judged by Corvane, which owns that area). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
 change a verdict.
 
 | Kind | What is judged | Examples |
