@@ -68,3 +68,14 @@ Start (Return) starts act 1: touch-drag the four sliders on the bottom screen; A
 goes on to act 2, B (Z) backs out. Act 2: Left/Right (arrows) or tap chooses a doll, L/R (Q/W) or a tap
 on the lower half turns it; A (X) after a clear goes on to act 3. Act 3: D-pad (arrows) or drag moves the lantern over the marks; A (X) after a clear goes on to act 4. Act 4: Left/Right or tap chooses a peg, A (X) or a second tap swaps the two strings; A (X) after a clear goes on to act 5. Act 5: D-pad or drag moves the lantern over the dolls, L/R/A (Q/W/X) or a tap below turns the doll under it; A (X) after a clear / B (Z) returns to the title. Title + Select (Backspace) opens the test menu (up/down, A (X), B (Z)); in the judge A (X) cycles BLDCNT,
 B (Z) / Start returns. More actions are listed here as scenes land.
+
+## Result block on the SD card
+
+`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+folder `<drive>cleancart/lightenette/` already exists on the card, the `l2-*` demo `finish()` and the rehearsal idle writes its result
+block there as `res-<date>-<time>-lightenette-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
+line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the
+folder: whoever prepares the card does. Without the folder (every emulator CI run, an ordinary card)
+nothing is written and nothing on screen changes. The demos show `RESULT SAVED`; the rehearsal shows nothing. `tools/qa/ingest.py SD` copies the logs to
+`build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
+emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).

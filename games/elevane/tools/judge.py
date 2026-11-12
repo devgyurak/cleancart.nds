@@ -87,8 +87,10 @@ def parse_lines(text, demo=None):
     return out
 
 
-def grade(item, vals):
-    """Return 'OK', 'NG' or 'NA' for one item."""
+def grade(item, vals, hardware=False):
+    """Return 'OK', 'NG' or 'NA' for one item. hardware: items with an "env" are n/a on a real console."""
+    if hardware and item.get('env'):
+        return 'NA'
     req = item.get('requires')
     if req and not (vals[req['value']] >> req['bit'] & 1):
         return 'NA'
@@ -329,7 +331,9 @@ def run(args):
             raise Fatal('%s: the RESULT line carries %d words, not %d (RESULT_WORDS=%d missing for emu.sh?)'
                         % (label, len(words), need, need))
         words = words[:BLOCK_WORDS]
-        if name is None and words[2] < boot['frames_min']:
+        # --hardware: the block was saved to the SD card the moment the rehearsal finished, so its frame
+        # counter is the finish frame, not the 4000-frame snapshot the emulator runs read.
+        if name is None and words[2] < boot['frames_min'] and not getattr(args, 'hardware', False):
             raise Fatal('only %d frames ran, the rehearsal needs at least %d' % (words[2], boot['frames_min']))
         present[name] = words[3:] + [0] * (61 - len(words[3:]))
         frames[name] = words[2]
@@ -349,7 +353,7 @@ def run(args):
         vals = present.get(item.get('demo'))
         if vals is None:
             continue      # the log has no block of this item's ROM
-        g = grade(item, vals)
+        g = grade(item, vals, getattr(args, 'hardware', False))
         gating = is_gating(item)
         results.append((item, g, gating))
     if not partial and not any(it['role'] == 'target' and g != 'NA' for (it, g, _) in results):
@@ -364,6 +368,8 @@ def run(args):
     rc = 0
     prof = None
     want = want_na = []
+    if args.profile and getattr(args, 'hardware', False):
+        raise Fatal('--hardware does not compare with a profile (a console value is not an emulator profile)')
     if args.profile:
         prof = exp['known'].get(args.profile)
         if prof is None:
@@ -439,6 +445,8 @@ def main(argv):
     ap.add_argument('--profile')
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
+    ap.add_argument('--hardware', action='store_true',
+                    help='the log is from a real console: items with an "env" are n/a, no profile comparison')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--demo')
     ap.add_argument('--partial', action='store_true',

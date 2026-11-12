@@ -96,3 +96,14 @@ the ARM7 reports channel/capture state in `CvInputPacket` for the sound demos.
   `ASSETS.md` and `ASSETS-KO.md`.
 - **A model**: build it in `gfx/models.c` with the `mb_*` helpers; faces are emitted
   counter-clockwise from outside automatically (verified: CCW = front on DS).
+
+## Result block on the SD card
+
+`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+folder `<drive>cleancart/corvane/` already exists on the card, the demo `finish()` writes its result
+block there as `res-<date>-<time>-corvane-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
+line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the
+folder: whoever prepares the card does. Without the folder (every emulator CI run, an ordinary card)
+nothing is written and nothing on screen changes. The demo then shows `RESULT SAVED` under the checkpoint. `tools/qa/ingest.py SD` copies the logs to
+`build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
+emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).

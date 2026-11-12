@@ -22,6 +22,7 @@
 #include "core/nitro.h"
 #include "core/save.h"
 #include "core/snd.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "core/timer.h"
 #include "demo/demo.h"
@@ -44,6 +45,7 @@
 
 static CvText con;
 static u32 demo_id;
+static const char *demo_name;
 static void (*idle_fn)(int f);
 
 // ---------------------------------------------------------------------------
@@ -155,6 +157,13 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    // Only when the card holds cleancart/probes/ (core/sdcard.h): the block goes to the SD card.
+    if (sd_result_save("probes", demo_name))
+    {
+        con_color(TP_GREEN);
+        con_printf("RESULT SAVED\n");
+        con_color(TP_WHITE);
+    }
     for (int f = 0;; f++)
     {
         if (idle_fn)
@@ -1631,6 +1640,7 @@ static const DemoEntry demos[] = {
 void demo_main(const char *name)
 {
     demo_id = hash_name(name);
+    demo_name = name;
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)
     {
