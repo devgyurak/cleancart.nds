@@ -141,6 +141,40 @@ class Judge(unittest.TestCase):
             with self.assertRaises(judge.Fatal):
                 judge.check_roles(bad)
 
+    def test_other_games_lines_are_ignored(self):
+        exp = load()
+        text = line(exp, 'io-cart', [0, 0, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.OTHER_GAMES[0])
+        err, old = io.StringIO(), sys.stderr
+        sys.stderr = err
+        try:
+            self.assertEqual(judge.parse_blocks(text), {})
+        finally:
+            sys.stderr = old
+        self.assertIn('ignored', err.getvalue())
+        self.assertEqual(len(judge.parse_blocks(line(exp, 'io-cart', [0, 1, 1]).replace('io-cart RESULT', '%s-io-cart RESULT' % judge.GAME))), 1)
+
+    def test_env_items_are_n_a_on_hardware(self):
+        exp = load()
+        rc, r = run_judge(line(exp, 'io-cart', [0, 0, 1]), '--hardware')
+        self.assertEqual((rc, r['gating_failing']), (0, []))
+        self.assertEqual(r['items']['io-cart-ok'], 'NA')
+
+    def test_n_a_without_a_profile_is_not_a_pass(self):
+        exp = load()
+        na_item = next(i for i in exp['items'] if i.get('na_when') and i['role'] == 'target' and i['source'] != 'unconfirmed')
+        words = [0] * 13
+        words[na_item['na_when'][0]] = na_item['na_when'][1]
+        rc, r = run_judge(line(exp, na_item['demo'], words))
+        self.assertEqual(r['items'][na_item['id']], 'NA')
+        self.assertEqual(rc, 1)
+        rc, r = run_judge(line(exp, na_item['demo'], words), '--allow-na')
+        self.assertEqual(r['gating_failing'] == [], rc == 0)
+
+    def test_items_must_be_a_list_of_objects(self):
+        for bad in ({}, {'a': 1}, [1], 'x'):
+            with self.assertRaises(judge.Fatal):
+                judge.check_levels(bad)
+
 
 if __name__ == '__main__':
     unittest.main()

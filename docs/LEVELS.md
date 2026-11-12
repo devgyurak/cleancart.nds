@@ -42,6 +42,16 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 prints a per-level summary. `python3 scripts/mklevels.py` lists the items by level in the root
 README, and `--check` fails when a level is missing or the README is out of date.
 
+### Environment-dependent items and n/a
+
+- `"env"` (Corvane, Hushwell): `"harness"` (the value depends on input the test harness injects, such as touch coordinates) or `"cart"`
+  (save chip and cart behaviour, which differ between emulated and flash carts). `judge.py --hardware` grades such items n/a
+  because a real console run cannot reproduce the harness or the cart.
+- Without `--profile`, a gating item that is n/a (`na_when`, `requires`) is not a pass: the run exits 1 and prints `NOT GRADED`.
+  Use a profile (which lists the n/a items) or `--allow-na`.
+- A log line whose ROM name names another game (`hushwell-...` fed to Corvane's judge) is ignored with a warning: the demos of
+  two games share block ids.
+
 ## Target level and roles
 
 Each game has one **target level** (`"target_level"` in `expected.json`, 1 to 4) and a one-line `"area"`
