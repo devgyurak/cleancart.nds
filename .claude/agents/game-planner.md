@@ -39,7 +39,7 @@ timing figures (L3) and which nobody has confirmed (L4, goes to `probes/`, not i
 
 1. **Target level and area**, the behaviours to test, prerequisites (lower-level items the game relies on).
 2. **Judging inside the ROM**: how each behaviour is measured (display capture, pixel counting, sound capture, result
-   block layout) and a draft of the `expected.json` items: `id`, `source`, `level`, `level_basis`, `role`, `check`.
+   block layout) and a draft of the `expected.json` items: `id`, `source`, `level`, `level_basis`, `role` (only `target` or `prerequisite`; never `relocate`, never L4), `check`.
 3. **Game concept**: the technique is the core of play. A fallback path so the game can be played to the end on any
    emulator (as Elevane's 2D grid does); how the rehearsal and the QA mode steer it.
 4. **Assets to generate by code** and an originality check (no names, characters, levels or look of existing games).
