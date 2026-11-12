@@ -44,7 +44,7 @@ def load_games():
         if not os.path.exists(path):
             games.append((g, None))
             continue
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             items = json.load(f)['items']
         for it in items:
             lv = it.get('level')

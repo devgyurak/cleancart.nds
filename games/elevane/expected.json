@@ -71,7 +71,7 @@
    "check": "bit",
    "bit": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none",
    "model": null
   },
@@ -84,7 +84,7 @@
    "check": "bit",
    "bit": 2,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none",
    "model": null
   },
@@ -97,7 +97,7 @@
    "check": "eq",
    "expect": 0,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none",
    "model": null
   },
@@ -115,7 +115,7 @@
    },
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:DS 3D Video",
+   "level_basis": "gbatek:DS 3D Status",
    "model": null
   },
   {
@@ -128,7 +128,7 @@
    "bit": 4,
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:DS 3D Video",
+   "level_basis": "gbatek:DS 3D Status",
    "model": null
   },
   {

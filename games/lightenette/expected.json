@@ -64,7 +64,7 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
-      "level": 3,
+      "level": 2,
       "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
@@ -150,7 +150,7 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
-      "level": 4,
+      "level": 2,
       "level_basis": "none",
       "model": null,
       "done": {
@@ -181,7 +181,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 2,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 3,
@@ -210,7 +210,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 1,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 3,
@@ -259,7 +259,7 @@
       "max": 100,
       "tolerance": 0,
       "source": "rom",
-      "level": 2,
+      "level": 1,
       "level_basis": "none",
       "model": null
     },
@@ -302,7 +302,7 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
-      "level": 3,
+      "level": 2,
       "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
@@ -356,7 +356,7 @@
       "expect": 0,
       "tolerance": 0,
       "source": "GBATEK",
-      "level": 2,
+      "level": 1,
       "level_basis": "gbatek:DS 3D Display Control",
       "model": null,
       "done": {
@@ -407,7 +407,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 2,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 25,
@@ -434,7 +434,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 1,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 25,
@@ -482,7 +482,7 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
-      "level": 4,
+      "level": 2,
       "level_basis": "none",
       "model": null,
       "done": {
@@ -508,7 +508,7 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
-      "level": 4,
+      "level": 2,
       "level_basis": "none",
       "model": null,
       "done": {
@@ -555,7 +555,7 @@
       "check": "seam_rows",
       "tolerance": 0,
       "source": "report:melonDS#2008",
-      "level": 3,
+      "level": 2,
       "level_basis": "report:melonDS#2008",
       "model": null,
       "done": {
@@ -637,7 +637,7 @@
       "expect": 0,
       "tolerance": 0,
       "source": "unconfirmed",
-      "level": 4,
+      "level": 2,
       "level_basis": "none",
       "model": null,
       "done": {
@@ -666,7 +666,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 2,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 44,
@@ -693,7 +693,7 @@
       "tolerance": 0,
       "source": "GBATEK",
       "level": 1,
-      "level_basis": "gbatek:LCD Color Effects",
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
       "model": null,
       "done": {
         "value": 44,
