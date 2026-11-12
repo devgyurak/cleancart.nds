@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Bottom screen (engine B, banks H/I): the hand-drawn map on an affine BG
 // that turns with the player, a radio-static meter whose needle is an

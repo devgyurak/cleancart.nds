@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // ARM9 <-> ARM7 protocol. Hushwell runs its own ARM7 core: the ARM7 owns
 // touch, RTC, sound and power; the ARM9 owns the game. They talk through

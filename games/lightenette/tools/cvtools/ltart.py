@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Lightenette's own title picture: a lantern glowing over a dark stage, a
 marionette hanging from a control bar and the game's name. Drawn in code
 from integer maths only, so the bytes never change between runs."""

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // The rehearsal: a demo ROM (make DEMO=rehearsal) that plays the first puzzle of every
 // chapter that has puzzles with a fixed input script through the live play scene, then

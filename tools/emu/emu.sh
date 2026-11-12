@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Headless DeSmuME runner. Paths are relative to the repository root.
 #   tools/emu/emu.sh run   games/corvane/corvane.nds 600 out/boot "60:A,200:START" 150,599

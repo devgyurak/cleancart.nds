@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Corvane side of the auto QA mode (core/qa.h): tuning, autopilot, state hash
 // and the scene hooks that judge the run.

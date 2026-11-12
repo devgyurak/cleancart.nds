@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Push a tag named <game>-v<version> (e.g. corvane-v0.1.0) to build that game's
 # folder in its pinned BlocksDS container (games/<game>/build.sh release) and upload

@@ -5,7 +5,7 @@
 Corvane의 그래픽·폰트·3D 모델·효과음·음악·스테이지 데이터는 **전부 이 저장소의
 코드가 빌드할 때 생성**합니다. 외부에서 가져온 이미지·폰트·샘플·악보는 없습니다.
 따라서 아래 모든 에셋은 직접 제작물이며, 저작권과 라이선스는 소스와 같은
-**Apache-2.0** (Copyright 2026 Corvane contributors)입니다. CC0 에셋도 쓰지 않았습니다.
+**Apache-2.0** (Copyright 2026 devgyurak, the cleancart.nds maintainer)입니다. CC0 에셋도 쓰지 않았습니다.
 
 생성기는 `tools/mkassets.py`이고, 실제 그리는/합성하는 코드는 `tools/cvtools/`에
 있습니다. 같은 소스에서는 언제나 같은 바이트가 나옵니다(난수는 고정 시드의

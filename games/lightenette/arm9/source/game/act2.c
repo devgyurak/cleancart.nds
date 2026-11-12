@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Act 2: turn the dolls. Three paper dolls stand on plinths; L/R turns the
 // chosen doll around until each one faces the way the bottom screen asks.

@@ -1,5 +1,5 @@
 {
- "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
  "schema": 2,
  "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. The screen demos capture their own output (display capture to bank D) and compare pixels with what GBATEK says, VRAM mappings are read back through their aliases, and the sound demos read the channel and capture state the ARM7 reports in its input packet (values[4..8] of those demos). What stays unjudged (the sub screen's line-start DMA bars, sound output content beyond \"not silent\") is listed in docs/QA.md.",
  "block": {

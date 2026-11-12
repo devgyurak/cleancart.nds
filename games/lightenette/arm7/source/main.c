@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Lightenette ARM7 core (inherited from corvane). Replaces the BlocksDS default ARM7 binary: no DSWiFi,
 // no Maxmod. Touch, RTC and power go through libnds; sound is our own

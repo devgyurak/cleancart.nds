@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // QA log: line-oriented ASCII records kept in a 64 KB RAM ring and written
 // to the SD card (libnds FAT over the cart's DLDI driver) when the caller

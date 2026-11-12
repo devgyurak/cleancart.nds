@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // A scripted player: builds the stored solution of the puzzle being played with the
 // same keys a person uses (D-pad, A, Y + D-pad for the work layer, a Y tap for the

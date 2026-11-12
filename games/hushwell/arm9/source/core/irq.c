@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Interrupt plumbing. libnds' dispatcher owns the vector; Hushwell programs
 // IE/DISPSTAT/KEYCNT itself and chains its own handler lists.

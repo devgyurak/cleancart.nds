@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Chapter 1, apprentice: 4x4 grid, piles of height 1-2 (stack mode).
 # Rows of h are y = 0 (front) to y = 3, digits are the pile heights left to right.

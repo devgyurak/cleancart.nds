@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // ARM9 system bring-up: IPCSYNC mount handshake with Corvane's ARM7 core,
 // FIFO message handlers, shared WRAM ownership and lid/sleep handling.

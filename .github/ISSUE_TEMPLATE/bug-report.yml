@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 name: Bug report or question
 description: Something in a game is wrong, or you want to know why a result looks the way it does
 title: "Bug: "

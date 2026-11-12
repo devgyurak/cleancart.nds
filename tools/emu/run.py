@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Run a ROM headless in DeSmuME, inject input, save screenshots.
 
     run.py ROM FRAMES OUTPREFIX [EVENTS] [SHOT_FRAMES]

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Save chip access over the slot-1 AUXSPI port, driven register by register
 // with timeouts so a missing or silent chip never hangs the game. Two copies

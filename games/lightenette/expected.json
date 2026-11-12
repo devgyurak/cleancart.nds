@@ -1,5 +1,5 @@
 {
-  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
   "schema": 2,
   "about": "Expected result-block values for the Lightenette rehearsal and judge ROMs, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h and arm9/source/judge/judge.h. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's 'not captured' marker). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
   "block": {

@@ -1,7 +1,7 @@
 # Licensing (always applies)
 
 - New source/script/build file → SPDX header first:
-  `SPDX-License-Identifier: Apache-2.0` + `SPDX-FileCopyrightText: 2026 Corvane contributors`.
+  `SPDX-License-Identifier: Apache-2.0` + `SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)`.
 - New asset → produced by code in `games/<game>/tools/` (or CC0 with source URL) and listed
   in `games/<game>/ASSETS.md` and its Korean twin `ASSETS-KO.md` with generator, source and licence. Never copy, trace,
   sample or "recreate" existing art, fonts, music, sounds or levels.

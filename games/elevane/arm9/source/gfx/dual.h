@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // 3D on both screens. Engine A renders one view per call and the display capture
 // copies it into a VRAM bank that engine B shows on the other screen, so each

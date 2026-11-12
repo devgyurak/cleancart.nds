@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Per-frame input: A/B/L/R/D-pad/Start/Select from REG_KEYINPUT, X/Y, pen
 // and lid from the ARM7 packet. Everything external the game reads (keys,

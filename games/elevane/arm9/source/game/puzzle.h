@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Puzzle data (the cv_puzzles blob, tools/evpuzzle/pack.py) and the player's pile:
 // silhouettes, the judge and the star rating. Pure logic, no hardware access.

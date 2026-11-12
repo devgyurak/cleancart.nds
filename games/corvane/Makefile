@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Corvane build. Run through ./build.sh to use the pinned container.
 #
@@ -29,7 +29,7 @@ endif
 
 GAME_TITLE    := Corvane
 GAME_SUBTITLE := Hover assault over five fronts
-GAME_AUTHOR   := Corvane contributors
+GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. CRVN
 # is in no ROM list we know of; melonDS then emulates an 8 KB EEPROM.

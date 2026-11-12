@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Accuracy judge: renders a static scene, captures the display, counts pixels
 // of fixed RGB555 colours and grades three emulator-accuracy cases.

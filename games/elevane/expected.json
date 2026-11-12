@@ -1,5 +1,5 @@
 {
- "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 Corvane contributors",
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
  "schema": 2,
  "about": "Expected result-block values for the Elevane rehearsal ROM, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. An item may depend on a flag bit (\"requires\"); when it is clear the item is n/a (DeSmuME returns 0 from the polygon RAM counters). \"known\" lists, per emulator version and renderer, the items (gating or informational) expected to fail there; judge.py --profile passes only when the failing set matches exactly. Pixel counts read every 8th line (24 of 192) because the read must end inside the VBlank; hole counts are the worst seen over all frames of a kind. A profile also lists the items that are n/a there (\"na\").",
  "block": {

@@ -4,8 +4,7 @@
 
 Lightenette의 모든 그래픽, 폰트, 3D 모델, 효과음, 음악은 **빌드 시 이 저장소의 코드가
 생성**합니다. 외부 이미지·폰트·녹음·악보는 쓰지 않고 CC0 에셋도 쓰지 않습니다. 아래
-에셋은 모두 소스와 같은 저작권·라이선스(**Apache-2.0**, Copyright 2026 Corvane
-contributors)의 자체 제작물입니다.
+에셋은 모두 소스와 같은 저작권·라이선스(**Apache-2.0**, Copyright 2026 devgyurak, the cleancart.nds maintainer)의 자체 제작물입니다.
 
 생성기는 `tools/mkassets.py`이고, 그리거나 합성하는 코드는 `tools/cvtools/`(corvane과
 공유)에 있습니다. 같은 소스는 항상 같은 바이트를 만듭니다.

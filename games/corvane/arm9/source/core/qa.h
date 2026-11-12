@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Auto QA mode: the game plays itself to the end and writes a QA log (see
 // qalog.h). It lives in the same ROM as the release build and stays hidden:

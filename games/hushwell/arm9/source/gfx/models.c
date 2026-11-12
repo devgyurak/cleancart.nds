@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // All Hushwell models are built here from boxes, ellipsoids and cylinders.
 // Faces are oriented away from each part's centre automatically.

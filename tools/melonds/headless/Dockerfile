@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Headless melonDS 1.1 core (GPL-3.0, downloaded at build time, never part of a ROM)
 # plus our runner mdsrun.cpp. Native arch; no JIT. Software renderer by default;

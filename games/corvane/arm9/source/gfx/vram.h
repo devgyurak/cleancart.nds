@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // VRAM bank layouts. Each scene remaps banks A-I by writing VRAMCNT_x
 // directly; the table below is the whole plan.
