@@ -103,6 +103,16 @@ class Judge(unittest.TestCase):
         self.assertIn('CRC', err)
         self.assertEqual(self.run_values(['1ff'])[0], 2)             # the old "one value passes" case
 
+    def test_values_from_the_real_rom_screen(self):
+        # Read off the rehearsal ROM's own screen (melonDS 1.1 software, CRC computed in C by the
+        # ROM), not derived by judge.crc16, so the two implementations are tied together.
+        toks = ('1ff 1 134b 12c2 0 1f 5 46204a7 11881298 0 0 0 c00 c00 f56f1baa 1000 46204a7 1a1a'
+                ' 1fd7').split()
+        rc, out, _ = self.run_values(toks)
+        self.assertEqual(rc, 0)
+        toks[-1] = '1fd8'
+        self.assertEqual(self.run_values(toks)[0], 2)
+
     def test_short_result_line_is_exit_2(self):
         rc, _ = self.run_judge(block()[:30])
         self.assertEqual(rc, 2)

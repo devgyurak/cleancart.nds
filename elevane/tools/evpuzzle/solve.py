@@ -21,7 +21,7 @@ is False (the order is then marked in the ROM data, the game shows "REF").
 
 from .model import NEIGHBOURS, PuzzleError, check_structure, supported
 
-NODE_LIMIT = 20000
+NODE_LIMIT = 150000
 
 
 class Infeasible(PuzzleError):
@@ -201,13 +201,14 @@ def solve(order, mode, maker=None, node_limit=NODE_LIMIT):
         if r is False:
             raise Infeasible('no deliverable structure')
         return r if r is not None else Result(0, set(), False, node_limit)
-    r = _solve_layers(order, len(maker.cells), node_limit)
+    # The pruned maker structure is a valid solution, so its size bounds the search: nothing
+    # needs to be tried at that size or above.
+    cells = prune(order, mode, maker.cells)
+    r = _solve_layers(order, len(cells), node_limit)
     if r is False:
-        return Result(len(maker.cells), maker.cells, True)
+        return Result(len(cells), cells, True)
     if r is None:
-        # The search hit its node limit: the reference is the maker's structure with every
-        # block taken away that the silhouettes do not need.
-        cells = prune(order, mode, maker.cells)
+        # Node limit hit: the reference is the pruned structure, `exact` is False.
         return Result(len(cells), cells, False, node_limit)
     return r
 

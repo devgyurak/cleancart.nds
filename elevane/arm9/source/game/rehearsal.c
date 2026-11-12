@@ -16,6 +16,20 @@
 #include "gfx/fx.h"
 #include "gfx/text.h"
 
+// CRC-16 (poly 0xA001 reflected, init 0xFFFF), the same as the BIOS GetCRC16. Computed here
+// so that an emulator's BIOS replacement cannot be mistaken for a misread digit.
+static u16 crc16(const void *data, u32 len)
+{
+    const u8 *p = data;
+    u16 crc = 0xFFFF;
+    while (len--) {
+        crc ^= *p++;
+        for (int i = 0; i < 8; i++)
+            crc = (crc & 1) ? (crc >> 1) ^ 0xA001 : crc >> 1;
+    }
+    return crc;
+}
+
 #define SHOW_FRAMES 120
 
 // --- the scripted player --------------------------------------------------------
@@ -149,7 +163,7 @@ static void show_result(void)
             text_printf(&top, 1, row, TP_GRAY, "%2d %08lX", i, (unsigned long)result[i]);
     }
     // A CRC over the 18 values (little endian bytes), so a misread digit shows.
-    text_printf(&top, 1, 15, TP_WHITE, "CRC %04X", (unsigned)swiCRC16(0xFFFF, result, 18 * 4));
+    text_printf(&top, 1, 15, TP_WHITE, "CRC %04X", (unsigned)crc16(result, 18 * 4));
     text_center(&bottom, 3, TP_GRAY, "VALUES 0..17 IN HEX + CRC");
     text_center(&bottom, 5, TP_GRAY, "PHOTOGRAPH THE TOP SCREEN");
     text_center(&bottom, 7, TP_GRAY, "tools/judge.py --values ...");
