@@ -32,7 +32,7 @@
   실패한 항목으로 드러납니다.
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
-  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell, L2 Lightenette, L3 Elevane, L4 probe 모음(준비 중).
+  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell, L2 Lightenette, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
@@ -46,6 +46,13 @@
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 13 · 전제 조건 5 · 옮길 예정 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
+
+### 연구용 probe
+
+[`probes/`](probes/)는 게임이 아니라, 실기에서 확인된 적 없는 동작(폴리곤 RAM 개수, `BOX_TEST`/`VEC_TEST` 결과,
+같은 화면 2패스 캡처, 메인 메모리 디스플레이 FIFO, 줄당 OBJ 예산 등)을 에뮬레이터가 어떻게 처리하는지 보고하는
+데모 ROM 모음(L4)입니다. 합격·불합격 판정은 없습니다. `probes/tools/judge.py`가 에뮬레이터별 값을 기록하고,
+프로필이 달라지면 알려 줍니다. [README](probes/README-KO.md) · [QA 표](probes/docs/QA-KO.md) · [에셋](probes/ASSETS-KO.md)
 
 ## 레벨별 게임
 
@@ -243,9 +250,31 @@
 
 </details>
 
-<details><summary><b>L4 연구</b> · 게임 없음 (0 개)</summary>
+<details><summary><b>L4 연구</b> · Probes (19 개)</summary>
 
-_준비 중_
+#### Probes · research probes
+
+목표 19 · 전제 조건 0 · 옮길 예정 0
+
+- `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-fifo-verts` · ship over terrain: vertices in vertex RAM _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-clip-polys` · near-plane clipping view: polygons _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-light-polys` · lit station: polygons _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-matrix-polys` · hierarchical boss: polygons _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-poly-polys` · floor, culled cubes, airship, shadow: polygons _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-test-inside` · BOX_TEST says INSIDE in 102 of 120 frames (cube path across the view) _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-test-pos-w` · POS_TEST w result of the last frame _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-test-vec-x` · VEC_TEST x result of the last frame _(참고용)_ · [expected.json](probes/expected.json)
+- `3d-test-vec-z` · VEC_TEST z result of the last frame (the emulators differ by one here) _(참고용)_ · [expected.json](probes/expected.json)
+- `acc-stage-cut-exact` · The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value) (third row only; see seam-uv-exact for the whole value) _(참고용)_ · [expected.json](probes/expected.json)
+- `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour _(참고용)_ · [expected.json](probes/expected.json)
+- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618 area) (also stands for Elevane hdma-holes-zero: the same HBlank-DMA path) _(참고용)_ · [expected.json](probes/expected.json)
+- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational) _(참고용)_ · [expected.json](probes/expected.json)
+- `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](probes/expected.json)
+- `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](probes/expected.json)
+- `seam-uv-exact` · Reversed-UV cut lines of the three card rows are exactly 0/0/18 pixels (stands for Lightenette seam-uv-exact: the same acc-stage measurement with the whole packed value compared; an emulator measurement, not a hardware value) _(참고용)_ · [expected.json](probes/expected.json)
+- `rear-plane-latency` · Rear-plane path of the same-screen two-pass view: the capture routing shows within 1 frame (the Corvane acc-split-rear measurement; it stands for the rear-plane path of Elevane preset 2 only as far as routing latency, not its pixel counts) _(참고용)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->
