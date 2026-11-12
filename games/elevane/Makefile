@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Elevane build. Run through ./build.sh to use the pinned container.
 #
@@ -29,7 +29,7 @@ endif
 
 GAME_TITLE    := Elevane
 GAME_SUBTITLE := A voxel silhouette puzzle
-GAME_AUTHOR   := Corvane contributors
+GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. ELVN
 # is in no ROM list we know of (corvane CRVN, hushwell HSWL, lightenette LNTT); melonDS then emulates an 8 KB EEPROM.

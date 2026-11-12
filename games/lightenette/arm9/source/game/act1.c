@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Act 1 prototype: a paper marionette on the top screen, four touch sliders on
 // the bottom screen. Match the puppet's limbs to the shadow on the screen.

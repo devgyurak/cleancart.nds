@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Tactical screen on engine B: radar (scrolling grid clipped by an OBJ
 // window), score/ships/bombs/charge, boss gauge, touch lock-on and the

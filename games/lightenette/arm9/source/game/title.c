@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Title screen with the generated picture (BG3 bitmap) under a text layer, and
 // the test menu.

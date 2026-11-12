@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Corvane's own 5x7 pixel font, drawn here glyph by glyph.
 
 Covers ASCII 0x20-0x5F. Lowercase letters are folded to uppercase at

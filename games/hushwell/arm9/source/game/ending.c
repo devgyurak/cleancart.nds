@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Endings: 3D on both screens. Engine A renders the top and bottom views on
 // alternate frames while the display capture copies each one into a VRAM

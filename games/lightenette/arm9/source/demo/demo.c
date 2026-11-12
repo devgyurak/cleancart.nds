@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Demo builds (make DEMO=<name>): one measurement scene as its own ROM, for
 // emulator CI and the QA sheet.

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Does an order have a solution, and what is the fewest blocks that deliver it?
 
 Two modes, matching how the game lets the player build:

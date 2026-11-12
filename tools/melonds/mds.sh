@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Headless melonDS 1.1 core runner (tools/melonds/headless). Paths are relative
 # to the repository root; outputs go under out/ (not committed).

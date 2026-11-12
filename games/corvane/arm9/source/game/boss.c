@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Stage bosses. Each boss is a tree of parts drawn with matrix push/pop;
 // the same tree is mirrored in software for positions. Shots are confirmed

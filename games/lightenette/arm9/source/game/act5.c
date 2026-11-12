@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Act 5: the finale. The three motions together on one dark stage. Three paper
 // dolls hang on line-polygon strings above three plinths, each plinth with its

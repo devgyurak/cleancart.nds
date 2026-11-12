@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Compare 1x screenshots of one emulator renderer with the same emulator's software renderer.
 
     compare.py --ref PREFIX --test PREFIX ([--frames 380,381,382,383] --phase dual|showcase | --frames ... --max-diff N)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Display capture of the main engine into bank D (LCDC mode, VL_JUDGE layout)
 // for the judge and the acts. A capture that has not finished must never be

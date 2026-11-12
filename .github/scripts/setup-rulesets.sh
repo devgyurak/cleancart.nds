@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Applies the branch/tag rulesets in .github/rulesets/ and the merge settings
 # the branch flow relies on. Safe to re-run (existing rulesets are updated).

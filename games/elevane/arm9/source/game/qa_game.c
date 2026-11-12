@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Elevane side of the auto QA mode (core/qa.h). The run takes the normal flow: title ->
 // puzzle list -> every puzzle of every chapter, in order -> back to the list -> title ->

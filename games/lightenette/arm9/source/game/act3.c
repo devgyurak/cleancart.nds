@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Act 3: find the marks. The stage is a 3D scene on BG0 with the brightness
 // decrease effect (BLDCNT 01C1), so it is nearly black. The lantern is a

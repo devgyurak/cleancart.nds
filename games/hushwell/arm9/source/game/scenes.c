@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // 2D scenes: boot logo (VRAM display), the content warning, title (16bpp
 // bitmap + extended-affine logo), radio transmissions (8bpp text BG with

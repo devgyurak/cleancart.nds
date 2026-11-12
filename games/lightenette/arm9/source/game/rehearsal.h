@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Rehearsal: act 1 played from a fixed touch script and acts 2 to 5 from fixed
 // key scripts embedded in the ROM, then the accuracy judge, with one result block

@@ -5,7 +5,7 @@
 Elevane의 모든 그래픽, 글꼴, 3D 모델, 효과음, 음악은 **빌드 시점에 이 저장소의 코드가
 생성**합니다. 다른 곳의 이미지, 글꼴, 녹음, 악보는 쓰지 않으며 CC0 에셋도 쓰지 않습니다.
 아래 에셋은 모두 소스와 같은 저작권과 라이선스의 독자 제작물입니다:
-**Apache-2.0** (Copyright 2026 Corvane contributors).
+**Apache-2.0** (Copyright 2026 devgyurak, the cleancart.nds maintainer).
 
 생성기는 `tools/mkassets.py`이고, 그리거나 합성하는 코드는 `tools/cvtools/`에 있습니다
 (corvane, lightenette와 공유). 같은 소스는 항상 같은 바이트를 만듭니다.

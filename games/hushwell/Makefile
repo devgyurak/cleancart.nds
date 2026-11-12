@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Hushwell build. Run through ./build.sh to use the pinned container.
 #
@@ -29,7 +29,7 @@ endif
 
 GAME_TITLE    := Hushwell
 GAME_SUBTITLE := A survival horror under the well
-GAME_AUTHOR   := Corvane contributors
+GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. HSWL
 # is in no ROM list we know of (corvane uses CRVN); melonDS then emulates an

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Playing one puzzle. Top screen: an elevation (the front view the order asks for, or
 // the right, back or left side with L/R), bottom screen: the plan view, both 3D through

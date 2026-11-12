@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Raw slot-1 reads with the "card transfer" DMA start mode. NitroFS reads go
 // through libnds; this path reads the same files by walking the ROM's FNT

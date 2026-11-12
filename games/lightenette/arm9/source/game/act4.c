@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Act 4: untangle the strings. Four strings hang from the crossbar to four pegs
 // on the board below, but their lower ends are mixed up, so they cross. Pick a

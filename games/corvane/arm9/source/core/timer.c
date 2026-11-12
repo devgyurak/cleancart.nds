@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // The four ARM9 timers, programmed directly. All four prescalers are used:
 // 1/1024 (play clock), 1/256 (beat), 1/64 and 1/1 (profiler).

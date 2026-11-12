@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Chapter 4, bridges: layers mode (the work layer, Y + up/down). Cells may have gaps
 # under them, but every block must reach the floor through face-adjacent blocks: an arch

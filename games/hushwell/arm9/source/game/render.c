@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // First-person rendering of the grid world. Walls, floors and ceilings are
 // written straight to the geometry command ports with a colour per vertex:

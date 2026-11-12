@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 #
 # Chapter 2, warehouse: 5x5 grid, piles of height 1-3 (stack mode). Turn the top view with
 # L/R to read the structure from the sides while building it.

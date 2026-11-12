@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // 2D scenes: boot logo (VRAM display), intro film (main-memory display),
 // title (16bpp bitmap + zooming extended-affine logo), briefing (8bpp text

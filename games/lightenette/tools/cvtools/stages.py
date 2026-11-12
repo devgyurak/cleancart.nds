@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Stage layouts: terrain heightmaps and enemy spawn scripts.
 
 Binary format (little endian), consumed by arm9/source/game/stage_data.c:

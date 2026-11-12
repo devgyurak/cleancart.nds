@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Showcase mode: the finished work drawn as a plaza of copies, more polygons than
 // one 3D frame holds (2048 polygons / 6144 vertices), so it is drawn in two passes,

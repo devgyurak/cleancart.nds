@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Voxel structures, orders (silhouettes) and the support rule.
 
 Coordinates: x runs left to right, y front to back (y = 0 is the front row,

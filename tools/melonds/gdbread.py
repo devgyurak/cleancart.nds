@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Corvane contributors
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Read ARM9 memory from a running melonDS through its GDB stub.
 
     gdbread.py ADDR:LEN [ADDR:LEN ...]     (hex, e.g. 04000130:2)

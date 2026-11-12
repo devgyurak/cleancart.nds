@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // OAM shadow for both engines, uploaded in one VBlank-started DMA (main and
 // sub OAM are contiguous at 0x07000000-0x070007FF).

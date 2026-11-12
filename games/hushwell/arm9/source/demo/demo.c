@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Feature demo builds (make DEMO=<name>). Each demo exercises one hardware
 // feature with the fewest other features possible, reports through a text
