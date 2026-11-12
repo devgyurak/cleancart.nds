@@ -148,6 +148,7 @@ def level_summary(rows):
 def parse_words(text, demo=None, warn=None):
     """Return the last result block in the text as a list of ints, or None."""
     words = None
+    prev = None
     roms = set()
     for n, line in enumerate(text.splitlines(), 1):
         t = line.split()
@@ -174,6 +175,12 @@ def parse_words(text, demo=None, warn=None):
                 if len(data) < 32:
                     raise ValueError('fewer than 8 words')
                 words = [int.from_bytes(data[4 * i:4 * i + 4], 'little') for i in range(len(data) // 4)]
+            if words is not None and not any(words) and prev is not None and any(prev):
+                # a batch run (mds.sh demos) stops some ROMs early: an unfinished block never replaces a finished one
+                if warn:
+                    warn('unfinished (all zero) block at line %d ignored' % n)
+                words = prev
+            prev = words
         except (ValueError, IndexError) as e:
             if warn:
                 warn('skipping malformed %s line %d: %s' % (t[0], n, e))

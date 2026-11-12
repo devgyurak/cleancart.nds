@@ -33,7 +33,7 @@
 | 필드 | 뜻 |
 |---|---|
 | `"level"` | 1부터 4까지의 정수 |
-| `"level_basis"` | 레벨의 근거: `"gbatek:<절>"`(예: `"gbatek:DS Maths"`), `"report:<참조>"`(예: `"report:melonDS#2008"`), `"hw:<파일>"`(예: `"hw:games/elevane/docs/HW-QA.md"`), 근거가 없으면 `"none"`(확인된 적 없는 동작이면 L4, ROM 자체 로직으로 정하는 항목(`source`가 `rom`)은 그 판정이 기대는 하드웨어 기능의 레벨로 `none`을 써도 됨) |
+| `"level_basis"` | 레벨의 근거: `"gbatek:<절>"`(예: `"gbatek:DS Maths"`), `"report:<참조>"`(예: `"report:melonDS#2008"`), 근거가 여럿이면 `"; "`로 잇습니다(예: `"gbatek:DS DMA Transfers; report:melonDS#2618"`), `"hw:<파일>"`(예: `"hw:games/elevane/docs/HW-QA.md"`), 근거가 없으면 `"none"`(확인된 적 없는 동작이면 L4, ROM 자체 로직으로 정하는 항목(`source`가 `rom`)은 그 판정이 기대는 하드웨어 기능의 레벨로 `none`을 써도 됨) |
 
 각 게임의 `judge.py`는 올바른 `level`이 없는 항목을 거부하고(종료 코드 2, 입력 오류) 레벨별 요약을
 출력합니다. `python3 scripts/mklevels.py`는 루트 README에 레벨별 항목 목록을 채우고, `--check`는
