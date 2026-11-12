@@ -7,7 +7,7 @@
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
 #   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
-#                ROMs, expected.json and judge.py; today lightenette and elevane have one)
+#                ROMs, expected.json and judge.py; corvane's has no ROMs, it grades the demos)
 # The release job then zips each artifact and attaches the zips to a GitHub
 # Release named after the tag, so the ROMs outlive the artifact retention.
 # Only that job gets write access; the build job stays read-only.
@@ -74,7 +74,8 @@ jobs:
         run: |
           for d in rom demos judge; do
             [ -d "$d" ] || continue
-            (cd "$d" && sha256sum -- *.nds > SHA256SUMS && cat SHA256SUMS)
+            # a kit without ROMs (corvane judge: expected.json + judge.py) has nothing to sum
+            (cd "$d" && if ls -- *.nds >/dev/null 2>&1; then sha256sum -- *.nds > SHA256SUMS && cat SHA256SUMS; fi)
           done
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -90,7 +91,7 @@ jobs:
           if-no-files-found: ignore
 
       # Games that grade themselves (lightenette, elevane) ship the rehearsal ROMs with
-      # expected.json and judge.py; other games have no build/release/judge.
+      # expected.json and judge.py (corvane: expected.json and judge.py only).
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ github.ref_name }}-judge

@@ -164,6 +164,24 @@ licenses/           서드파티 라이선스 원문 (ROM의 NitroFS에도 들�
     GDB 스텁으로 대조했습니다. 사람이 직접 완주하거나 소리를 들어 보지는 않았습니다.
 - 실기, DSi, 플래시카트 로더 검수는 하지 않았습니다.
 
+## 에뮬레이터 테스트로 쓰기
+
+`build/release/judge/`(릴리스의 `corvane-vX.Y.Z-judge` 파일)에는 `build/release/demos/`(`-demos` 릴리스 파일, ROM은 두 번
+복사하지 않습니다)에 있는 데모 ROM용 `expected.json`과 `judge.py`가 들어 있습니다. 데모 ROM을 각각 120프레임 이상 실행해
+`0x0237F000`의 결과 블록을 `RESULT <16진 워드>` 줄(16워드 이상)로 출력하고, 그 로그를 판정합니다.
+
+```sh
+tools/melonds/mds.sh demos games/corvane/build/release/demos > demos.log     # RENDERER=gl|compute
+python3 games/corvane/tools/judge.py --profile melonds-1.1-software demos.log
+```
+
+`judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 입력이 없으면 2로 끝납니다(데모가 빠졌을 때가
+그렇고, `--partial`이나 `--demo NAME`은 로그에 있는 것만 판정합니다). 모든 항목에는 1~4의 `level`이 있고
+([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약(`LEVELS L1 a/b OK · …`)을 출력합니다. 레벨은
+판정에 영향을 주지 않습니다. 프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은
+아직 없습니다. 지금은 데모 75개 중 59개를 판정하며, 나머지 16개(화면·소리로만 확인)는
+[docs/QA-KO.md](docs/QA-KO.md)에 적혀 있습니다.
+
 ## 기획서의 열린 질문에 대한 이번 구현의 선택
 
 | 질문 | 선택 |

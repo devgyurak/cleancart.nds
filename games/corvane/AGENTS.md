@@ -39,6 +39,14 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../..
 4 interior: screen swap + touch aim, Z-buffer, 4 lights, shadow volume ·
 5 core: hierarchical boss + BoxTest picking, rear-plane bitmap (banks C/D), AA, sound-capture echo, polygon overload.
 
+## Judging
+
+`expected.json` + `tools/judge.py` grade the demo result blocks (see `docs/QA.md`, "Judging"; shipped in
+`build/release/judge`). Every item has `level` 1-4 and `level_basis` (`../../docs/LEVELS.md`). When a demo's
+`finish()` values change, update `expected.json` and re-measure every profile (`judge.py --profile NAME`);
+expected values come from GBATEK, a report or the ROM's own logic, never from "what melonDS printed" (then the
+item is `unconfirmed`). 16 demos (screen or sound only) are not judged yet.
+
 ## Contracts other code depends on
 
 - **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
