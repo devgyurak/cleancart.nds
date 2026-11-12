@@ -1833,7 +1833,7 @@ static s8 wave_buf[WAVE_LEN] __attribute__((aligned(32)));
 
 static void wave_measure(int note, int vol, int pan, u32 *p2p, u32 *changes)
 {
-    snd_psg_pan(8, 4, vol, note, pan);    // duty 4: a 50 % square wave
+    snd_psg_pan(8, 3, vol, note, pan);    // duty 3: (3 + 1) x 12.5 % = a 50 % square wave
     for (int f = 0; f < 6; f++)
         vsync();
     snd_record(wave_buf, WAVE_LEN, WAVE_RATE);
@@ -1852,7 +1852,8 @@ static void wave_measure(int note, int vol, int pan, u32 *p2p, u32 *changes)
     }
     u32 size = (u32)(hi - lo);
     // Level changes with a hysteresis of a quarter of the swing (noise-proof).
-    int mid = (hi + lo) / 2, q = (int)size / 4, high = 0;
+    int mid = (hi + lo) / 2, q = (int)size / 4;
+    int high = wave_buf[0] > mid;    // start from the first sample, not from a fixed level
     u32 n = 0;
     for (int i = 0; i < WAVE_LEN && size >= 8; i++)
     {

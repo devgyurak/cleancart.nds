@@ -3,7 +3,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 [![BlocksDS v1.25.0](https://img.shields.io/badge/BlocksDS-v1.25.0-blue)](#build)
 [![Platform: Nintendo DS](https://img.shields.io/badge/platform-Nintendo%20DS-lightgrey)](#build)
-[![Feature demos: 65](https://img.shields.io/badge/feature%20demos-65-orange)](docs/QA.md)
+[![Feature demos: 49](https://img.shields.io/badge/feature%20demos-49-orange)](docs/QA.md)
 
 [한국어](README-KO.md)
 
@@ -17,7 +17,7 @@ and enemy bullet patterns are drawn as 2D sprites over the 3D scene.
 **Hardware areas it tests:** 2D engines A and B, the 3D geometry/rendering engine, ARM7 sound, DMA/timers/IPC/interrupts, and cart, save, RTC, touch and power I/O.
 
 Following the design principles, the game puts the DS's 2D, 3D, sound and system
-features to work in actual gameplay, and the same source builds **65 feature demo
+features to work in actual gameplay, and the same source builds **49 feature demo
 ROMs** that each show one feature on its own.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
@@ -34,7 +34,7 @@ Docker is all you need. `build.sh` builds an image from the pinned BlocksDS imag
 ./build.sh SAVE=flash         # corvane-save-flash.nds (FLASH 256 KB variant)
 ./build.sh SAVE=fram          # corvane-save-fram.nds  (FRAM 32 KB variant)
 ./build.sh DEMO=2d-blend      # corvane-2d-blend.nds   (one feature demo)
-./build.sh demos              # all 65 feature demos
+./build.sh demos              # all 49 feature demos
 ./build.sh -j8 release        # build/release/{rom,demos}: what a corvane-vX.Y.Z tag ships
 ./build.sh clean
 ```

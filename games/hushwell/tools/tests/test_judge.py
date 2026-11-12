@@ -185,6 +185,20 @@ class Judge(unittest.TestCase):
             with self.assertRaises(judge.Fatal):
                 judge.check_levels(bad)
 
+    def test_role_summary_counts_informational_apart(self):
+        rows = [('target', True, True), ('target', False, True), ('prerequisite', False, False), ('relocate', True, False)]
+        self.assertEqual(judge.role_summary(rows),
+                         'target 1/2 OK \u00b7 prerequisite informational 1 \u00b7 relocate 1 informational')
+
+    def test_informational_prerequisite_never_fails(self):
+        exp = load()
+        item = next(i for i in exp['items'] if i['role'] == 'prerequisite' and i['source'] == 'unconfirmed')
+        self.assertFalse(judge.is_gating(item))
+
+    def test_missing_item_keys_are_an_input_error(self):
+        with self.assertRaises(judge.Fatal):
+            judge.check_levels([{'id': 'x', 'level': 1}])
+
 
 if __name__ == '__main__':
     unittest.main()

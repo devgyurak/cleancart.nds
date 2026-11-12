@@ -105,7 +105,7 @@
    "source": "unconfirmed",
    "role": "prerequisite",
    "level": 1,
-   "level_basis": "none"
+   "level_basis": "gbatek:DS Inter Process Communication"
   },
   {
    "id": "sys-dma-cart-found",
@@ -706,13 +706,13 @@
   {
    "id": "snd-wave-pan-right",
    "demo": "snd-wave",
-   "title": "Pan 126 (hard right) leaves the left mixer all but silent (peak-to-peak at most 8, under 5 % of the audible swing)",
+   "title": "Pan 126 (hard right) leaves the left mixer all but silent: GBATEK mixing gives 2/128, a swing of at most 2",
    "values": [
     9
    ],
    "check": "range",
    "min": 0,
-   "max": 8,
+   "max": 2,
    "source": "GBATEK",
    "role": "target",
    "level": 1,
@@ -722,17 +722,23 @@
  "known": {
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": [],
+   "ng": [
+    "snd-wave-pan-right"
+   ],
    "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-   "ng": [],
+   "ng": [
+    "snd-wave-pan-right"
+   ],
    "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-   "ng": [],
+   "ng": [
+    "snd-wave-pan-right"
+   ],
    "na": []
   },
   "desmume-pydesmume-0.0.9": {
@@ -746,5 +752,55 @@
  "known_note": "Measured 2026-11-12 on the release demo ROMs (./build.sh -j8 release). NG lists include informational (unconfirmed) items that failed. No real hardware has been measured. Scene-specific values (polygon counts, HUD register values, the logo CRC) are this game's own and differ from Corvane's.",
  "optional": [
   "qa"
- ]
+ ],
+ "not_judged": {
+  "sys-wram": 45733482,
+  "sys-irq": 3050090109,
+  "sys-timer": 3591142110,
+  "sys-dma-now": 2539675920,
+  "sys-dma-vblank": 2140408880,
+  "sys-dma-hblank": 3748157494,
+  "sys-dma-gfx": 1841165499,
+  "sys-dma-disp": 1223439124,
+  "sys-dma-fill": 2641824089,
+  "sys-bios": 2195310490,
+  "sys-math": 3680079643,
+  "2d-engines": 1970426969,
+  "2d-text": 3307310817,
+  "2d-affine": 2800304157,
+  "2d-bitmap": 881577345,
+  "2d-mosaic": 4232450678,
+  "2d-obj-normal": 1981302557,
+  "2d-obj-affine": 693190689,
+  "2d-obj-bitmap": 3789110325,
+  "2d-obj-map2d": 2120687742,
+  "2d-obj-line": 137571140,
+  "2d-extpal": 2796382190,
+  "2d-window": 749661798,
+  "2d-blend": 421289745,
+  "2d-brightness": 3646205057,
+  "2d-vram": 1480951308,
+  "2d-capture": 1926308232,
+  "2d-display": 500307856,
+  "3d-fifo": 3328708799,
+  "3d-matrix": 2932572708,
+  "3d-light": 1344621335,
+  "3d-clip": 3187887747,
+  "3d-tex-a3i5": 1669782815,
+  "3d-tex-a5i3": 3132503843,
+  "3d-tex-pal4": 452747054,
+  "3d-tex-pal16": 2505474529,
+  "3d-tex-pal256": 656952159,
+  "3d-tex-4x4": 2032986819,
+  "3d-tex-direct": 2220781376,
+  "3d-poly": 2601623615,
+  "3d-toon": 7468005,
+  "3d-edge": 3396859812,
+  "3d-fog": 2783452743,
+  "3d-aa": 467350367,
+  "3d-depth": 1801626962,
+  "3d-test": 1553889453,
+  "3d-compose": 2230188539,
+  "3d-limits": 3569651277
+ }
 }

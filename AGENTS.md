@@ -67,7 +67,9 @@ so builds stay reproducible (two clean builds must give the same SHA-256).
 4. Third-party code in the ROM (today: libnds zlib, BlocksDS crts MPL-2.0,
    picolibc BSD-style, libgcc GPL+runtime exception) must be listed in
    `games/<game>/THIRD_PARTY_NOTICES`, its licence text copied into `games/<game>/licenses/`
-   (shipped in NitroFS `/licenses/`) and credited in the in-game credits.
+   (shipped in NitroFS `/licenses/`) and credited in the in-game credits. `probes/` is the exception to the
+   in-game credits (it has no credits screen): it lists the same libraries in its `THIRD_PARTY_NOTICES` and ships the
+   licence texts in NitroFS (see `probes/AGENTS.md`).
    Linking a new library means updating all three in the same change.
 5. Use our own ARM7 core: no DSWiFi, lwIP, Mbed TLS, Maxmod or LibXM7.
 

@@ -42,7 +42,7 @@ TEXT = {
 GBATEK_SECTIONS = (
     'BIOS Arithmetic Functions', 'BIOS Decompression Functions', 'BIOS Memory Copy', 'BIOS Misc Functions',
     'DS 3D Display Control', 'DS 3D Status', 'DS 3D Texture Attributes', 'DS 3D Polygon Attributes',
-    'DS 3D Matrix Stack', 'DS 3D Lighting', 'DS 3D Geometry Commands', 'DS 3D Rendering',
+    'DS 3D Matrix Stack', 'DS 3D Geometry Commands', 'DS 3D Tests', 'DS 3D Polygon Definitions by Vertices',
     'DS Cartridge Backup', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
     'DS DMA Transfers', 'DS Firmware User Settings', 'DS Inter Process Communication', 'DS Interrupts',
     'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
@@ -54,6 +54,7 @@ GBATEK_SECTIONS = (
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 
@@ -82,6 +83,8 @@ def check_item_roles(g, target, items):
             raise ValueError('%s: level %d is above the target level %d, only role relocate is allowed' % (where, lv, target))
         if role == 'relocate' and not it.get('to'):
             raise ValueError('%s: role relocate needs "to"' % where)
+        if role == 'relocate' and it['to'] not in KNOWN_TARGETS:
+            raise ValueError('%s: "to" %r is not a game or probes' % (where, it['to']))
 
 
 def load_games():
@@ -107,12 +110,22 @@ def load_games():
             lv = it.get('level')
             if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
                 raise ValueError('%s/expected.json: item %r has no valid "level" (1-4)' % (folder, it.get('id')))
-            basis = it.get('level_basis', '')
+            basis = it.get('level_basis')
+            if not isinstance(basis, str):
+                raise ValueError('%s/expected.json: item %r has no "level_basis"' % (folder, it.get('id')))
+            if basis.split(':')[0] != basis.split(':')[0].lower():
+                raise ValueError('%s/expected.json: item %r level_basis %r must start with a lower-case kind' % (folder, it.get('id'), basis))
             if basis.startswith('gbatek:') and basis[len('gbatek:'):] not in GBATEK_SECTIONS:
                 raise ValueError('%s/expected.json: item %r cites an unknown GBATEK section %r (GBATEK_SECTIONS in mklevels.py)'
                                  % (folder, it.get('id'), basis))
+        if not isinstance(exp.get('area'), str) or not exp['area'].strip():
+            raise ValueError('%s/expected.json has no "area"' % folder)
+        ids = [it.get('id') for it in items]
+        dup = sorted({x for x in ids if ids.count(x) > 1})
+        if dup:
+            raise ValueError('%s/expected.json: duplicate item ids %s' % (folder, ', '.join(map(str, dup))))
         check_item_roles(folder, target, items)
-        games.append(Game(g, folder, target, exp.get('area', ''), items))
+        games.append(Game(g, folder, target, exp['area'], items))
     return games
 
 
@@ -120,8 +133,10 @@ def cell(g, lang):
     t = TEXT[lang]
     if g.items is None:
         return t['wip']
-    return 'L%d %s %d · %s %d · %s %d' % (g.target, t['target'], g.count('target'), t['prereq'], g.count('prerequisite'),
-                                         t['reloc'], g.count('relocate'))
+    out = 'L%d %s %d · %s %d' % (g.target, t['target'], g.count('target'), t['prereq'], g.count('prerequisite'))
+    if g.count('relocate'):
+        out += ' · %s %d' % (t['reloc'], g.count('relocate'))
+    return out
 
 
 def one_line(text):
@@ -150,8 +165,8 @@ def listing(games, lang):
                 continue
             out.append('#### %s · %s' % (g.name.capitalize(), g.area))
             out.append('')
-            out.append('%s %d · %s %d · %s %d' % (t['target'], g.count('target'), t['prereq'], g.count('prerequisite'),
-                                                  t['reloc'], g.count('relocate')))
+            out.append('%s %d · %s %d' % (t['target'], g.count('target'), t['prereq'], g.count('prerequisite'))
+                       + (' · %s %d' % (t['reloc'], g.count('relocate')) if g.count('relocate') else ''))
             out.append('')
             for i in g.items:
                 if i['role'] != 'target':
@@ -211,14 +226,14 @@ def main(argv):
     except (ValueError, KeyError, OSError) as e:
         print('ERROR', e, file=sys.stderr)
         return 1
-    if '--map' in argv:
-        print(section_map(games))
-        return 0
     pending = {g.name: g.count('relocate') for g in games if g.count('relocate')}
     if check and pending:
         print('ERROR items still marked relocate: ' + ', '.join('%s %d' % kv for kv in sorted(pending.items())),
               file=sys.stderr)
         return 1
+    if '--map' in argv:
+        print(section_map(games))
+        return 0
     stale = []
     for name, lang in READMES:
         path = os.path.join(ROOT, name)

@@ -48,6 +48,10 @@ def check_levels(items):
     if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
         raise Fatal('"items" must be a list of objects')
     for it in items:
+        for key in ('id', 'demo', 'source', 'check', 'values'):
+            if key not in it:
+                raise Fatal('item %r has no "%s" in expected.json' % (it.get('id'), key))
+    for it in items:
         lv = it.get('level')
         if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
             raise Fatal('item %r has no valid "level" (1-4, see docs/LEVELS.md)' % it.get('id'))
@@ -85,12 +89,19 @@ def is_gating(item):
 
 
 def role_summary(rows):
-    """rows: (role, ok). target a/b OK . prerequisite a/b OK . relocate n informational."""
+    """rows: (role, ok, gating). target a/b OK . prerequisite a/b OK +n informational . relocate n informational."""
     parts = []
     for role in ('target', 'prerequisite'):
-        sel = [r for r in rows if r[0] == role]
-        if sel:
-            parts.append('%s %d/%d OK' % (role, sum(1 for r in sel if r[1]), len(sel)))
+        gate = [r for r in rows if r[0] == role and r[2]]
+        info = [r for r in rows if r[0] == role and not r[2]]
+        if not gate and not info:
+            continue
+        s = role
+        if gate:
+            s += ' %d/%d OK' % (sum(1 for r in gate if r[1]), len(gate))
+        if info:
+            s += (' informational %d' if not gate else ' +%d informational') % len(info)
+        parts.append(s)
     n = sum(1 for r in rows if r[0] == 'relocate')
     if n:
         parts.append('relocate %d informational' % n)
@@ -214,11 +225,12 @@ def run(args):
         raise Fatal('no RESULT line in the log')
 
     by_id = {v: k for k, v in demos.items()}
+    not_judged = set(exp.get('not_judged', {}).values())    # demos that still build but another game judges
     present = {}
     for bid, words in blocks.items():
         name = by_id.get(bid)
         if name is None:
-            if words[0] != 0:
+            if words[0] != 0 and bid not in not_judged:
                 print('warning: result block with unknown id %08x ignored' % bid, file=sys.stderr)
             continue
         if words[0] != magic:
@@ -244,6 +256,8 @@ def run(args):
         if vals is None:
             continue
         results.append((item, grade(item, vals, args.hardware), is_gating(item)))
+    if not (args.partial or args.demo) and not any(i['role'] == 'target' and g != 'NA' for (i, g, _) in results):
+        raise Fatal('no target item was graded (wrong log?)')
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
@@ -271,16 +285,20 @@ def run(args):
         print(json.dumps({'demos': sorted(present), 'failing': failing, 'gating_failing': gating_fail, 'na': na,
                           'items': {i['id']: g for (i, g, _) in results}, 'exit': rc}, indent=1, sort_keys=True))
         return rc
-    prereq_ng = sorted(i['id'] for (i, g, _) in results if g == 'NG' and i['role'] == 'prerequisite'
-                       and i['id'] not in (profile.get('ng', []) if profile else []))
+    known_ng = profile.get('ng', []) if profile else []
+    prereq_ng = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt and i['role'] == 'prerequisite'
+                       and i['id'] not in known_ng)
+    prereq_info = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and not gt and i['role'] == 'prerequisite')
     if prereq_ng:
         print('PREREQ NG %s: the target-level verdicts of this game cannot be trusted' % ', '.join(prereq_ng))
+    if prereq_info:
+        print('PREREQ INFO %s: informational prerequisite(s) differ (no effect on the verdict)' % ', '.join(prereq_info))
     for item, g, gating in results:
         tag = {'OK': 'OK  ', 'NG': 'NG  ' if gating else 'INFO', 'NA': 'n/a '}[g]
         if not args.quiet or g != 'OK':
             print('%s L%d %-28s %s' % (tag, item['level'], item['id'], item['title']))
     print('LEVELS ' + level_summary([(i['level'], g == 'OK', not gt) for (i, g, gt) in results if g != 'NA']))
-    print('ROLES ' + role_summary([(i['role'], g == 'OK') for (i, g, _) in results if g != 'NA']))
+    print('ROLES ' + role_summary([(i['role'], g == 'OK', gt) for (i, g, gt) in results if g != 'NA']))
     if profile is not None:
         new_fail = [i for i in failing if i not in want]
         new_pass = [i for i in want if i not in failing]
