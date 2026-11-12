@@ -55,7 +55,8 @@ description: Start a new DS game folder in this repo from the corvane template (
    DeSmuME alone missed the MPU, DMA, header and save bugs.
 7. A new game ships `expected.json` + `tools/judge.py` from the start, and every item in
    `expected.json` has `level` (1–4) and `level_basis` (`docs/LEVELS.md`; ask the `level-judge`
-   agent). `python3 scripts/mklevels.py --check` must pass once that script exists.
+   agent). `python3 scripts/mklevels.py --check` must pass (add the game's `<!-- cell:<game> -->` marker
+   to the Games table of both root READMEs).
 8. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.
    Add `game/qa_tune.h` + `game/qa_game.c` and the hooks from skill `nds-qa-mode` (porting
    checklist) before the first release; a game without a working QA run isn't done.

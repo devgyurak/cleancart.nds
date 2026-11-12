@@ -87,6 +87,9 @@ RENDERER=gl tools/melonds/mds.sh run games/elevane/elevane-rehearsal.nds 4000 ou
 python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
 ```
 
+Every item has a `level` from 1 to 4 ([docs/LEVELS.md](../../docs/LEVELS.md)); `judge.py` prints a per-level
+summary (`LEVELS L1 a/b OK · …`) and the level never changes a verdict or an exit code.
+
 `judge.py` exits 0 on pass, 1 when a gating item fails or the profile differs, 2 when there
 is no usable result. Seven profiles are recorded (DeSmuME; melonDS 1.1 and master `4ce2188`,
 each software, OpenGL classic and compute). Known results: master GL and Compute leave the

@@ -85,6 +85,9 @@ RENDERER=gl tools/melonds/mds.sh run games/elevane/elevane-rehearsal.nds 4000 ou
 python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380,381,382,383 --phase showcase
 ```
 
+모든 항목에는 1~4의 `level`이 있고([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약
+(`LEVELS L1 a/b OK · …`)을 출력합니다. 레벨은 판정과 종료 코드에 영향을 주지 않습니다.
+
 `judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 결과가 없으면 2로 끝납니다.
 프로필 일곱 개가 기록되어 있습니다(DeSmuME, melonDS 1.1과 master `4ce2188` 각각의 소프트웨어,
 OpenGL classic, compute). 알려진 결과: master GL과 Compute는 감상 프리셋 1의 왼쪽 절반을 비웁니다

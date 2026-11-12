@@ -102,6 +102,7 @@ tools/emu/                    headless DeSmuME harness (run, demos, montage)
 tools/qa/                     QA log tools: parse_log, compare, ingest, lint
 tools/melonds/                melonDS config, GDB/keyboard helpers, headless melonDS runner (mds.sh)
 scripts/sync_agents.py        regenerate .codex/agents from .claude/agents
+scripts/mklevels.py           regenerate the level columns and "Tests by level" in README(-KO).md
 scripts/mklogo.py             regenerate the repository logo in assets/logo/
 assets/logo/                  repository branding (not ROM assets, no ASSETS.md row)
 docs/LEVELS.md                difficulty levels L1–L4 for every judged item (KO twin: LEVELS-KO.md)
@@ -162,6 +163,6 @@ Claude definitions are canonical (`.claude/agents/`). After editing one, run
    nothing changed. Games with `expected.json` + `judge.py` also run it on all four renderers and
    match the known profiles.
 5. Every game ships `expected.json` + `tools/judge.py`, every judged item has a `level`, and
-   `python3 scripts/mklevels.py --check` passes (the script arrives with the levels PR; until it is
-   merged this line is informational).
+   `python3 scripts/mklevels.py --check` passes (it keeps the level columns and the "Tests by level"
+   list of the root READMEs in sync; run it without `--check` to regenerate).
 6. Report honestly what was verified where (DeSmuME ≠ melonDS ≠ hardware).

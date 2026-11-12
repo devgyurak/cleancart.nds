@@ -73,6 +73,9 @@ python3 games/lightenette/tools/judge.py reh.log
 python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log   # exit 0 only if the NG set matches
 ```
 
+Every item has a `level` from 1 to 4 ([docs/LEVELS.md](../../docs/LEVELS.md)); `judge.py` prints a per-level
+summary (`LEVELS L1 a/b OK · …`) and the level never changes a verdict or an exit code.
+
 `expected.json` lists every item: frame, expected value, tolerance, source, boot path and hardware
 model, and optionally the captures it depends on (`done`) and whether it reads pixels (`pixels`). The reversed-UV cut line is graded qualitatively (rows 0 and 1 clean, row 2 shows the line); the exact `0/0/18` is an emulator measurement and only an informational item. Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report),
 `hw:<model>` (measured by us on hardware), `rom` (the ROM's own deterministic logic),

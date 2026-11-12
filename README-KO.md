@@ -38,14 +38,107 @@
 
 ## 게임
 
-| 게임 | 설명 | 문서 |
-|---|---|---|
-| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온 | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
-| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것 | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
-| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 에뮬레이터 정확도 항목을 스스로 판정하며, 릴리스에는 다른 에뮬레이터의 CI용으로 리허설 ROM과 `expected.json`, `judge.py`가 함께 올라갑니다. | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐: 정면도와 평면도 실루엣을 만드는 블록 구조물을 쌓습니다. 두 화면 모두 디스플레이 캡처로 3D입니다. 스스로 판정도 합니다: 리허설 ROM이 게임을 플레이하며 캡처 경로가 동작했는지 보고하고, 릴리스에 `expected.json`, `judge.py`와 함께 들어가 다른 에뮬레이터의 CI가 쓸 수 있습니다. | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
+| 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
+|---|---|---|---|---|
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 작성 중 | <!-- cell:corvane -->판정기 작성 중<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 작성 중 | <!-- cell:hushwell -->판정기 작성 중<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L1 13 · L2 11 · L3 0 · L4 3<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L1 3 · L2 2 · L3 3 · L4 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
+
+## 레벨별 테스트
+
+판정하는 모든 항목에는 L1 기능부터 L4 연구까지 레벨이 있습니다([docs/LEVELS-KO.md](docs/LEVELS-KO.md)).
+이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
+
+<!-- levels:begin -->
+<details><summary><b>L1 기능</b> (16 개)</summary>
+
+#### Corvane
+
+_판정기 작성 중_
+
+#### Elevane
+
+- `puzzles-delivered` · Every scripted puzzle (the first of each chapter that has puzzles) is solved and delivered · [expected.json](games/elevane/expected.json)
+- `chapters-played` · The rehearsal played the first puzzle of all five chapters (mask 0x1f) · [expected.json](games/elevane/expected.json)
+- `puzzles-count` · Five puzzles were delivered · [expected.json](games/elevane/expected.json)
+
+#### Hushwell
+
+_판정기 작성 중_
+
+#### Lightenette
+
+- `edge-marking` · Edge marking draws edge pixels (melonDS #2549) · [expected.json](games/lightenette/expected.json)
+- `darken-works` · Darken lowers the 3D backdrop outside the lantern · [expected.json](games/lightenette/expected.json)
+- `act1-cleared` · Act 1 is cleared by the embedded touch script · [expected.json](games/lightenette/expected.json)
+- `act1-score` · Act 1 silhouette match at the end, 85-100 · [expected.json](games/lightenette/expected.json)
+- `act2-cleared` · Act 2 is cleared by the embedded key script · [expected.json](games/lightenette/expected.json)
+- `act2-edge-marking` · Act 2 plinths get both edge-marking colours (melonDS #2549) · [expected.json](games/lightenette/expected.json)
+- `act3-cleared` · Act 3 is cleared by the embedded key script (all three marks found) · [expected.json](games/lightenette/expected.json)
+- `act3-darken-works` · Act 3 darken lowers the 3D backdrop outside the lantern · [expected.json](games/lightenette/expected.json)
+- `act4-cleared` · Act 4 is cleared by the embedded key script (no strings cross) · [expected.json](games/lightenette/expected.json)
+- `act5-cleared` · Act 5 is cleared by the embedded key script (all dolls lit and turned) · [expected.json](games/lightenette/expected.json)
+- `act5-darken-works` · Act 5 darken lowers the 3D backdrop outside the lantern · [expected.json](games/lightenette/expected.json)
+- `rehearsal-finished` · The rehearsal ran to the end · [expected.json](games/lightenette/expected.json)
+- `qa-verdict` · The auto QA run ended with RESULT PASS (every act cleared, credits reached, judge run) · [expected.json](games/lightenette/expected.json)
+
+</details>
+
+<details><summary><b>L2 경계</b> (13 개)</summary>
+
+#### Elevane
+
+- `poly-passes` · Showcase: each pass under 2048 polygons while the whole plaza is over it (two passes are needed) · [expected.json](games/elevane/expected.json)
+- `no-overflow` · Showcase: no polygon or vertex overflow flag in either preset · [expected.json](games/elevane/expected.json)
+
+#### Lightenette
+
+- `seam-uv` · Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
+- `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `lantern-blend-equal` · Translucent lantern OBJ looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
+- `act2-seam` · Act 2 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
+- `act3-lantern-equal` · Act 3 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
+- `act4-hline` · Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act4-dline` · Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act5-seam` · Act 5 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
+- `act5-edge-3-colours` · Act 5 plinths get all three edge-marking colours (melonDS #2549) · [expected.json](games/lightenette/expected.json)
+- `act5-line-polygon` · Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act5-lantern-equal` · Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
+
+</details>
+
+<details><summary><b>L3 타이밍</b> (3 개)</summary>
+
+#### Elevane
+
+- `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `dual-plan` · Bottom screen: the plan view reached bank C _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `dual-cross-zero` · The two captures never carry each other's clear colour (plan clear in D, front clear in C) _(참고용)_ · [expected.json](games/elevane/expected.json)
+
+</details>
+
+<details><summary><b>L4 연구</b> (9 개)</summary>
+
+#### Elevane
+
+- `hdma-holes-zero` · Preset 1 (HBlank DMA, the melonDS #2618 path): no transparent or black hole in the sub BG after any frame _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `hdma-composite` · Preset 1: the composite has pixels on both sides of x = 128 _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `hdma-composite-full` · Preset 1: both halves of the sampled lines are fully opaque (3072 + 3072) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `hdma-composite-right-full` · Preset 1: the right half is fully opaque (3072) _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `rear-plane` · Preset 2 (rear plane): the captured bank holds pixels _(참고용)_ · [expected.json](games/elevane/expected.json)
+- `rear-plane-full` · Preset 2: the captured pass is fully opaque (4096 samples; half means one side is missing) _(참고용)_ · [expected.json](games/elevane/expected.json)
+
+#### Lightenette
+
+- `seam-uv-exact` · Reversed-UV cut line: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value) _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act2-seam-exact` · Act 2 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value) _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act5-seam-exact` · Act 5 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value) _(참고용)_ · [expected.json](games/lightenette/expected.json)
+
+</details>
+<!-- levels:end -->
 
 ## 빌드
 
