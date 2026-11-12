@@ -42,8 +42,8 @@ A collection of homebrew games for emulator developers to develop against and ve
 |---|---|---|---|---|
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen.<br>Tests: 2D engines, 3D engine, ARM7 sound, DMA/timers/IPC/interrupts, cart, save, RTC, touch and power I/O. | automatic for all 75 demos (`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 target 81 · prerequisite 0 · to relocate 78<!-- /cell --> | [README](games/corvane/README.md) · [QA checklist](games/corvane/docs/QA.md) · [Assets](games/corvane/ASSETS.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound.<br>Tests: 2D engines, 3D engine (lighting, fog, texturing), ARM7 sound, DMA/timers/IPC/interrupts, cart, save, RTC, touch and power I/O. | automatic for all 66 demos and the QA run (`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 target 41 · prerequisite 4 · to relocate 0<!-- /cell --> | [README](games/hushwell/README.md) · [QA checklist](games/hushwell/docs/QA.md) · [Assets](games/hushwell/ASSETS.md) |
-| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 23 · prerequisite 13 · to relocate 3<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 13 · prerequisite 5 · to relocate 6<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 23 · prerequisite 13 · to relocate 0<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 13 · prerequisite 5 · to relocate 0<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -201,7 +201,7 @@ target 41 · prerequisite 4 · to relocate 0
 
 #### Lightenette · display edge cases
 
-target 23 · prerequisite 13 · to relocate 3
+target 23 · prerequisite 13 · to relocate 0
 
 - `seam-uv` · Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
 - `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) _(informational)_ · [expected.json](games/lightenette/expected.json)
@@ -233,7 +233,7 @@ target 23 · prerequisite 13 · to relocate 3
 
 #### Elevane · display timing and compositing
 
-target 13 · prerequisite 5 · to relocate 6
+target 13 · prerequisite 5 · to relocate 0
 
 - `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(informational)_ · [expected.json](games/elevane/expected.json)
 - `dual-plan` · Bottom screen: the plan view reached bank C _(informational)_ · [expected.json](games/elevane/expected.json)

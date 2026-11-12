@@ -144,8 +144,7 @@ NEWLY PASSING으로 보고하며 프로필을 갱신할 때까지 종료 코드 
 등불이 아예 그려지지 않으면 배경 픽셀 세 개가 똑같이 나와 "모두 같음"으로 통과하기 때문입니다.
 
 판정 항목: `seam-uv`, `act2-seam`, `act5-seam`은 정성적입니다(출처 `report:melonDS#2008`): 0·1행은 재단선이 없어야 하고
-2행(보정 없는 반전)은 있어야 합니다. 정확한 `0/0/18`(18 = 카드 높이)은 에뮬레이터 측정값이라 정보용 `*-exact` 항목
-(`unconfirmed`)으로만 판정합니다. `line-polygon`, `act4-hline`, `act4-dline`, `act5-line-polygon`도 `unconfirmed`입니다
+2행(보정 없는 반전)은 있어야 합니다. 정확한 `0/0/18`(18 = 카드 높이)은 에뮬레이터 측정값입니다. 게임에는 L4 항목을 두지 않으므로 여기서는 판정하지 않습니다(`probes/`의 acc-stage 프로브가 에뮬레이터별로 기록하고, 2막·5막의 값은 판정 없이 결과 블록에 남습니다). `line-polygon`, `act4-hline`, `act4-dline`, `act5-line-polygon`도 `unconfirmed`입니다
 (line-polygon 697/698/826/322). 등불 항목은 모든 모드에서 같은 값을 기대합니다(GBATEK). DeSmuME ≠ melonDS ≠ 실기.
 
 판정기 자체 점검(2026-11-11, 압축을 푼 키트 구성의 `judge.py`, `../` 없음):

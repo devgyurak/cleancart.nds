@@ -152,8 +152,7 @@ backdrop pixels and pass as "all equal".
 
 Gating items: `seam-uv`, `act2-seam`, `act5-seam` are qualitative (source `report:melonDS#2008`): rows 0 and 1
 must show no cut line and row 2 (the uncompensated reverse) must show one. The exact `0/0/18`
-(18 = the card height) is an emulator measurement, so it is graded only as the informational
-`*-exact` items (`unconfirmed`). `line-polygon`, `act4-hline`, `act4-dline` and `act5-line-polygon` are
+(18 = the card height) is an emulator measurement: games hold no L4 item, so it is no longer judged here (the acc-stage probe in `probes/` records it per emulator; the act 2 and act 5 counts stay in the result block, unjudged). `line-polygon`, `act4-hline`, `act4-dline` and `act5-line-polygon` are
 `unconfirmed` too (line-polygon 697/698/826/322). The lantern items expect equal values in all modes
 (GBATEK). DeSmuME ≠ melonDS ≠ hardware.
 
