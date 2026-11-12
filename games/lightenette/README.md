@@ -79,7 +79,7 @@ Every item has a `level` from 1 to 4 ([docs/LEVELS.md](../../docs/LEVELS.md)); `
 summary (`LEVELS L1 a/b OK · …`) and the level never changes a verdict or an exit code.
 
 `expected.json` lists every item: frame, expected value, tolerance, source, boot path and hardware
-model, and optionally the captures it depends on (`done`) and whether it reads pixels (`pixels`). The reversed-UV cut line is graded qualitatively (rows 0 and 1 clean, row 2 shows the line); the exact `0/0/18` is an emulator measurement and only an informational item. Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report),
+model, and optionally the captures it depends on (`done`) and whether it reads pixels (`pixels`). The reversed-UV cut line is graded qualitatively (rows 0 and 1 clean, row 2 shows the line); the exact `0/0/18` is an emulator measurement (L4), recorded by the acc-stage probe in `probes/` rather than judged here. Sources: `GBATEK` (documented behaviour), `report:<ref>` (a third-party hardware report),
 `hw:<model>` (measured by us on hardware), `rom` (the ROM's own deterministic logic),
 `unconfirmed`. Items from `unconfirmed` sources only print INFO and never fail a run; when a
 hardware value arrives the item moves up to gating. The file carries a `schema` number and each

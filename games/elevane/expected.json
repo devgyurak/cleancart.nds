@@ -153,96 +153,6 @@
    "model": null
   },
   {
-   "id": "hdma-holes-zero",
-   "title": "Preset 1 (HBlank DMA, the melonDS #2618 path): no transparent or black hole in the sub BG after any frame",
-   "values": [
-    0
-   ],
-   "check": "bit",
-   "bit": 5,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
-   "id": "hdma-composite",
-   "title": "Preset 1: the composite has pixels on both sides of x = 128",
-   "values": [
-    0
-   ],
-   "check": "bit",
-   "bit": 6,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
-   "id": "hdma-composite-full",
-   "title": "Preset 1: both halves of the sampled lines are fully opaque (3072 + 3072)",
-   "values": [
-    12
-   ],
-   "check": "eq",
-   "expect": 3072,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
-   "id": "hdma-composite-right-full",
-   "title": "Preset 1: the right half is fully opaque (3072)",
-   "values": [
-    13
-   ],
-   "check": "eq",
-   "expect": 3072,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
-   "id": "rear-plane",
-   "title": "Preset 2 (rear plane): the captured bank holds pixels",
-   "values": [
-    0
-   ],
-   "check": "bit",
-   "bit": 7,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
-   "id": "rear-plane-full",
-   "title": "Preset 2: the captured pass is fully opaque (4096 samples; half means one side is missing)",
-   "values": [
-    15
-   ],
-   "check": "eq",
-   "expect": 4096,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none",
-   "model": null
-  },
-  {
    "id": "acc-dual-latency",
    "demo": "l3-acc-dual",
    "title": "The capture routing written one call late shows in the same frame (latency 1, ours)",
@@ -432,7 +342,6 @@
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
    "ng": [
-    "rear-plane-full",
     "acc-split-tex-latency",
     "acc-split-bg-latency",
     "acc-split-relay-latency",
@@ -445,7 +354,6 @@
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
    "ng": [
-    "rear-plane-full",
     "acc-split-tex-latency",
     "acc-split-bg-latency",
     "acc-split-relay-latency",
@@ -470,8 +378,6 @@
   "melonds-4ce2188-gl-classic": {
    "emulator": "melonDS master 4ce2188, OpenGL (Classic) renderer",
    "ng": [
-    "hdma-holes-zero",
-    "rear-plane-full",
     "acc-split-tex-latency",
     "acc-split-bg-latency",
     "acc-split-relay-latency",
@@ -484,9 +390,6 @@
   "melonds-4ce2188-gl-compute": {
    "emulator": "melonDS master 4ce2188, OpenGL (Compute) renderer",
    "ng": [
-    "hdma-holes-zero",
-    "hdma-composite-full",
-    "rear-plane-full",
     "acc-split-tex-latency",
     "acc-split-bg-latency",
     "acc-split-relay-latency",

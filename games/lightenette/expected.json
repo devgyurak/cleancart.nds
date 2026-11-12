@@ -139,38 +139,6 @@
       }
     },
     {
-      "id": "seam-uv-exact",
-      "title": "Reversed-UV cut line: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
-      "boots": [
-        "rehearsal",
-        "acc-stage",
-        "qa"
-      ],
-      "frame": {
-        "rehearsal": 1800,
-        "acc-stage": 180,
-        "qa": 1
-      },
-      "values": [
-        0
-      ],
-      "check": "eq",
-      "expect": 1179648,
-      "pack": "u8x3",
-      "display": "0/0/18",
-      "tolerance": 0,
-      "source": "unconfirmed",
-      "role": "relocate",
-      "to": "probes",
-      "level": 4,
-      "level_basis": "none",
-      "model": null,
-      "done": {
-        "value": 3,
-        "mask": 256
-      }
-    },
-    {
       "id": "edge-marking",
       "title": "Edge marking draws edge pixels (melonDS #2549)",
       "boots": [
@@ -380,36 +348,6 @@
       "role": "target",
       "level": 2,
       "level_basis": "report:melonDS#2008",
-      "model": null,
-      "done": {
-        "value": 17,
-        "mask": 1
-      }
-    },
-    {
-      "id": "act2-seam-exact",
-      "title": "Act 2 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
-      "boots": [
-        "rehearsal",
-        "qa"
-      ],
-      "frame": {
-        "rehearsal": 1800,
-        "qa": 1
-      },
-      "values": [
-        14
-      ],
-      "check": "eq",
-      "expect": 1179648,
-      "pack": "u8x3",
-      "display": "0/0/18",
-      "tolerance": 0,
-      "source": "unconfirmed",
-      "role": "relocate",
-      "to": "probes",
-      "level": 4,
-      "level_basis": "none",
       "model": null,
       "done": {
         "value": 17,
@@ -644,36 +582,6 @@
       "role": "target",
       "level": 2,
       "level_basis": "report:melonDS#2008",
-      "model": null,
-      "done": {
-        "value": 44,
-        "mask": 1
-      }
-    },
-    {
-      "id": "act5-seam-exact",
-      "title": "Act 5 doll cut lines: exactly 0/0/18 (18 = the card height; a measurement of melonDS software/compute and DeSmuME, not a hardware value)",
-      "boots": [
-        "rehearsal",
-        "qa"
-      ],
-      "frame": {
-        "rehearsal": 1800,
-        "qa": 1
-      },
-      "values": [
-        34
-      ],
-      "check": "eq",
-      "expect": 1179648,
-      "pack": "u8x3",
-      "display": "0/0/18",
-      "tolerance": 0,
-      "source": "unconfirmed",
-      "role": "relocate",
-      "to": "probes",
-      "level": 4,
-      "level_basis": "none",
       "model": null,
       "done": {
         "value": 44,

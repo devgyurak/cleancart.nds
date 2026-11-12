@@ -56,17 +56,17 @@ class Judge(unittest.TestCase):
         self.assertIn('puzzles-delivered', r['gating_failing'])
 
     def test_unconfirmed_is_informational(self):
-        rc, r = self.run_judge(block(v15=2048))
-        self.assertEqual((rc, r['failing']), (0, ['rear-plane-full']))
+        rc, r = self.run_judge(block(v4=7))     # dual-cross-zero is unconfirmed
+        self.assertEqual((rc, r['failing']), (0, ['dual-cross-zero']))
 
     def test_counters_unavailable_is_na(self):
         rc, r = self.run_judge(block(flags=0xf7))
         self.assertEqual(r['items']['poly-passes'], 'NA')
 
     def test_profile_must_match_exactly(self):
-        rc, _ = self.run_judge(block(v15=2048), '--profile', 'melonds-1.1-gl-classic')
+        rc, _ = self.run_judge(block(), '--profile', 'melonds-1.1-gl-classic')
         self.assertEqual(rc, 0)
-        rc, _ = self.run_judge(block(), '--profile', 'melonds-1.1-gl-classic')   # newly passing
+        rc, _ = self.run_judge(block(v4=7), '--profile', 'melonds-1.1-gl-classic')   # newly failing
         self.assertEqual(rc, 1)
 
     def test_every_item_has_a_level(self):
