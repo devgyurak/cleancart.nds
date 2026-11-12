@@ -4,7 +4,7 @@
 """Judge an Elevane result block against expected.json.
 
     judge.py [--expected expected.json] [--profile NAME] [--list-profiles]
-             [--json] [--demo NAME] [LOGFILE ...]
+             [--json] [--demo NAME] [--values HEX HEX ...] [LOGFILE ...]
 
 Reads run logs (stdin without files) and grades the last result block found.
 Log lines understood:
@@ -14,6 +14,10 @@ Log lines understood:
                          DeSmuME harness (RESULT_WORDS=64 tools/emu/emu.sh run). A
                          leading ROM name ("<name> RESULT ...", the demos commands)
                          is accepted; --demo NAME keeps only that ROM's lines.
+
+--values grades the numbers a console showed on its screen (the rehearsal prints
+values[0..17] in hex when it ends) instead of a log: `judge.py --values 1ff 1 15c6 ...`
+(hex, in order, values missing at the end count as 0; the frame check is skipped).
 
 Words: w0 magic, w1 id, w2 frame, w3.. values[0..60]. The id must be the rehearsal's
 ("EVRH"). Each expected item is graded OK or NG. Items whose source is "unconfirmed"
@@ -101,7 +105,13 @@ def run(args):
         return 0
     text = ''
     try:
-        if args.logs:
+        if args.values is not None:
+            vals_in = [int(v, 16) for v in args.values]
+            if not 1 <= len(vals_in) <= 61:
+                raise Fatal('--values wants 1 to 61 hex numbers')
+            words = [MAGIC, exp["boot"]["item_id"], exp["boot"]["frames_min"]] + vals_in + [0] * (61 - len(vals_in))
+            text = 'RESULT ' + ' '.join('%08x' % w for w in words) + '\n'
+        elif args.logs:
             for path in args.logs:
                 with open(path, errors='replace') as f:
                     text += f.read() + '\n'
@@ -172,6 +182,7 @@ def main(argv):
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--demo')
+    ap.add_argument('--values', nargs='+', metavar='HEX')
     try:
         return run(ap.parse_args(argv))
     except Fatal as e:
