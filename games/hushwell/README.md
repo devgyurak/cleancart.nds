@@ -200,8 +200,8 @@ python3 games/hushwell/tools/judge.py --profile melonds-1.1-software demos.log
 is missing; `--partial` or `--demo NAME` grade only what is in the log). Every item has a `level` from 1 to 4
 ([docs/LEVELS.md](../../docs/LEVELS.md)) and `judge.py` prints a per-level summary; the level never changes a verdict. Four
 profiles are recorded (melonDS 1.1 software, GL Classic, GL Compute; DeSmuME); nothing has been measured on real hardware yet.
-49 of the 65 demos are judged so far; the other 16 (screen or sound only) are listed in
-[docs/QA.md](docs/QA.md#judging-expectedjson-toolsjudgepy). The chapters of the game itself are not judged beyond the auto QA run (demo `qa`).
+All 65 demos are judged; the screen and sound demos grade themselves with capture probes and ARM7 channel reports (see
+[docs/QA.md](docs/QA.md#judging-expectedjson-toolsjudgepy) for what stays unjudged or informational). The chapters of the game itself are not judged beyond the auto QA run (demo `qa`).
 
 ## Choices for the design document's open questions
 

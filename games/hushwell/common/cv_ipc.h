@@ -126,6 +126,11 @@ typedef struct {
     uint16_t battery;
     uint8_t  mic;       // microphone level this frame (0-127)
     uint8_t  pad;
+    // Sound state for the demo judge (read-only registers of the ARM7's own engine).
+    uint16_t snd_busy;  // bit n: SOUNDCNT of channel n has Start/Busy set
+    uint16_t cap_peak;  // largest |sample| in the echo capture rings (0 when the echo is off)
+    uint8_t  cap_busy;  // bit 0 / 1: capture unit 0 / 1 Start/Busy
+    uint8_t  pad2;
 } CvInputPacket;
 
 #define CV_KEYXY_X    (1 << 0)

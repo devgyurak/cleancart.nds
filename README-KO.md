@@ -41,7 +41,7 @@
 | 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
 |---|---|---|---|---|
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 75개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 93 · L2 36 · L3 10 · L4 20<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
-| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 65개 중 49개와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 59 · L2 24 · L3 0 · L4 13<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 65개 전부와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 90 · L2 30 · L3 1 · L4 16<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L1 13 · L2 11 · L3 0 · L4 3<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L1 3 · L2 2 · L3 3 · L4 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
@@ -53,7 +53,7 @@
 이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
 
 <!-- levels:begin -->
-<details><summary><b>L1 기능</b> (168 개)</summary>
+<details><summary><b>L1 기능</b> (199 개)</summary>
 
 #### Corvane
 
@@ -218,6 +218,37 @@
 - `io-touch-up` · The pen is up at the checkpoint (the scripted touch ended) · [expected.json](games/hushwell/expected.json)
 - `io-power-lid` · The lid is open · [expected.json](games/hushwell/expected.json)
 - `qa-verdict` · The auto QA run of hushwell.nds (hold L+R+X+Y on the title) reaches the credits with RESULT PASS: the QARN block reports verdict 1 · [expected.json](games/hushwell/expected.json)
+- `sys-dma-hblank-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `sys-dma-hblank-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-affine-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-affine-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-affine-opaque` · Most sampled texels are not colour 0 (the probe tests real picture data) · [expected.json](games/hushwell/expected.json)
+- `2d-mosaic-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-mosaic-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-mosaic-steps` · The text under the mosaic changes between blocks often (the probe tests a real picture) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-normal-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-normal-pixels` · A plain and an h-flipped 8x8 sprite show exactly their tile texels · [expected.json](games/hushwell/expected.json)
+- `2d-obj-normal-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-affine-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-affine-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-bitmap-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-bitmap-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-line-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-vram-alias` · A VRAM bank keeps the data written through LCDC when it is remapped to its engine address (16 mappings, 32 words each) · [expected.json](games/hushwell/expected.json)
+- `2d-vram-samples` · The probe compared 16 x 32 words · [expected.json](games/hushwell/expected.json)
+- `sys-dma-disp-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `sys-dma-disp-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-display-captured` · The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared) · [expected.json](games/hushwell/expected.json)
+- `2d-display-samples` · The probe compared this many pixels (so it cannot pass by checking nothing) · [expected.json](games/hushwell/expected.json)
+- `2d-display-vram` · The frame the VRAM display mode showed is in bank A unchanged (768 samples) · [expected.json](games/hushwell/expected.json)
+- `snd-mix-voices` · Song and effects together use 8 to 16 channels (SOUNDCNT Start/Busy) at the busiest frame · [expected.json](games/hushwell/expected.json)
+- `snd-pcm-oneshot` · A PCM8 one-shot is playing at frame 5 (a channel is busy) · [expected.json](games/hushwell/expected.json)
+- `snd-pcm-loops` · The PCM8 and PCM16 loops started at frames 60 and 80 are still busy at the checkpoint · [expected.json](games/hushwell/expected.json)
+- `snd-adpcm-oneshot` · The ADPCM jingle is playing at frame 5 (a channel is busy) · [expected.json](games/hushwell/expected.json)
+- `snd-adpcm-loop` · The ADPCM hum loop started at frame 90 is still busy at the checkpoint · [expected.json](games/hushwell/expected.json)
+- `snd-psg-noise` · The noise channel 14 started at frame 100 is busy at frame 105 · [expected.json](games/hushwell/expected.json)
+- `snd-psg-stop` · Stopping channels 8-15 clears their Start/Busy bits · [expected.json](games/hushwell/expected.json)
+- `snd-stream-busy` · The streaming channel is still busy at the checkpoint · [expected.json](games/hushwell/expected.json)
 
 #### Lightenette
 
@@ -237,7 +268,7 @@
 
 </details>
 
-<details><summary><b>L2 경계</b> (73 개)</summary>
+<details><summary><b>L2 경계</b> (79 개)</summary>
 
 #### Corvane
 
@@ -309,6 +340,12 @@
 - `io-save-fram-seq` · The save counter advanced by one · [expected.json](games/hushwell/expected.json)
 - `io-touch-x` · The last pen x is 120 (scripted touch at 120,100; one pixel of calibration error allowed) · [expected.json](games/hushwell/expected.json)
 - `io-touch-y` · The last pen y is 100 (one pixel of calibration error allowed) · [expected.json](games/hushwell/expected.json)
+- `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/hushwell/expected.json)
+- `2d-mosaic-pixels` · With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels) · [expected.json](games/hushwell/expected.json)
+- `2d-obj-affine-pixels` · An affine sprite with the identity matrix, plain and double-size, shows exactly its tile texels · [expected.json](games/hushwell/expected.json)
+- `2d-obj-bitmap-pixels` · A bitmap sprite with alpha field 15 shows the opaque texels of its 16bpp picture unchanged · [expected.json](games/hushwell/expected.json)
+- `snd-capture-busy` · Both sound capture units run in repeat mode (Start/Busy of capture 0 and 1) · [expected.json](games/hushwell/expected.json)
+- `snd-capture-signal` · The capture rings hold a non-silent signal (the song reached the mixer output) · [expected.json](games/hushwell/expected.json)
 
 #### Lightenette
 
@@ -326,7 +363,7 @@
 
 </details>
 
-<details><summary><b>L3 타이밍</b> (13 개)</summary>
+<details><summary><b>L3 타이밍</b> (14 개)</summary>
 
 #### Corvane
 
@@ -347,9 +384,13 @@
 - `dual-plan` · Bottom screen: the plan view reached bank C _(참고용)_ · [expected.json](games/elevane/expected.json)
 - `dual-cross-zero` · The two captures never carry each other's clear colour (plan clear in D, front clear in C) _(참고용)_ · [expected.json](games/elevane/expected.json)
 
+#### Hushwell
+
+- `sys-dma-hblank-pixels` · Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines) · [expected.json](games/hushwell/expected.json)
+
 </details>
 
-<details><summary><b>L4 연구</b> (42 개)</summary>
+<details><summary><b>L4 연구</b> (45 개)</summary>
 
 #### Corvane
 
@@ -398,6 +439,9 @@
 - `3d-test-pos-w` · POS_TEST w result of the last frame _(참고용)_ · [expected.json](games/hushwell/expected.json)
 - `3d-test-vec-x` · VEC_TEST x result of the last frame _(참고용)_ · [expected.json](games/hushwell/expected.json)
 - `3d-test-vec-z` · VEC_TEST z result of the last frame (the emulators differ by one here) _(참고용)_ · [expected.json](games/hushwell/expected.json)
+- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line: the last group (sprites 90-119) should be dropped by the per-line OBJ budget that GBATEK describes (about 1210 cycles); no emulator drops them, the exact accounting is not confirmed _(참고용)_ · [expected.json](games/hushwell/expected.json)
+- `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented _(참고용)_ · [expected.json](games/hushwell/expected.json)
+- `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what the capture sees while the display reads the same FIFO is not documented _(참고용)_ · [expected.json](games/hushwell/expected.json)
 
 #### Lightenette
 
