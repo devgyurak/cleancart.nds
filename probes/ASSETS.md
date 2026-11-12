@@ -28,7 +28,7 @@ fixed-seed xorshift; Python's `random` is not used).
 | `cv_tex_panel`, `cv_tex_mesh` | direct-colour textures (panel, wire mesh with holes) | `images.textures()` | original, Apache-2.0 |
 | `cv_toon_table` | toon shading table | `images.toon_table()` | original, Apache-2.0 |
 | all 3D models | ship, turret, drone, airship, fighter, station, wall gun, boss parts | `arm9/source/gfx/models.c` (assembled in C) | original, Apache-2.0 |
-| `cv_smp_*` (20) | effects and instruments: shot, explode, bigboom, warning, jingle, lockon, missile, hit, cursor, select, bass, pad, kick, snare, hat, hum, charge, bomb, crash, drone | `audio.make_samples()` (sine/square/noise synthesis, IMA-ADPCM encoder `codec.ima_adpcm`) | original synthesis, Apache-2.0 |
+| `cv_smp_*` (14 blobs; the sound bank has 20 slots, 6 of them empty: lockon, missile, hit, cursor, select, crash) | effects and instruments (no probe plays them; the generators are Corvane's, not trimmed): shot, explode, bigboom, warning, jingle, bass, pad, kick, snare, hat, hum, charge, bomb, drone | `audio.make_samples()` (sine/square/noise synthesis, IMA-ADPCM encoder `codec.ima_adpcm`) | original synthesis, Apache-2.0 |
 | `cv_song_*` (9) | title, briefing, stage1–4, boss, ending, result (linked because the sound bank is; no probe plays them) | `audio.compose()` (fixed-seed composer: progressions, motifs, arpeggios and drums generated in code) | original composition, Apache-2.0 |
 | `nitrofs/stage1.lz`, `stage4.lz` | terrain heightmaps and enemy spawn scripts | `stages.py` (terrain for the 3d-fifo and 3d-clip probes) | original, Apache-2.0 |
 | `nitrofs/probe.bin` | 2 KB pattern for checking cart DMA (expected CRC included) | `mkassets.py` | original, Apache-2.0 |

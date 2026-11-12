@@ -93,18 +93,20 @@ Every item has a `level` from 1 to 4 ([docs/LEVELS.md](../../docs/LEVELS.md)); `
 summary (`LEVELS L1 a/b OK · …`) and the level never changes a verdict or an exit code.
 
 `judge.py` exits 0 on pass, 1 when a gating item fails or the profile differs, 2 when there
-is no usable result. Seven profiles are recorded (DeSmuME; melonDS 1.1 and master `4ce2188`,
-each software, OpenGL classic and compute). Known results: master GL and Compute leave the
-left half of showcase preset 1 empty (the melonDS #2618 defect, play is unaffected), the
-rear-plane preset 2 shows one side only on every GL renderer (a separate defect).
-Items without a documentation, report or ROM-logic source are `unconfirmed` until real
-hardware values exist.
+is no usable result (all-zero block, a full run without the rehearsal or one of the nine demo blocks, no
+graded target item, a malformed `expected.json`; `--partial` / `--demo` grade only what the log holds).
+Seven profiles are recorded (DeSmuME; melonDS 1.1 and master `4ce2188`, each software, OpenGL classic
+and compute). The target level is 3: the targets are `sys-dma-hblank-pixels`, `hdma-holes-zero` and
+`acc-split-hdma-holes` (the HBlank DMA fills the bitmap line by line; melonDS#2618). Known result: master GL and
+Compute leave holes (2056 hole pixels in the demo) and fail the two hole items; every other profile passes all gating items.
+The capture-latency and dual-view items are L2 prerequisites and informational (`unconfirmed`) until real hardware values
+exist; the rear-plane pixel counts are recorded in `probes/` (`l4-acc-rear-plane`).
 
 The nine level 3 demos (`l3-sys-dma-hblank`, `l3-acc-dual`, `l3-acc-split-*`) test the display capture routing
 latency, the same-screen two-pass schemes and an HBlank DMA backdrop. Each writes a 16-word result block at frame
 120; feed their lines (for example the output of `tools/melonds/mds.sh demos <folder>`) to the same `judge.py`,
-alone or together with the rehearsal block. The six `acc-split-*-latency` items measure 2 frames on every emulator
-we ran (expected 0 or 1, `unconfirmed`), so they are informational NG in every profile.
+alone or together with the rehearsal block. The `*-latency` items measure 1 frame on every emulator we ran (expected 0 or 1, L2
+prerequisites, `unconfirmed`), after the demos flush the boot-time pending buffer swap before they measure.
 
 ## Documentation
 

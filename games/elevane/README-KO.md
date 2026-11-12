@@ -90,17 +90,20 @@ python3 games/elevane/tools/compare.py --ref out/soft --test out/gl --frames 380
 모든 항목에는 1~4의 `level`이 있고([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약
 (`LEVELS L1 a/b OK · …`)을 출력합니다. 레벨은 판정과 종료 코드에 영향을 주지 않습니다.
 
-`judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 결과가 없으면 2로 끝납니다.
-프로필 일곱 개가 기록되어 있습니다(DeSmuME, melonDS 1.1과 master `4ce2188` 각각의 소프트웨어,
-OpenGL classic, compute). 알려진 결과: master GL과 Compute는 감상 프리셋 1의 왼쪽 절반을 비웁니다
-(melonDS #2618 결함, 플레이에는 영향 없음). 리어 플레인 프리셋 2는 모든 GL 렌더러에서 한쪽만 보입니다
-(별개 결함). 문서·보고·ROM 논리 출처가 없는 항목은 실기 값이 생길 때까지 `unconfirmed`입니다.
+`judge.py`는 통과 시 0, 필수 항목 실패나 프로필 불일치 시 1, 쓸 수 있는 결과가 없으면 2로 끝납니다
+(전부 0인 블록, 리허설이나 데모 블록 아홉 개 중 하나가 빠진 전체 실행, 판정된 목표 항목이 없음, 깨진 `expected.json`.
+`--partial` / `--demo`는 로그에 있는 것만 판정). 프로필 일곱 개가 기록되어 있습니다(DeSmuME, melonDS 1.1과
+master `4ce2188` 각각의 소프트웨어, OpenGL classic, compute). 목표 레벨은 3이고 목표 항목은 `sys-dma-hblank-pixels`,
+`hdma-holes-zero`, `acc-split-hdma-holes`입니다(HBlank DMA가 비트맵을 줄마다 채움. melonDS#2618). 알려진 결과: master GL과
+Compute는 구멍이 생겨(데모에서 구멍 픽셀 2056개) 구멍 항목 둘이 실패하고, 나머지 프로필은 모든 필수 항목을 통과합니다.
+캡처 지연과 두 화면 항목은 L2 전제 조건이며 실기 값이 생길 때까지 참고용(`unconfirmed`)입니다. rear plane 픽셀 수는
+`probes/`(`l4-acc-rear-plane`)에 기록합니다.
 
 레벨 3 데모 아홉 개(`l3-sys-dma-hblank`, `l3-acc-dual`, `l3-acc-split-*`)는 디스플레이 캡처 경로 지연, 같은 화면 2패스
 방식, HBlank DMA 배경을 시험합니다. 각 데모는 120프레임에 16워드 결과 블록을 남기며, 그 줄들
 (예: `tools/melonds/mds.sh demos <폴더>`의 출력)을 같은 `judge.py`에 리허설 블록과 함께 또는 따로 넣으면 됩니다.
-`acc-split-*-latency` 여섯 항목은 우리가 돌린 모든 에뮬레이터에서 2프레임이 나와(기대값 0 또는 1, `unconfirmed`)
-모든 프로필에서 참고용 NG입니다.
+`*-latency` 항목은 우리가 돌린 모든 에뮬레이터에서 1프레임이 나옵니다(기대값 0 또는 1, L2 전제 조건, `unconfirmed`).
+데모가 측정 전에 부팅 때 걸려 있는 버퍼 교체를 비우기 때문입니다.
 
 ## 문서
 

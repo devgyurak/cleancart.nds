@@ -19,9 +19,11 @@ on hardware), every item has source `unconfirmed` and role `target`, and no item
 fail the run by its value.
 
 Without --profile: print every item with the value(s) the emulator gave and a verdict
-wording (informational): "reference" is the value the item's check was written from (what
-melonDS software gave when the probe was written), so SAME AS REFERENCE / DIFFERS FROM
-REFERENCE / n/a only tell where the emulator stands, never which one is right. Exit 0.
+wording (informational): "reference" is the value or range in the item's check, an observation
+recorded when the probe was written (what the emulators gave, or the value the behaviour was
+expected to have), never a hardware value. SAME AS REFERENCE / DIFFERS FROM REFERENCE / n/a only
+tell where an emulator stands against it, never which one is right. The per-emulator record that
+`--profile` compares is `known.<profile>.observed`, not the reference. Exit 0.
 
 With --profile: expected.json `known.<profile>.observed` records what that emulator gave
 per item. Exit 0 only if every observed value equals the record; otherwise exit 1 and

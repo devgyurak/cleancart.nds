@@ -43,7 +43,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane title screen"> | 3D hover shooter across five fronts: 3D battlefield on the top screen, radar and touch lock-on on the bottom screen.<br>Tests (L1, graphics and system): 2D engines, 3D engine, DMA, timers, interrupts, IPC, BIOS and maths, display capture. | automatic for all 49 demos (`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 target 93 · prerequisite 0<!-- /cell --> | [README](games/corvane/README.md) · [QA checklist](games/corvane/docs/QA.md) · [Assets](games/corvane/ASSETS.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell title screen"> | First-person survival horror in a sanatorium built over a well: a flashlight on the top screen, a hand-drawn map and a tape recorder on the bottom screen, and something that hunts by sound.<br>Tests (L1, sound and I/O): ARM7 sound channels, PSG wave record, sound capture and streaming, key and touch input, cart and save chips, RTC, firmware settings, lid. | automatic: 19 of its 66 demo ROMs (the sound and I/O ones, the others are Corvane's area) and the QA run (`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 target 41 · prerequisite 4<!-- /cell --> | [README](games/hushwell/README.md) · [QA checklist](games/hushwell/docs/QA.md) · [Assets](games/hushwell/ASSETS.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 18 · prerequisite 18<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 13 · prerequisite 5<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 3 · prerequisite 17<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -236,33 +236,23 @@ target 18 · prerequisite 18
 
 </details>
 
-<details><summary><b>L3 Timing</b> · Elevane (13 target items)</summary>
+<details><summary><b>L3 Timing</b> · Elevane (3 target items)</summary>
 
 #### Elevane · display timing and compositing
 
-target 13 · prerequisite 5
+target 3 · prerequisite 17
 
-- `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `dual-plan` · Bottom screen: the plan view reached bank C _(informational)_ · [expected.json](games/elevane/expected.json)
-- `dual-cross-zero` · The two captures never carry each other's clear colour (plan clear in D, front clear in C) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-dual-latency` · The capture routing written one call late shows in the same frame (latency 1, ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-dual-latency-flag` · Routing latency is at most 1 frame _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-tex-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-bg-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-relay-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-read-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-write-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-hdma-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(informational)_ · [expected.json](games/elevane/expected.json)
 - `sys-dma-hblank-pixels` · Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines) · [expected.json](games/elevane/expected.json)
+- `hdma-holes-zero` · Rehearsal preset 1 (HBlank DMA fills the sub BG bitmap one line per scanline; melonDS#2618): no transparent or black hole in any frame · [expected.json](games/elevane/expected.json)
+- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618; the demo form of hdma-holes-zero) · [expected.json](games/elevane/expected.json)
 
 </details>
 
-<details><summary><b>L4 Research</b> · Probes (19 target items)</summary>
+<details><summary><b>L4 Research</b> · Probes (21 target items)</summary>
 
 #### Probes · research probes
 
-target 19 · prerequisite 0
+target 21 · prerequisite 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(informational)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(informational)_ · [expected.json](probes/expected.json)
@@ -276,13 +266,15 @@ target 19 · prerequisite 0
 - `3d-test-vec-x` · VEC_TEST x result of the last frame _(informational)_ · [expected.json](probes/expected.json)
 - `3d-test-vec-z` · VEC_TEST z result of the last frame (the emulators differ by one here) _(informational)_ · [expected.json](probes/expected.json)
 - `acc-stage-cut-exact` · The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value) (third row only; see seam-uv-exact for the whole value) _(informational)_ · [expected.json](probes/expected.json)
-- `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour _(informational)_ · [expected.json](probes/expected.json)
-- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618 area) (also stands for Elevane hdma-holes-zero: the same HBlank-DMA path) _(informational)_ · [expected.json](probes/expected.json)
-- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational) _(informational)_ · [expected.json](probes/expected.json)
+- `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour (the same behaviour is the L2 prerequisite group dual-front / dual-plan / dual-cross-zero in Elevane) _(informational)_ · [expected.json](probes/expected.json)
+- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618). Elevane judges the same scheme as the L3 targets hdma-holes-zero and acc-split-hdma-holes; here it is recorded for every emulator _(informational)_ · [expected.json](probes/expected.json)
+- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the highest sprite group still drawn (0..3; 3 = the last group, sprites 90-119, is drawn). GBATEK's 1210 is the GBA figure and a DS line is longer; every emulator draws all four groups. A plain record: the expected value is what the emulators gave, not a hardware value _(informational)_ · [expected.json](probes/expected.json)
 - `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(informational)_ · [expected.json](probes/expected.json)
 - `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(informational)_ · [expected.json](probes/expected.json)
 - `seam-uv-exact` · Reversed-UV cut lines of the three card rows are exactly 0/0/18 pixels (stands for Lightenette seam-uv-exact: the same acc-stage measurement with the whole packed value compared; an emulator measurement, not a hardware value) _(informational)_ · [expected.json](probes/expected.json)
-- `rear-plane-latency` · Rear-plane path of the same-screen two-pass view: the capture routing shows within 1 frame (the Corvane acc-split-rear measurement; it stands for the rear-plane path of Elevane preset 2 only as far as routing latency, not its pixel counts) _(informational)_ · [expected.json](probes/expected.json)
+- `rear-plane-latency` · Capture routing latency of the same-screen rear-plane scheme, measured before the rear plane is set up (the Corvane acc-split-rear measurement); the same behaviour is the L2 prerequisite acc-split-rear-latency in Elevane. The rear-plane pixels are rear-plane / rear-plane-full (l4-acc-rear-plane) _(informational)_ · [expected.json](probes/expected.json)
+- `rear-plane` · Same-screen two-pass view with the capture as the 3D rear plane, set up before the first pass: the captured pass holds opaque pixels (stands for Elevane preset 2 `rear-plane`, retired from Elevane) _(informational)_ · [expected.json](probes/expected.json)
+- `rear-plane-full` · The captured pass is fully opaque: 4096 of 4096 samples, both halves, because the previous pass came back as the rear plane (half means one side is missing; stands for Elevane preset 2 `rear-plane-full`, retired from Elevane) _(informational)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->

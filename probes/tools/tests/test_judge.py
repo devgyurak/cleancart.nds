@@ -49,9 +49,21 @@ class Rules(unittest.TestCase):
         self.assertEqual(exp['area'], 'research probes')
         for it in exp['items']:
             self.assertEqual((it['level'], it['role'], it['source']), (4, 'target', 'unconfirmed'), it['id'])
-        self.assertEqual(len(exp['known']), 4)
+        self.assertEqual(len(exp['known']), 7)
         for name, p in exp['known'].items():
             self.assertEqual(set(p['observed']), {i['id'] for i in exp['items']}, name)
+
+    def test_no_relocation_leftovers_and_master_profiles(self):
+        exp = load()
+        for it in exp['items']:
+            self.assertNotIn('to', it, it['id'])    # role target: nothing moves out of the probes
+        for name in ('melonds-4ce2188-software', 'melonds-4ce2188-gl-classic', 'melonds-4ce2188-gl-compute'):
+            self.assertIn(name, exp['known'])
+        # melonDS#2618 is recorded on master GL/Compute and not on software
+        self.assertEqual(exp['known']['melonds-4ce2188-software']['observed']['acc-split-hdma-holes'], [0])
+        self.assertGreater(exp['known']['melonds-4ce2188-gl-compute']['observed']['acc-split-hdma-holes'][0], 0)
+        ids = {i['id'] for i in exp['items']}
+        self.assertTrue({'rear-plane', 'rear-plane-full'} <= ids)
 
     def test_role_and_level_rules_are_input_errors(self):
         for field, value in (('role', 'relocate'), ('role', 'prerequisite'), ('level', 3), ('level', True),

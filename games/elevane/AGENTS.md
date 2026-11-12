@@ -17,7 +17,7 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 2. Judging happens in the ROM (display capture, fixed colours, a result block at a
    fixed main-RAM address), like lightenette: the rehearsal ROM (`make DEMO=rehearsal`) plays the first
    puzzle of every chapter with puzzles from a fixed script through the live play scene, then both
-   showcase presets, and `tools/judge.py` grades its block against `expected.json` (target level 3, area "display timing and compositing"; no L4 item: those are recorded in `probes/`).
+   showcase presets, and `tools/judge.py` grades its block against `expected.json` (target level 3, area "display timing and compositing"; no L4 item: those are recorded in `probes/`, among them the retired rehearsal items `rear-plane` and `rear-plane-full` as `l4-acc-rear-plane`).
 3. Judging and rehearsal modes work without NitroFS (see `nitro_ok()` in `core/nitro.c`).
 4. No third-party trademarks in code or ROM strings.
 
@@ -57,12 +57,15 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
   (target level 3: capture routing latency, same-screen two-pass schemes, HBlank DMA backdrop). Each writes corvane's 16-word
   block (`'CVER'`, FNV-1a of the prefixed name, frame, `values[13]`) at frame 120; the prefix keeps the ids apart from
   corvane's. `expected.json` `demos` maps name to id, an item with `"demo"` is graded from that block, an item without one from
-  the rehearsal. Keep a demo's `finish()` values and its items in step; only the 10 items of `expected.json` with `demo` are
-  judged here, the other items of the same corvane demos stay with corvane.
+  the rehearsal. Keep a demo's `finish()` values and its items in step; only the items of `expected.json` with `demo` (the capture-latency items, `sys-dma-hblank-pixels` and `acc-split-hdma-holes`) are
+  judged here, the other items of the same corvane demos stay with corvane. The measuring demos (`d_acc_dual`, `split_demo`) first wait for
+  GXSTAT bit 27 to clear and call `sys_vsync()` once: the boot leaves a SwapBuffers pending (`glInit`) that shifts every output by a frame (latency 2).
 - `expected.json` + `tools/judge.py` (grader, exit 0 pass, 1 NG / profile mismatch, 2 no usable result) +
   `tools/compare.py` (1x screenshots of a renderer against the same emulator's software renderer, consecutive frames,
   limits in `expected.json` "screens"). Items from GBATEK / reports / `rom` gate, `unconfirmed` ones are informational
-  until hardware values exist (stage 8). `known` has one profile per emulator version and renderer, re-measure all of
+  until hardware values exist (stage 8). Targets (L3, gating): `sys-dma-hblank-pixels`, `hdma-holes-zero`, `acc-split-hdma-holes` (melonDS#2618: master GL/Compute are the known NG).
+  Prerequisites: L1 `puzzles-*`, `chapters-played`, `poly-passes`, `no-overflow` (gating); L2 `dual-*` and the nine latency items (informational). A full judge run needs the
+  rehearsal and all nine demo blocks (else exit 2), `--partial` grades what is present; the profile match compares gating items only. `known` has one profile per emulator version and renderer, re-measure all of
   them after changing the ROM (`judge.py --profile NAME`). DeSmuME has no polygon counters: those items are n/a there.
 - `arm9/source/judge/capture.*`: every display capture goes through `cap_start()` and
   `cap_done()` (bank D is the capture target).

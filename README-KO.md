@@ -43,7 +43,7 @@
 | [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 엔진, DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 18 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
-| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 13 · 전제 조건 5<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
+| [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 17<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -235,33 +235,23 @@
 
 </details>
 
-<details><summary><b>L3 타이밍</b> · Elevane (13 개)</summary>
+<details><summary><b>L3 타이밍</b> · Elevane (3 개)</summary>
 
 #### Elevane · display timing and compositing
 
-목표 13 · 전제 조건 5
+목표 3 · 전제 조건 17
 
-- `dual-front` · Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `dual-plan` · Bottom screen: the plan view reached bank C _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `dual-cross-zero` · The two captures never carry each other's clear colour (plan clear in D, front clear in C) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-dual-latency` · The capture routing written one call late shows in the same frame (latency 1, ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-dual-latency-flag` · Routing latency is at most 1 frame _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-tex-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-bg-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-relay-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-read-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-rear-write-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
-- `acc-split-hdma-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/elevane/expected.json)
 - `sys-dma-hblank-pixels` · Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines) · [expected.json](games/elevane/expected.json)
+- `hdma-holes-zero` · Rehearsal preset 1 (HBlank DMA fills the sub BG bitmap one line per scanline; melonDS#2618): no transparent or black hole in any frame · [expected.json](games/elevane/expected.json)
+- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618; the demo form of hdma-holes-zero) · [expected.json](games/elevane/expected.json)
 
 </details>
 
-<details><summary><b>L4 연구</b> · Probes (19 개)</summary>
+<details><summary><b>L4 연구</b> · Probes (21 개)</summary>
 
 #### Probes · research probes
 
-목표 19 · 전제 조건 0
+목표 21 · 전제 조건 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](probes/expected.json)
@@ -275,13 +265,15 @@
 - `3d-test-vec-x` · VEC_TEST x result of the last frame _(참고용)_ · [expected.json](probes/expected.json)
 - `3d-test-vec-z` · VEC_TEST z result of the last frame (the emulators differ by one here) _(참고용)_ · [expected.json](probes/expected.json)
 - `acc-stage-cut-exact` · The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value) (third row only; see seam-uv-exact for the whole value) _(참고용)_ · [expected.json](probes/expected.json)
-- `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour _(참고용)_ · [expected.json](probes/expected.json)
-- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618 area) (also stands for Elevane hdma-holes-zero: the same HBlank-DMA path) _(참고용)_ · [expected.json](probes/expected.json)
-- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational) _(참고용)_ · [expected.json](probes/expected.json)
+- `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour (the same behaviour is the L2 prerequisite group dual-front / dual-plan / dual-cross-zero in Elevane) _(참고용)_ · [expected.json](probes/expected.json)
+- `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618). Elevane judges the same scheme as the L3 targets hdma-holes-zero and acc-split-hdma-holes; here it is recorded for every emulator _(참고용)_ · [expected.json](probes/expected.json)
+- `2d-obj-line-budget` · 120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the highest sprite group still drawn (0..3; 3 = the last group, sprites 90-119, is drawn). GBATEK's 1210 is the GBA figure and a DS line is longer; every emulator draws all four groups. A plain record: the expected value is what the emulators gave, not a hardware value _(참고용)_ · [expected.json](probes/expected.json)
 - `sys-dma-disp-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](probes/expected.json)
 - `2d-display-pixels` · The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored) _(참고용)_ · [expected.json](probes/expected.json)
 - `seam-uv-exact` · Reversed-UV cut lines of the three card rows are exactly 0/0/18 pixels (stands for Lightenette seam-uv-exact: the same acc-stage measurement with the whole packed value compared; an emulator measurement, not a hardware value) _(참고용)_ · [expected.json](probes/expected.json)
-- `rear-plane-latency` · Rear-plane path of the same-screen two-pass view: the capture routing shows within 1 frame (the Corvane acc-split-rear measurement; it stands for the rear-plane path of Elevane preset 2 only as far as routing latency, not its pixel counts) _(참고용)_ · [expected.json](probes/expected.json)
+- `rear-plane-latency` · Capture routing latency of the same-screen rear-plane scheme, measured before the rear plane is set up (the Corvane acc-split-rear measurement); the same behaviour is the L2 prerequisite acc-split-rear-latency in Elevane. The rear-plane pixels are rear-plane / rear-plane-full (l4-acc-rear-plane) _(참고용)_ · [expected.json](probes/expected.json)
+- `rear-plane` · Same-screen two-pass view with the capture as the 3D rear plane, set up before the first pass: the captured pass holds opaque pixels (stands for Elevane preset 2 `rear-plane`, retired from Elevane) _(참고용)_ · [expected.json](probes/expected.json)
+- `rear-plane-full` · The captured pass is fully opaque: 4096 of 4096 samples, both halves, because the previous pass came back as the rear plane (half means one side is missing; stands for Elevane preset 2 `rear-plane-full`, retired from Elevane) _(참고용)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->

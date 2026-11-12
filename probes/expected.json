@@ -3,7 +3,7 @@
  "schema": 3,
  "target_level": 4,
  "area": "research probes",
- "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is Corvane demo code run under an l4- name; it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value the item was written from (what melonDS software gave), not a hardware value.",
+ "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is demo code run under an l4- name (acc-dual and acc-split-* from the Elevane l3 demos, the others from Corvane, l4-acc-rear-plane written for this collection); it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value of the item (the value the emulators gave when the probe was written, or the value the behaviour is expected to have); they are never a hardware value and the per-emulator record under `known` is what the judge compares.",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -35,7 +35,8 @@
   "l4-acc-stage": 4154872746,
   "l4-acc-dual": 935984906,
   "l4-acc-split-rear": 1557217977,
-  "l4-acc-split-hdma": 2335395293
+  "l4-acc-split-hdma": 2335395293,
+  "l4-acc-rear-plane": 1470346845
  },
  "items": [
   {
@@ -53,7 +54,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -72,7 +72,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -91,7 +90,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -110,7 +108,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -129,7 +126,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -148,7 +144,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -167,7 +162,6 @@
    ],
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -182,7 +176,6 @@
    "expect": 102,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -197,7 +190,6 @@
    "expect": 20904,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -212,7 +204,6 @@
    "expect": 2487,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -227,7 +218,6 @@
    "expect": 4294964076,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -243,14 +233,13 @@
    "expect": 1179648,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
   {
    "id": "acc-dual-both",
    "demo": "l4-acc-dual",
-   "title": "Front view in bank D and plan view in bank C both have content and never carry each other's clear colour",
+   "title": "Front view in bank D and plan view in bank C both have content and never carry each other's clear colour (the same behaviour is the L2 prerequisite group dual-front / dual-plan / dual-cross-zero in Elevane)",
    "values": [
     3
    ],
@@ -259,14 +248,13 @@
    "expect": 1,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
   {
    "id": "acc-split-hdma-holes",
    "demo": "l4-acc-split-hdma",
-   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618 area) (also stands for Elevane hdma-holes-zero: the same HBlank-DMA path)",
+   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618). Elevane judges the same scheme as the L3 targets hdma-holes-zero and acc-split-hdma-holes; here it is recorded for every emulator",
    "values": [
     3
    ],
@@ -274,25 +262,22 @@
    "expect": 0,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
   {
    "id": "2d-obj-line-budget",
    "demo": "l4-2d-obj-line",
-   "title": "120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational)",
+   "title": "120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the highest sprite group still drawn (0..3; 3 = the last group, sprites 90-119, is drawn). GBATEK's 1210 is the GBA figure and a DS line is longer; every emulator draws all four groups. A plain record: the expected value is what the emulators gave, not a hardware value",
    "values": [
     8
    ],
-   "check": "range",
-   "min": 1,
-   "max": 2,
+   "check": "eq",
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
-   "level_basis": "none"
+   "level_basis": "none",
+   "expect": 3
   },
   {
    "id": "sys-dma-disp-pixels",
@@ -305,7 +290,6 @@
    "expect": 0,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -320,7 +304,6 @@
    "expect": 0,
    "source": "unconfirmed",
    "role": "target",
-   "to": "probes",
    "level": 4,
    "level_basis": "none"
   },
@@ -341,13 +324,41 @@
   {
    "id": "rear-plane-latency",
    "demo": "l4-acc-split-rear",
-   "title": "Rear-plane path of the same-screen two-pass view: the capture routing shows within 1 frame (the Corvane acc-split-rear measurement; it stands for the rear-plane path of Elevane preset 2 only as far as routing latency, not its pixel counts)",
+   "title": "Capture routing latency of the same-screen rear-plane scheme, measured before the rear plane is set up (the Corvane acc-split-rear measurement); the same behaviour is the L2 prerequisite acc-split-rear-latency in Elevane. The rear-plane pixels are rear-plane / rear-plane-full (l4-acc-rear-plane)",
    "values": [
     0
    ],
    "check": "range",
    "min": 0,
    "max": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "rear-plane",
+   "demo": "l4-acc-rear-plane",
+   "title": "Same-screen two-pass view with the capture as the 3D rear plane, set up before the first pass: the captured pass holds opaque pixels (stands for Elevane preset 2 `rear-plane`, retired from Elevane)",
+   "values": [
+    4
+   ],
+   "check": "nonzero",
+   "mask": 4294967295,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "rear-plane-full",
+   "demo": "l4-acc-rear-plane",
+   "title": "The captured pass is fully opaque: 4096 of 4096 samples, both halves, because the previous pass came back as the rear plane (half means one side is missing; stands for Elevane preset 2 `rear-plane-full`, retired from Elevane)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 4096,
    "source": "unconfirmed",
    "role": "target",
    "level": 4,
@@ -402,6 +413,12 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "rear-plane": [
+     4096
+    ],
+    "rear-plane-full": [
+     4096
     ],
     "rear-plane-latency": [
      1
@@ -465,6 +482,12 @@
     "acc-stage-cut-exact": [
      0
     ],
+    "rear-plane": [
+     1408
+    ],
+    "rear-plane-full": [
+     1408
+    ],
     "rear-plane-latency": [
      1
     ],
@@ -527,6 +550,12 @@
     "acc-stage-cut-exact": [
      1179648
     ],
+    "rear-plane": [
+     1408
+    ],
+    "rear-plane-full": [
+     1408
+    ],
     "rear-plane-latency": [
      1
     ],
@@ -535,6 +564,210 @@
     ],
     "sys-dma-disp-pixels": [
      0
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "melonds-4ce2188-software": {
+   "emulator": "melonDS master 4ce2188 (MELONDS_COMMIT=4ce2188), software renderer",
+   "observed": {
+    "2d-display-pixels": [
+     0
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     0
+    ],
+    "acc-stage-cut-exact": [
+     1179648
+    ],
+    "rear-plane": [
+     4096
+    ],
+    "rear-plane-full": [
+     4096
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     1179648
+    ],
+    "sys-dma-disp-pixels": [
+     0
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "melonds-4ce2188-gl-classic": {
+   "emulator": "melonDS master 4ce2188, OpenGL (Classic) renderer",
+   "observed": {
+    "2d-display-pixels": [
+     768
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     2056
+    ],
+    "acc-stage-cut-exact": [
+     0
+    ],
+    "rear-plane": [
+     1408
+    ],
+    "rear-plane-full": [
+     1408
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     4608
+    ],
+    "sys-dma-disp-pixels": [
+     653
+    ],
+    "sys-dma-gfx-polys": [
+     2
+    ]
+   }
+  },
+  "melonds-4ce2188-gl-compute": {
+   "emulator": "melonDS master 4ce2188, OpenGL (Compute) renderer",
+   "observed": {
+    "2d-display-pixels": [
+     768
+    ],
+    "2d-obj-line-budget": [
+     3
+    ],
+    "3d-clip-polys": [
+     33
+    ],
+    "3d-fifo-polys": [
+     280
+    ],
+    "3d-fifo-verts": [
+     668
+    ],
+    "3d-light-polys": [
+     39
+    ],
+    "3d-matrix-polys": [
+     107
+    ],
+    "3d-poly-polys": [
+     81
+    ],
+    "3d-test-inside": [
+     102
+    ],
+    "3d-test-pos-w": [
+     20904
+    ],
+    "3d-test-vec-x": [
+     2487
+    ],
+    "3d-test-vec-z": [
+     4294964076
+    ],
+    "acc-dual-both": [
+     1
+    ],
+    "acc-split-hdma-holes": [
+     2056
+    ],
+    "acc-stage-cut-exact": [
+     1179648
+    ],
+    "rear-plane": [
+     1408
+    ],
+    "rear-plane-full": [
+     1408
+    ],
+    "rear-plane-latency": [
+     1
+    ],
+    "seam-uv-exact": [
+     1179648
+    ],
+    "sys-dma-disp-pixels": [
+     653
     ],
     "sys-dma-gfx-polys": [
      2
@@ -589,6 +822,12 @@
     "acc-stage-cut-exact": [
      1179648
     ],
+    "rear-plane": [
+     4096
+    ],
+    "rear-plane-full": [
+     4096
+    ],
     "rear-plane-latency": [
      1
     ],
@@ -604,5 +843,5 @@
    }
   }
  },
- "known_note": "Measured 2026-11-12 on the release probe ROMs (./build.sh -j8 release). Every value is what that emulator gave, none is a hardware value; items with a mask record the masked value. Real hardware has not been measured."
+ "known_note": "Measured 2026-11-12 on the release probe ROMs (./build.sh -j8 release), fresh logs on every profile. Every value is what that emulator gave, none is a hardware value; items with a mask record the masked value. melonDS master 4ce2188 was run with MELONDS_COMMIT=4ce2188 tools/melonds/mds.sh demos. Real hardware has not been measured."
 }
