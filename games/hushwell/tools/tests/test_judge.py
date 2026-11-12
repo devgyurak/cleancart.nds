@@ -98,6 +98,29 @@ class Judge(unittest.TestCase):
         rc, _ = run_judge('RESULT ' + ' '.join('%08x' % w for w in words) + '\n')
         self.assertEqual(rc, 2)
 
+    def test_informational_change_does_not_break_a_profile(self):
+        exp = load()
+        # sys-ipc-ping is unconfirmed: a different value is reported but not a mismatch
+        rc, r = run_judge(line(exp, 'sys-ipc', [0xA, 9, 120, 0x7F]), '--profile', 'melonds-1.1-software')
+        self.assertEqual(rc, 0)
+
+    def test_gating_change_breaks_a_profile(self):
+        exp = load()
+        rc, _ = run_judge(line(exp, 'sys-math', [1, 1000000, 0x5000, 4096]), '--profile', 'melonds-1.1-software')
+        self.assertEqual(rc, 1)
+
+    def test_not_value_and_new_checks(self):
+        v = [0xFFFF, 0xFFFF, 0xFFFF, 0, 0x10]
+        self.assertEqual(judge.grade({'check': 'same', 'values': [0, 1, 2], 'not_value': 0xFFFF}, v), 'NG')
+        self.assertEqual(judge.grade({'check': 'same', 'values': [0, 1, 2]}, v), 'OK')
+        self.assertEqual(judge.grade({'check': 'ne', 'values': [3, 4]}, v), 'OK')
+        self.assertEqual(judge.grade({'check': 'nonzero', 'values': [4], 'mask': 0x10}, v), 'OK')
+        self.assertEqual(judge.grade({'check': 'nonzero', 'values': [3], 'mask': 0x10}, v), 'NG')
+
+    def test_malformed_item_is_an_input_error(self):
+        with self.assertRaises(judge.Fatal):
+            judge.grade({'id': 'x', 'check': 'eq', 'values': [0]}, [1])    # no "expect"
+
     def test_profiles_name_known_items(self):
         exp = load()
         ids = {i['id'] for i in exp['items']}

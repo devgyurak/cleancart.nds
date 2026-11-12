@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: 2026 Hushwell contributors
+# SPDX-FileCopyrightText: 2026 Corvane contributors
 """Grade Hushwell's feature demos against expected.json.
 
     judge.py [--profile NAME] [--demo NAME] [--partial] [--json] LOG...
@@ -15,17 +15,18 @@ RESULT lines of the emulator, one per demo:
     python3 tools/judge.py --profile melonds-1.1-software demos.log
 
 A line is `[<rom name>] RESULT <hex words>`; the demo is identified by the id in
-the block, so the name prefix is optional. The io-qalog demo and the auto QA run of
-hushwell.nds both leave a block with id QARN; its item is `io-qalog-verdict`
-(`--demo io-qalog` grades a log of the main ROM's QA run).
+the block, so the name prefix is optional. The auto QA run of hushwell.nds leaves a block with id QARN; its item is `qa-verdict`
+(demo `qa`, optional: `--demo qa` grades a log of the main ROM's QA run).
 
-Exit 0: every gating item passes (or, with --profile, the failing and n/a items
-match the profile exactly). Exit 1: a gating item fails or the profile differs.
+Exit 0: every gating item passes (or, with --profile, the failing gating items and the n/a
+items match the profile exactly; informational items that changed are only reported). Exit 1: a gating item fails or the profile differs.
 Exit 2: no usable input (a demo is missing, too few words, a bad expected.json;
 --partial or --demo grade only what is in the log).
 Items with source `unconfirmed` are informational: they print INFO but never fail.
 An item with `na_when` [i, v] is n/a when values[i] == v (no polygon counters in
-DeSmuME). The level of an item (docs/LEVELS.md) never changes a verdict.
+DeSmuME; without --profile an n/a item is not a failure, so a real run on hardware should use a profile or look at the n/a list).
+Checks: eq, range, mask, nonzero, same (all values equal), ne (two values differ); `not_value` makes an item fail when a value
+equals it (0xFFFF = a capture that did not finish). The level of an item (docs/LEVELS.md) never changes a verdict.
 """
 
 import argparse
@@ -69,6 +70,7 @@ def level_summary(rows):
 def parse_blocks(text):
     """{demo id: words}: every `RESULT` line (the last one of an id wins)."""
     blocks = {}
+    zero = 0
     for line in text.splitlines():
         m = re.search(r'\bRESULT((?: [0-9a-fA-F]{8})+)\s*$', line)
         if not m:
@@ -76,25 +78,38 @@ def parse_blocks(text):
         words = [int(w, 16) for w in m.group(1).split()]
         if len(words) >= 3:
             blocks[words[1]] = words
+            zero += words[0] == 0
+    if zero:
+        print('warning: %d RESULT line(s) are all zero (the ROM did not reach its checkpoint, or it is not a demo)' % zero,
+              file=sys.stderr)
     return blocks
 
 
 def grade(item, vals):
     """'OK', 'NG' or 'NA'."""
-    na = item.get('na_when')
-    if na and vals[na[0]] == na[1]:
-        return 'NA'
-    c = item['check']
-    v = [vals[i] for i in item['values']]
-    if c == 'eq':
-        return 'OK' if v[0] == item['expect'] else 'NG'
-    if c == 'range':
-        return 'OK' if item['min'] <= v[0] <= item['max'] else 'NG'
-    if c == 'mask':
-        return 'OK' if (v[0] & item['mask']) == item['expect'] else 'NG'
-    if c == 'same':
-        return 'OK' if v[0] == v[1] else 'NG'
-    raise Fatal('item %r: unknown check %r' % (item['id'], c))
+    try:
+        na = item.get('na_when')
+        if na and vals[na[0]] == na[1]:
+            return 'NA'
+        c = item['check']
+        v = [vals[i] for i in item['values']]
+        if 'not_value' in item and any(x == item['not_value'] for x in v):
+            return 'NG'    # e.g. 0xFFFF: a capture that did not finish
+        if c == 'eq':
+            return 'OK' if v[0] == item['expect'] else 'NG'
+        if c == 'range':
+            return 'OK' if item['min'] <= v[0] <= item['max'] else 'NG'
+        if c == 'mask':
+            return 'OK' if (v[0] & item['mask']) == item['expect'] else 'NG'
+        if c == 'nonzero':
+            return 'OK' if (v[0] & item['mask']) != 0 else 'NG'
+        if c == 'same':
+            return 'OK' if all(x == v[0] for x in v) else 'NG'
+        if c == 'ne':
+            return 'OK' if v[0] != v[1] else 'NG'
+    except (KeyError, IndexError, TypeError) as e:
+        raise Fatal('item %r is malformed in expected.json: %r' % (item.get('id'), e))
+    raise Fatal('item %r: unknown check %r' % (item.get('id'), c))
 
 
 def find_expected(arg):
@@ -175,13 +190,16 @@ def run(args):
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
 
+    gating_ids = {i['id'] for (i, _, gt) in results if gt}
     if profile is not None:
         want, want_na = sorted(profile['ng']), sorted(profile.get('na', []))
         if args.partial or args.demo:
             seen = {i['id'] for (i, _, _) in results}
             want = [w for w in want if w in seen]
             want_na = [w for w in want_na if w in seen]
-        rc = 0 if failing == want and na == want_na else 1
+        # Only gating items decide the verdict; informational ones are reported when they change.
+        want_gate = [w for w in want if w in gating_ids]
+        rc = 0 if gating_fail == want_gate and na == want_na else 1
     else:
         rc = 1 if gating_fail else 0
 
@@ -199,9 +217,9 @@ def run(args):
         new_pass = [i for i in want if i not in failing]
         print('profile %s: %s' % (args.profile, 'MATCH' if rc == 0 else 'MISMATCH'))
         for i in new_fail:
-            print('  NEWLY FAILING %s' % i)
+            print('  NEWLY FAILING %s%s' % (i, '' if i in gating_ids else ' (informational, not part of the verdict)'))
         for i in new_pass:
-            print('  NEWLY PASSING %s' % i)
+            print('  NEWLY PASSING %s%s' % (i, '' if i in gating_ids else ' (informational, not part of the verdict)'))
         for i in na:
             if i not in want_na:
                 print('  NEWLY N/A %s' % i)
