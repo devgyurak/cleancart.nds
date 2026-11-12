@@ -110,6 +110,8 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | io-rtc | date and time update every second, stage 2 day/night | year, month, day, hour | ✅ `1a b a f` date and time tick; stage 2 sky DAY |
 | io-touch | crosshair at the pen position, pixel/raw values | touching, x, y, raw x | ✅ `0 78 64 0` pen 120,100 while touched |
 | io-power | A: top backlight, B: speaker, closing the lid sleeps | battery, lid, backlight, speaker | ✅ `f 0 0 1` battery OK, lid open, A/B toggle |
+| acc-dual | front view top / plan view bottom (both 3D through the capture), then a large city drawn in a left and a right pass blended by the capture on the top screen (see [Capture-path cross-check](#capture-path-cross-check-acc-dual)) | frame latency, front/plan clear-colour pixels in banks D/C, composite left/right pixels, pass flags | ✅ software renderer `1 b4b4ab3b 1c501df9 1f` all pass |
+| acc-split-tex / -bg / -relay / -rear / -rear-read / -rear-write / -hdma | one screen in two passes at 60 fps, the split moving every 8 frames; the captured side comes back as a texture, a bitmap BG, VRAM display + graphics capture, the 3D rear plane, or an HBlank DMA from the capture bank into engine B's bitmap BG (see [Same-screen two-pass](#same-screen-two-pass-acc-split)) | latency, variant, split x; hdma: frames with holes (blend << 8 \| capture only) | ✅ software renderer: full picture every frame in all seven |
 | acc-stage | reversed-UV cards, edge-marked puppets on line-polygon strings, semi-transparent lantern over darkened 3D; grades itself (see [Accuracy cross-check](#accuracy-cross-check-acc-stage)) | cut-line pixels per card row, edge pixels, line pixels, pass flags | ✅ software renderer `120000 b7 2c1 1f` all pass; GL renderers differ (see below) |
 
 ## Accuracy cross-check (acc-stage)
@@ -151,6 +153,111 @@ Open questions that need hardware: whether horizontal line polygons are drawn
 (melonDS draws them, DeSmuME doesn't) and the exact line pixel count (705 / 710
 / 834 / 338). The display capture saw the same values as the GL output here, so
 in-ROM grading caught all three GL differences.
+
+## Capture-path cross-check (acc-dual)
+
+`acc-dual` runs the two display-capture techniques a game needs for 3D on both
+screens and for scenes over the polygon limit, as reported broken in melonDS's
+GL renderers: [#2618](https://github.com/melonDS-emu/melonDS/issues/2618)
+(two-pass rendering blinks on master) and
+[#2619](https://github.com/melonDS-emu/melonDS/issues/2619) (captured frames
+do not upscale).
+
+1. Calls 0–7 measure the frame latency: a full-screen quad whose colour names
+   its call, captured once.
+2. Calls 8–55 show a block city as a front view (top, red clear) and a plan view
+   (bottom, blue clear) on alternate frames, as the ending does.
+3. Calls 56–59 draw a larger city in one pass to show it overflows.
+4. From call 60 the larger city is drawn in a left and a right pass (half
+   frustum, half viewport, clear alpha 0). The second capture blends 3D and
+   the first pass from bank B at EVA = EVB = 16. Engine B shows the composite
+   on the top screen. After the checkpoint A switches between the dual view
+   and the two-pass view.
+
+The clear colour is latched with the polygon list, so it is set in the call
+that sends the geometry, not with the capture.
+
+Result block: `values[0]` latency, `[1]` front-clear pixels in D << 16 |
+plan-clear pixels in C, `[2]` composite left << 16 | right pixels, `[3]` flags
+(bit 0 views in the right banks, 1 one pass overflows, 2 both passes fit,
+3 composite has both halves, 4 latency 0 or 1; hardware should give `1f`),
+`[4..6]` polygons | overflow << 16 for one pass and passes 1 and 2, `[7]`
+composite hash, `[8..9]` hashes of D and C, `[10]` cross counts (should be 0).
+
+Results on 2026-11-11, 1x, headless. melonDS master is commit `4ce2188` (the
+build #2618 names), run with `MELONDS_COMMIT=…`.
+
+| Build / renderer | Latency | Views | One pass | Passes | Composite halves | Flags | Notes |
+|---|---|---|---|---|---|---|---|
+| 1.1 software | 1 | ✅ | 1536, overflow | 1232 + 1218 | 7248 / 7673 | `1f` | one bright column at the seam (x = 128): both passes draw it and the blend adds them |
+| 1.1 OpenGL (Classic) | 1 | ✅ | same | same | 7214 / 7692 | `1f` | no seam column |
+| 1.1 OpenGL (Compute) | 1 | ✅ | same | same | 7270 / 7684 | `1f` | seam column like software |
+| master software / Classic / Compute | same as 1.1 | ✅ | same | same | same as 1.1 | `1f` | the two-pass view did not blink in four straight frames: #2618 is **not** reproduced by this scheme |
+| DeSmuME | 1 | ✅ | 0, no overflow | 0 + 0 | 7164 / 7812 | `19` | polygon/vertex RAM counters read 0; no seam column |
+
+At `SCALE=2` the top screen of the dual view alternates between the upscaled 3D
+frame and the 1x captured frame on both 1.1 and master: #2619 is reproduced.
+The hashes differ between renderers (rasterisation differs slightly), so a
+check across renderers compares pixels with a tolerance, not hashes. Still
+open: the seam column on hardware. The capture scheme of the #2618 homebrew is
+found and reproduced by `acc-split-hdma` (see [Same-screen two-pass](#same-screen-two-pass-acc-split)).
+
+## Same-screen two-pass (acc-split)
+
+The seven `acc-split-*` builds chase [#2618](https://github.com/melonDS-emu/melonDS/issues/2618):
+on master its homebrew shows the part left of a moving split black on about every
+other frame (measured from the video attached to the issue; 1.1 is fine). Each
+frame renders one side of the split live (half frustum, half viewport) and takes
+the other side from the previous frame's capture. Walls and ground cover every
+pixel and the backdrop is grey, so a grey (or black) pixel on the top screen means
+the captured side is missing. Frames 100–107 (hdma: 150–153), top screen, headless:
+
+| Way the captured side comes back | 1.1 soft | 1.1 GL / Compute | master `4ce2188` soft | master GL / Compute |
+|---|---|---|---|---|
+| `tex`: direct-colour texture behind the live pass | ✅ | ✅ | ✅ | ✅ |
+| `bg`: 16bpp bitmap BG3 behind the 3D layer | ✅ | ✅ | ✅ | ✅ |
+| `relay`: VRAM display mode on even frames, graphics capture on odd frames | ✅ | ✅ | ✅ | ✅ |
+| `rear`: 3D rear plane (clear bitmap, texture slot 2) | ✅ | ❌ missing side every frame | ✅ | ❌ missing side every frame |
+| `rear-read`: same, CPU reads one word of the capture first | ✅ | ❌ | ✅ | ✅ |
+| `rear-write`: same, CPU reads and writes back one word first | ✅ | ❌ | ✅ | ✅ |
+| `hdma`: HBlank DMA from the capture bank into engine B's bitmap BG | ✅ | ✅ | ✅ | ❌ left part missing every frame (GL black, Compute transparent); ROM result `0808` |
+
+### Rear plane
+
+The OpenGL renderers build the rear plane from the emulated VRAM copy
+(`VRAMFlat_Texture`), not from the capture. On master a capture lives in a GPU
+texture until the CPU touches that bank, so any CPU access fixes it there; on
+1.1 even that does not. The missing side alternates left and right because the
+passes do. This failure is a separate finding, not found in melonDS's issues.
+
+### HBlank DMA from the capture bank: the #2618 mechanism
+
+`hdma` is the scheme of the homebrew in #2618, read from its register writes in a
+patched headless master core: engine A (3D) sits on the bottom screen and is only
+captured; the top screen is engine B's 16bpp bitmap BG2, filled by a repeating
+HBlank DMA (one 512-byte line per HBlank) from capture bank D, with BG2Y = −1 so a
+line copied at HBlank N shows on scanline N + 1. Frames alternate:
+
+| Frame | Capture into bank D | DMA reads | On hardware the top screen shows |
+|---|---|---|---|
+| even (P) | 3D only (right pass) | one line ahead, before the capture overwrites it | the last full picture |
+| odd (Q) | 3D (left pass) + VRAM D, EVA = EVB = 16 | the line just captured | the new full picture |
+
+melonDS master keeps captures on the GPU and runs them at VBlank (or when a
+register changes). The first CPU or DMA read of a bank being captured
+(VCount 0) copies the capture texture to emulated VRAM once and marks it synced,
+and logs `READING VRAM AS IT IS BEING CAPTURED TO`. The DMA then copies the
+previous frame's capture, which holds one pass only, so the left part is
+missing. In the ROM's result the missing part sits in whole 64-line capture
+blocks (lines 0–127 on one frame, 128–191 on the next). A debug patch that runs the capture up to the
+current line on every scanline and leaves an unfinished capture unsynced
+removes the hole, both in this ROM and in the homebrew. 1.1 and the software
+renderer write captures to VRAM line by line, so they are fine.
+
+The ROM grades itself: after each of the last 16 frames it reads the sub BG
+(bank C) and counts transparent or black pixels on every fourth line. Result
+`values[3]` = frames with holes, blend frames << 8 | capture-only frames;
+`0000` passes, master GL and Compute give `0808`.
 
 ## Main build checklist
 

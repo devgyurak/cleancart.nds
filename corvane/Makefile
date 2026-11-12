@@ -71,7 +71,8 @@ DEMOS := \
   snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream \
   io-cart io-save-eeprom io-save-flash io-save-fram io-firmware io-rtc \
   io-touch io-power \
-  io-qalog acc-stage
+  io-qalog acc-stage acc-dual acc-split-tex acc-split-bg acc-split-relay acc-split-rear \
+  acc-split-rear-read acc-split-rear-write acc-split-hdma
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))

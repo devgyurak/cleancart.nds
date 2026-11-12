@@ -40,7 +40,9 @@ switching to ABC while playing. Remind them to click the window for focus.
 as the app: software renderer, FreeBIOS, generated firmware, no JIT, direct
 boot, save type picked from the header like the app). `RENDERER=gl` or
 `RENDERER=compute` (with `SCALE=n`) switches to the app's OpenGL renderers on
-Mesa llvmpipe; screenshots then come from the GL compositor, as in the app. In the corvane QA its
+Mesa llvmpipe; screenshots then come from the GL compositor, as in the app.
+`MELONDS_COMMIT=<sha>` builds and runs that melonDS commit instead of 1.1
+(both GPU APIs are supported), for checking a regression on master. In the corvane QA its
 demo result blocks matched the app (read over GDB) byte for byte.
 
 ```sh

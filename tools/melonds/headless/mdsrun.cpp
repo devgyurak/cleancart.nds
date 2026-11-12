@@ -2,7 +2,9 @@
 // SPDX-FileCopyrightText: 2026 Corvane contributors
 //
 // Headless runner on the melonDS 1.1 core (the same core as melonDS.app):
-// software renderer by default, FreeBIOS, generated firmware, no JIT. It loads a ROM the
+// software renderer by default, FreeBIOS, generated firmware, no JIT. The
+// Dockerfile can build a later melonDS commit instead; both GPU APIs compile
+// (MDS_NEW_GPU below). It loads a ROM the
 // way the Qt frontend does (save from a .sav file, direct boot), feeds
 // scripted input and writes screenshots, so QA can look at melonDS output
 // without screen recording.
@@ -56,8 +58,16 @@
 #include "GPU.h"
 #include "SPU.h"
 #include "SPI.h"
+// melonDS after 1.1 merged the renderers into one GPU::Renderer per backend
+// (GPU_Soft.h / GPU_OpenGL.h); 1.1 has separate 3D renderers and a compositor.
+#if __has_include("GPU_Soft.h")
+#define MDS_NEW_GPU 1
+#include "GPU_OpenGL.h"
+#else
+#define MDS_NEW_GPU 0
 #include "GPU3D_OpenGL.h"
 #include "GPU3D_Compute.h"
+#endif
 #include "frontend/glad/glad.h"
 
 #include <EGL/egl.h>
@@ -344,12 +354,12 @@ static bool gl_context()
     return gladLoadGLLoader((GLADloadproc)eglGetProcAddress) != 0;
 }
 
-// The GL compositor's output texture: both screens at SCALE, 2*SCALE rows
-// apart, top row first, in melonDS's BGRA byte order.
+// The GL output of the renderer: both screens at SCALE, top row first.
+// 1.1: one texture in BGRA order, the screens 2*SCALE rows apart.
+// Later builds: a two-layer RGBA array texture, one layer per screen.
 static void write_png_gl(const std::string& path, NDS& nds, int scale)
 {
-    int w = 256 * scale, th = (384 + 2) * scale;
-    std::vector<u8> tex(w * th * 4);
+    int w = 256 * scale, sh = 192 * scale;
     glFinish();
     // The renderer leaves a pixel-pack buffer bound (its capture readback) and
     // owns texture unit 1: read through unit 0 with no PBO, then put both back.
@@ -357,22 +367,40 @@ static void write_png_gl(const std::string& path, NDS& nds, int scale)
     glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING, &pbo);
     glGetIntegerv(GL_ACTIVE_TEXTURE, &unit);
     glActiveTexture(GL_TEXTURE0);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    nds.GPU.GetRenderer3D().BindOutputTexture(nds.GPU.FrontBuffer);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    std::vector<u8> tex;
+    auto row_of = [&](int y) -> const u8* {
+#if MDS_NEW_GPU
+        return tex.data() + ((size_t)(y >= sh) * sh + y % sh) * w * 4;
+#else
+        return tex.data() + (size_t)(y < sh ? y : y + 2 * scale) * w * 4;
+#endif
+    };
+#if MDS_NEW_GPU
+    glGetIntegerv(GL_TEXTURE_BINDING_2D_ARRAY, &bound);
+    void* top = nullptr; void* bot = nullptr;
+    nds.GPU.GetFramebuffers(&top, &bot);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, *(GLuint*)top);
+    tex.resize((size_t)w * sh * 2 * 4);
+    glGetTexImage(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.data());
+    glBindTexture(GL_TEXTURE_2D_ARRAY, bound);
+#else
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
+    tex.resize((size_t)w * (384 + 2) * scale * 4);
+    nds.GPU.GetRenderer3D().BindOutputTexture(nds.GPU.FrontBuffer);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, tex.data());
     glBindTexture(GL_TEXTURE_2D, bound);
+#endif
     glActiveTexture(unit);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo);
     std::vector<u8> rgb;
-    for (int y = 0; y < 384 * scale; y++) {
-        int ty = y < 192 * scale ? y : y + 2 * scale;
-        const u8* row = tex.data() + (size_t)ty * w * 4;
+    for (int y = 0; y < 2 * sh; y++) {
+        const u8* row = row_of(y);
         for (int x = 0; x < w; x++)
             rgb.insert(rgb.end(), row + x * 4, row + x * 4 + 3);
     }
-    write_png_rgb(path, w, 384 * scale, rgb);
+    write_png_rgb(path, w, 2 * sh, rgb);
 }
 
 static void write_wav(const std::string& path, const std::vector<s16>& s)
@@ -536,12 +564,25 @@ int main(int argc, char** argv)
     }
     if (renderer != "soft") {
         if (!gl_context()) { fprintf(stderr, "no EGL/GL 4.3 context\n"); return 1; }
+        if (renderer != "gl" && renderer != "compute") {
+            fprintf(stderr, "unknown RENDERER %s\n", renderer.c_str());
+            return 2;
+        }
+#if MDS_NEW_GPU
+        nds.SetRenderer(std::make_unique<GLRenderer>(nds, renderer == "compute"));
+        RendererSettings rs {};
+        rs.ScaleFactor = scale;
+        nds.GetRenderer().SetRenderSettings(rs);
+        int cur = 0, count = 0;
+        while (nds.GetRenderer().NeedsShaderCompile())
+            nds.GetRenderer().ShaderCompileStep(cur, count);
+#else
         if (renderer == "gl") {
             auto r = GLRenderer::New();
             if (!r) { fprintf(stderr, "GLRenderer::New failed\n"); return 1; }
             r->SetRenderSettings(false, scale);
             nds.GPU.SetRenderer3D(std::move(r));
-        } else if (renderer == "compute") {
+        } else {
             auto r = ComputeRenderer::New();
             if (!r) { fprintf(stderr, "ComputeRenderer::New failed\n"); return 1; }
             r->SetRenderSettings(scale, false);
@@ -552,6 +593,7 @@ int main(int argc, char** argv)
                 r->ShaderCompileStep(cur, count);
             nds.GPU.SetRenderer3D(std::move(r));
         }
+#endif
         printf("GL %s\n", (const char*)glGetString(GL_RENDERER));
     }
 
@@ -581,8 +623,14 @@ int main(int argc, char** argv)
     auto shot = [&](const std::string& path) {
         if (renderer != "soft")
             return write_png_gl(path, nds, scale);
+#if MDS_NEW_GPU
+        void* top = nullptr; void* bot = nullptr;
+        nds.GPU.GetFramebuffers(&top, &bot);
+        write_png(path, (const u32*)top, (const u32*)bot);
+#else
         int fb = nds.GPU.FrontBuffer;
         write_png(path, nds.GPU.Framebuffer[fb][0].get(), nds.GPU.Framebuffer[fb][1].get());
+#endif
     };
 
     for (int f = 0; f < frames; f++) {
