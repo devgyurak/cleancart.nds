@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Chapter 1, apprentice: 4x4 grid, piles of height 1-2 (stack mode).
+# Rows of h are y = 0 (front) to y = 3, digits are the pile heights left to right.
+# The maker's heights give the orders; par is whatever the checker proves minimal.
+
+[1-01] name="First Row" chapter=1 mode=stack grid=4x4x2
+h = 1111/0000/0000/0000
+
+[1-02] name="Little Square" chapter=1 mode=stack grid=4x4x2
+h = 0110/0110/0000/0000
+
+[1-03] name="Step" chapter=1 mode=stack grid=4x4x2
+h = 1200/0000/0000/0000
+
+[1-04] name="Corner Post" chapter=1 mode=stack grid=4x4x2
+h = 2000/1000/1000/0000
+
+[1-05] name="Hollow Ring" chapter=1 mode=stack grid=4x4x2
+h = 1111/1001/1001/1111
+
+[1-06] name="Two Towers" chapter=1 mode=stack grid=4x4x2
+h = 2002/0000/0000/2002
+
+[1-07] name="Low Wall" chapter=1 mode=stack grid=4x4x2
+h = 2222/1111/0000/0000
+
+[1-08] name="Crown" chapter=1 mode=stack grid=4x4x2
+h = 1221/2112/2112/1221

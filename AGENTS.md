@@ -1,6 +1,6 @@
 # cleancart.nds
 
-Original Nintendo DS homebrew games, one per top-level folder (`corvane/`, `hushwell/`, `lightenette/`).
+Original Nintendo DS homebrew games, one per top-level folder (`corvane/`, `hushwell/`, `lightenette/`, `elevane/`).
 Everything that ships in a ROM must be licence-clean: our own code and our own
 generated assets, plus clearly noticed third-party runtime libraries.
 
@@ -71,7 +71,7 @@ so builds stay reproducible (two clean builds must give the same SHA-256).
 | A | fire (hold = charge) | X |
 | B | boost / dodge | Z |
 | X | bomb | S |
-| Y | (sound test: stop music) | A |
+| Y | (sound test: stop music; elevane: hold for the work layer) | A |
 | L / R | rotate camera | Q / W |
 | Start | pause | Return |
 | Select | developer console; title: choose start stage | Backspace (Delete) |
@@ -101,7 +101,7 @@ scripts/mklogo.py             regenerate the repository logo in docs/logo/
 .github/workflows/pr-guard.yml required PR check: title prefix (develop), head = develop (main)
 .github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 <game>/                       one game: Makefile, build.sh, Dockerfile, sources, docs
-                              (corvane/, hushwell/, lightenette/)
+                              (corvane/, hushwell/, lightenette/, elevane/)
 ```
 
 ## Rules (read before editing matching files)

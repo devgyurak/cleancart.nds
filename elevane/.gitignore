@@ -1,0 +1,8 @@
+# Build output. ROMs are never committed.
+/build/
+*.nds
+*.elf
+*.sav
+*.map
+*.dump
+__pycache__/

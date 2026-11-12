@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 Corvane contributors
+#
+# Chapter 4, bridges: layers mode (the work layer, Y + up/down). Cells may have gaps
+# under them, but every block must reach the floor through face-adjacent blocks: an arch
+# is two pillars joined from above.
+
+[4-01] name="Little Arch" chapter=4 mode=layers grid=5x1x3
+z0 = #...#
+z1 = #...#
+z2 = #####
+
+[4-02] name="Footbridge" chapter=4 mode=layers grid=8x2x2
+z0 = #......#/#......#
+z1 = ########/#......#
+
+[4-03] name="Gateway" chapter=4 mode=layers grid=6x2x4
+z0 = #....#/#....#
+z1 = #....#/#....#
+z2 = #....#/#....#
+z3 = ######/######
+
+[4-04] name="Twin Arches" chapter=4 mode=layers grid=7x1x3
+z0 = #.#.#.#
+z1 = #.#.#.#
+z2 = #######
+
+[4-05] name="Overhang" chapter=4 mode=layers grid=4x2x3
+z0 = #.../#...
+z1 = #.../#...
+z2 = ####/####
+
+[4-06] name="Viaduct" chapter=4 mode=layers grid=8x1x4
+z0 = #..#..#.
+z1 = #..#..#.
+z2 = #..#..#.
+z3 = #######.
+
+[4-07] name="Covered Bridge" chapter=4 mode=layers grid=7x3x3
+z0 = #.....#/#.....#/#.....#
+z1 = #######/#.....#/#######
+z2 = #######/#######/#######
+
+[4-08] name="Aqueduct" chapter=4 mode=layers grid=8x2x4
+z0 = #..#..#./#..#..#.
+z1 = #..#..#./#..#..#.
+z2 = #######./#######.
+z3 = ########/........
