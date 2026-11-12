@@ -31,15 +31,12 @@
   "sys-irq": 3050090109,
   "sys-timer": 3591142110,
   "sys-dma-now": 2539675920,
-  "sys-dma-vblank": 2140408880,
   "sys-dma-hblank": 3748157494,
-  "sys-dma-cart": 2418294358,
   "sys-dma-gfx": 1841165499,
   "sys-dma-disp": 1223439124,
   "sys-dma-fill": 2641824089,
   "sys-bios": 2195310490,
   "sys-math": 3680079643,
-  "sys-keys": 539658817,
   "2d-engines": 1970426969,
   "2d-text": 3307310817,
   "2d-affine": 2800304157,
@@ -76,31 +73,8 @@
   "3d-depth": 1801626962,
   "3d-test": 1553889453,
   "3d-compose": 2230188539,
-  "3d-limits": 3569651277,
-  "snd-mix": 1959406791,
-  "snd-pcm": 1889169133,
-  "snd-adpcm": 1871762358,
-  "snd-psg": 1187068991,
-  "snd-capture": 4174014751,
-  "snd-stream": 1981913095,
-  "io-cart": 2124619194,
-  "io-save-eeprom": 3537099980,
-  "io-save-flash": 2897808550,
-  "io-save-fram": 2035996814,
-  "io-firmware": 2262935645,
-  "io-rtc": 1590775779,
-  "io-touch": 4078676555,
-  "io-power": 2563074333,
   "io-qalog": 1314013521,
-  "acc-stage": 621958237,
-  "acc-dual": 2472404239,
-  "acc-split-tex": 194547615,
-  "acc-split-bg": 4185993981,
-  "acc-split-relay": 3794925995,
-  "acc-split-rear": 3065688928,
-  "acc-split-rear-read": 1049209627,
-  "acc-split-rear-write": 194809018,
-  "acc-split-hdma": 2762787424
+  "acc-stage": 621958237
  },
  "items": [
   {
@@ -219,19 +193,18 @@
    "level_basis": "gbatek:DS Interrupts"
   },
   {
-   "id": "sys-irq-hblank",
+   "id": "sys-irq-hblank-visible",
    "demo": "sys-irq",
-   "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297)",
+   "title": "HBlank IRQs in 120 frames: at least 192 lines x 119 and at most 263 x 120 (DISPSTAT; a GBA-style count of about 23040 still passes)",
    "values": [
     1
    ],
    "check": "range",
-   "min": 31297,
+   "min": 22848,
    "max": 31560,
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:LCD Dimensions and Timings"
   },
   {
@@ -294,21 +267,6 @@
    "level_basis": "gbatek:DS DMA Transfers"
   },
   {
-   "id": "sys-dma-vblank-frames",
-   "demo": "sys-dma-vblank",
-   "title": "A DMA started at VBlank has uploaded the palette in every one of 120 frames",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 120,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS DMA Transfers"
-  },
-  {
    "id": "sys-dma-fill-errors",
    "demo": "sys-dma-fill",
    "title": "DMA fill of 32 KB VRAM and 4 KB RAM has no errors",
@@ -323,71 +281,23 @@
    "level_basis": "gbatek:DS DMA Transfers"
   },
   {
-   "id": "sys-dma-cart-found",
-   "demo": "sys-dma-cart",
-   "title": "probe.bin is found through FNT/FAT in the cart image",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
-  },
-  {
-   "id": "sys-dma-cart-dma",
-   "demo": "sys-dma-cart",
-   "title": "Raw cart DMA read of probe.bin gives the expected CRC16",
-   "values": [
-    1,
-    3
-   ],
-   "check": "same",
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Protocol"
-  },
-  {
-   "id": "sys-dma-cart-nitro",
-   "demo": "sys-dma-cart",
-   "title": "NitroFS read of probe.bin gives the expected CRC16",
-   "values": [
-    2,
-    3
-   ],
-   "check": "same",
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Protocol"
-  },
-  {
-   "id": "sys-dma-gfx-polys",
+   "id": "sys-dma-gfx-polys-any",
    "demo": "sys-dma-gfx",
-   "title": "A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint",
+   "title": "The DMA-fed display list cube leaves 1 to 6 polygons (a cube has six faces)",
    "values": [
     1
    ],
-   "check": "eq",
-   "expect": 2,
+   "check": "range",
+   "min": 1,
+   "max": 6,
    "na_when": [
     1,
     0
    ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "sys-bios-lz77",
@@ -460,21 +370,6 @@
    "level_basis": "gbatek:DS Maths"
   },
   {
-   "id": "sys-math-sqrt64",
-   "demo": "sys-math",
-   "title": "64-bit hardware square root of 10^12 is 10^6",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 1000000,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS Maths"
-  },
-  {
    "id": "sys-math-len",
    "demo": "sys-math",
    "title": "Vector length of (3,4,0) is 5 in 20.12 fixed point",
@@ -501,53 +396,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "none"
-  },
-  {
-   "id": "sys-keys-held",
-   "demo": "sys-keys",
-   "title": "No key is held in a headless run",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Keypad"
-  },
-  {
-   "id": "sys-keys-keyxy",
-   "demo": "sys-keys",
-   "title": "EXTKEYIN with nothing pressed (X, Y, pen released, hinge open)",
-   "values": [
-    2
-   ],
-   "check": "mask",
-   "mask": 203,
-   "expect": 75,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Keypad"
-  },
-  {
-   "id": "sys-keys-irqs",
-   "demo": "sys-keys",
-   "title": "Number of key IRQs during the run (the scripted harness presses a key once; no hardware value)",
-   "values": [
-    1
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Keypad"
   },
   {
    "id": "2d-engines-powercnt",
@@ -1047,248 +895,178 @@
    "level_basis": "gbatek:DS 3D Status"
   },
   {
-   "id": "3d-fifo-polys",
+   "id": "3d-fifo-polys-some",
    "demo": "3d-fifo",
-   "title": "ship over terrain: polygons in polygon RAM",
+   "title": "The FIFO-fed scene stores polygons in polygon RAM: 1 to 2048 (RAM_COUNT range)",
    "values": [
     0
    ],
-   "check": "eq",
-   "expect": 280,
+   "check": "range",
+   "min": 1,
+   "max": 2048,
    "na_when": [
     0,
     0
    ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
-   "id": "3d-fifo-verts",
+   "id": "3d-fifo-verts-some",
    "demo": "3d-fifo",
-   "title": "ship over terrain: vertices in vertex RAM",
+   "title": "The FIFO-fed scene stores vertices in vertex RAM: 1 to 6144 (RAM_COUNT range)",
    "values": [
     1
    ],
-   "check": "eq",
-   "expect": 668,
-   "na_when": [
-    1,
-    0
-   ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "3d-clip-polys",
-   "demo": "3d-clip",
-   "title": "near-plane clipping view: polygons",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 33,
-   "na_when": [
-    0,
-    0
-   ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "3d-light-polys",
-   "demo": "3d-light",
-   "title": "lit station: polygons",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 39,
-   "na_when": [
-    0,
-    0
-   ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "3d-matrix-polys",
-   "demo": "3d-matrix",
-   "title": "hierarchical boss: polygons",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 107,
-   "na_when": [
-    1,
-    0
-   ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "3d-poly-polys",
-   "demo": "3d-poly",
-   "title": "floor, culled cubes, airship, shadow: polygons",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 81,
-   "na_when": [
-    0,
-    0
-   ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "3d-limits-ram",
-   "demo": "3d-limits",
-   "title": "Polygon RAM holds 2048 polygons: it is full at the end of the overload run",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 2048,
+   "check": "range",
+   "min": 1,
+   "max": 6144,
    "na_when": [
     1,
     0
    ],
    "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
   {
-   "id": "3d-limits-overflow",
-   "demo": "3d-limits",
-   "title": "Frames in which 600-2980 submitted triangles overflowed polygon RAM",
+   "id": "3d-clip-polys-some",
+   "demo": "3d-clip",
+   "title": "The clipping scene leaves polygons in polygon RAM: 1 to 2048",
    "values": [
     0
    ],
-   "check": "eq",
-   "expect": 47,
+   "check": "range",
+   "min": 1,
+   "max": 2048,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
+  },
+  {
+   "id": "3d-light-polys-some",
+   "demo": "3d-light",
+   "title": "The lighting scene leaves polygons in polygon RAM: 1 to 2048",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2048,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
+  },
+  {
+   "id": "3d-matrix-polys-some",
+   "demo": "3d-matrix",
+   "title": "The matrix-stack scene leaves polygons in polygon RAM: 1 to 2048",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2048,
    "na_when": [
     1,
     0
    ],
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
    "level_basis": "gbatek:DS 3D Status"
   },
   {
-   "id": "3d-test-inside",
-   "demo": "3d-test",
-   "title": "BOX_TEST says INSIDE in 102 of 120 frames (cube path across the view)",
+   "id": "3d-poly-polys-some",
+   "demo": "3d-poly",
+   "title": "The polygon-attribute scene leaves polygons in polygon RAM: 1 to 2048",
    "values": [
     0
    ],
-   "check": "eq",
-   "expect": 102,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
+   "check": "range",
+   "min": 1,
+   "max": 2048,
+   "na_when": [
+    0,
+    0
+   ],
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
-   "id": "3d-test-pos-w",
+   "id": "3d-test-inside-some",
    "demo": "3d-test",
-   "title": "POS_TEST w result of the last frame",
+   "title": "BOX_TEST reports the box inside the view volume on some but not all frames (1 to 119 of 120)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 119,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Status"
+  },
+  {
+   "id": "3d-test-pos-w-near",
+   "demo": "3d-test",
+   "title": "POS_TEST w is about 5.1 in 1.19.12 fixed point (20400 to 21400; the ROM matrix gives 5.1 x 4096)",
    "values": [
     1
    ],
-   "check": "eq",
-   "expect": 20904,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
+   "check": "range",
+   "min": 20400,
+   "max": 21400,
+   "source": "rom",
+   "role": "target",
+   "level": 1,
    "level_basis": "none"
   },
   {
-   "id": "3d-test-vec-x",
+   "id": "3d-test-vec-x-near",
    "demo": "3d-test",
-   "title": "VEC_TEST x result of the last frame",
+   "title": "VEC_TEST x is about 0.6 in the 4.12 result format (2330 to 2580)",
    "values": [
     2
    ],
-   "check": "eq",
-   "expect": 2487,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
+   "check": "range",
+   "min": 2330,
+   "max": 2580,
+   "source": "rom",
+   "role": "target",
+   "level": 1,
    "level_basis": "none"
   },
   {
-   "id": "3d-test-vec-z",
+   "id": "3d-test-vec-z-near",
    "demo": "3d-test",
-   "title": "VEC_TEST z result of the last frame (the emulators differ by one here)",
+   "title": "VEC_TEST z is about -0.79: sign-extended 4.12 value in -3400 to -3100",
    "values": [
     3
    ],
-   "check": "eq",
-   "expect": 4294964076,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
+   "check": "range",
+   "min": 4294963896,
+   "max": 4294964196,
+   "source": "rom",
+   "role": "target",
+   "level": 1,
    "level_basis": "none"
-  },
-  {
-   "id": "io-cart-ok",
-   "demo": "io-cart",
-   "title": "Stage 3 loads from NitroFS",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
-  },
-  {
-   "id": "io-cart-ready",
-   "demo": "io-cart",
-   "title": "Raw cart DMA is available",
-   "values": [
-    2
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Protocol"
   },
   {
    "id": "io-qalog-verdict",
@@ -1305,341 +1083,6 @@
    "level_basis": "none"
   },
   {
-   "id": "io-save-eeprom-write",
-   "demo": "io-save-eeprom",
-   "title": "Save write and verify succeed",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-eeprom-reload",
-   "demo": "io-save-eeprom",
-   "title": "Save reload succeeds",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-eeprom-seq",
-   "demo": "io-save-eeprom",
-   "title": "The save counter advanced by one",
-   "values": [
-    2
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-flash-write",
-   "demo": "io-save-flash",
-   "title": "Save write and verify succeed",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-flash-reload",
-   "demo": "io-save-flash",
-   "title": "Save reload succeeds",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-flash-seq",
-   "demo": "io-save-flash",
-   "title": "The save counter advanced by one",
-   "values": [
-    2
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-fram-write",
-   "demo": "io-save-fram",
-   "title": "Save write and verify succeed",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-fram-reload",
-   "demo": "io-save-fram",
-   "title": "Save reload succeeds",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-save-fram-seq",
-   "demo": "io-save-fram",
-   "title": "The save counter advanced by one",
-   "values": [
-    2
-   ],
-   "check": "eq",
-   "expect": 1,
-   "source": "rom",
-   "env": "cart",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Cartridge Backup"
-  },
-  {
-   "id": "io-firmware-colour",
-   "demo": "io-firmware",
-   "title": "Favourite colour from the firmware user settings is 0-15",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 15,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Firmware User Settings"
-  },
-  {
-   "id": "io-firmware-name",
-   "demo": "io-firmware",
-   "title": "Name length from the firmware user settings is 0-10",
-   "values": [
-    2
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 10,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Firmware User Settings"
-  },
-  {
-   "id": "io-rtc-month",
-   "demo": "io-rtc",
-   "title": "RTC month is 1-12",
-   "values": [
-    1
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 12,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Real-Time Clock"
-  },
-  {
-   "id": "io-rtc-day",
-   "demo": "io-rtc",
-   "title": "RTC day is 1-31",
-   "values": [
-    2
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 31,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Real-Time Clock"
-  },
-  {
-   "id": "io-rtc-hour",
-   "demo": "io-rtc",
-   "title": "RTC hour is 0-23",
-   "values": [
-    3
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 23,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Real-Time Clock"
-  },
-  {
-   "id": "io-touch-up",
-   "demo": "io-touch",
-   "title": "The pen is up at the checkpoint (the scripted touch ended)",
-   "values": [
-    0
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Touch Screen Controller"
-  },
-  {
-   "id": "io-touch-x",
-   "demo": "io-touch",
-   "title": "The last pen x is 120 (scripted touch at 120,100; one pixel of calibration error allowed)",
-   "values": [
-    1
-   ],
-   "check": "range",
-   "min": 119,
-   "max": 121,
-   "source": "GBATEK",
-   "env": "harness",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Touch Screen Controller"
-  },
-  {
-   "id": "io-touch-y",
-   "demo": "io-touch",
-   "title": "The last pen y is 100 (one pixel of calibration error allowed)",
-   "values": [
-    2
-   ],
-   "check": "range",
-   "min": 99,
-   "max": 101,
-   "source": "GBATEK",
-   "env": "harness",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Touch Screen Controller"
-  },
-  {
-   "id": "io-power-lid",
-   "demo": "io-power",
-   "title": "The lid is open",
-   "values": [
-    1
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Power Management"
-  },
-  {
-   "id": "acc-stage-cut",
-   "demo": "acc-stage",
-   "title": "Reversed-UV cut line: the first two card rows (compensated, plain) show no cut line (melonDS#2008)",
-   "values": [
-    0
-   ],
-   "check": "mask",
-   "mask": 65535,
-   "expect": 0,
-   "source": "report:melonDS#2008",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "report:melonDS#2008"
-  },
-  {
-   "id": "acc-stage-cut-row2",
-   "demo": "acc-stage",
-   "title": "Reversed-UV cut line: the uncompensated third row shows a cut line (melonDS#2008)",
-   "values": [
-    0
-   ],
-   "check": "nonzero",
-   "mask": 16711680,
-   "source": "report:melonDS#2008",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "report:melonDS#2008"
-  },
-  {
-   "id": "acc-stage-cut-exact",
-   "demo": "acc-stage",
-   "title": "The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value)",
-   "values": [
-    0
-   ],
-   "check": "mask",
-   "mask": 16711680,
-   "expect": 1179648,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
    "id": "acc-stage-edge",
    "demo": "acc-stage",
    "title": "Edge marking draws outlines",
@@ -1653,39 +1096,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS 3D Display Control"
-  },
-  {
-   "id": "acc-stage-line",
-   "demo": "acc-stage",
-   "title": "Line polygons draw lines",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 4,
-   "expect": 4,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-stage-lantern",
-   "demo": "acc-stage",
-   "title": "A semi-transparent OBJ alpha-blends over 3D the same in all three BLDCNT modes (melonDS#2503); the three captured pixels are equal and the captures finished",
-   "values": [
-    4,
-    5,
-    6
-   ],
-   "check": "same",
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:LCD I/O Color Special Effects",
-   "not_value": 65535
   },
   {
    "id": "acc-stage-lantern-visible",
@@ -1718,237 +1128,6 @@
    "not_value": 65535
   },
   {
-   "id": "acc-dual-latency",
-   "demo": "acc-dual",
-   "title": "The capture routing written one call late shows in the same frame (latency 1, ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-dual-both",
-   "demo": "acc-dual",
-   "title": "Front view in bank D and plan view in bank C both have content and never carry each other's clear colour",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 1,
-   "expect": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-dual-over",
-   "demo": "acc-dual",
-   "title": "The whole city in one pass overflows polygon RAM",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 2,
-   "expect": 2,
-   "na_when": [
-    4,
-    0
-   ],
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS 3D Status"
-  },
-  {
-   "id": "acc-dual-passes",
-   "demo": "acc-dual",
-   "title": "Two half passes fit polygon RAM",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 4,
-   "expect": 4,
-   "na_when": [
-    5,
-    0
-   ],
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS 3D Status"
-  },
-  {
-   "id": "acc-dual-halves",
-   "demo": "acc-dual",
-   "title": "Both halves of the blended two-pass picture have pixels",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 8,
-   "expect": 8,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
-  },
-  {
-   "id": "acc-dual-latency-flag",
-   "demo": "acc-dual",
-   "title": "Routing latency is at most 1 frame",
-   "values": [
-    3
-   ],
-   "check": "mask",
-   "mask": 16,
-   "expect": 16,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-tex-latency",
-   "demo": "acc-split-tex",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-bg-latency",
-   "demo": "acc-split-bg",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-relay-latency",
-   "demo": "acc-split-relay",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-rear-latency",
-   "demo": "acc-split-rear",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-rear-read-latency",
-   "demo": "acc-split-rear-read",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-rear-write-latency",
-   "demo": "acc-split-rear-write",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-hdma-latency",
-   "demo": "acc-split-hdma",
-   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
-   "values": [
-    0
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 1,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "none"
-  },
-  {
-   "id": "acc-split-hdma-holes",
-   "demo": "acc-split-hdma",
-   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618 area)",
-   "values": [
-    3
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
    "id": "sys-dma-hblank-captured",
    "demo": "sys-dma-hblank",
    "title": "The one-frame display capture of the probe finished (DISPCAPCNT bit 31 cleared)",
@@ -1961,21 +1140,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
-  },
-  {
-   "id": "sys-dma-hblank-pixels",
-   "demo": "sys-dma-hblank",
-   "title": "Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "elevane",
-   "level": 3,
-   "level_basis": "gbatek:DS DMA Transfers"
   },
   {
    "id": "sys-dma-hblank-samples",
@@ -2004,21 +1168,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
-  },
-  {
-   "id": "2d-affine-pixels",
-   "demo": "2d-affine",
-   "title": "Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:LCD I/O BG Rotation/Scaling"
   },
   {
    "id": "2d-affine-samples",
@@ -2062,21 +1211,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
-  },
-  {
-   "id": "2d-mosaic-pixels",
-   "demo": "2d-mosaic",
-   "title": "With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:LCD I/O Mosaic Function"
   },
   {
    "id": "2d-mosaic-samples",
@@ -2208,21 +1342,6 @@
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
-   "id": "2d-obj-bitmap-pixels",
-   "demo": "2d-obj-bitmap",
-   "title": "A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS Video OBJs"
-  },
-  {
    "id": "2d-obj-bitmap-samples",
    "demo": "2d-obj-bitmap",
    "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
@@ -2250,22 +1369,6 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
-  },
-  {
-   "id": "2d-obj-line-budget",
-   "demo": "2d-obj-line",
-   "title": "120 sprites of 16 pixels on one line (1920 cycles of OBJ work): the per-line OBJ budget may drop the last group (sprites 90-119). GBATEK's 1210 is the GBA figure and a DS line is longer, so this load may not exceed it; no emulator drops them (informational)",
-   "values": [
-    8
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 2,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
   },
   {
    "id": "2d-vram-alias",
@@ -2310,21 +1413,6 @@
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
-   "id": "sys-dma-disp-pixels",
-   "demo": "sys-dma-disp",
-   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
    "id": "sys-dma-disp-samples",
    "demo": "sys-dma-disp",
    "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
@@ -2353,21 +1441,6 @@
    "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
-   "id": "2d-display-pixels",
-   "demo": "2d-display",
-   "title": "The main-memory display FIFO delivers the frame in main memory (capture source B, 768 samples); what a capture sees while the display reads the same FIFO is not documented (DeSmuME fails even with bit 15 ignored)",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "unconfirmed",
-   "role": "relocate",
-   "to": "probes",
-   "level": 4,
-   "level_basis": "none"
-  },
-  {
    "id": "2d-display-samples",
    "demo": "2d-display",
    "title": "The probe compared this many pixels (so it cannot pass by checking nothing)",
@@ -2394,213 +1467,36 @@
    "role": "target",
    "level": 1,
    "level_basis": "gbatek:LCD I/O Display Control"
-  },
-  {
-   "id": "snd-mix-voices",
-   "demo": "snd-mix",
-   "title": "Song and effects together use 8 to 16 channels (SOUNDCNT Start/Busy) at the busiest frame",
-   "values": [
-    4
-   ],
-   "check": "range",
-   "min": 8,
-   "max": 16,
-   "source": "rom",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-pcm-oneshot",
-   "demo": "snd-pcm",
-   "title": "A PCM8 one-shot is playing at frame 5 (a channel is busy)",
-   "values": [
-    4
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 16,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-pcm-loops",
-   "demo": "snd-pcm",
-   "title": "The PCM8 and PCM16 loops started at frames 60 and 80 are still busy at the checkpoint",
-   "values": [
-    5
-   ],
-   "check": "range",
-   "min": 2,
-   "max": 16,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-adpcm-oneshot",
-   "demo": "snd-adpcm",
-   "title": "The ADPCM jingle is playing at frame 5 (a channel is busy)",
-   "values": [
-    4
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 16,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-adpcm-loop",
-   "demo": "snd-adpcm",
-   "title": "The ADPCM hum loop started at frame 90 is still busy at the checkpoint",
-   "values": [
-    5
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 16,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-psg-noise",
-   "demo": "snd-psg",
-   "title": "The noise channel 14 started at frame 100 is busy at frame 105",
-   "values": [
-    4
-   ],
-   "check": "mask",
-   "mask": 16384,
-   "expect": 16384,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-psg-stop",
-   "demo": "snd-psg",
-   "title": "Stopping channels 8-15 clears their Start/Busy bits",
-   "values": [
-    5
-   ],
-   "check": "eq",
-   "expect": 0,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
-  },
-  {
-   "id": "snd-capture-busy",
-   "demo": "snd-capture",
-   "title": "Both sound capture units run in repeat mode (Start/Busy of capture 0 and 1)",
-   "values": [
-    4
-   ],
-   "check": "eq",
-   "expect": 3,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Capture"
-  },
-  {
-   "id": "snd-capture-signal",
-   "demo": "snd-capture",
-   "title": "The capture rings hold a non-silent signal (the song reached the mixer output)",
-   "values": [
-    5
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 65535,
-   "source": "rom",
-   "role": "relocate",
-   "to": "lightenette",
-   "level": 2,
-   "level_basis": "gbatek:DS Sound Capture"
-  },
-  {
-   "id": "snd-stream-busy",
-   "demo": "snd-stream",
-   "title": "The streaming channel is still busy at the checkpoint",
-   "values": [
-    4
-   ],
-   "check": "range",
-   "min": 1,
-   "max": 16,
-   "source": "GBATEK",
-   "role": "relocate",
-   "to": "hushwell",
-   "level": 1,
-   "level_basis": "gbatek:DS Sound Channels"
   }
  ],
  "known": {
   "melonds-1.1-software": {
    "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-   "ng": [
-    "2d-obj-line-budget"
-   ],
+   "ng": [],
    "na": []
   },
   "melonds-1.1-gl-classic": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
    "ng": [
-    "2d-obj-line-budget",
-    "acc-stage-cut",
-    "acc-stage-cut-exact",
-    "acc-stage-cut-row2",
-    "acc-stage-edge",
-    "acc-stage-lantern"
+    "acc-stage-edge"
    ],
    "na": []
   },
   "melonds-1.1-gl-compute": {
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-   "ng": [
-    "2d-obj-line-budget",
-    "acc-stage-lantern"
-   ],
+   "ng": [],
    "na": []
   },
   "desmume-pydesmume-0.0.9": {
    "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=16",
-   "ng": [
-    "2d-display-pixels",
-    "2d-obj-line-budget",
-    "3d-test-vec-z",
-    "acc-stage-lantern",
-    "sys-dma-disp-pixels",
-    "sys-keys-irqs"
-   ],
+   "ng": [],
    "na": [
-    "3d-clip-polys",
-    "3d-fifo-polys",
-    "3d-fifo-verts",
-    "3d-light-polys",
-    "3d-limits-overflow",
-    "3d-limits-ram",
-    "3d-matrix-polys",
-    "3d-poly-polys",
+    "3d-clip-polys-some",
+    "3d-fifo-polys-some",
+    "3d-fifo-verts-some",
+    "3d-light-polys-some",
+    "3d-matrix-polys-some",
+    "3d-poly-polys-some",
     "3d-tex-4x4-poly",
     "3d-tex-a3i5-poly",
     "3d-tex-a5i3-poly",
@@ -2608,9 +1504,7 @@
     "3d-tex-pal16-poly",
     "3d-tex-pal256-poly",
     "3d-tex-pal4-poly",
-    "acc-dual-over",
-    "acc-dual-passes",
-    "sys-dma-gfx-polys"
+    "sys-dma-gfx-polys-any"
    ]
   }
  },

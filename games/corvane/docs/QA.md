@@ -57,15 +57,12 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | sys-irq | top half blue (VBlank) / bottom half red (VCount 96), counters shown | VBlank 120, HBlank ≈31,000, VCount 120, timer ≈20 | ✅ `78 7ac3 78 13` top blue / bottom red; HBlank 31,427 |
 | sys-timer | four prescalers, cascade seconds ≈2, beats ≈16 | seconds, beats, 1:1 measurement µs, 1:64 measurement µs | ✅ `1 f a1 1d4fb` 1 s and 15 beats at the checkpoint, the same as DeSmuME (≈2 s / ≈16 beats need the full 2 s); 161 µs, 120,059 µs |
 | sys-dma-now | 0 errors copying 4 KB | error count | ✅ `0 1000` 0 errors |
-| sys-dma-vblank | background colour changes every frame, 120/120 verified | verified frames | ✅ `78` 120/120 frames verified |
 | sys-dma-hblank | blue→red gradient background from top to bottom | colour at line 100, HBlank count | ✅ `4c8c` blue→red gradient |
-| sys-dma-cart | cart DMA CRC = NitroFS CRC = expected | found (1), CRC ×3 | ✅ `1 42b8 42b8 42b8` cart DMA = NitroFS = expected 42b8 |
 | sys-dma-gfx | textured cube rotating | list words, polygon count | ✅ `9a 2` cube rotating, 2 visible faces. Polygon counts were 0 (#21), fixed by #22 |
 | sys-dma-disp | top: colour gradient (main-memory FIFO) / bottom: per-line bars | pixel value, bar colour | ✅ `f190 208c` FIFO gradient on top, per-line bars below. Hung on v0.1.0 (#7), fixed by #15 |
 | sys-dma-fill | 0 errors filling VRAM and RAM | error count, value | ✅ `0 deadbeef` 0 errors |
 | sys-bios | LZ77 VRAM = WRAM, CpuSet/FastSet, Div 142, Sqrt 1000, CRC16 | difference 0, FastSet value, 142, CRC | ✅ `0 12345678 8e c14f` LZ77 diff 0, Div 142 (8e), CRC c14f |
 | sys-math | 4 divisions, sqrt(1e12)=1000000, len(3,4,0)=5×4096, atan2=4096 | error count, sqrt, len, atan2 | ✅ `0 f4240 5000 1000` 0 errors, sqrt 1000000, len 5×4096, atan2 4096 |
-| sys-keys | buttons/X/Y/touch/lid shown live, key IRQ count | KEYS, key IRQs, KEYXY | ✅ `0 1 7f` buttons, X/Y, pen and lid shown live |
 | 2d-engines | top blue, bottom red, screens swap every 60 frames | POWERCNT, DISPCNT ×2 | ✅ `820f 11110 10100` top blue, bottom red, swap every 60 frames |
 | 2d-text | bottom-screen HUD (4bpp) + an 8bpp console line at the bottom | BG3CNT_SUB, BG0CNT_SUB | ✅ `e84 b00` HUD + 8bpp console line |
 | 2d-affine | rotating sky (affine) + growing CORVANE logo (extended affine) | BG2PA, BG3PA | ✅ `ffda d9` rotating sky + growing logo. Read 0 on v0.1.0 (#11), fixed by #19 |
@@ -96,28 +93,14 @@ melonDS version: 1.1 (macOS app and the same core headless)  Tester: Claude Code
 | 3d-depth | 0–59 W-buffer and solid rear plane / 60+ Z-buffer and bitmap rear plane | DISP3DCNT | ✅ `460d e` Z-buffer + bitmap rear plane after frame 60 |
 | 3d-test | BOX INSIDE/OUTSIDE toggles, POS and VEC results | inside count, w, vec x, vec z | ✅ `66 51a8 9b7 fffff36c` BOX INSIDE, POS and VEC shown |
 | 3d-compose | 3D cube in front of → behind the 2D sea, bullet sprites over 3D, BG0 shaking | BG0CNT, BG2CNT | ✅ `3 1d09` cube behind the sea, bullets over 3D |
-| 3d-limits | triangles exceed 2048 and some vanish, overflow frames > 0 | overflow frames, polygon RAM | ✅ `2f 800` 2980 triangles sent, polygon RAM full at 2048, 47 overflow frames. Was 1692 / 0 on v0.1.0 (#9), fixed by #17 |
-| snd-mix | boss BGM + 8 different effects panned left/right | song number, 8 | ✅ `6 8` no gaps in the WAV; a few clipped samples |
-| snd-pcm | PCM8 one-shot → PCM16 one-shot → PCM8 loop → PCM16 loop | sample numbers | ✅ `13 b` four sounds in order, no gaps |
-| snd-adpcm | ADPCM jingle (one-shot) → hum (loop) | sample numbers | ✅ `4 f` jingle then hum, no gaps |
-| snd-psg | beeps on channels 8–13 with changing duty, noise | 8, 15 | ✅ `8 f` square sweep + noise; stops at the checkpoint |
-| snd-capture | stage 3 song + echo | 1 | ✅ `1` song + echo, no gaps |
-| snd-stream | seamless ambient pad | size, sample rate | ✅ `2b000 2b11` 176,128 bytes at 11,025 Hz, no gaps |
-| io-cart | NitroFS file sizes, cart DMA OK, stage 3 info | total, load ok, cart DMA, spawn count | ✅ `61c4c 1 1 2d` NitroFS mounted, all files OK, cart DMA OK. Was a data abort on v0.1.0 (#6), fixed by #14 |
 | io-qalog | writes a QA log (RAM ring, SD card when the cart has one), mirrors the save image, writes the `QARN` result block; headless runs need an SD image (`SDDIR=… tools/melonds/mds.sh`) | `values[]` as in the QARN layout below: verdict 1, lines, SD flags (bit0 log on SD, bit1 read-back OK), … | ✅ melonDS (SD image) `1 2f 3 …` log on the SD, read-back OK, `tools/qa/parse_log.py` passes; without SD `1 2f 0` (RAM only) |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | write, reload, seq +1, chip answers | ✅ eeprom `1 1 1 1`; flash `1 1 1 2`; fram `1 1 1 3`. melonDS attaches an 8 KB EEPROM to every build. No save chip on v0.1.0 (#8), fixed by #16 |
-| io-firmware | name, favourite colour → ship colour, language, birthday, touch calibration | colour, language, name length, ship colour | ✅ `0 1 7 4e0c` name MELONDS, colour 0, English, 01/01, calibration shown |
-| io-rtc | date and time update every second, stage 2 day/night | year, month, day, hour | ✅ `1a b a f` date and time tick; stage 2 sky DAY |
-| io-touch | crosshair at the pen position, pixel/raw values | touching, x, y, raw x | ✅ `0 78 64 0` pen 120,100 while touched |
-| io-power | A: top backlight, B: speaker, closing the lid sleeps | battery, lid, backlight, speaker | ✅ `f 0 0 1` battery OK, lid open, A/B toggle |
-| acc-dual | front view top / plan view bottom (both 3D through the capture), then a large city drawn in a left and a right pass blended by the capture on the top screen (see [Capture-path cross-check](#capture-path-cross-check-acc-dual)) | frame latency, front/plan clear-colour pixels in banks D/C, composite left/right pixels, pass flags | ✅ software renderer `1 b4b4ab3b 1c501df9 1f` all pass |
 | acc-split-tex / -bg / -relay / -rear / -rear-read / -rear-write / -hdma | one screen in two passes at 60 fps, the split moving every 8 frames; the captured side comes back as a texture, a bitmap BG, VRAM display + graphics capture, the 3D rear plane, or an HBlank DMA from the capture bank into engine B's bitmap BG (see [Same-screen two-pass](#same-screen-two-pass-acc-split)) | latency, variant, split x; hdma: frames with holes (blend << 8 \| capture only) | ✅ software renderer: full picture every frame in all seven |
 | acc-stage | reversed-UV cards, edge-marked puppets on line-polygon strings, semi-transparent lantern over darkened 3D; grades itself (see [Accuracy cross-check](#accuracy-cross-check-acc-stage)) | cut-line pixels per card row, edge pixels, line pixels, pass flags | ✅ software renderer `120000 b7 2c1 1f` all pass; GL renderers differ (see below) |
 
 ## Judging (`expected.json`, `tools/judge.py`)
 
-The result block of each demo is graded by `tools/judge.py` against `expected.json` (157 items, all 75
-demos). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
+The result block of each demo is graded by `tools/judge.py` against `expected.json` (93 items, all 49 demos). Demos that moved out of Corvane are judged by the game that owns their level or area, and their demo code lives there: Hushwell (sound and I/O: `snd-*`, `io-*`, `sys-keys`, `sys-dma-cart`), Lightenette (L2: `sys-dma-vblank`, `3d-limits`, `acc-dual`), Elevane (L3: the `acc-split-*` latency demos, `acc-dual`) and `probes/` (L4 research). Every item has a `level` from 1 to 4 and a `level_basis` ([docs/LEVELS.md](../../../docs/LEVELS.md)); levels never
 change a verdict.
 
 | Kind | What is judged | Examples |

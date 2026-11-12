@@ -56,15 +56,12 @@ melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Cla
 | sys-irq | 위 절반 파랑(VBlank) / 아래 절반 빨강(VCount 96), 카운트 표시 | VBlank 120, HBlank ≈31,000, VCount 120, 타이머 ≈20 | ✅ `78 7ac3 78 13` 위 파랑 / 아래 빨강, HBlank 31,427 |
 | sys-timer | 분주비 4종, 캐스케이드 초 ≈2, 박자 ≈16 | 초, 박자, 1:1 측정 µs, 1:64 측정 µs | ✅ `1 f a1 1d4fb` 체크포인트 시점 1초·15박, DeSmuME와 같음(≈2초/≈16박은 2초를 다 채웠을 때). 161 µs, 120,059 µs |
 | sys-dma-now | 4 KB 복사 오류 0 | 오류 수 | ✅ `0 1000` 오류 0 |
-| sys-dma-vblank | 배경색이 매 프레임 바뀜, 검증 120/120 | 검증 프레임 수 | ✅ `78` 120/120 검증 |
 | sys-dma-hblank | 위→아래 파랑→빨강 그라데이션 배경 | 라인 100 색, HBlank 수 | ✅ `4c8c` 파랑→빨강 그라데이션 |
-| sys-dma-cart | 카트 DMA CRC = NitroFS CRC = 기대값 | 찾음(1), CRC×3 | ✅ `1 42b8 42b8 42b8` 카트 DMA = NitroFS = 기대값 42b8 |
 | sys-dma-gfx | 텍스처 큐브 회전 | 리스트 워드 수, 폴리곤 수 | ✅ `9a 2` 큐브 회전, 보이는 면 2. 폴리곤 수가 0이었음(#21), #22로 수정 |
 | sys-dma-disp | 위: 컬러 그라데이션(메인 메모리 FIFO) / 아래: 라인별 바 | 픽셀 값, 바 색 | ✅ `f190 208c` 위 FIFO 그라데이션, 아래 라인별 바. v0.1.0에서 정지(#7), #15로 수정 |
 | sys-dma-fill | VRAM·RAM fill 오류 0 | 오류 수, 값 | ✅ `0 deadbeef` 오류 0 |
 | sys-bios | LZ77 VRAM=WRAM, CpuSet/FastSet, Div 142, Sqrt 1000, CRC16 | 차이 0, FastSet 값, 142, CRC | ✅ `0 12345678 8e c14f` LZ77 차이 0, Div 142(8e), CRC c14f |
 | sys-math | 나눗셈 4건, sqrt(1e12)=1000000, len(3,4,0)=5×4096, atan2=4096 | 오류 수, sqrt, len, atan2 | ✅ `0 f4240 5000 1000` 오류 0, sqrt 1000000, len 5×4096, atan2 4096 |
-| sys-keys | 버튼/X/Y/터치/뚜껑 실시간 표시, 키 IRQ 카운트 | KEYS, 키 IRQ, KEYXY | ✅ `0 1 7f` 버튼·X/Y·펜·뚜껑 실시간 표시 |
 | 2d-engines | 위 파랑·아래 빨강, 60프레임마다 화면 교대 | POWERCNT, DISPCNT ×2 | ✅ `820f 11110 10100` 위 파랑, 아래 빨강, 60프레임마다 교대 |
 | 2d-text | 아래 화면 HUD(4bpp) + 하단 8bpp 콘솔 줄 | BG3CNT_SUB, BG0CNT_SUB | ✅ `e84 b00` HUD + 8bpp 콘솔 줄 |
 | 2d-affine | 회전하는 하늘(어파인) + 커지는 CORVANE 로고(확장 어파인) | BG2PA, BG3PA | ✅ `ffda d9` 회전하는 하늘 + 커지는 로고. v0.1.0에서 0으로 읽힘(#11), #19로 수정 |
@@ -95,27 +92,14 @@ melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Cla
 | 3d-depth | 0~59 W버퍼·단색 후면 / 60~ Z버퍼·비트맵 후면 | DISP3DCNT | ✅ `460d e` 60프레임 뒤 Z버퍼 + 비트맵 후면 |
 | 3d-test | BOX INSIDE/OUTSIDE 전환, POS·VEC 결과 | 안 횟수, w, vec x, vec z | ✅ `66 51a8 9b7 fffff36c` BOX INSIDE, POS·VEC 표시 |
 | 3d-compose | 3D 큐브가 2D 바다 앞→뒤, 3D 위 탄 스프라이트, BG0 흔들림 | BG0CNT, BG2CNT | ✅ `3 1d09` 큐브가 바다 뒤로, 3D 위 탄환 |
-| 3d-limits | 삼각형이 2048을 넘어가며 일부 사라짐, 오버플로 프레임 > 0 | 오버플로 프레임, 폴리곤 RAM | ✅ `2f 800` 삼각형 2980 전송, 폴리곤 RAM 2048 가득, 오버플로 47프레임. v0.1.0은 1692/0(#9), #17로 수정 |
-| snd-mix | 보스 BGM + 8가지 효과음 좌우 판닝 | 곡 번호, 8 | ✅ `6 8` WAV에 끊김 없음, 클리핑 샘플 소수 |
-| snd-pcm | PCM8 단발 → PCM16 단발 → PCM8 루프 → PCM16 루프 | 샘플 번호 | ✅ `13 b` 네 소리 순서대로, 끊김 없음 |
-| snd-adpcm | ADPCM 징글(단발) → 험(루프) | 샘플 번호 | ✅ `4 f` 징글 후 험, 끊김 없음 |
-| snd-psg | 채널 8~13 듀티 변화 비프, 노이즈 | 8, 15 | ✅ `8 f` 사각파 스윕 + 노이즈, 체크포인트에서 정지 |
-| snd-capture | 스테이지 3 곡 + 메아리 | 1 | ✅ `1` 곡 + 에코, 끊김 없음 |
-| snd-stream | 끊김 없는 앰비언트 패드 | 크기, 샘플레이트 | ✅ `2b000 2b11` 176,128바이트, 11,025 Hz, 끊김 없음 |
-| io-cart | NitroFS 파일 크기 목록, 카트 DMA OK, 스테이지 3 정보 | 합계, 로드 성공, 카트 DMA, 스폰 수 | ✅ `61c4c 1 1 2d` NitroFS 마운트, 파일 전부 OK, 카트 DMA OK. v0.1.0에서 데이터 어보트(#6), #14로 수정 |
 | io-qalog | QA 로그를 씀(RAM 링버퍼, 카트에 SD가 있으면 SD에도), 세이브 이미지를 미러링, `QARN` 결과 블록을 씀. 헤드리스 실행에는 SD 이미지가 필요(`SDDIR=… tools/melonds/mds.sh`) | `values[]`는 아래 QARN 배치대로: 판정 1, 줄 수, SD 플래그(bit0 SD에 로그, bit1 읽기 검증 OK), … | ✅ melonDS(SD 이미지) `1 2f 3 …` SD에 로그, 읽기 검증 OK, `tools/qa/parse_log.py` 통과. SD 없이는 `1 2f 0`(RAM만) |
 | io-save-eeprom / flash / fram | WRITE+VERIFY OK, RELOAD OK | 쓰기, 재로드, seq 증가 1, 칩 응답 | ✅ eeprom `1 1 1 1`; flash `1 1 1 2`; fram `1 1 1 3`. melonDS는 모든 빌드에 8 KB EEPROM을 붙임. v0.1.0은 세이브 칩 없음(#8), #16으로 수정 |
-| io-firmware | 이름, 선호 색 → 기체 색, 언어, 생일, 터치 보정값 | 색, 언어, 이름 길이, 기체 색 | ✅ `0 1 7 4e0c` 이름 MELONDS, 색 0, 영어, 01/01, 보정값 표시 |
-| io-rtc | 날짜·시각이 매초 갱신, 스테이지 2 낮/밤 | 연, 월, 일, 시 | ✅ `1a b a f` 날짜·시각 갱신, 스테이지 2 하늘 DAY |
-| io-touch | 펜 위치에 조준선, 픽셀/RAW 값 | 터치 중, x, y, raw x | ✅ `0 78 64 0` 터치 중 펜 120,100 |
-| io-power | A: 위 백라이트, B: 스피커, 뚜껑 닫으면 절전 | 배터리, 뚜껑, 백라이트, 스피커 | ✅ `f 0 0 1` 배터리 OK, 뚜껑 열림, A/B 전환 |
-| acc-dual | 위 정면도 / 아래 평면도(둘 다 캡처를 거친 3D), 이어서 큰 도시를 좌우 두 패스로 그려 캡처 블렌딩으로 위 화면에 합성([캡처 경로 교차 검증](#캡처-경로-교차-검증-acc-dual) 참고) | 프레임 지연, 뱅크 D/C의 정면/평면 클리어 색 픽셀, 합성 좌우 픽셀, 통과 플래그 | ✅ 소프트웨어 렌더러 `1 b4b4ab3b 1c501df9 1f` 모두 통과 |
 | acc-split-tex / -bg / -relay / -rear / -rear-read / -rear-write / -hdma | 한 화면을 60fps 두 패스로, 분할선은 8프레임마다 이동. 캡처한 쪽을 텍스처, 비트맵 BG, VRAM 표시 + 그래픽 캡처, 3D 리어 플레인, 또는 캡처 뱅크에서 엔진 B 비트맵 BG로 가는 HBlank DMA로 되돌림([같은 화면 두 패스](#같은-화면-두-패스-acc-split) 참고) | 지연, 변형, 분할선 x. hdma: 구멍 난 프레임 수(블렌드 << 8 \| 캡처 전용) | ✅ 소프트웨어 렌더러: 일곱 개 모두 매 프레임 완전한 그림 |
 | acc-stage | 역방향 UV 카드, 라인 폴리곤 줄에 매달린 엣지 마킹 인형, 어두운 3D 위 반투명 등불. 스스로 판정함([정확도 교차 검증](#정확도-교차-검증-acc-stage) 참고) | 카드 줄별 재단선 픽셀, 엣지 픽셀, 라인 픽셀, 통과 플래그 | ✅ 소프트웨어 렌더러 `120000 b7 2c1 1f` 모두 통과. GL 렌더러는 다름(아래) |
 
 ## 판정(`expected.json`, `tools/judge.py`)
 
-각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 157개, 데모 75개 전부). 항목마다
+각 데모의 결과 블록을 `tools/judge.py`가 `expected.json`과 대조합니다(항목 93개, 데모 49개 전부). Corvane에서 나간 데모는 그 레벨·영역을 맡은 게임이 판정하고 데모 코드도 거기 있습니다: Hushwell(소리·입출력: `snd-*`, `io-*`, `sys-keys`, `sys-dma-cart`), Lightenette(L2: `sys-dma-vblank`, `3d-limits`, `acc-dual`), Elevane(L3: `acc-split-*` 지연 데모, `acc-dual`), `probes/`(L4 연구). 항목마다
 1~4의 `level`과 `level_basis`가 있으며([docs/LEVELS-KO.md](../../../docs/LEVELS-KO.md)), 레벨은 판정에 영향을 주지 않습니다.
 
 | 종류 | 판정하는 것 | 예 |

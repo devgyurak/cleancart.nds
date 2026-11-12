@@ -179,7 +179,7 @@ python3 games/corvane/tools/judge.py --profile melonds-1.1-software demos.log
 그렇고, `--partial`이나 `--demo NAME`은 로그에 있는 것만 판정합니다). 모든 항목에는 1~4의 `level`이 있고
 ([docs/LEVELS-KO.md](../../docs/LEVELS-KO.md)), `judge.py`는 레벨별 요약(`LEVELS L1 a/b OK · …`)을 출력합니다. 레벨은
 판정에 영향을 주지 않습니다. 프로필 4개(melonDS 1.1 소프트웨어·GL Classic·GL Compute, DeSmuME)가 기록돼 있고, 실기 값은
-아직 없습니다. 데모 75개 전부를 판정하며, 화면·소리 데모는 캡처 프로브와 ARM7 채널 보고로 스스로 판정합니다(판정하지 않거나 참고용인 것은
+아직 없습니다. 그래픽·시스템(L1) 영역을 맡아 데모 49개 전부를 판정하고(소리·입출력과 L2~L4 데모는 그 레벨을 맡은 게임과 probe 모음으로 옮겼습니다), 화면·소리 데모는 캡처 프로브와 ARM7 채널 보고로 스스로 판정합니다(판정하지 않거나 참고용인 것은
 [docs/QA-KO.md](docs/QA-KO.md)에 적혀 있습니다).
 
 ## 기획서의 열린 질문에 대한 이번 구현의 선택
