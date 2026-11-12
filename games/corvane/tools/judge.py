@@ -45,6 +45,8 @@ class Fatal(Exception):
 
 def check_levels(items):
     """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
+    if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
+        raise Fatal('"items" must be a list of objects')
     for it in items:
         lv = it.get('level')
         if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
@@ -112,6 +114,10 @@ def level_summary(rows):
     return ' · '.join(parts)
 
 
+GAME = 'corvane'
+OTHER_GAMES = ('hushwell', 'lightenette', 'elevane')
+
+
 def parse_blocks(text):
     """{demo id: words}: every `RESULT` line (the last one of an id wins)."""
     blocks = {}
@@ -119,6 +125,10 @@ def parse_blocks(text):
     for line in text.splitlines():
         m = re.search(r'\bRESULT((?: [0-9a-fA-F]{8})+)\s*$', line)
         if not m:
+            continue
+        other = [x for x in OTHER_GAMES if x in line[:m.start()].lower()]
+        if other:    # the demos of two games share block ids: never grade another game's ROM
+            print('warning: RESULT line of %s ignored (this is the %s judge)' % (other[0], GAME), file=sys.stderr)
             continue
         words = [int(w, 16) for w in m.group(1).split()]
         if len(words) >= 3:
@@ -130,9 +140,11 @@ def parse_blocks(text):
     return blocks
 
 
-def grade(item, vals):
-    """'OK', 'NG' or 'NA'."""
+def grade(item, vals, hardware=False):
+    """'OK', 'NG' or 'NA'. hardware: items with an "env" (harness input, cart) are n/a on a real console."""
     try:
+        if hardware and item.get('env'):
+            return 'NA'
         na = item.get('na_when')
         if na and vals[na[0]] == na[1]:
             return 'NA'
@@ -231,7 +243,7 @@ def run(args):
         vals = present.get(item['demo'])
         if vals is None:
             continue
-        results.append((item, grade(item, vals), is_gating(item)))
+        results.append((item, grade(item, vals, args.hardware), is_gating(item)))
     failing = sorted(i['id'] for (i, g, _) in results if g == 'NG')
     na = sorted(i['id'] for (i, g, _) in results if g == 'NA')
     gating_fail = sorted(i['id'] for (i, g, gt) in results if g == 'NG' and gt)
@@ -249,6 +261,12 @@ def run(args):
     else:
         rc = 1 if gating_fail else 0
 
+    ungraded = sorted(i['id'] for (i, gr, gt) in results
+                      if gr == 'NA' and gt and not (getattr(args, 'hardware', False) and i.get('env')))
+    if not args.profile and ungraded and not args.allow_na:
+        rc = 1    # a PASS must not be built from items nobody graded
+        print('NOT GRADED %d gating item(s) were n/a without a profile (first: %s); use --profile or --allow-na'
+              % (len(ungraded), ungraded[0]), file=sys.stderr)
     if args.json:
         print(json.dumps({'demos': sorted(present), 'failing': failing, 'gating_failing': gating_fail, 'na': na,
                           'items': {i['id']: g for (i, g, _) in results}, 'exit': rc}, indent=1, sort_keys=True))
@@ -290,6 +308,8 @@ def main(argv):
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('--demo', help='grade one demo (name with or without the corvane- prefix)')
     ap.add_argument('--partial', action='store_true', help='grade only the demos that are in the log')
+    ap.add_argument('--hardware', action='store_true', help='the log is from a real console: items with an "env" are n/a')
+    ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--quiet', action='store_true', help='print only items that are not OK')
     try:

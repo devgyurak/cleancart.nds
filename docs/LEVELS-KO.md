@@ -39,6 +39,15 @@
 출력합니다. `python3 scripts/mklevels.py`는 루트 README에 레벨별 항목 목록을 채우고, `--check`는
 레벨이 빠졌거나 README가 최신이 아니면 실패합니다.
 
+### 환경 의존 항목과 n/a
+
+- `"env"`(Corvane, Hushwell): `"harness"`(테스트 하네스가 넣는 입력, 예: 터치 좌표에 따라 값이 달라짐) 또는 `"cart"`
+  (에뮬레이션 카트와 플래시 카트에서 다른 세이브 칩·카트 동작). `judge.py --hardware`는 이런 항목을 n/a로 처리합니다.
+  실기 실행에서는 하네스와 카트를 재현할 수 없기 때문입니다.
+- `--profile` 없이 gating 항목이 n/a(`na_when`, `requires`)이면 통과가 아닙니다. 종료 코드 1과 `NOT GRADED`가 나옵니다.
+  프로필(n/a 목록 포함)이나 `--allow-na`를 쓰세요.
+- ROM 이름에 다른 게임 이름이 든 로그 줄(Corvane 판정기에 `hushwell-...`)은 경고와 함께 무시합니다. 두 게임의 데모는 블록 ID가 같습니다.
+
 ## 목표 레벨과 역할
 
 게임마다 **목표 레벨**(`expected.json`의 `"target_level"`, 1~4)과 한 줄 `"area"`(예: `"graphics and system"`)가 있습니다.

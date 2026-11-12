@@ -108,6 +108,8 @@ def find_expected(arg):
 
 def check_levels(items):
     """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
+    if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
+        raise Fatal('"items" must be a list of objects')
     for it in items:
         lv = it.get('level')
         if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
@@ -247,6 +249,12 @@ def run(args):
     else:
         rc = 1 if gating_fail else 0
 
+    ungraded = sorted(i['id'] for (i, gr, gt) in results
+                      if gr == 'NA' and gt and not (getattr(args, 'hardware', False) and i.get('env')))
+    if not args.profile and ungraded and not args.allow_na:
+        rc = 1    # a PASS must not be built from items nobody graded
+        print('NOT GRADED %d gating item(s) were n/a without a profile (first: %s); use --profile or --allow-na'
+              % (len(ungraded), ungraded[0]), file=sys.stderr)
     if args.json:
         print(json.dumps({'frame': words[2], 'failing': failing, 'gating_failing': gating_fail,
                           'items': {i['id']: g for (i, g, _) in results}, 'exit': rc},
@@ -289,6 +297,7 @@ def main(argv):
     ap.add_argument('--expected')
     ap.add_argument('--profile')
     ap.add_argument('--list-profiles', action='store_true')
+    ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--demo')
     ap.add_argument('--values', nargs='+', metavar='HEX', help='the 18 values and the CRC the console showed')

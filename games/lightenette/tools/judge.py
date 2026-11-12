@@ -58,6 +58,8 @@ class Fatal(Exception):
 
 def check_levels(items):
     """Every item needs "level" 1-4 (docs/LEVELS.md); anything else is an input error (exit 2)."""
+    if not isinstance(items, list) or not all(isinstance(i, dict) for i in items):
+        raise Fatal('"items" must be a list of objects')
     for it in items:
         lv = it.get('level')
         if isinstance(lv, bool) or not isinstance(lv, int) or not 1 <= lv <= 4:
