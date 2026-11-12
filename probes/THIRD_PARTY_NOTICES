@@ -77,7 +77,7 @@ License: a collection of BSD- and MIT-style licences.
 License: GNU GPL 3.0 with the GCC Runtime Library Exception 3.1, which
 permits use in any program compiled with GCC without further obligations.
 Exception text: licenses/GCC-RUNTIME-LIBRARY-EXCEPTION-3.1.txt.
-The probes are written in C and does not link libstdc++.
+The probes are written in C and do not link libstdc++.
 
 
 5. Build-time tools (not part of the ROM)
