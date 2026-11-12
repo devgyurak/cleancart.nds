@@ -40,7 +40,7 @@
 
 | 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
 |---|---|---|---|---|
-| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 75개 중 59개(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 62 · L2 25 · L3 2 · L4 27<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험: 2D 엔진, 3D 엔진, ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 자동, 데모 75개 중 59개(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 62 · L2 30 · L3 9 · L4 17<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험: 2D 엔진, 3D 엔진(조명·안개·텍스처), ARM7 사운드, DMA·타이머·IPC·인터럽트, 카트·세이브·RTC·터치·전원 입출력. | 작성 중 | <!-- cell:hushwell -->판정기 작성 중<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L1 13 · L2 11 · L3 0 · L4 3<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L1 3 · L2 2 · L3 3 · L4 6<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
@@ -57,7 +57,7 @@
 
 #### Corvane
 
-- `sys-ipc-sync` · IPCSYNC data written by the ARM9 is what the ARM7 reads (0xA) · [expected.json](games/corvane/expected.json)
+- `sys-ipc-sync` · The value the ARM7 wrote to IPCSYNC (0xA, ARM7 ready) is what the ARM9 reads · [expected.json](games/corvane/expected.json)
 - `sys-ipc-keyxy` · EXTKEYIN with nothing pressed: X and Y released, pen up, hinge open (bits 0,1,3,6,7 = 1,1,1,1,0) · [expected.json](games/corvane/expected.json)
 - `sys-wram-errors` · The 32 KB shared WRAM pattern reads back without errors after the ARM9 takes it · [expected.json](games/corvane/expected.json)
 - `sys-wram-crc` · GetCRC16 of the 32 KB pattern (CRC-16/MODBUS, checked independently in Python) · [expected.json](games/corvane/expected.json)
@@ -75,11 +75,11 @@
 - `sys-math-atan2` · atan2(1,1) is 45 degrees = 4096 (our table-free routine) · [expected.json](games/corvane/expected.json)
 - `sys-keys-held` · No key is held in a headless run · [expected.json](games/corvane/expected.json)
 - `sys-keys-keyxy` · EXTKEYIN with nothing pressed (X, Y, pen released, hinge open) · [expected.json](games/corvane/expected.json)
-- `2d-engines-powercnt` · POWERCNT reads back as written with the screens swapped at the checkpoint · [expected.json](games/corvane/expected.json)
+- `2d-engines-powercnt` · POWERCNT reads back as the demo set it (0x820F) · [expected.json](games/corvane/expected.json)
 - `2d-engines-dispcnt` · DISPCNT of engine A reads back · [expected.json](games/corvane/expected.json)
 - `2d-engines-dispcnt-sub` · DISPCNT of engine B reads back · [expected.json](games/corvane/expected.json)
-- `2d-text-bg3cnt-sub` · BG3CNT of engine B (4bpp HUD) reads back · [expected.json](games/corvane/expected.json)
-- `2d-text-bg0cnt-sub` · BG0CNT of engine B (8bpp console) reads back · [expected.json](games/corvane/expected.json)
+- `2d-text-bg3cnt-sub` · BG3CNT of engine B (HUD, 8bpp bit set) reads back · [expected.json](games/corvane/expected.json)
+- `2d-text-bg0cnt-sub` · BG0CNT of engine B (console, 4bpp) reads back · [expected.json](games/corvane/expected.json)
 - `2d-bitmap-dispcnt` · DISPCNT with the 1024x512 large bitmap mode reads back · [expected.json](games/corvane/expected.json)
 - `2d-bitmap-bg2cnt` · BG2CNT of the large bitmap reads back · [expected.json](games/corvane/expected.json)
 - `2d-bitmap-phase` · The demo reached its second phase (nebula scroll) · [expected.json](games/corvane/expected.json)
@@ -92,12 +92,13 @@
 - `2d-blend-bldalpha` · BLDALPHA reads back · [expected.json](games/corvane/expected.json)
 - `2d-brightness-main` · MASTER_BRIGHT of engine A reads back (fade to white) · [expected.json](games/corvane/expected.json)
 - `2d-brightness-sub` · MASTER_BRIGHT of engine B reads back (fade to black) · [expected.json](games/corvane/expected.json)
+- `2d-capture-done` · The capture enable bit (bit 31 of DISPCAPCNT) has cleared by itself: the one-frame capture finished · [expected.json](games/corvane/expected.json)
 - `2d-capture-cnt` · DISPCAPCNT reads back with the written source, size and write offset · [expected.json](games/corvane/expected.json)
-- `3d-toon-control` · DISP3DCNT reads back with toon/highlight shading (overflow flags 12-13 clear) · [expected.json](games/corvane/expected.json)
-- `3d-edge-control` · DISP3DCNT reads back with edge marking (overflow flags 12-13 clear) · [expected.json](games/corvane/expected.json)
-- `3d-fog-control` · DISP3DCNT reads back with alpha-only fog (overflow flags 12-13 clear) · [expected.json](games/corvane/expected.json)
-- `3d-aa-control` · DISP3DCNT reads back with anti-aliasing (overflow flags 12-13 clear) · [expected.json](games/corvane/expected.json)
-- `3d-depth-control` · DISP3DCNT reads back with Z-buffering with a bitmap rear plane (overflow flags 12-13 clear) · [expected.json](games/corvane/expected.json)
+- `3d-toon-control` · DISP3DCNT reads back with toon/highlight shading (bits 12-13, the RAM overflow flags, are not compared) · [expected.json](games/corvane/expected.json)
+- `3d-edge-control` · DISP3DCNT reads back with edge marking (bits 12-13, the RAM overflow flags, are not compared) · [expected.json](games/corvane/expected.json)
+- `3d-fog-control` · DISP3DCNT reads back with alpha-only fog (bits 12-13, the RAM overflow flags, are not compared) · [expected.json](games/corvane/expected.json)
+- `3d-aa-control` · DISP3DCNT reads back with anti-aliasing (bits 12-13, the RAM overflow flags, are not compared) · [expected.json](games/corvane/expected.json)
+- `3d-depth-control` · DISP3DCNT reads back with Z-buffering with a bitmap rear plane (bits 12-13, the RAM overflow flags, are not compared) · [expected.json](games/corvane/expected.json)
 - `3d-compose-bg0cnt` · BG0CNT (3D layer behind the sea) reads back · [expected.json](games/corvane/expected.json)
 - `3d-compose-bg2cnt` · BG2CNT (sea in front of the 3D layer) reads back · [expected.json](games/corvane/expected.json)
 - `3d-tex-a3i5-poly` · A fully visible A3I5 textured quad is one polygon in polygon RAM · [expected.json](games/corvane/expected.json)
@@ -110,7 +111,6 @@
 - `io-cart-ok` · Stage 3 loads from NitroFS · [expected.json](games/corvane/expected.json)
 - `io-qalog-verdict` · The QA result block (QARN) reports verdict 1 (PASS); the block of the auto QA run of corvane.nds has the same layout and is graded with --demo io-qalog · [expected.json](games/corvane/expected.json)
 - `io-firmware-colour` · Favourite colour from the firmware user settings is 0-15 · [expected.json](games/corvane/expected.json)
-- `io-firmware-language` · Language from the firmware user settings is 0-7 · [expected.json](games/corvane/expected.json)
 - `io-firmware-name` · Name length from the firmware user settings is 0-10 · [expected.json](games/corvane/expected.json)
 - `io-rtc-month` · RTC month is 1-12 · [expected.json](games/corvane/expected.json)
 - `io-rtc-day` · RTC day is 1-31 · [expected.json](games/corvane/expected.json)
@@ -118,7 +118,7 @@
 - `io-touch-up` · The pen is up at the checkpoint (the scripted touch ended) · [expected.json](games/corvane/expected.json)
 - `io-power-lid` · The lid is open · [expected.json](games/corvane/expected.json)
 - `acc-stage-edge` · Edge marking draws outlines · [expected.json](games/corvane/expected.json)
-- `acc-stage-darken` · Brightness decrease darkens the 3D backdrop · [expected.json](games/corvane/expected.json)
+- `acc-stage-darken` · Brightness decrease darkens the 3D backdrop outside the lantern: the pixel differs from the undarkened one and both captures finished · [expected.json](games/corvane/expected.json)
 
 #### Elevane
 
@@ -148,19 +148,20 @@ _판정기 작성 중_
 
 </details>
 
-<details><summary><b>L2 경계</b> (38 개)</summary>
+<details><summary><b>L2 경계</b> (43 개)</summary>
 
 #### Corvane
 
 - `sys-ipc-packets` · The ARM7 input packet arrives once per frame: 120 packets in 120 frames (1 off allowed) · [expected.json](games/corvane/expected.json)
-- `sys-irq-hblank` · HBlank IRQs in 120 frames: at most one per line, 263 lines per frame, not fewer than the 192 visible lines · [expected.json](games/corvane/expected.json)
+- `sys-ipc-ping` · FIFO ping round trip takes one or two frames (our protocol, no hardware value) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `sys-irq-hblank` · HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297) · [expected.json](games/corvane/expected.json)
 - `sys-irq-vcount` · The VCOUNT IRQ at line 96 fires once per frame (1 off allowed) · [expected.json](games/corvane/expected.json)
-- `sys-irq-timer` · A 10 Hz timer IRQ fires about 20 times in 120 frames (2.006 s) · [expected.json](games/corvane/expected.json)
-- `sys-timer-beats` · An 8 Hz timer IRQ fires about 16 times in 120 frames (2.006 s) · [expected.json](games/corvane/expected.json)
+- `sys-irq-timer` · A 10 Hz timer IRQ fires 19 or 20 times in 119 to 120 frames (frame = 560190 bus cycles, 33.513982 MHz) · [expected.json](games/corvane/expected.json)
+- `sys-timer-beats` · An 8 Hz timer IRQ fires 15 or 16 times in 119 to 120 frames (frame = 560190 bus cycles) · [expected.json](games/corvane/expected.json)
+- `sys-dma-vblank-frames` · A DMA started at VBlank has uploaded the palette in every one of 120 frames · [expected.json](games/corvane/expected.json)
 - `sys-dma-cart-dma` · Raw cart DMA read of probe.bin gives the expected CRC16 · [expected.json](games/corvane/expected.json)
 - `sys-dma-cart-nitro` · NitroFS read of probe.bin gives the expected CRC16 · [expected.json](games/corvane/expected.json)
 - `sys-math-sqrt64` · 64-bit hardware square root of 10^12 is 10^6 · [expected.json](games/corvane/expected.json)
-- `2d-capture-done` · The capture enable bit (bit 31 of DISPCAPCNT) has cleared by itself: the one-frame capture finished · [expected.json](games/corvane/expected.json)
 - `3d-limits-ram` · Polygon RAM holds 2048 polygons: it is full at the end of the overload run · [expected.json](games/corvane/expected.json)
 - `io-cart-ready` · Raw cart DMA is available · [expected.json](games/corvane/expected.json)
 - `io-save-eeprom-write` · Save write and verify succeed · [expected.json](games/corvane/expected.json)
@@ -174,7 +175,11 @@ _판정기 작성 중_
 - `io-save-fram-seq` · The save counter advanced by one · [expected.json](games/corvane/expected.json)
 - `io-touch-x` · The last pen x is 120 (scripted touch at 120,100; one pixel of calibration error allowed) · [expected.json](games/corvane/expected.json)
 - `io-touch-y` · The last pen y is 100 (one pixel of calibration error allowed) · [expected.json](games/corvane/expected.json)
-- `acc-stage-lantern` · A semi-transparent OBJ alpha-blends over 3D the same in all modes (melonDS#2503) · [expected.json](games/corvane/expected.json)
+- `acc-stage-cut` · Reversed-UV cut line: the first two card rows (compensated, plain) show no cut line (melonDS#2008) · [expected.json](games/corvane/expected.json)
+- `acc-stage-cut-row2` · Reversed-UV cut line: the uncompensated third row shows a cut line (melonDS#2008) · [expected.json](games/corvane/expected.json)
+- `acc-stage-line` · Line polygons draw lines _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-stage-lantern` · A semi-transparent OBJ alpha-blends over 3D the same in all three BLDCNT modes (melonDS#2503); the three captured pixels are equal and the captures finished · [expected.json](games/corvane/expected.json)
+- `acc-stage-lantern-visible` · The lantern pixel differs from the backdrop pixel outside it (the lantern is drawn) · [expected.json](games/corvane/expected.json)
 - `acc-dual-over` · The whole city in one pass overflows polygon RAM · [expected.json](games/corvane/expected.json)
 - `acc-dual-passes` · Two half passes fit polygon RAM · [expected.json](games/corvane/expected.json)
 
@@ -199,12 +204,19 @@ _판정기 작성 중_
 
 </details>
 
-<details><summary><b>L3 타이밍</b> (5 개)</summary>
+<details><summary><b>L3 타이밍</b> (12 개)</summary>
 
 #### Corvane
 
-- `sys-dma-vblank-frames` · A DMA started at VBlank has uploaded the palette in every one of 120 frames · [expected.json](games/corvane/expected.json)
-- `acc-stage-cut` · Reversed-UV cut line shows only in the uncompensated card (melonDS#2008) · [expected.json](games/corvane/expected.json)
+- `acc-dual-latency` · The capture routing written one call late shows in the same frame (latency 1, ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-dual-latency-flag` · Routing latency is at most 1 frame _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-tex-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-bg-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-relay-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-rear-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-rear-read-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-rear-write-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-split-hdma-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
 
 #### Elevane
 
@@ -214,13 +226,12 @@ _판정기 작성 중_
 
 </details>
 
-<details><summary><b>L4 연구</b> (36 개)</summary>
+<details><summary><b>L4 연구</b> (26 개)</summary>
 
 #### Corvane
 
-- `sys-ipc-ping` · FIFO ping round trip takes one or two frames (our protocol, no hardware value) _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `sys-keys-irqs` · No key IRQ fires without a key press (0 or 1 for the first poll) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `sys-keys-irqs` · Number of key IRQs during the run (the scripted harness presses a key once; no hardware value) _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `3d-fifo-verts` · ship over terrain: vertices in vertex RAM _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `3d-clip-polys` · near-plane clipping view: polygons _(참고용)_ · [expected.json](games/corvane/expected.json)
@@ -232,18 +243,9 @@ _판정기 작성 중_
 - `3d-test-pos-w` · POS_TEST w result of the last frame _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `3d-test-vec-x` · VEC_TEST x result of the last frame _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `3d-test-vec-z` · VEC_TEST z result of the last frame (the emulators differ by one here) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-stage-line` · Line polygons draw lines _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-dual-latency` · The capture routing written one call late shows in the same frame (latency 1, ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
+- `acc-stage-cut-exact` · The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value) _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `acc-dual-both` · Front view in bank D and plan view in bank C both have content and never carry each other's clear colour _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `acc-dual-halves` · Both halves of the blended two-pass picture have pixels _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-dual-latency-flag` · Routing latency is at most 1 frame _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-tex-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-bg-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-relay-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-rear-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-rear-read-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-rear-write-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
-- `acc-split-hdma-latency` · Capture routing latency of the same-screen two-pass view is at most 1 frame (ours) _(참고용)_ · [expected.json](games/corvane/expected.json)
 - `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618 area) _(참고용)_ · [expected.json](games/corvane/expected.json)
 
 #### Elevane

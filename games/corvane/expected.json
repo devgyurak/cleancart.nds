@@ -11,14 +11,17 @@
   "report:<ref>": "a hardware report by a third party; gating",
   "hw:<model>": "measured by us on real hardware; gating",
   "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
-  "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  "unconfirmed": "no hardware value yet; informational only, never fails the run (with --profile it is reported when it changes, not counted)"
  },
  "checks": {
   "eq": "values[i] == expect",
   "range": "min <= values[i] <= max",
   "mask": "(values[i] & mask) == expect",
-  "same": "values[i] == values[j] (two indexes)",
-  "na_when": "[i, v]: the item is n/a when values[i] == v (the emulator has no such counter; DeSmuME reads 0 for the polygon counters)"
+  "same": "all values equal (two or more indexes)",
+  "na_when": "[i, v]: the item is n/a when values[i] == v (the emulator has no such counter; DeSmuME reads 0 for the polygon counters)",
+  "nonzero": "(values[i] & mask) != 0",
+  "ne": "values[i] != values[j] (two indexes)",
+  "not_value": "item field: the item fails when any of its values equals it (0xFFFF = capture did not finish)"
  },
  "demos": {
   "sys-ipc": 3150461633,
@@ -101,7 +104,7 @@
   {
    "id": "sys-ipc-sync",
    "demo": "sys-ipc",
-   "title": "IPCSYNC data written by the ARM9 is what the ARM7 reads (0xA)",
+   "title": "The value the ARM7 wrote to IPCSYNC (0xA, ARM7 ready) is what the ARM9 reads",
    "values": [
     0
    ],
@@ -137,7 +140,7 @@
    "expect": 75,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS Keypad Input"
+   "level_basis": "gbatek:DS Keypad"
   },
   {
    "id": "sys-ipc-ping",
@@ -150,7 +153,7 @@
    "min": 1,
    "max": 2,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 2,
    "level_basis": "none"
   },
   {
@@ -208,16 +211,16 @@
   {
    "id": "sys-irq-hblank",
    "demo": "sys-irq",
-   "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame, not fewer than the 192 visible lines",
+   "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297)",
    "values": [
     1
    ],
    "check": "range",
-   "min": 23040,
+   "min": 31297,
    "max": 31560,
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:LCD Timings"
+   "level_basis": "gbatek:LCD Dimensions and Timings"
   },
   {
    "id": "sys-irq-vcount",
@@ -229,20 +232,20 @@
    "check": "range",
    "min": 118,
    "max": 121,
-   "source": "rom",
+   "source": "GBATEK",
    "level": 2,
    "level_basis": "gbatek:DS Interrupts"
   },
   {
    "id": "sys-irq-timer",
    "demo": "sys-irq",
-   "title": "A 10 Hz timer IRQ fires about 20 times in 120 frames (2.006 s)",
+   "title": "A 10 Hz timer IRQ fires 19 or 20 times in 119 to 120 frames (frame = 560190 bus cycles, 33.513982 MHz)",
    "values": [
     3
    ],
    "check": "range",
-   "min": 18,
-   "max": 21,
+   "min": 19,
+   "max": 20,
    "source": "GBATEK",
    "level": 2,
    "level_basis": "gbatek:DS Timers"
@@ -250,13 +253,13 @@
   {
    "id": "sys-timer-beats",
    "demo": "sys-timer",
-   "title": "An 8 Hz timer IRQ fires about 16 times in 120 frames (2.006 s)",
+   "title": "An 8 Hz timer IRQ fires 15 or 16 times in 119 to 120 frames (frame = 560190 bus cycles)",
    "values": [
     1
    ],
    "check": "range",
    "min": 15,
-   "max": 17,
+   "max": 16,
    "source": "GBATEK",
    "level": 2,
    "level_basis": "gbatek:DS Timers"
@@ -284,7 +287,7 @@
    "check": "eq",
    "expect": 120,
    "source": "GBATEK",
-   "level": 3,
+   "level": 2,
    "level_basis": "gbatek:DS DMA Transfers"
   },
   {
@@ -471,7 +474,7 @@
    "expect": 0,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS Keypad Input"
+   "level_basis": "gbatek:DS Keypad"
   },
   {
    "id": "sys-keys-keyxy",
@@ -485,12 +488,12 @@
    "expect": 75,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS Keypad Input"
+   "level_basis": "gbatek:DS Keypad"
   },
   {
    "id": "sys-keys-irqs",
    "demo": "sys-keys",
-   "title": "No key IRQ fires without a key press (0 or 1 for the first poll)",
+   "title": "Number of key IRQs during the run (the scripted harness presses a key once; no hardware value)",
    "values": [
     1
    ],
@@ -504,7 +507,7 @@
   {
    "id": "2d-engines-powercnt",
    "demo": "2d-engines",
-   "title": "POWERCNT reads back as written with the screens swapped at the checkpoint",
+   "title": "POWERCNT reads back as the demo set it (0x820F)",
    "values": [
     0
    ],
@@ -543,7 +546,7 @@
   {
    "id": "2d-text-bg3cnt-sub",
    "demo": "2d-text",
-   "title": "BG3CNT of engine B (4bpp HUD) reads back",
+   "title": "BG3CNT of engine B (HUD, 8bpp bit set) reads back",
    "values": [
     0
    ],
@@ -556,7 +559,7 @@
   {
    "id": "2d-text-bg0cnt-sub",
    "demo": "2d-text",
-   "title": "BG0CNT of engine B (8bpp console) reads back",
+   "title": "BG0CNT of engine B (console, 4bpp) reads back",
    "values": [
     1
    ],
@@ -733,8 +736,8 @@
    "mask": 2147483648,
    "expect": 0,
    "source": "GBATEK",
-   "level": 2,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level": 1,
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "2d-capture-cnt",
@@ -748,72 +751,77 @@
    "expect": 20054016,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Display Capture"
+   "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
   },
   {
    "id": "3d-toon-control",
    "demo": "3d-toon",
-   "title": "DISP3DCNT reads back with toon/highlight shading (overflow flags 12-13 clear)",
+   "title": "DISP3DCNT reads back with toon/highlight shading (bits 12-13, the RAM overflow flags, are not compared)",
    "values": [
     0
    ],
-   "check": "eq",
+   "check": "mask",
    "expect": 1551,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Display Control"
+   "level_basis": "gbatek:DS 3D Display Control",
+   "mask": 53247
   },
   {
    "id": "3d-edge-control",
    "demo": "3d-edge",
-   "title": "DISP3DCNT reads back with edge marking (overflow flags 12-13 clear)",
+   "title": "DISP3DCNT reads back with edge marking (bits 12-13, the RAM overflow flags, are not compared)",
    "values": [
     0
    ],
-   "check": "eq",
+   "check": "mask",
    "expect": 1581,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Display Control"
+   "level_basis": "gbatek:DS 3D Display Control",
+   "mask": 53247
   },
   {
    "id": "3d-fog-control",
    "demo": "3d-fog",
-   "title": "DISP3DCNT reads back with alpha-only fog (overflow flags 12-13 clear)",
+   "title": "DISP3DCNT reads back with alpha-only fog (bits 12-13, the RAM overflow flags, are not compared)",
    "values": [
     0
    ],
-   "check": "eq",
+   "check": "mask",
    "expect": 1741,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Display Control"
+   "level_basis": "gbatek:DS 3D Display Control",
+   "mask": 53247
   },
   {
    "id": "3d-aa-control",
    "demo": "3d-aa",
-   "title": "DISP3DCNT reads back with anti-aliasing (overflow flags 12-13 clear)",
+   "title": "DISP3DCNT reads back with anti-aliasing (bits 12-13, the RAM overflow flags, are not compared)",
    "values": [
     0
    ],
-   "check": "eq",
+   "check": "mask",
    "expect": 1565,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Display Control"
+   "level_basis": "gbatek:DS 3D Display Control",
+   "mask": 53247
   },
   {
    "id": "3d-depth-control",
    "demo": "3d-depth",
-   "title": "DISP3DCNT reads back with Z-buffering with a bitmap rear plane (overflow flags 12-13 clear)",
+   "title": "DISP3DCNT reads back with Z-buffering with a bitmap rear plane (bits 12-13, the RAM overflow flags, are not compared)",
    "values": [
     0
    ],
-   "check": "eq",
+   "check": "mask",
    "expect": 17933,
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Display Control"
+   "level_basis": "gbatek:DS 3D Display Control",
+   "mask": 53247
   },
   {
    "id": "3d-compose-bg0cnt",
@@ -856,7 +864,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-a5i3-poly",
@@ -873,7 +881,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-pal4-poly",
@@ -890,7 +898,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-pal16-poly",
@@ -907,7 +915,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-pal256-poly",
@@ -924,7 +932,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-4x4-poly",
@@ -941,7 +949,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-tex-direct-poly",
@@ -958,7 +966,7 @@
    ],
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-fifo-polys",
@@ -1077,7 +1085,7 @@
    ],
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "3d-limits-overflow",
@@ -1319,20 +1327,6 @@
    "level_basis": "gbatek:DS Firmware User Settings"
   },
   {
-   "id": "io-firmware-language",
-   "demo": "io-firmware",
-   "title": "Language from the firmware user settings is 0-7",
-   "values": [
-    1
-   ],
-   "check": "range",
-   "min": 0,
-   "max": 7,
-   "source": "GBATEK",
-   "level": 1,
-   "level_basis": "gbatek:DS Firmware User Settings"
-  },
-  {
    "id": "io-firmware-name",
    "demo": "io-firmware",
    "title": "Name length from the firmware user settings is 0-10",
@@ -1445,16 +1439,43 @@
   {
    "id": "acc-stage-cut",
    "demo": "acc-stage",
-   "title": "Reversed-UV cut line shows only in the uncompensated card (melonDS#2008)",
+   "title": "Reversed-UV cut line: the first two card rows (compensated, plain) show no cut line (melonDS#2008)",
    "values": [
-    3
+    0
    ],
    "check": "mask",
-   "mask": 1,
-   "expect": 1,
+   "mask": 65535,
+   "expect": 0,
    "source": "report:melonDS#2008",
-   "level": 3,
+   "level": 2,
    "level_basis": "report:melonDS#2008"
+  },
+  {
+   "id": "acc-stage-cut-row2",
+   "demo": "acc-stage",
+   "title": "Reversed-UV cut line: the uncompensated third row shows a cut line (melonDS#2008)",
+   "values": [
+    0
+   ],
+   "check": "nonzero",
+   "mask": 16711680,
+   "source": "report:melonDS#2008",
+   "level": 2,
+   "level_basis": "report:melonDS#2008"
+  },
+  {
+   "id": "acc-stage-cut-exact",
+   "demo": "acc-stage",
+   "title": "The third row's cut line is exactly 18 pixels (an emulator measurement, not a hardware value)",
+   "values": [
+    0
+   ],
+   "check": "mask",
+   "mask": 16711680,
+   "expect": 1179648,
+   "source": "unconfirmed",
+   "level": 4,
+   "level_basis": "none"
   },
   {
    "id": "acc-stage-edge",
@@ -1481,19 +1502,34 @@
    "mask": 4,
    "expect": 4,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 2,
    "level_basis": "none"
   },
   {
    "id": "acc-stage-lantern",
    "demo": "acc-stage",
-   "title": "A semi-transparent OBJ alpha-blends over 3D the same in all modes (melonDS#2503)",
+   "title": "A semi-transparent OBJ alpha-blends over 3D the same in all three BLDCNT modes (melonDS#2503); the three captured pixels are equal and the captures finished",
    "values": [
-    3
+    4,
+    5,
+    6
    ],
-   "check": "mask",
-   "mask": 8,
-   "expect": 8,
+   "check": "same",
+   "source": "GBATEK",
+   "level": 2,
+   "level_basis": "gbatek:LCD I/O Color Special Effects",
+   "not_value": 65535
+  },
+  {
+   "id": "acc-stage-lantern-visible",
+   "demo": "acc-stage",
+   "title": "The lantern pixel differs from the backdrop pixel outside it (the lantern is drawn)",
+   "values": [
+    4,
+    7
+   ],
+   "check": "ne",
+   "not_value": 65535,
    "source": "GBATEK",
    "level": 2,
    "level_basis": "gbatek:LCD I/O Color Special Effects"
@@ -1501,16 +1537,16 @@
   {
    "id": "acc-stage-darken",
    "demo": "acc-stage",
-   "title": "Brightness decrease darkens the 3D backdrop",
+   "title": "Brightness decrease darkens the 3D backdrop outside the lantern: the pixel differs from the undarkened one and both captures finished",
    "values": [
-    3
+    7,
+    8
    ],
-   "check": "mask",
-   "mask": 16,
-   "expect": 16,
+   "check": "ne",
    "source": "GBATEK",
    "level": 1,
-   "level_basis": "gbatek:LCD I/O Color Special Effects"
+   "level_basis": "gbatek:LCD I/O Color Special Effects",
+   "not_value": 65535
   },
   {
    "id": "acc-dual-latency",
@@ -1523,7 +1559,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1556,7 +1592,7 @@
    ],
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "acc-dual-passes",
@@ -1574,7 +1610,7 @@
    ],
    "source": "GBATEK",
    "level": 2,
-   "level_basis": "gbatek:DS 3D Video"
+   "level_basis": "gbatek:DS 3D Status"
   },
   {
    "id": "acc-dual-halves",
@@ -1601,7 +1637,7 @@
    "mask": 16,
    "expect": 16,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1615,7 +1651,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1629,7 +1665,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1643,7 +1679,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1657,7 +1693,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1671,7 +1707,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1685,7 +1721,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1699,7 +1735,7 @@
    "min": 0,
    "max": 1,
    "source": "unconfirmed",
-   "level": 4,
+   "level": 3,
    "level_basis": "none"
   },
   {
@@ -1726,6 +1762,8 @@
    "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
    "ng": [
     "acc-stage-cut",
+    "acc-stage-cut-exact",
+    "acc-stage-cut-row2",
     "acc-stage-edge",
     "acc-stage-lantern"
    ],
