@@ -8,8 +8,17 @@ body:
   - type: markdown
     attributes:
       value: |
-        Do not paste code, art, sound or levels. Describe the behaviour instead. Add the `question` label
-        yourself if this is a question about a result.
+        Do not paste code, art, sound or levels. Describe the behaviour instead.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      description: The maintainer sets the label.
+      options:
+        - Bug
+        - Question about a result
+    validations:
+      required: true
   - type: input
     id: game
     attributes:
@@ -33,8 +42,8 @@ body:
   - type: textarea
     id: screenshot
     attributes:
-      label: Top-screen screenshot
-      description: Drag an image here. The top screen only, please.
+      label: Screenshot
+      description: Drag an image here. Both screens if the problem is on the bottom screen.
   - type: textarea
     id: steps
     attributes:

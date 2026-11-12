@@ -4,7 +4,7 @@
 
 This project does not take pull requests from outside. Every game here is written by the
 maintainer so that all code and assets have one author and the licence stays clean.
-Pull requests from forks are rejected by the `pr-guard` check.
+A pull request from a fork fails the `pr-guard` check and is not merged (merging needs the maintainer's approval).
 
 Two kinds of GitHub issues are welcome:
 
@@ -22,7 +22,7 @@ Two kinds of GitHub issues are welcome:
   expected difficulty level (see [docs/LEVELS.md](docs/LEVELS.md)), and links to related
   emulator issues.
 - **Bug report or question:** the game and release tag, the emulator name, version and renderer,
-  the `judge.py` output or the QA log, a top-screen screenshot, and the steps to reproduce.
+  the `judge.py` output or the QA log, a screenshot (both screens when the problem is on the bottom one), and the steps to reproduce.
 
 The maintainer is the only person who opens pull requests here. Branch flow and commit
 conventions are in [AGENTS.md](AGENTS.md) and are for the maintainer and the coding agents they use.

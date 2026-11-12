@@ -10,7 +10,7 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 | L1 | Function | Only the documented basic behaviour of registers and instructions | DS maths basic division and square root, plain DMA copy, sprite display |
 | L2 | Edge | Documented but easy-to-miss boundary values and special cases | empty IPCFIFO read, LDM/STM edges, division by zero, cart address wrap, SQRT of large 64-bit values |
 | L3 | Timing | Cycle- or scanline-exact timing | DMA non-sequential timing, start-of-line DMA, polygon RAM bank swap point, VCOUNT writes |
-| L4 | Research | Undocumented or not yet known for certain; needs hardware experiments | melonDS CHECKME areas (shadow polygon edge rules, clipping oddities, texture matrix stack) |
+| L4 | Research | Undocumented or not yet known for certain; needs hardware experiments | melonDS source CHECKME areas (shadow polygon edge rules, clipping oddities, texture matrix stack) |
 
 ## Rules
 
@@ -23,7 +23,9 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 - **Levels move down with knowledge.** When an L4 behaviour is confirmed on hardware and
   documented, it moves to L2 or L3. A level reflects what is known now, so it can change over time.
 - **What counts as confirmed on hardware.** A public, reproducible hardware result: this repository's
-  `HW-QA.md` records, or a public issue that carries hardware values. We do not wait for GBATEK to be corrected.
+  `HW-QA.md` records ("documented" includes this repository's own hardware record), or a public issue that carries hardware values. We do not wait for GBATEK to be corrected.
+- **Tolerance counts.** An item whose window is wide enough that exact cycle or scanline timing is not needed to pass
+  (a count within a few percent, a frame-sized window) is not L3: it is levelled by the documented feature it checks.
 - **Levels are metadata.** They do not change a verdict (OK/NG), the exit code or the known
   profiles. When a level changes, the PR description gives the reason.
 - **Items decided by the ROM's own logic** (`source` is `rom`) are levelled by the hardware
@@ -34,7 +36,7 @@ judged) has a level from L1 to L4. The level says how hard the behaviour is for 
 | Field | Meaning |
 |---|---|
 | `"level"` | integer 1 to 4 |
-| `"level_basis"` | where the level comes from: `"gbatek:<section>"` (for example `"gbatek:DS Maths"`), `"report:<ref>"` (for example `"report:melonDS#2008"`), `"hw:<file>"` (for example `"hw:games/elevane/docs/HW-QA.md"`), or `"none"` when no source exists (usually L4) |
+| `"level_basis"` | where the level comes from: `"gbatek:<section>"` (for example `"gbatek:DS Maths"`), `"report:<ref>"` (for example `"report:melonDS#2008"`), `"hw:<file>"` (for example `"hw:games/elevane/docs/HW-QA.md"`), or `"none"` when no source exists: L4 for behaviour nobody has confirmed; items decided by the ROM's own logic (`source` `rom`) may use `none` at the level of the hardware feature they rely on |
 
 `judge.py` of each game rejects an item without a valid `level` (exit code 2, input error) and
 prints a per-level summary. `python3 scripts/mklevels.py` lists the items by level in the root
