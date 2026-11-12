@@ -186,7 +186,7 @@ python3 games/corvane/tools/judge.py --profile melonds-1.1-software demos.log
 is missing; `--partial` or `--demo NAME` grade only what is in the log). Every item has a `level` from 1 to 4
 ([docs/LEVELS.md](../../docs/LEVELS.md)) and `judge.py` prints a per-level summary (`LEVELS L1 a/b OK · …`); the level never
 changes a verdict. Four profiles are recorded (melonDS 1.1 software, GL Classic, GL Compute; DeSmuME); nothing has been
-measured on real hardware yet. All 75 demos are judged; the screen and sound demos grade themselves with capture probes and ARM7 channel reports (see
+measured on real hardware yet. Corvane is the L1 graphics and system game: all 49 of its demos are judged (sound, I/O, L2 to L4 demos moved to the games and the probe collection that own them); the screen and sound demos grade themselves with capture probes and ARM7 channel reports (see
 [docs/QA.md](docs/QA.md#judging-expectedjson-toolsjudgepy) for what stays unjudged or informational).
 
 ## Choices for the design document's open questions

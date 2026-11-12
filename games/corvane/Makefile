@@ -57,22 +57,13 @@ STAMP    := $(GEN)/.stamp
 
 # Every demo build name from the design document's hardware tables.
 DEMOS := \
-  sys-ipc sys-wram sys-irq sys-timer \
-  sys-dma-now sys-dma-vblank sys-dma-hblank sys-dma-cart sys-dma-gfx \
-  sys-dma-disp sys-dma-fill sys-bios sys-math sys-keys \
-  2d-engines 2d-text 2d-affine 2d-bitmap 2d-mosaic \
-  2d-obj-normal 2d-obj-affine 2d-obj-bitmap 2d-obj-map2d 2d-obj-line \
-  2d-extpal 2d-window 2d-blend 2d-brightness 2d-vram 2d-capture 2d-display \
-  3d-fifo 3d-matrix 3d-light 3d-clip \
-  3d-tex-a3i5 3d-tex-a5i3 3d-tex-pal4 3d-tex-pal16 3d-tex-pal256 \
-  3d-tex-4x4 3d-tex-direct \
-  3d-poly 3d-toon 3d-edge 3d-fog 3d-aa 3d-depth 3d-test 3d-compose \
-  3d-limits \
-  snd-mix snd-pcm snd-adpcm snd-psg snd-capture snd-stream \
-  io-cart io-save-eeprom io-save-flash io-save-fram io-firmware io-rtc \
-  io-touch io-power \
-  io-qalog acc-stage acc-dual acc-split-tex acc-split-bg acc-split-relay acc-split-rear \
-  acc-split-rear-read acc-split-rear-write acc-split-hdma
+  sys-ipc sys-wram sys-irq sys-timer sys-dma-now sys-dma-hblank sys-dma-gfx \
+  sys-dma-disp sys-dma-fill sys-bios sys-math 2d-engines 2d-text 2d-affine \
+  2d-bitmap 2d-mosaic 2d-obj-normal 2d-obj-affine 2d-obj-bitmap 2d-obj-map2d \
+  2d-obj-line 2d-extpal 2d-window 2d-blend 2d-brightness 2d-vram 2d-capture \
+  2d-display 3d-fifo 3d-matrix 3d-light 3d-clip 3d-tex-a3i5 3d-tex-a5i3 \
+  3d-tex-pal4 3d-tex-pal16 3d-tex-pal256 3d-tex-4x4 3d-tex-direct 3d-poly \
+  3d-toon 3d-edge 3d-fog 3d-aa 3d-depth 3d-test 3d-compose io-qalog acc-stage
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
