@@ -45,6 +45,10 @@ static void lead_spoke(CvDl *d, int x0, int y0, int x1, int y1, int hw)
 
 void glass_init(void)
 {
+    static bool ready;
+    if (ready)
+        return;
+    ready = true;
     CvDl d;
     dl_begin(&d, lead_buf, sizeof(lead_buf) / 4);
     // Outer ring: 16 segments, radius 0.95, width 0.06 (VTX_16 then three VTX_XY).

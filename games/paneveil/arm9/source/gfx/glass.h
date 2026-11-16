@@ -15,7 +15,8 @@
 
 #include "game/window.h"
 
-// Builds the lead frame list (once, after g3_init).
+// Builds the lead frame list (after g3_init). Safe to call from every scene that draws the window:
+// only the first call builds it.
 void glass_init(void);
 
 // Draws one frame of the window with the camera and the backlight; `turn` is the frame counter

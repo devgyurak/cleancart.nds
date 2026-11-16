@@ -40,7 +40,7 @@ polygon attributes, texture attributes, texture coordinates).
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (chapter and
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset, `display_3d_top()` the shared 3D top-screen entry), `title.c` (rose preset `pv_title_preset` behind BG2 lettering from `cvtools/pvart.py`, plays `clerestory`, stops it on every exit; layer addresses in its header comment), `select.c` (chapter and
   window list, every window open), `play.c` (one window: 3D top screen or the 2D schematic, the settings list, the kiln lamp, bake; `pv_play_hook` lets the rehearsal replace the input), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot: the first wrong setting, down to it, left or right the short way, A), `window.c/.h` (the `cv_windows` blob, the
   setting model, par arithmetic; pure logic), `credits.c` (credits and the licence viewer; NitroFS
   needed only here), `qa_game.c` + `qa_tune.h`, `rehearsal.c/.h`.
