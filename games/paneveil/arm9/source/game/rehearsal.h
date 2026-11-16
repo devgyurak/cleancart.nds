@@ -7,7 +7,13 @@
 // No save chip, no NitroFS.
 //
 // Block (CvResult, 64 words: magic, id, frame, values[0..60]); id "PVRH" = 0x48525650.
-// The layout is filled in by the judge changes; values[0] is the flags word.
+//   values[0]   flags: bit 0 the kiln check ran, 1 every kiln value is the expected one
+//   values[1]   windows baked by the scripted play (5)
+//   values[2]   reserved
+//   values[3..15]  the kiln check (judge/bench.h, KILN_*): stack levels, words that differ
+//               from the model after pop / pop N / store / restore, the projection stack,
+//               CLIPMTX_RESULT and VECMTX_RESULT against the model, packed GXFIFO and direct ports
+// Keep this file, expected.json and tools/judge.py in step.
 
 #ifndef PV_REHEARSAL_H
 #define PV_REHEARSAL_H

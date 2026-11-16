@@ -38,4 +38,21 @@ restore, 투영 스택, GXSTAT 스택 레벨), 행렬 load/multiply(CLIPMTX_RESU
 
 ## 에뮬레이터 시험으로 쓰기
 
-판정기는 판정기 변경에서 들어옵니다. `docs/QA-KO.md`를 보세요.
+`paneveil-rehearsal.nds`(`./build.sh DEMO=rehearsal`)는 판정을 돌린 뒤 0x0237F000에 64워드 결과 블록을
+남기고(배치는 `arm9/source/game/rehearsal.h`), `tools/judge.py`가 이를 `expected.json`(목표 레벨 1,
+영역 "3D geometry and texturing")과 비교합니다. 세이브 칩도 NitroFS도 필요 없습니다.
+
+**가마 점검**은 고정된 명령열을 지오메트리 엔진에 보내고(직접 포트와 packed GXFIFO), GXSTAT 27번 비트가
+0이 되기를 기다린 뒤, GXSTAT 스택 레벨과 `CLIPMTX_RESULT`(16워드), `VECMTX_RESULT`(9워드)를 GBATEK 규칙의
+정수 모델과 비교합니다. 행렬 원소는 모두 1.19.12에서 정확히 표현되므로 곱셈 반올림 방식과 무관하고,
+렌더러도 관여하지 않습니다.
+
+```sh
+tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+  | python3 games/paneveil/tools/judge.py --profile melonds-1.1-software
+RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+  | python3 games/paneveil/tools/judge.py --profile desmume-pydesmume-0.0.9
+```
+
+종료 코드 0: 게이트 항목이 모두 통과했거나(또는 실패 집합이 프로필과 같음). `expected.json`의 `known`에
+에뮬레이터 버전·렌더러마다 프로필이 하나씩 있습니다.
