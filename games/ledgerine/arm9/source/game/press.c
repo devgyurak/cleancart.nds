@@ -257,6 +257,6 @@ static void audit_press(void)
 }
 
 const Room room_press = {
-    "THE PRESS", "UPPER TOWER", "DS MATHS", press_puzzles,
+    "THE PRESS", "UPPER TOWER", "MATHS", press_puzzles,
     (int)(sizeof(press_puzzles) / sizeof(press_puzzles[0])), audit_press,
 };

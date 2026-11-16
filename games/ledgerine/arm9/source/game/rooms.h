@@ -37,7 +37,7 @@ typedef struct {
 typedef struct {
     const char *name;            // "THE PRESS"
     const char *tower;           // "UPPER TOWER": which screen the machine stands on
-    const char *gbatek;          // the hardware it exercises (for the ledger header)
+    const char *area;            // the hardware it exercises (for the ledger header)
     const Puzzle *puzzles;
     int n_puzzles;
     void (*audit)(void);         // runs the room's experiments, fills lg_res
