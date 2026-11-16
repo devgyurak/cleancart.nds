@@ -32,6 +32,8 @@
 #define PANEL_ROW 18          // rows 18-23 (y 144-191): the text sits on a dark panel
 #define LETTER_COL ((32 - PV_TITLE_COLS) / 2)
 
+_Static_assert(PV_TITLE_COLS <= 32, "the lettering must fit one map row");
+
 static CvText main_text, sub_text;
 
 static void load_lettering(void)

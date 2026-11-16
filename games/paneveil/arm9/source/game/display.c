@@ -38,6 +38,7 @@ void display_reset(void)
         ((vu16 *)0x04001010)[i * 2] = 0;
         ((vu16 *)0x04001012)[i * 2] = 0;
     }
+    REG_BG2CNT = 0;   // the title's lettering layer: later scenes start without stale tile and map bases
     oam_clear(ENG_MAIN);
     oam_clear(ENG_SUB);
     oam_flush_now();
