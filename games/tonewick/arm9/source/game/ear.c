@@ -30,6 +30,7 @@ static const u16 dc_data[5][8] __attribute__((aligned(4))) = {
 static const s8 silence[64] __attribute__((aligned(4)));
 static s16 cap_buf[EAR_N + 16] __attribute__((aligned(32)));
 static u32 sentinel_buf[1024] __attribute__((aligned(32)));
+static bool cap_valid;      // cap_buf holds the capture of the last experiment
 
 // ---------------------------------------------------------------------------
 // Script helpers
@@ -72,6 +73,7 @@ static void stats(EarStats *st, int skip, int n)
 // source, add and format bits to SNDCAP0CNT.
 static bool listen(u8 capcnt)
 {
+    cap_valid = false;
     memset(cap_buf, 0x55, sizeof(cap_buf));
     DC_FlushRange(cap_buf, sizeof(cap_buf));
     u16 words = (capcnt & LAB_CAP_PCM8) ? EAR_N / 4 : EAR_N / 2;
@@ -80,7 +82,8 @@ static bool listen(u8 capcnt)
     bool ok = sndlab_run(0);
     DC_InvalidateRange(cap_buf, sizeof(cap_buf));
     // A capture that wrote nothing (the buffer still holds the fill) is no measurement.
-    return ok && !(cap_buf[0] == 0x5555 && cap_buf[EAR_N - 1] == 0x5555);
+    cap_valid = ok && !(cap_buf[0] == 0x5555 && cap_buf[EAR_N - 1] == 0x5555);
+    return cap_valid;
 }
 
 // ---------------------------------------------------------------------------
@@ -227,6 +230,7 @@ bool ear_noise(u32 mask, int *run_bits, int *phase)
 
 bool ear_cap_len(int len, int *changed)
 {
+    cap_valid = false;   // this one fills the sentinel buffer, not cap_buf
     for (int i = 0; i < 1024; i++)
         sentinel_buf[i] = 0xA5A5A5A5u;
     DC_FlushRange(sentinel_buf, sizeof(sentinel_buf));
@@ -270,6 +274,12 @@ bool ear_pcm8(int *byte)
         return false;
     *byte = ((u8 *)cap_buf)[16];
     return true;
+}
+
+const s16 *ear_capture(bool *valid)
+{
+    *valid = cap_valid;
+    return cap_buf;
 }
 
 // ---------------------------------------------------------------------------

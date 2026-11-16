@@ -14,7 +14,9 @@
 #include "core/input.h"
 #include "core/snd.h"
 #include "game/lab.h"
+#include "game/ear.h"
 #include "game/rooms.h"
+#include "game/scope.h"
 #include "game/scenes.h"
 #include "gfx/fx.h"
 #include "gfx/text.h"
@@ -32,8 +34,19 @@ static Line lines[MAX_LINES];
 static int cursor;
 static int n_lines;
 static bool all_solved;
+static bool lever_lit;      // the lever is drawn pressed for a few frames after a listen
+static bool was_touching;
 
 static CvText main_text, sub_text;
+
+static void draw(const Room *room);
+
+// The lever drawn pressed while the ear listens (a listen takes several frames).
+static void draw_lit(const Room *room)
+{
+    draw(room);
+    scene_frame_end();
+}
 
 static void draw(const Room *room)
 {
@@ -48,32 +61,47 @@ static void draw(const Room *room)
 
     if (!n_lines)
     {
+        scope_draw(NULL, 0, 0, false, LAMP_OFF);
+        panel_draw(NULL, 0, 0, false);
         text_printf(&sub_text, 1, 8, TP_GRAY, "THE DISTRICT IS QUIET");
         text_printf(&sub_text, 1, 21, TP_YELLOW, "START: END THE SHIFT");
         return;
     }
     const Puzzle *p = &room->puzzles[cursor];
     const Line *l = &lines[cursor];
+
+    ScopeLamp lamp = LAMP_OFF;
+    if (l->pulled)
+        lamp = l->hw == EAR_FAIL ? LAMP_NO_SIGNAL : l->hw == l->model ? LAMP_TRUE : LAMP_DISAGREE;
+    scope_draw(p, l->a, l->b, l->pulled && l->hw != EAR_FAIL, lamp);
+    panel_draw(p, l->a, l->b, lever_lit);
+    text_printf(&main_text, 1, 8, TP_CYAN, "MODEL");
+    text_printf(&main_text, 8, 8, TP_YELLOW, "EAR");
+    if (lamp == LAMP_NO_SIGNAL)
+        text_printf(&main_text, 13, 8, TP_RED, "NO SIGNAL");
+    else if (lamp == LAMP_TRUE)
+        text_printf(&main_text, 13, 8, TP_GREEN, "TRUE EAR");
+    else if (lamp == LAMP_DISAGREE)
+        text_printf(&main_text, 13, 8, TP_RED, "THE EAR DISAGREES");
+
     text_printf(&sub_text, 1, 1, TP_YELLOW, "%s", p->title);
     text_printf(&sub_text, 1, 3, TP_GRAY, "THE LINE NEEDS");
     text_printf(&sub_text, 1, 4, TP_WHITE, "%s", p->want_text);
-    text_printf(&sub_text, 1, 7, TP_CYAN, "LEFT/RIGHT %-8s %s", p->a_name, p->a_label[l->a]);
+    text_printf(&sub_text, 1, 15, TP_CYAN, "%s %s", p->a_name, p->a_label[l->a]);
     if (p->b_n > 1)
-        text_printf(&sub_text, 1, 9, TP_CYAN, "L/R        %-8s %s", p->b_name, p->b_label[l->b]);
-    text_printf(&sub_text, 1, 12, TP_GRAY, "A: LISTEN");
+        text_printf(&sub_text, 17, 15, TP_CYAN, "%s %s", p->b_name, p->b_label[l->b]);
+    text_printf(&sub_text, 8, 17, TP_WHITE, "A OR TAP: LISTEN");
     if (l->pulled)
     {
-        text_printf(&sub_text, 1, 14, TP_WHITE, "MODEL    %08lX", (unsigned long)l->model);
-        text_printf(&sub_text, 1, 15, TP_WHITE, "EAR      %08lX", (unsigned long)l->hw);
-        if (l->hw != l->model)
-            text_printf(&sub_text, 1, 17, TP_RED, "THE EAR DISAGREES");
-        text_printf(&sub_text, 1, 16, l->model == p->want ? TP_GREEN : TP_RED, "%s",
+        text_printf(&sub_text, 1, 20, TP_WHITE, "MODEL %08lX  EAR %08lX", (unsigned long)l->model,
+                    (unsigned long)l->hw);
+        text_printf(&sub_text, 1, 21, l->model == p->want ? TP_GREEN : TP_RED, "%s",
                     l->model == p->want ? "LINE CLEARED" : "LINE STILL OPEN");
     }
     if (all_solved)
-        text_printf(&sub_text, 1, 21, TP_YELLOW, "START: END THE SHIFT");
+        text_printf(&sub_text, 1, 23, TP_YELLOW, "START: END THE SHIFT");
     else
-        text_printf(&sub_text, 1, 21, TP_GRAY, "B: TITLE");
+        text_printf(&sub_text, 1, 23, TP_GRAY, "TOUCH THE DIALS   B: TITLE");
 }
 
 // What the autopilot presses next (QA run): walks to the first open line, sets its dials to
@@ -105,58 +133,83 @@ TwScene scene_room(void)
     const Room *room = tw_rooms[tw_room];
     scene_text_screens(&main_text, &sub_text);
     fx_bright(FX_BOTH, 0);
+    scope_init();
 
     n_lines = room->n_puzzles > MAX_LINES ? MAX_LINES : room->n_puzzles;
     for (int i = 0; i < MAX_LINES; i++)
         lines[i] = (Line){ 0, 0, false, false, 0, 0 };
     cursor = 0;
     all_solved = n_lines == 0;
+    lever_lit = false;
+    was_touching = true;   // a touch already down on entry is not a tap
     draw(room);
 
     for (;;)
     {
         scene_frame_end();
         bool dirty = false;
+        u16 pressed = cv_in.pressed;
+        // Touch: a tap on a dial turns it (left half back, right half on), a tap on the lever listens.
+        if (cv_in.touching && !was_touching && n_lines)
+        {
+            switch (panel_hit(&room->puzzles[cursor], cv_in.tx, cv_in.ty))
+            {
+                case PANEL_A_PREV: pressed |= KEY_LEFT; break;
+                case PANEL_A_NEXT: pressed |= KEY_RIGHT; break;
+                case PANEL_B_PREV: pressed |= KEY_L; break;
+                case PANEL_B_NEXT: pressed |= KEY_R; break;
+                case PANEL_LEVER: pressed |= KEY_A; break;
+                default: break;
+            }
+        }
+        was_touching = cv_in.touching;
+        if (lever_lit)
+        {
+            lever_lit = false;
+            dirty = true;
+        }
         if (n_lines)
         {
             const Puzzle *p = &room->puzzles[cursor];
             Line *l = &lines[cursor];
-            if (cv_in.pressed & KEY_DOWN)
+            if (pressed & KEY_DOWN)
             {
                 cursor = (cursor + 1) % n_lines;
                 dirty = true;
             }
-            if (cv_in.pressed & KEY_UP)
+            if (pressed & KEY_UP)
             {
                 cursor = (cursor + n_lines - 1) % n_lines;
                 dirty = true;
             }
-            if (cv_in.pressed & KEY_RIGHT)
+            if (pressed & KEY_RIGHT)
             {
                 l->a = (u8)((l->a + 1) % p->a_n);
                 l->pulled = false;
                 dirty = true;
             }
-            if (cv_in.pressed & KEY_LEFT)
+            if (pressed & KEY_LEFT)
             {
                 l->a = (u8)((l->a + p->a_n - 1) % p->a_n);
                 l->pulled = false;
                 dirty = true;
             }
-            if (cv_in.pressed & (KEY_R | KEY_Y) && p->b_n > 1)
+            if (pressed & (KEY_R | KEY_Y) && p->b_n > 1)
             {
                 l->b = (u8)((l->b + 1) % p->b_n);
                 l->pulled = false;
                 dirty = true;
             }
-            if (cv_in.pressed & (KEY_L | KEY_X) && p->b_n > 1)
+            if (pressed & (KEY_L | KEY_X) && p->b_n > 1)
             {
                 l->b = (u8)((l->b + p->b_n - 1) % p->b_n);
                 l->pulled = false;
                 dirty = true;
             }
-            if (cv_in.pressed & KEY_A)
+            if (pressed & KEY_A)
             {
+                lever_lit = true;
+                draw_lit(room);
                 l->hw = p->hw(l->a, l->b);
                 l->model = p->model(l->a, l->b);
                 l->pulled = true;
@@ -173,8 +226,9 @@ TwScene scene_room(void)
                 else
                     snd_sfx(CV_SFX_CLICK, 80, 64);
                 dirty = true;
+                lever_lit = false;
             }
-            if (dirty && !(cv_in.pressed & KEY_A))
+            if (dirty && !(pressed & KEY_A))
                 snd_sfx(CV_SFX_CLICK, 60, 64);
         }
         if (all_solved && (cv_in.pressed & KEY_START))

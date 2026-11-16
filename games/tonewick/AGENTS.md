@@ -7,9 +7,9 @@ field of the console's sound block. Human docs (English, each with a Korean twin
 (which came from lightenette and the corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are
 corvane's layers (keep fixes in sync when they apply to all games). The plan is `out/WORKPLAN-tonewick.md` (not committed).
 
-Status: the sound lab, the ear (the experiments), the twelve signal lines with their GBATEK models, the rehearsal and
-its judge (`expected.json`, `tools/judge.py`), the QA run; the scope, the control panel and the morning log scene are
-next. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
+Status: the sound lab, the ear (the experiments), the twelve signal lines with their GBATEK models, the scope and
+the touch control panel, the rehearsal and its judge (`expected.json`, `tools/judge.py`), the QA run; the morning log
+scene is next. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
 the GBATEK sections corvane and hushwell judge at level 1 (DS Sound Channels, DS Sound Notes, DS Sound Capture,
 DS Real-Time Clock, DS Power Management, DS Cartridge Backup, DS Firmware User Settings).
 
@@ -46,7 +46,9 @@ when `tools/` changes.
   `credits.c` (credits and the licence viewer), `rooms.h/.c` (the district table and the puzzle record: two dials, a
   hardware function `hw`, the GBATEK model `model`, the wanted value `want`), `room_scene.c` (the district scene;
   `room_pilot_key()` is what the QA pilot presses next), `lab.h/.c` (the result words `tw_res`, layout in `lab.h`),
-  `ear.h/.c` (the ear: every experiment as a function that builds a lab script, listens and reduces the capture to numbers;
+  `scope.h/.c` (the top-screen scope with the model and ear traces and the bottom-screen brass panel with its touch
+  hit test, both drawn into a `gfx/canvas.c` software canvas shown as BG3 under the text; a line's optional
+  `wave()` is its model waveform), `ear.h/.c` (the ear: every experiment as a function that builds a lab script, listens and reduces the capture to numbers;
   `ear_lfsr()` is the GBATEK noise register), `rehearsal.c/.h`, `qa_game.c` + `qa_tune.h` (the QA run; its state hash covers only the completion bits and the lines
   solved: measured values move a little from run to run). One file per district (`trestle.c`, `splice.c`, `echo.c`,
   `junction.c`), each with its three signal lines (`hw` runs the experiment and returns a coarse class, `model` is the
@@ -65,13 +67,13 @@ when `tools/` changes.
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them identical to the other
   games'). Title: hold **L+R+X+Y for 120 frames** (press L and R before X), or the SD marker `cleancart/tonewick/autoqa`.
 - `tools/mkassets.py`, `tools/cvtools/`: asset generators (Python 3, stdlib only); `cvtools/twart.py` draws the title
-  picture and the icon (a scaffold placeholder, `TODO(title)`).
+  picture and the icon.
 
 ## Controls (melonDS keys in brackets)
 
 Start (Return) starts the shift at district 1; X (X) credits and licence viewer; Select (Backspace) the test menu
 (up/down, A (X), B (Z)). In a district: up/down choose a line, left/right turn dial A, L/R (Q/W) or Y/X (A/S) dial B,
-A (X) listens, Start (Return) ends the shift when every line is cleared, B (Z) goes back to the title.
+A (X) listens (or tap the lever on the bottom screen; tap the left/right half of a dial to turn it), Start (Return) ends the shift when every line is cleared, B (Z) goes back to the title.
 
 ## Result block on the SD card
 

@@ -32,6 +32,7 @@ typedef struct {
     u32 (*hw)(int a, int b);     // runs the device; returns the result word shown
     u32 (*model)(int a, int b);  // the same result from the GBATEK rules
     u32 want;                    // the line is cleared when model(a, b) == want
+    void (*wave)(int a, int b, s16 *out);   // the model's waveform for the scope (SCOPE_N samples), or NULL
 } Puzzle;
 
 typedef struct {

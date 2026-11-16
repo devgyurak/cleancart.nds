@@ -17,9 +17,10 @@ documentation, not assets: the build never reads them and they are not in the RO
 |---|---|---|---|
 | `cv_font_tiles` | 5x7 pixel font (ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS` (glyphs drawn as strings) | original, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
-| `cv_title_lz`, `cv_title_pal` | the title picture (256x192, 8bpp, LZ77). **Scaffold placeholder** (`TODO(title)`): it still shows the towers-and-tube picture the folder was started from, to be replaced by a moor and signal-tower picture before the release | `cvtools/twart.py` `title_art()` | original, Apache-2.0 |
+| `cv_title_lz`, `cv_title_pal` | the title picture: dusk over a moor, a lattice signal mast with a lamp and radio arcs, the listening shed with its scope window, and the wordmark (256x192, 8bpp, LZ77) | `cvtools/twart.py` `title_art()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`; `stamp` is the line-cleared stamp, a wooden thud with a noise tail) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the song `minuet`, a slow dorian minuet composed by code | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
 | `cv_adpcm_ramp` | the IMA-ADPCM sawtooth (256 samples, a header word and 32 data words) that the echo room loops in the sound lab | `tools/mkassets.py` (ramp) with `cvtools/codec.py` `ima_adpcm()` | original, Apache-2.0 |
+| scope and control panel (not a file) | the scope grid and traces, the brass dials and the lever are drawn at run time by `gfx/canvas.c` and `game/scope.c` from rectangles, lines and discs with a 15-colour palette written in `game/scope.c` | `arm9/source/game/scope.c` | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
-| banner icon (`icon.bmp`) | 32x32 4bpp icon, a closed ledger with a brass clasp (scaffold placeholder, like the title) | `cvtools/twart.py` `icon()` | original, Apache-2.0 |
+| banner icon (`icon.bmp`) | 32x32 4bpp icon, an oscilloscope screen with a square trace | `cvtools/twart.py` `icon()` | original, Apache-2.0 |

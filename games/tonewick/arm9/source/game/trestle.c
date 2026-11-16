@@ -12,6 +12,7 @@
 #include "game/ear.h"
 #include "game/lab.h"
 #include "game/rooms.h"
+#include "game/scope.h"
 
 // Rounds a mean or swing to 256ths of full scale; floors (arithmetic shift) so +-0.5 steps stay stable.
 static u32 q(s32 v)
@@ -80,10 +81,27 @@ static u32 p3_model(int a, int b)
     return q(0x4000 * n / 128);
 }
 
+static void p1_wave(int a, int b, s16 *out)
+{
+    int d = duty_v[a];
+    scope_square(out, d == 7 ? 0 : d + 1, 32767);
+}
+
+static void p2_wave(int a, int b, s16 *out)
+{
+    static const int shift[4] = { 0, 1, 2, 4 };
+    scope_square(out, 4, 32767 >> shift[a]);
+}
+
+static void p3_wave(int a, int b, s16 *out)
+{
+    scope_dc(out, 0x4000 * (vol_v[a] == 127 ? 128 : vol_v[a]) / 128);
+}
+
 static const Puzzle trestle_puzzles[] = {
-    { "THE FLOOR LINE", "FLAT AT THE FLOOR", "LEVER", duty_l, 3, "-", dash_l, 1, p1_hw, p1_model, 0 },
-    { "THE SIXTEENTH", "ONE SIXTEENTH OF FULL", "DAMPER", damper_l, 4, "-", dash_l, 1, p2_hw, p2_model, 16 },
-    { "THE FULL DIAL", "FULL SWING OF THE TAPE", "DIAL", vol_l, 3, "-", dash_l, 1, p3_hw, p3_model, 64 },
+    { "THE FLOOR LINE", "FLAT AT THE FLOOR", "LEVER", duty_l, 3, "-", dash_l, 1, p1_hw, p1_model, 0, p1_wave },
+    { "THE SIXTEENTH", "ONE SIXTEENTH OF FULL", "DAMPER", damper_l, 4, "-", dash_l, 1, p2_hw, p2_model, 16, p2_wave },
+    { "THE FULL DIAL", "FULL SWING OF THE TAPE", "DIAL", vol_l, 3, "-", dash_l, 1, p3_hw, p3_model, 64, p3_wave },
 };
 
 // ---------------------------------------------------------------------------

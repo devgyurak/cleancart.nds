@@ -11,6 +11,7 @@
 #include "game/ear.h"
 #include "game/lab.h"
 #include "game/rooms.h"
+#include "game/scope.h"
 
 static u32 q(s32 v)
 {
@@ -87,9 +88,23 @@ static u32 p12_model(int a, int b)
     return 1;   // every entry agrees with its rule on a console that follows GBATEK
 }
 
+static void p10_wave(int a, int b, s16 *out)
+{
+    s32 sum = a == 1 ? 0x7000 + 0x7000 : 0x7000;
+    scope_dc(out, (s16)(sum & 0xFFFF));
+}
+
+static void p11_wave(int a, int b, s16 *out)
+{
+    if (a == 1 && b == 0)
+        scope_dc(out, -0x8000);
+    else
+        scope_dc(out, a == 1 ? -0x2000 : 0x2000);
+}
+
 static const Puzzle junction_puzzles[] = {
-    { "THE HIGH PAIR", "WRAPS TO MINUS 2000", "JOIN", add_l, 2, "-", dash_l, 1, p10_hw, p10_model, (u32)-32 },
-    { "THE LOW PAIR", "FLOORS AT MINUS 8000", "CHAN 0", a_l, 2, "CHAN 1", b_l, 2, p11_hw, p11_model, (u32)-128 },
+    { "THE HIGH PAIR", "WRAPS TO MINUS 2000", "JOIN", add_l, 2, "-", dash_l, 1, p10_hw, p10_model, (u32)-32, p10_wave },
+    { "THE LOW PAIR", "FLOORS AT MINUS 8000", "CHAN 0", a_l, 2, "CHAN 1", b_l, 2, p11_hw, p11_model, (u32)-128, p11_wave },
     { "THE MORNING LOG", "EVERY ENTRY AGREES", "ENTRY", instr_l, 4, "-", dash_l, 1, p12_hw, p12_model, 1 },
 };
 
