@@ -75,10 +75,13 @@ PvScene scene_title(void)
 
     snd_bgm(CV_SONG_CLERESTORY);
     fx_bright(FX_BOTH, -16);
-    fx_fade_in(FX_BOTH, 20, false);
     u32 turn = 0;
     for (int f = 0;; f++)
     {
+        // Fade in inside the loop (fx_fade_in() only waits for vblanks and would
+        // show the previous scene's 3D window until the rose is drawn).
+        if (f < 20)
+            fx_bright(FX_BOTH, -(16 * (19 - f) / 20));
         glass_draw(pv_title_preset, turn++);
         g3_flush(false);
         // Blink the prompt.
