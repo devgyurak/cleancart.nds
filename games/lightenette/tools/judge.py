@@ -201,6 +201,11 @@ def is_na(item, vals):
     return bool(na) and vals[na[0]] == na[1]
 
 
+def is_env_na(item, hardware):
+    """--hardware: an item with an "env" (harness input) cannot be graded on a real console."""
+    return hardware and bool(item.get('env'))
+
+
 def grade(item, vals):
     """Return (ok, got_text, want_text). Raises IndexError when a value is missing."""
     got = [vals[i] for i in item['values']]
@@ -293,6 +298,8 @@ def run(args):
             print('%-28s %s  (%d known NG, %d n/a)' % (name, p.get('emulator', ''), len(p.get('ng', [])), len(p.get('na', []))))
         return 0
 
+    if args.hardware and args.profile is not None:
+        raise Fatal('--hardware does not compare with a profile (a console value is not an emulator profile)')
     if args.boot is not None and args.boot not in boots:
         raise Fatal('unknown --boot %r (known: %s)' % (args.boot, ', '.join(sorted(boots))))
     profile = None
@@ -352,6 +359,10 @@ def run(args):
         info = not is_gating(item)
         graded_ids.add(item['id'])
         try:
+            if is_env_na(item, args.hardware):
+                lines.append('%-7s %-22s %s [%s]' % ('N/A', item['id'], 'needs the harness (env)', item['source']))
+                na.append(item['id'])
+                continue
             if is_na(item, vals):
                 lines.append('%-7s %-22s %s [%s]' % ('N/A', item['id'], 'not measurable (values[%d] == %d)' % tuple(item['na_when']),
                                                       item['source']))
@@ -423,6 +434,8 @@ def main(argv):
     ap.add_argument('--demo', help='ROM name prefix to keep in logs of several ROMs (mds.sh demos)')
     ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--list-profiles', action='store_true')
+    ap.add_argument('--hardware', action='store_true',
+                    help='the log is from a real console: items with an "env" are n/a, no profile comparison')
     ap.add_argument('logs', nargs='*')
     args = ap.parse_args(argv)
     try:

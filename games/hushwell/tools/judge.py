@@ -24,7 +24,7 @@ Exit 2: no usable input (a demo is missing, too few words, a bad expected.json;
 --partial or --demo grade only what is in the log).
 Items with source `unconfirmed` are informational: they print INFO but never fail.
 An item with `na_when` [i, v] is n/a when values[i] == v (no polygon counters in
-DeSmuME; without --profile an n/a item is not a failure, so a real run on hardware should use a profile or look at the n/a list).
+DeSmuME; without --profile an n/a item is not a failure, so a console log is graded with --hardware, never with a profile: items with an "env" are n/a and a profile is rejected).
 Checks: eq, range, mask, nonzero, same (all values equal), ne (two values differ); `not_value` makes an item fail when a value
 equals it (0xFFFF = a capture that did not finish). The level of an item (docs/LEVELS.md) never changes a verdict.
 """
@@ -205,6 +205,8 @@ def run(args):
             print('%-30s %s (%d known NG, %d n/a)' % (name, p.get('emulator', ''), len(p['ng']), len(p.get('na', []))))
         return 0
     profile = None
+    if args.hardware and args.profile:
+        raise Fatal('--hardware does not compare with a profile (a console value is not an emulator profile)')
     if args.profile:
         profile = exp.get('known', {}).get(args.profile)
         if profile is None:

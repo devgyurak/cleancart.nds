@@ -70,3 +70,14 @@ Copy a `d_xxx()` from the source demo (see Contracts; helpers too), add it to `d
 in the `Makefile`, add the item(s) to `expected.json` (`level` 4, `role` `target`, `source` `unconfirmed`),
 a row to `docs/QA.md` and `docs/QA-KO.md`, re-measure the seven profiles, and run
 `python3 -m unittest discover -s tools/tests` and `python3 ../scripts/mklevels.py`.
+
+## Result block on the SD card
+
+`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+folder `<drive>cleancart/probes/` already exists on the card, the probe `finish()` writes its result
+block there as `res-<date>-<time>-probes-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
+line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the
+folder: whoever prepares the card does. Without the folder (every emulator CI run, an ordinary card)
+nothing is written and nothing on screen changes. The probe then shows `RESULT SAVED` under the checkpoint. `tools/qa/ingest.py SD` copies the logs to
+`build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
+emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).

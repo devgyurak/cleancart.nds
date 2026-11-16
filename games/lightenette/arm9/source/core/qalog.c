@@ -15,6 +15,7 @@
 #include "core/nitro.h"
 #include "core/qalog.h"
 #include "core/save.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 
 #define LINE_MAX 200
@@ -27,9 +28,6 @@ static char ring[QALOG_RING_BYTES] __attribute__((aligned(32)));
 static u32 ring_len;        // bytes waiting for the next flush
 static bool opened;
 static bool sd_ok;
-static bool fat_tried;
-static bool fat_failed;   // fatInitDefault() returned false
-static bool fat_premounted;   // stat() of the drive root worked before we called it
 static char stamp[24];     // YYYYMMDD-HHMMSS of this run, part of every file name
 static int open_errno;
 static bool finished;
@@ -68,28 +66,6 @@ bool qalog_is_open(void)
 static void make_dir(const char *path)
 {
     mkdir(path, 0777);   // EEXIST is fine; the file open below tells the truth
-}
-
-// Brings FAT up unless something (nitroFS on a flash cart) already did.
-// fatGetDefaultDrive() names the drive whether or not it is mounted, so the
-// check is a stat() of its root.
-static bool fat_up(void)
-{
-    const char *drive = fatGetDefaultDrive();
-    if (!drive || !*drive)
-        return false;
-    struct stat st;
-    bool owner = cart_bus_claim();
-    bool mounted = stat(drive, &st) == 0;
-    fat_premounted = mounted;
-    if (!mounted && !fat_tried)
-    {
-        fat_tried = true;
-        mounted = fatInitDefault();
-        fat_failed = !mounted;
-    }
-    cart_bus_release(owner);
-    return mounted;
 }
 
 static const char *dldi_name(void)
@@ -197,7 +173,7 @@ bool qalog_open(const char *game, u32 seed)
     snprintf(stamp, sizeof(stamp), "20%02u%02u%02u-%02u%02u%02u", cv_arm7.year, cv_arm7.month,
              cv_arm7.day, cv_arm7.hour, cv_arm7.minute, cv_arm7.second);
 
-    if (fat_up())
+    if (sd_up())
     {
         const char *drive = fatGetDefaultDrive();
         bool owner = cart_bus_claim();
@@ -235,7 +211,7 @@ bool qalog_open(const char *game, u32 seed)
                game, CV_BUILD_ID, cv_arm7.year, cv_arm7.month, cv_arm7.day, cv_arm7.hour,
                cv_arm7.minute, cv_arm7.second, (unsigned long)seed);
     qalog_line("boot", "hdr", "sd=%d fat_fail=%d fat_pre=%d errno=%d drive=%s dldi=\"%s\" cart_ready=%d nitro=%d",
-               sd_ok, fat_failed, fat_premounted, open_errno, fatGetDefaultDrive() ? fatGetDefaultDrive() : "none", dldi_name(),
+               sd_ok, sd_fat_failed(), sd_fat_premounted(), open_errno, fatGetDefaultDrive() ? fatGetDefaultDrive() : "none", dldi_name(),
                cart_ready(), nitro_ok());
     qalog_line("boot", "hdr", "save_build=%s save_detected=%d save_available=%d",
                save_type_name(), save_detected_type(), save_available());

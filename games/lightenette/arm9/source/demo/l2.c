@@ -18,6 +18,7 @@
 #include "core/input.h"
 #include "core/irq.h"
 #include "core/snd.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "core/timer.h"
 #include "demo/l2.h"
@@ -35,6 +36,7 @@
 
 static CvText con;
 static u32 demo_id;
+static const char *demo_name;
 static void (*idle_fn)(int f);
 
 // ---------------------------------------------------------------------------
@@ -118,6 +120,13 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    // Only when the card holds cleancart/lightenette/ (core/sdcard.h): the block goes to the SD card.
+    if (sd_result_save("lightenette", demo_name))
+    {
+        con_color(TP_GREEN);
+        con_printf("RESULT SAVED\n");
+        con_color(TP_WHITE);
+    }
     for (int f = 0;; f++)
     {
         if (idle_fn)
@@ -942,6 +951,7 @@ bool l2_demo_run(const char *name)
         if (strcmp(l2_demos[i].name, name) == 0)
         {
             demo_id = hash_name(name);
+            demo_name = name;
             l2_demos[i].fn();   // never returns
         }
     }

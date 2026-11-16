@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "core/input.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "game/play.h"
 #include "game/puzzle.h"
@@ -172,6 +173,7 @@ static void show_result(void)
 void rehearsal_idle(void)
 {
     show_result();
+    sd_result_save("elevane", "rehearsal");   // only with cleancart/elevane/ on the card
     for (;;)
     {
         sys_vsync();

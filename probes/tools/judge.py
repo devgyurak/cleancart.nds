@@ -211,6 +211,8 @@ def run(args):
         raise Fatal('cannot read expected.json: %s' % e)
     check_exp(exp)
     known = exp.get('known', {})
+    if args.hardware and args.profile:
+        raise Fatal('--hardware does not compare with a profile (a console value is not an emulator profile)')
     if args.list_profiles:
         for name, p in sorted(known.items()):
             print('%-30s %s (%d items recorded)' % (name, p.get('emulator', ''), len(p.get('observed', {}))))
@@ -276,6 +278,9 @@ def main(argv):
     ap.add_argument('--list-profiles', action='store_true')
     ap.add_argument('--partial', action='store_true', help='use only the probes that are in the log')
     ap.add_argument('--observed', action='store_true', help='print the observed values as JSON (for expected.json known)')
+    ap.add_argument('--hardware', action='store_true',
+                    help='the log is from a real console: observations only, no profile comparison '
+                         '(record them with --observed under known.hardware-dslite-r4)')
     ap.add_argument('--json', action='store_true')
     try:
         return run(ap.parse_args(argv))

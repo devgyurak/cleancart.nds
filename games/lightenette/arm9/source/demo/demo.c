@@ -7,6 +7,7 @@
 #include <nds.h>
 #include <string.h>
 
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "demo/demo.h"
 #include "demo/l2.h"
@@ -19,6 +20,7 @@ void demo_main(const char *name)
     if (strcmp(name, "acc-stage") == 0)
     {
         judge_run(NULL, true);
+        sd_result_save("lightenette", "acc-stage");   // silent: the judge screen is full
         judge_idle();
     }
     if (strncmp(name, "l2-", 3) == 0 && l2_demo_run(name))

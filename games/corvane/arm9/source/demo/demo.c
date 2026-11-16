@@ -22,6 +22,7 @@
 #include "core/qalog.h"
 #include "core/save.h"
 #include "core/snd.h"
+#include "core/sdcard.h"
 #include "core/sys.h"
 #include "core/timer.h"
 #include "demo/demo.h"
@@ -46,6 +47,7 @@
 
 static CvText con;
 static u32 demo_id;
+static const char *demo_name;
 static void (*idle_fn)(int f);
 
 // ---------------------------------------------------------------------------
@@ -129,6 +131,13 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    // Only when the card holds cleancart/corvane/ (core/sdcard.h): the block goes to the SD card.
+    if (sd_result_save("corvane", demo_name))
+    {
+        con_color(TP_GREEN);
+        con_printf("RESULT SAVED\n");
+        con_color(TP_WHITE);
+    }
     for (int f = 0;; f++)
     {
         if (idle_fn)
@@ -1229,6 +1238,7 @@ static void d_2d_capture(void)
     r->frame = cv_frame;
     r->values[0] = REG_DISPCAPCNT;
     r->magic = CV_RESULT_MAGIC;
+    sd_result_save("corvane", demo_name);   // no console here: nothing is shown
     for (int f = 0;; f++)
     {
         capture_idle(f);
@@ -3067,6 +3077,7 @@ static const DemoEntry demos[] = {
 void demo_main(const char *name)
 {
     demo_id = hash_name(name);
+    demo_name = name;
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)
     {
