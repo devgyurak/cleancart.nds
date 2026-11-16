@@ -107,16 +107,20 @@ static u32 c_arm7(int ofs, u32 *reply, u32 *back)
 {
     vram_clear_all();
     CV_VRAMCNT(VB_C) = CV_VRAM_ON | 0;
+    // Bank C is the sub BG tile bank of the menu layout: keep the half-word the ARM7's stores land on
+    // and put it back, so the font tile there survives the test.
     volatile u16 *l = (volatile u16 *)0x06840000;
-    for (int i = 0; i < 0x20000 / 2; i += 64)
-        l[i] = 0;
+    u16 saved = l[0];
     l[0] = 0;
     CV_VRAMCNT(VB_C) = 0;
     CV_VRAMCNT(VB_C) = CV_VRAM_ON | 2 | (u8)(ofs << 3);
     u32 r = sys_vault_step(CV_VAULT_VRAM_BYTES);
+    if (r == 0xFFFFFFFFu)
+        r = 0;   // the ARM7 never answered: no VRAMSTAT bit to credit
     CV_VRAMCNT(VB_C) = 0;
     CV_VRAMCNT(VB_C) = CV_VRAM_ON | 0;
     u32 got = *(volatile u16 *)0x06840000;
+    l[0] = saved;
     if (reply)
         *reply = r;
     if (back)
@@ -144,7 +148,8 @@ static u32 p2_hw(int a, int b)
 {
     sys_wram_to_arm9();
     CV_WRAMCNT = own_v[a];
-    u32 r = sys_vault_step(CV_VAULT_WRAM_MIRROR) & 1;
+    u32 r = sys_vault_step(CV_VAULT_WRAM_MIRROR);
+    r = r == 0xFFFFFFFFu ? 0 : r & 1;   // no answer is no mirror
     sys_wram_to_arm7();
     return r;
 }

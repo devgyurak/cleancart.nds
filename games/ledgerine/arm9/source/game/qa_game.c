@@ -44,7 +44,9 @@ void qa_game_reset(void)
 
 u32 qa_game_hash(void)
 {
-    return qalog_fnv(QALOG_FNV_INIT, lg_res, sizeof(lg_res));
+    // Only the flag words (done bits and the room flags, values[0..7]): the raw values hold timer counts and
+    // tick readings that move from run to run on a console.
+    return qalog_fnv(QALOG_FNV_INIT, lg_res, 8 * sizeof(u32));
 }
 
 void qa_game_words(u32 *w)

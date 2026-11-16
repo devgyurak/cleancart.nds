@@ -12,7 +12,7 @@
 //   0  CpuFastSet writes exactly 5 and exactly 13 words (NDS: no rounding up to 8)
 //   1  LZ77 (SWI 11h): a block with displacement field 0 repeats the last byte
 //   2  BitUnPack: Zero Data Flag adds the offset to zero units, without it zeroes stay zero
-//   3  RLUnComp (SWI 15h): a 130-byte run and a 128-byte literal
+//   3  RLUnComp (SWI 14h): a 130-byte run and a 128-byte literal
 //   4  ARM7 CpuSet from a source in the BIOS area writes nothing
 // raw: values[14] = words written by the 5-word FastSet, [15] = by the 13-word one.
 
@@ -44,7 +44,9 @@ static void buf_prepare(void)
 
 static void buf_after(void)
 {
-    DC_InvalidateRange(&buf, sizeof(buf));
+    // The BIOS wrote with CPU stores (and the decompressors read their own output back): flush, not
+    // just invalidate, so no dirty line of the buffer is thrown away.
+    DC_FlushRange(&buf, sizeof(buf));
 }
 
 static bool sentinels_ok(void)
@@ -155,7 +157,7 @@ static void audit_rules(void)
         f |= 1u << 3;
     if (sys_vault_step(CV_VAULT_CPUSET_GUARD) == 1)
         f |= 1u << 4;
-    lg_res[LV_RULES] |= f;
+    lg_res[LV_RULES] = f;
     // L1 prerequisites: CpuFastSet of 8 words, and the BIOS division of a negative numerator.
     ledger_flags(LV_PRE, 1u << 5, fast_set(8) == 8);
     ledger_flags(LV_PRE, 1u << 6, swiDivide(-1234, 10) == -123);

@@ -70,7 +70,7 @@ void qa_save_written(bool chip_ok);
 extern const QaTune qa_tune_on, qa_tune_off;
 void qa_game_pilot(int scene, u32 scene_frame, QaInput *out);
 // After the RESULT line and the QARN block: a game whose judge reads a block of
-// its own layout (ledgerine) rewrites it here. Others leave it empty.
+// its own layout (lightenette) rewrites it here. Others leave it empty.
 void qa_game_publish(bool pass);
 void qa_game_reset(void);            // new run: clear the game side's statics
 void qa_game_scene(int id);          // called by qa_scene(); may checkpoint / pass / fail

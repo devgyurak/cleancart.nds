@@ -13,7 +13,7 @@
 //   2  mode 2, +-7 / 0: result -1 / +1, remainder = numerator
 //   3  mode 0, denominator 0000000100000000h: DIV0 flag stays clear
 //   4  mode 0, -2^31 / -1: result 0000000080000000h, no DIV0
-//   5  mode 2, -2^63 / -1: result 8000000000000000h, no DIV0
+//   5  (not in the rehearsal: mode 2, -2^63 / -1, see press_overflow64())
 //   6  mode 3 divides like mode 1 (0x100000007 / 7)
 //   7  the DIV0 flag (DIVCNT bit 14) is set by a zero denominator in modes 0 and 2
 //   8  SQRT(2^64-1) = FFFFFFFFh in 64-bit mode
@@ -134,6 +134,7 @@ static u32 model_sqrt(int mode, u64 param)
 // ---------------------------------------------------------------------------
 // Puzzles
 
+static const char *const dash_l[] = { "-" };
 static const char *const coins_l[] = { "3", "7", "12" };
 static const char *const clerks_l[] = { "0", "1", "2" };
 static const s64 coins_v[] = { 3, 7, 12 };
@@ -159,10 +160,10 @@ static u32 p3_model(int a, int b) { return model_div(mode02_v[b], 7, wide_v[a]).
 static const char *const dsr_l[] = { "1", "-1", "2" };
 static const s64 dsr_v[] = { 1, -1, 2 };
 
-// The most negative numerator of the mode, divided: the upper result word.
-static s64 low_n(int mode) { return mode == 0 ? (s64)(s32)0x80000000 : (s64)0x8000000000000000ULL; }
-static u32 p4_hw(int a, int b) { return (u32)(hw_div(mode02_v[b], low_n(mode02_v[b]), dsr_v[a]).res >> 32); }
-static u32 p4_model(int a, int b) { return (u32)(model_div(mode02_v[b], low_n(mode02_v[b]), dsr_v[a]).res >> 32); }
+// The most negative 32-bit numerator, divided: the upper result word. (The 64-bit twin, -2^63 / -1,
+// is the item of its own demo ROM: see press_overflow64().)
+static u32 p4_hw(int a, int b) { return (u32)(hw_div(0, (s32)0x80000000, dsr_v[a]).res >> 32); }
+static u32 p4_model(int a, int b) { return (u32)(model_div(0, (s32)0x80000000, dsr_v[a]).res >> 32); }
 
 static const char *const notch_l[] = { "NOTCH 0", "NOTCH 1", "NOTCH 2", "NOTCH 3" };
 static const char *const wide_n_l[] = { "SMALL", "WIDE" };
@@ -183,7 +184,7 @@ static const Puzzle press_puzzles[] = {
       p2_hw, p2_model, 1 },
     { "THE WIDE CLERK", "DIV0 LAMP DARK", "CLERK", wide_l, 3, "MODE", mode02_l, 2,
       p3_hw, p3_model, 0 },
-    { "THE LOWEST DEBT", "UPPER WORD 0", "DIVISOR", dsr_l, 3, "MODE", mode02_l, 2,
+    { "THE LOWEST DEBT", "UPPER WORD 0", "DIVISOR", dsr_l, 3, "-", dash_l, 1,
       p4_hw, p4_model, 0 },
     { "THE FOURTH NOTCH", "QUOTIENT 24924925", "NOTCH", notch_l, 4, "COINS", wide_n_l, 2,
       p5_hw, p5_model, 0x24924925u },
@@ -193,6 +194,15 @@ static const Puzzle press_puzzles[] = {
 
 // ---------------------------------------------------------------------------
 // Audit
+
+// -2^63 / -1 in mode 2 must give 8000000000000000h without DIV0. It lives in a ROM of its own
+// (DEMO=press-min): DeSmuME's divider hangs the whole emulator on it (the host divides INT64_MIN by -1),
+// so no run that has to finish may reach it. Returns 1 when the hardware agrees.
+u32 press_overflow64(void)
+{
+    DivOut o = hw_div(2, (s64)0x8000000000000000ULL, -1);
+    return (u64)o.res == 0x8000000000000000ULL && !o.zero;
+}
 
 static void audit_press(void)
 {
@@ -225,9 +235,6 @@ static void audit_press(void)
     o = hw_div(0, (s32)0x80000000, -1);
     if ((u64)o.res == 0x0000000080000000ULL && !o.zero)
         f |= 1u << 4;
-    o = hw_div(2, (s64)0x8000000000000000ULL, -1);
-    if ((u64)o.res == 0x8000000000000000ULL && !o.zero)
-        f |= 1u << 5;
 
     DivOut m1 = hw_div(1, 0x100000007LL, 7);
     DivOut m3 = hw_div(3, 0x100000007LL, 7);

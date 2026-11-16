@@ -11,7 +11,7 @@
 //   values[3]   clock wall (timers) flags   values[4]  belt (DMA) flags
 //   values[5]   vault (memory) flags        values[6]  rules (BIOS) flags
 //   values[7]   prerequisite (L1) flags
-//   values[8..40] raw diagnostic values the rooms recorded (named in each room's file)
+//   values[8..43] raw diagnostic values the rooms recorded (named in each room's file)
 //   values[48..54] QA words, written by the QA run only (48 = verdict 1 PASS / 2 FAIL)
 // Bit meanings are in tools/judge.py's expected.json items (expected.json).
 
@@ -25,7 +25,7 @@
 
 enum {
     LV_DONE = 0, LV_PRESS, LV_TUBE, LV_CLOCK, LV_BELT, LV_VAULT, LV_RULES, LV_PRE,
-    LV_RAW = 8,          // values[8..40]
+    LV_RAW = 8,          // values[8..43]
     LV_QA = 48,          // values[48..54]
 };
 #define LV_DONE_REHEARSAL (1u << 8)

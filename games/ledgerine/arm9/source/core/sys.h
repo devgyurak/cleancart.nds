@@ -31,11 +31,11 @@ void sys_handle_lid(void);
 // Round-trip a FIFO ping to the ARM7; returns frames taken or -1.
 int sys_ping_arm7(void);
 
-// The ARM7 reports the end of the tube room's FIFO experiment (cv_ipc.h CV_SYS_TUBE_DONE).
-bool sys_tube_done(void);
-void sys_tube_done_clear(void);
+// The ARM7 reports the end of the tube room's FIFO experiment (cv_ipc.h CV_TUBE_DONE).
+void sys_tube_start(u16 id);   // CV_TUBE_START | id
+bool sys_tube_done(u16 id);
 
-// Runs one vault step on the ARM7 (cv_ipc.h) and returns its result, or 0xFFFFFFFF when it never answered.
+// Runs one vault step on the ARM7 (cv_ipc.h) and returns its result, (its low 8 bits), or 0xFFFFFFFF when it never answered.
 u32 sys_vault_step(u32 step);
 
 // IPCSYNC value the ARM7 left during boot.

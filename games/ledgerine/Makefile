@@ -56,7 +56,7 @@ NITRO    := build/nitrofs
 STAMP    := $(GEN)/.stamp
 
 # Demo ROMs: the judge scene as its own ROM (names: arm9/source/demo/demo.c).
-DEMOS := rehearsal
+DEMOS := rehearsal press-min
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
@@ -168,7 +168,7 @@ release:
 	@# The emulator-test kit: the rehearsal ROMs with the file that grades them.
 	@mkdir -p $(RELEASE)/judge && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/ && \
-		cp ledgerine-rehearsal.nds $(RELEASE)/judge/
+		cp ledgerine-rehearsal.nds ledgerine-press-min.nds $(RELEASE)/judge/
 
 clean:
 	@echo "  CLEAN"

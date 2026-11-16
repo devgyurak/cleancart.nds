@@ -45,7 +45,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette title screen"> | Lantern-and-marionette puzzle action in five acts that also judges itself: the ROM counts pixels of its own display.<br>Tests: Display capture, semi-transparent OBJ blending, master brightness, 3D texture coordinates, edge marking, line polygons. | automatic (`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 target 19 · prerequisite 18<!-- /cell --> | [README](games/lightenette/README.md) · [QA checklist](games/lightenette/docs/QA.md) · [Assets](games/lightenette/ASSETS.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 3 · prerequisite 17<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil title screen"> | Stained-glass workshop puzzle in five chapters (30 window orders): set the glass, pattern and rosette of a window to the order and fire it in the kiln. It judges itself with a rehearsal ROM.<br>Tests (L1, 3D geometry and texturing): matrix stack, matrix load/multiply, geometry commands, polygon attributes, texture attributes and coordinates. | automatic (`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 target 30 · prerequisite 1<!-- /cell --> | [README](games/paneveil/README.md) · [QA checklist](games/paneveil/docs/QA.md) · [Hardware QA](games/paneveil/docs/HW-QA.md) · [Assets](games/paneveil/ASSETS.md) |
-| [Ledgerine](games/ledgerine/) | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->judge in progress<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
+| [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine title screen"> | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 target 30 · prerequisite 11<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -209,10 +209,6 @@ target 41 · prerequisite 4
 - `snd-wave-pan-left` · Pan 0 (hard left) puts an audible wave into the left mixer (peak-to-peak 16 to 255) · [expected.json](games/hushwell/expected.json)
 - `snd-wave-pan-right` · Pan 126 (hard right) leaves the left mixer all but silent: a swing under 5 % of the audible pan-0 swing (about 200), so at most 9 (the exact GBATEK rounding is an L2 item in Lightenette) · [expected.json](games/hushwell/expected.json)
 
-#### Ledgerine
-
-_judge in progress_
-
 #### Paneveil · 3D geometry and texturing
 
 target 30 · prerequisite 1
@@ -250,7 +246,42 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Lightenette (19 target items)</summary>
+<details><summary><b>L2 Edge</b> · Ledgerine, Lightenette (49 target items)</summary>
+
+#### Ledgerine · system edges
+
+target 30 · prerequisite 11
+
+- `math-div0` · Division by zero: remainder = numerator, quotient = -1 (+1 for a negative numerator), mode 0 inverts the upper result word, the DIV0 flag is set (modes 0 and 2) · [expected.json](games/ledgerine/expected.json)
+- `math-div0-flag-upper` · Mode 0 with denominator 0000000100000000h: the DIV0 flag stays clear (it follows the whole 64-bit denominator) · [expected.json](games/ledgerine/expected.json)
+- `math-overflow-min32` · -MAX / -1 in mode 0 stays -MAX (reads 0000000080000000h) and sets no DIV0 · [expected.json](games/ledgerine/expected.json)
+- `math-overflow-min64` · -MAX / -1 in mode 2 stays -MAX (8000000000000000h) and sets no DIV0 (own ROM: it hangs DeSmuME) · [expected.json](games/ledgerine/expected.json)
+- `math-mode3` · The reserved divider mode 3 divides like mode 1 · [expected.json](games/ledgerine/expected.json)
+- `math-sqrt-edges` · SQRT(2^64-1) = FFFFFFFFh in 64-bit mode; mode 0 ignores the upper half of PARAM · [expected.json](games/ledgerine/expected.json)
+- `ipc-empty-last` · An empty FIFO read returns the last word received and sets the error bit · [expected.json](games/ledgerine/expected.json)
+- `ipc-error-ack` · Writing 1 to IPCFIFOCNT bit 14 clears the error · [expected.json](games/ledgerine/expected.json)
+- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO returns 0 · [expected.json](games/ledgerine/expected.json)
+- `ipc-send-full` · The send FIFO is full after 16 words; the 17th write sets the error and is dropped (the other CPU counts 16) · [expected.json](games/ledgerine/expected.json)
+- `ipc-disabled` · FIFO disabled: a write is ignored without error, reads show the oldest word without taking it · [expected.json](games/ledgerine/expected.json)
+- `ipc-irq-edge` · The receive IRQ is edge-triggered: enabling it with a word waiting raises IF bit 18 once, the acknowledge sticks · [expected.json](games/ledgerine/expected.json)
+- `timer-cascade-prescaler` · A count-up timer ignores its prescaler bits: it counts exactly the overflows of the timer before it · [expected.json](games/ledgerine/expected.json)
+- `timer-start32-reload` · One 32-bit write of reload and start loads the new reload (counter in R..R+2 straight after) · [expected.json](games/ledgerine/expected.json)
+- `timer-reload-deferred` · A reload written while the timer runs waits for the next overflow; writing the control register again with start still 1 does not reload · [expected.json](games/ledgerine/expected.json)
+- `timer-frozen-read` · A stopped timer reads its frozen counter (equal a frame apart) · [expected.json](games/ledgerine/expected.json)
+- `dma-repeat-src-advance` · A VBlank repeat DMA does not reload SAD: frame k copies the k-th piece of the source · [expected.json](games/ledgerine/expected.json)
+- `dma-repeat-dst` · Repeat reloads DAD only in Increment/Reload mode; mode 0 continues where the last repeat stopped · [expected.json](games/ledgerine/expected.json)
+- `dma-regs-unchanged` · After a transfer SAD, DAD and CNT_L read their initial values and the enable bit is off · [expected.json](games/ledgerine/expected.json)
+- `dma-itcm-runs` · The CPU keeps running ITCM code while a long DMA runs (DMA plus an ITCM loop half its length takes about the DMA alone) · [expected.json](games/ledgerine/expected.json)
+- `wram-half-swap` · WRAMCNT 1 / 2 give the ARM9 the second / first 16 KB, mirrored over all of 03xxxxxxh · [expected.json](games/ledgerine/expected.json)
+- `wram-arm7-mirror` · With 0 KB of shared WRAM for the ARM7, 03000000h mirrors the ARM7 WRAM and WRAMSTAT reads 0 · [expected.json](games/ledgerine/expected.json)
+- `vram-byte-write` · ARM9 byte writes (STRB) to LCDC VRAM, palette and OAM are ignored · [expected.json](games/ledgerine/expected.json)
+- `vram-fg-offset` · Bank G as main BG VRAM with OFS 2 / 3 shows at 06010000h / 06014000h · [expected.json](games/ledgerine/expected.json)
+- `vram-arm7-bytes` · Bank C given to the ARM7 with OFS 1 takes the ARM7 byte stores; VRAMSTAT bit 0 reads 1 whatever the offset · [expected.json](games/ledgerine/expected.json)
+- `bios-fastset-any-count` · NDS CpuFastSet writes exactly 5 and exactly 13 words (no rounding up to 8) · [expected.json](games/ledgerine/expected.json)
+- `bios-lz77-disp0` · LZ77 (SWI 11h): a block with displacement field 0 repeats the last byte · [expected.json](games/ledgerine/expected.json)
+- `bios-bitunpack-zero` · BitUnPack: the Zero Data Flag adds the offset to zero units, without it zeroes stay zero · [expected.json](games/ledgerine/expected.json)
+- `bios-rl-max` · RLUnComp: a 130-byte run and a 128-byte literal · [expected.json](games/ledgerine/expected.json)
+- `bios-arm7-guard` · ARM7 CpuSet from a source in the BIOS area writes nothing · [expected.json](games/ledgerine/expected.json)
 
 #### Lightenette · display edge cases
 
