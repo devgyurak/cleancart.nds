@@ -87,7 +87,7 @@ void display_3d_top(CvText *top, CvText *bot)
     glDisable(GL_FOG | GL_FOG_ONLY_ALPHA | GL_OUTLINE | GL_ANTIALIAS | GL_TOON_HIGHLIGHT | GL_CLEAR_BMP
               | GL_ALPHA_TEST);
     glEnable(GL_BLEND);
-    *(vu16 *)0x04000060 = 0;   // DISP3DCNT: textures off (the judge's quiet-lines scene turns them on)
+    *(vu16 *)0x04000060 &= ~1;   // DISP3DCNT: textures off (the judge's quiet-lines scene turns them on)
     glClearColor(0, 0, 0, 0);   // alpha 0: the 2D layers behind show through
     glClearPolyID(63);
     glClearDepth(0x7FFF);

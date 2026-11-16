@@ -16,8 +16,8 @@ QA run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game
 
 | Question | Where it shows | GBATEK | melonDS 1.1 |
 |---|---|---|---|
-| How long is the HBlank flag low on the ARM9? (gating) | values[3] (x16) | 1606 cycles (25696) | 1585 |
-| ... and on the ARM7? (GBATEK 1613 "for whatever reason"; polled from our own ARM7 core, so the poll loop may be part of it) | values[4] | 1613 | 1550 |
+| How long is the HBlank flag low on the ARM9? (gating) | values[3] (x16) | 1606 cycles (25696) | 1584 |
+| ... and on the ARM7? (GBATEK 1613 "for whatever reason"; polled from our own ARM7 core, so the poll loop may be part of it) | values[4] | 1613 | 1593 |
 | Line and frame length | values[1], [2] | 2130 (34080) / 560190 | same |
 | Does a VCOUNT write at line 212 repeat 10 or 11 lines, with no cycles left over? | values[7], [8] | 10 or 11 / 0-4 | 11 / 1 |
 | MTX_IDENTITY, PUSH+POP, TRANS in mode 2 (+30), SCALE in mode 2 (+0) | values[9], [10], [12], [13] | 19 / 53 / 30 / 0 | same |

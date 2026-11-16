@@ -78,8 +78,9 @@ static void vblank_handler(void)
 
 // The HBlank-low span as the ARM7 sees it (the ARM9 does the same in judge/timing.c): the time from the
 // HBlank flag falling to rising within a line, in 33.51 MHz cycles x16, averaged over polling phases
-// (the delay before each fall poll sweeps, so the poll grid is sampled evenly). IRQs are off in this
-// handler. Timers 2 and 3 (cascaded) are the stopwatch: the sound code only uses timer 0.
+// (the delay before each fall poll sweeps, so the poll grid is sampled evenly). Runs from the main loop with IME off for
+// the few frames it takes. Timers 2 and 3 (cascaded) are the stopwatch: the sequencer uses timer 0, the PCM stream
+// (unused by this game, snd_stream_start has no caller) timers 2 and 3.
 #define HM_LINES 512
 
 static volatile bool measure_requested;
@@ -91,32 +92,32 @@ static u32 measure_hblank_low(void)
     TIMER_DATA(3) = 0;
     TIMER_CR(3) = TIMER_ENABLE | TIMER_CASCADE;
     TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1;
-    u32 sum = 0;
-    for (u32 i = 0; i < HM_LINES; i++)
+    u32 ime = REG_IME;
+    REG_IME = 0;   // a VBlank or sequencer interrupt inside a sample would lengthen it
+    u32 sum = 0, taken = 0;
+    bool stuck = false;
+    // Every wait checks the stopwatch (timer 3 counts 65536 cycles): a flag that never toggles ends the run.
+#define WAIT(cond) while (cond) { if (TIMER_DATA(3) > 40) { stuck = true; break; } }
+    for (u32 i = 0; i < HM_LINES && !stuck; i++)
     {
-        if (TIMER_DATA(3) > 40)
-        {
-            TIMER_CR(2) = 0;
-            TIMER_CR(3) = 0;
-            return 0xFFFF;
-        }
-        while (REG_DISPSTAT & 2)
+        WAIT(REG_DISPSTAT & 2);
+        WAIT(!(REG_DISPSTAT & 2));
+        for (volatile u32 d = (i * 37) & 15; d; d--)   // well inside the 524 cycles of the high phase
             ;
-        while (!(REG_DISPSTAT & 2))
-            ;
-        for (volatile u32 d = (i * 37) & 63; d; d--)
-            ;
-        while (REG_DISPSTAT & 2)
-            ;
+        if (!(REG_DISPSTAT & 2))
+            continue;
+        WAIT(REG_DISPSTAT & 2);
         u32 a = TIMER_DATA(2);
-        while (!(REG_DISPSTAT & 2))
-            ;
+        WAIT(!(REG_DISPSTAT & 2));
         u32 b = TIMER_DATA(2);
         sum += (b - a) & 0xFFFF;   // the span is far below 65536 cycles
+        taken++;
     }
+#undef WAIT
     TIMER_CR(2) = 0;
     TIMER_CR(3) = 0;
-    return sum * 16 / HM_LINES;
+    REG_IME = ime;
+    return stuck || taken < HM_LINES / 2 ? 0xFFFF : sum * 16 / taken;
 }
 
 static void sys_value_handler(u32 value, void *userdata)

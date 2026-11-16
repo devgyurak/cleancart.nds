@@ -53,6 +53,15 @@ class GradeTest(unittest.TestCase):
         vals[0] = 1
         self.assertTrue(judge.grade(it, vals)[0])
 
+    def test_done_gate_beats_na(self):
+        # a cleared done bit must not hide behind an n/a condition
+        it = items()['swap-ramcount-line']
+        vals = [0] * 64                      # done bit clear, early count 0 (na_when)
+        self.assertTrue(judge.is_na(it, vals))
+        self.assertTrue(judge.done_failed(it, vals))
+        vals[0] = 1
+        self.assertFalse(judge.done_failed(it, vals))
+
     def test_expected_json_levels_and_roles(self):
         with open(EXPECTED) as f:
             exp = json.load(f)

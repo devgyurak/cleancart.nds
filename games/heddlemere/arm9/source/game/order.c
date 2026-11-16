@@ -85,7 +85,7 @@ bool order_lever_needed(int weave, int budget, int passes)
     return !order_valid(weave, weave, 0, budget, passes);
 }
 
-static bool dye_valid(int v)
+bool order_dye_valid(int v)
 {
     return hm_dye_line[v] >= HM_DYE_FIRST && hm_dye_line[v] <= HM_DYE_LAST;
 }
@@ -117,7 +117,7 @@ HmPlan order_plan(const HmOrder *o, int r)
     {
         int best = -1, bd = 99;
         for (int v = 0; v < hm_col_count[COL_DYE]; v++)
-            if (dye_valid(v) && order_dist(COL_DYE, 0, v) < bd)
+            if (order_dye_valid(v) && order_dist(COL_DYE, 0, v) < bd)
             {
                 bd = order_dist(COL_DYE, 0, v);
                 best = v;
@@ -175,7 +175,7 @@ bool order_row_done(const HmOrder *o, const u8 *cur, int r)
     if (!order_valid(w, program, lever_on, o->budget, o->passes))
         return false;
     int dye = order_col_active(o->chapter, COL_DYE) ? cell(cur, r, COL_DYE) : 0;
-    return o->dye[r] ? dye_valid(dye) : dye == 0;
+    return o->dye[r] ? order_dye_valid(dye) : dye == 0;
 }
 
 int order_levers(const u8 *cur)

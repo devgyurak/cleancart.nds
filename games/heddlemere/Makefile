@@ -28,7 +28,7 @@ ifeq ($(DEMO),io-save-fram)
 endif
 
 GAME_TITLE    := Heddlemere
-GAME_SUBTITLE := A stained glass workshop
+GAME_SUBTITLE := A punch card loom
 GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. HDLM

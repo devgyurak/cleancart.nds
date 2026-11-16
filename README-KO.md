@@ -363,7 +363,7 @@
 - `gx-halfirq-slope` · The "less than half full" IRQ flag (IF bit 21) rises one IDENTITY (19 cycles) later per entry of fill (x16) · [expected.json](games/heddlemere/expected.json)
 - `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
 - `swap-ramcount-line` · Polygon RAM holds the 64 polygons at the HBlank of line 191 and 0 at line 192: the swap happens at line 192 (RAM_COUNT) · [expected.json](games/heddlemere/expected.json)
-- `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (the 3D VBlank) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
+- `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
 
 </details>
 

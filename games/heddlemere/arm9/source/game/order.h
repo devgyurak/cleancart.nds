@@ -37,6 +37,7 @@ bool order_col_active(int chapter, int col);
 u32 order_ticks(int program, int passes);
 bool order_valid(int weave, int program, int lever, int budget, int passes);
 bool order_lever_needed(int weave, int budget, int passes);
+bool order_dye_valid(int dye);                          // a dye value whose line is in the quiet lines 192..213
 
 // The cheapest way to finish row r from the start state (the scripted player and the checker follow it).
 typedef struct { u8 steps, program, lever, dye; } HmPlan;

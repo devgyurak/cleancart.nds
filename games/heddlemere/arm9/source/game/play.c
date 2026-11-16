@@ -128,7 +128,7 @@ static void row_programs(u8 *programs, u8 *dyed)
     {
         programs[r] = pv.cur[r * HM_COLS + (order_col_active(pv.order.chapter, COL_PROGRAM) ? COL_PROGRAM : COL_WEAVE)];
         int dye = order_col_active(pv.order.chapter, COL_DYE) ? pv.cur[r * HM_COLS + COL_DYE] : 0;
-        dyed[r] = dye >= 2 && dye <= 4;   // lines 192, 200, 213 (assets: hm_dye_line)
+        dyed[r] = order_dye_valid(dye);
     }
 }
 

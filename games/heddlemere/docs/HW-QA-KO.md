@@ -15,8 +15,8 @@ Heddlemere는 아직 실기에서 잰 값이 없습니다. 이 문서는 실기 
 
 | 질문 | 어디에 나오나 | GBATEK | melonDS 1.1 |
 |---|---|---|---|
-| ARM9에서 HBlank 플래그는 얼마나 낮은가? (gating) | values[3] (x16) | 1606사이클 (25696) | 1585 |
-| ... ARM7에서는? (GBATEK 1613 "for whatever reason". 우리 ARM7 코어에서 폴링하므로 폴링 루프가 섞였을 수 있음) | values[4] | 1613 | 1550 |
+| ARM9에서 HBlank 플래그는 얼마나 낮은가? (gating) | values[3] (x16) | 1606사이클 (25696) | 1584 |
+| ... ARM7에서는? (GBATEK 1613 "for whatever reason". 우리 ARM7 코어에서 폴링하므로 폴링 루프가 섞였을 수 있음) | values[4] | 1613 | 1593 |
 | 라인·프레임 길이 | values[1], [2] | 2130 (34080) / 560190 | 같음 |
 | 212라인의 VCOUNT 쓰기가 10 또는 11라인을 반복하고 남는 사이클이 없는가? | values[7], [8] | 10 또는 11 / 0-4 | 11 / 1 |
 | MTX_IDENTITY, PUSH+POP, 모드 2의 TRANS(+30), 모드 2의 SCALE(+0) | values[9], [10], [12], [13] | 19 / 53 / 30 / 0 | 같음 |

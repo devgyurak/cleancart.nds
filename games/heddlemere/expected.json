@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 3,
   "area": "3D engine and scanline timing",
-  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware.",
+  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware. hblank-low-arm9 gates on the GBATEK figure although its poll-based measurement is only proven unbiased for the poll loop of this ROM (a dithered delay, see arm9/source/judge/timing.c); the DS Lite runs decide whether it stays gating.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -132,7 +132,7 @@
       "level_basis": "gbatek:DS Video Stuff",
       "done": {
         "value": 0,
-        "mask": 1
+        "mask": 65
       },
       "model": null,
       "frame": {
@@ -234,6 +234,7 @@
       "check": "range",
       "min": 300,
       "max": 308,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -261,6 +262,7 @@
       "check": "range",
       "min": 844,
       "max": 852,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -288,13 +290,14 @@
       "check": "range",
       "min": 348,
       "max": 356,
+      "signed": true,
       "source": "unconfirmed",
       "role": "target",
       "level": 3,
       "level_basis": "gbatek:DS 3D I/O Map",
       "done": {
         "value": 0,
-        "mask": 1
+        "mask": 65
       },
       "model": null,
       "frame": {
@@ -315,6 +318,7 @@
       "check": "range",
       "min": 472,
       "max": 488,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -346,7 +350,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Stack",
+      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Load/Multiply",
       "done": {
         "value": 0,
         "mask": 1
@@ -370,6 +374,7 @@
       "check": "range",
       "min": 1640,
       "max": 1656,
+      "signed": true,
       "source": "unconfirmed",
       "role": "target",
       "level": 3,
@@ -397,6 +402,7 @@
       "check": "range",
       "min": 296,
       "max": 312,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -424,6 +430,7 @@
       "check": "range",
       "min": 296,
       "max": 312,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -483,7 +490,7 @@
       ],
       "tolerance": 0,
       "na_when": [
-        18,
+        24,
         0
       ],
       "source": "GBATEK",
@@ -502,7 +509,7 @@
     },
     {
       "id": "tex-quiet-lines",
-      "title": "A texture palette rewritten in lines 192..213 (the 3D VBlank) shows in the render: 0 of 192 captured lines still carry the old colour",
+      "title": "A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour",
       "boots": [
         "rehearsal",
         "qa"
@@ -750,6 +757,7 @@
         "gx-halfirq-slope",
         "gx-identity-slope",
         "gx-pushpop-slope",
+        "gx-scale-mode2-extra",
         "gx-trans-mode2-extra",
         "hblank-low-arm9",
         "vcount-write-lines",

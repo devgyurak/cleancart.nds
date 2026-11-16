@@ -209,6 +209,12 @@ def signed32(x):
     return x - (1 << 32) if x >= 1 << 31 else x
 
 
+def done_failed(item, vals):
+    """True when the item's \"done\" capture bits are not all set: n/a conditions must not hide that."""
+    done = item.get('done')
+    return done is not None and vals[done['value']] & done['mask'] != done['mask']
+
+
 def grade(item, vals):
     """Return (ok, got_text, want_text). Raises IndexError when a value is missing.
     "signed": true reads the values as 32-bit two's complement (a difference that can be negative)."""
@@ -373,7 +379,7 @@ def run(args):
                 lines.append('%-7s %-22s %s [%s]' % ('N/A', item['id'], 'needs the harness (env)', item['source']))
                 na.append(item['id'])
                 continue
-            if is_na(item, vals):
+            if is_na(item, vals) and not done_failed(item, vals):
                 lines.append('%-7s %-22s %s [%s]' % ('N/A', item['id'], 'not measurable (values[%d] == %d)' % tuple(item['na_when']),
                                                       item['source']))
                 na.append(item['id'])
