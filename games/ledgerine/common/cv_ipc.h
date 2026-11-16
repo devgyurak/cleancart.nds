@@ -147,12 +147,10 @@ enum {
     CV_SYS_LID_OPENED,         // ARM7 -> ARM9
     CV_SYS_PING,               // ARM9 -> ARM7, answered with CV_SYS_PONG
     CV_SYS_PONG,
-    CV_SYS_TUBE_START,         // ARM9 -> ARM7: run the IPC FIFO experiment (ledgerine's tube room)
-    CV_SYS_TUBE_DONE,          // ARM7 -> ARM9: experiment over, FIFO handling restored
 };
 
 // Ledgerine's vault and rule book (the ARM7 side of the audits, arm7/source/vault7.c): the ARM9 sends
-// CV_VAULT_STEP | step on CV_FIFO_SYS, the ARM7 runs the step and answers CV_VAULT_REPLY | result.
+// CV_VAULT_STEP | step on CV_FIFO_SYS, the ARM7 runs the step and answers CV_VAULT_REPLY | step << 8 | result.
 #define CV_VAULT_TAG_MASK 0xFFFF0000u
 #define CV_VAULT_STEP     0x56410000u   // "VA"
 #define CV_VAULT_REPLY    0x56520000u   // "VR"
@@ -162,6 +160,11 @@ enum {
     CV_VAULT_VRAMSTAT,          // result bit 0: VRAMSTAT bit 0 (any offset)
     CV_VAULT_CPUSET_GUARD,      // result bit 0: CpuSet from the BIOS area wrote nothing
 };
+
+// Ledgerine's tube room (arm7/source/tube7.c): the ARM9 starts the IPC FIFO experiment with
+// CV_TUBE_START | run id; the ARM7 ends it with CV_TUBE_DONE | the same id (a stale id is ignored).
+#define CV_TUBE_START     0x54420000u   // "TB"
+#define CV_TUBE_DONE      0x54440000u   // "TD"
 
 // Shared WRAM as seen by each CPU when it owns all 32 KB.
 #define CV_SWRAM_ARM9 ((volatile uint8_t *)0x03000000)

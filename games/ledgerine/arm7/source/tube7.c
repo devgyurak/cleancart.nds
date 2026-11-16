@@ -12,6 +12,7 @@
 
 volatile bool tube7_busy;
 volatile bool tube7_request;
+volatile uint16_t tube7_id;
 
 #define FCR  REG_IPC_FIFO_CR
 #define TX   REG_IPC_FIFO_TX
@@ -40,6 +41,10 @@ static void drain(void)
 
 static void fifo_reset(void)
 {
+    // A send FIFO that still holds half of an input packet would be cut in two by the clear:
+    // give the ARM9 up to about a millisecond to read it out.
+    for (int i = 0; i < 20000 && !(FCR & IPC_FIFO_SEND_EMPTY); i++)
+        ;
     FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
     drain();
     FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR;
@@ -96,18 +101,19 @@ void tube7_run(void)
             break;
     } while (0);
 
-    // Put the FIFO back the way libnds expects it, then say so.
-    FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR | IPC_FIFO_RECV_IRQ;
+    // Put the FIFO back the way libnds expects it: the receive IRQ goes on last, after the drain
+    // and the IF acknowledge, so a word arriving in between still makes an edge.
+    FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
     drain();
-    FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_IRQ;
     REG_IF = IRQ_FIFO_NOT_EMPTY;
     irqEnable(IRQ_FIFO_NOT_EMPTY);
-    out(0xA);
+    FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_IRQ;
+    out(0);   // the ARM9's barrier 15 accepts 15 or 0
     // Say DONE only once the ARM9 has restored its own FIFO (it shows ARM9_READY then): a word sent
     // earlier would be drained away by its restore.
     for (int i = 0; i < SPIN && (REG_IPC_SYNC & 0xF) != CV_SYNC_ARM9_READY; i++)
         ;
     REG_IPC_SYNC = CV_SYNC_ARM7_READY << 8;
     tube7_busy = false;
-    fifoSendValue32(CV_FIFO_SYS, CV_SYS_TUBE_DONE);
+    fifoSendValue32(CV_FIFO_SYS, CV_TUBE_DONE | tube7_id);
 }

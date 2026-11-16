@@ -84,5 +84,5 @@ RESULT_WORDS=64 tools/emu/emu.sh run games/ledgerine/ledgerine-rehearsal.nds 900
 Exit code 0: every gating item passed (or the failing set equals the profile's). `known` in `expected.json` holds one
 profile per emulator version and renderer. **The rule book grades the BIOS** the emulator runs: the profiles here come from
 the built-in replacement BIOS of headless melonDS and DeSmuME's HLE; a run with a real BIOS dump can differ, and a profile
-for it needs its own entry. The ARM7 side of the tube, the vault and the rule book needs the ARM7 core in this ROM (it stops
+for it needs its own entry. **`ledgerine-press-min.nds`** is graded on its own (`judge.py` boot `press-min`, one item): the mode 2 division `-2^63 / -1` hangs DeSmuME, so that check is not in the rehearsal; a CI that grades DeSmuME skips this ROM. The ARM7 side of the tube, the vault and the rule book needs the ARM7 core in this ROM (it stops
 the libnds FIFO handling for the length of one experiment).

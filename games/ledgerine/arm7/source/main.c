@@ -88,7 +88,14 @@ static void sys_value_handler(u32 value, void *userdata)
 
     if ((value & CV_VAULT_TAG_MASK) == CV_VAULT_STEP)
     {
-        fifoSendValue32(CV_FIFO_SYS, CV_VAULT_REPLY | (vault7_step(value & 0xFFFF) & 0xFFFF));
+        uint32_t step = value & 0xFF;
+        fifoSendValue32(CV_FIFO_SYS, CV_VAULT_REPLY | step << 8 | (vault7_step(step) & 0xFF));
+        return;
+    }
+    if ((value & CV_VAULT_TAG_MASK) == CV_TUBE_START)
+    {
+        tube7_id = (uint16_t)value;
+        tube7_request = true;   // the main loop runs it: the experiment takes frames
         return;
     }
     switch (value)
@@ -99,9 +106,6 @@ static void sys_value_handler(u32 value, void *userdata)
             break;
         case CV_SYS_WRAM_GRANTED:
             snd7_wram_granted();
-            break;
-        case CV_SYS_TUBE_START:
-            tube7_request = true;   // the main loop runs it: the experiment takes frames
             break;
         case CV_SYS_PING:
             fifoSendValue32(CV_FIFO_SYS, CV_SYS_PONG);

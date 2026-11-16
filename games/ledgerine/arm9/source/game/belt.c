@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
-// Room 4, the belt: ARM9 DMA (GBATEK "DS DMA Transfers") at its edges. Channels 1 and 3 only
-// (channel 2 carries the OAM upload, channel 0 the plain copies).
+// Room 4, the belt: ARM9 DMA (GBATEK "DS DMA Transfers") at its edges. Channels CV_DMA_CH_HBLANK (1) and
+// CV_DMA_CH_MISC (3) for the lines, channel 0 for the long copy of the ITCM item; CV_DMA_CH_VBLANK (2) carries
+// the OAM upload and is left alone.
 //
 // Result bits of the audit (lg_res[LV_BELT]):
 //   0  a VBlank repeat DMA does not reload SAD: frame k copies the k-th piece of the source
@@ -108,8 +109,10 @@ static u32 now32(void)
 
 static void clock_start(void)
 {
-    CV_TM_CNT(0) = CV_TM_CNT(1) = 0;
-    CV_TM_DATA(0) = CV_TM_DATA(1) = 0;
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
+    CV_TM_DATA(0) = 0;
+    CV_TM_DATA(1) = 0;
     CV_TM_CNT(1) = CV_TM_ON | CV_TM_CASCADE;
     CV_TM_CNT(0) = CV_TM_ON | CV_TM_DIV1;
 }
@@ -158,13 +161,18 @@ static u32 overlap(SpinFn fn, u32 *t_dma, u32 *t_both)
     const u32 n0 = 20000;
     u32 tl0 = timed(fn, n0, false);
     u32 n = (u32)((u64)n0 * td / (2 * (tl0 ? tl0 : 1)));
+    // The main-RAM variant has run twice and sits in the instruction cache: the ITCM question is about
+    // code that must come over the bus, so start the third run cold.
+    IC_InvalidateAll();
     u32 tb = timed(fn, n, true);
-    CV_TM_CNT(0) = CV_TM_CNT(1) = 0;
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
     REG_IME = ime;
     *t_dma = td;
     *t_both = tb;
     // The loop alone takes about td / 2: overlapped the total stays near td, serialized it is 1.5 td.
-    return tb < td + td / 4;
+    // A DMA that ends at once (td under 32768 ticks for 32768 words) says nothing about the CPU.
+    return td >= BIG_WORDS && tb < td + td / 4;
 }
 
 // ---------------------------------------------------------------------------

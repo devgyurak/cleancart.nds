@@ -21,6 +21,7 @@ volatile bool cv_lid_closed;
 static volatile bool wram_released;
 static volatile bool pong;
 static volatile bool tube_done;
+static volatile u16 tube_done_id;
 static volatile u32 vault_reply = 0xFFFFFFFFu;
 static bool wram_arm9;
 static u16 ipcsync_seen;
@@ -49,13 +50,18 @@ static void sys_value_handler(u32 value, void *userdata)
         vault_reply = value & 0xFFFF;
         return;
     }
+    if ((value & CV_VAULT_TAG_MASK) == CV_TUBE_DONE)
+    {
+        tube_done_id = (u16)value;
+        tube_done = true;
+        return;
+    }
     switch (value)
     {
         case CV_SYS_WRAM_RELEASED: wram_released = true; break;
         case CV_SYS_LID_CLOSED:    cv_lid_closed = true; break;
         case CV_SYS_LID_OPENED:    cv_lid_closed = false; break;
         case CV_SYS_PONG:          pong = true; break;
-        case CV_SYS_TUBE_DONE:     tube_done = true; break;
         default: break;
     }
 }
@@ -192,23 +198,33 @@ int sys_ping_arm7(void)
     return (int)(cv_frame - start);
 }
 
-bool sys_tube_done(void)
-{
-    return tube_done;
-}
-
-void sys_tube_done_clear(void)
+void sys_tube_start(u16 id)
 {
     tube_done = false;
+    fifoSendValue32(CV_FIFO_SYS, CV_TUBE_START | id);
+}
+
+bool sys_tube_done(u16 id)
+{
+    return tube_done && tube_done_id == id;
 }
 
 u32 sys_vault_step(u32 step)
 {
     vault_reply = 0xFFFFFFFFu;
     fifoSendValue32(CV_FIFO_SYS, CV_VAULT_STEP | step);
-    for (int i = 0; i < 100000 && vault_reply == 0xFFFFFFFFu; i++)
+    for (int i = 0; i < 100000; i++)
+    {
+        u32 r = vault_reply;
+        if (r != 0xFFFFFFFFu)
+        {
+            if ((r >> 8) == step)
+                return r & 0xFF;    // the answer to this step
+            vault_reply = 0xFFFFFFFFu;   // a late answer to an earlier step: keep waiting
+        }
         swiDelay(100);
-    return vault_reply;
+    }
+    return 0xFFFFFFFFu;
 }
 
 u16 sys_ipcsync_seen(void)

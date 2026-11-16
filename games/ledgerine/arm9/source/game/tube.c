@@ -71,11 +71,13 @@ static bool wait_word(void)
     return false;
 }
 
+static u16 run_id;
+
 static bool tube_run(TubeRun *r)
 {
     memset(r, 0, sizeof(*r));
-    sys_tube_done_clear();
-    fifoSendValue32(CV_FIFO_SYS, CV_SYS_TUBE_START);
+    u16 id = ++run_id;
+    sys_tube_start(id);
 
     // The ARM7 shows 0xC once it runs the script; only then do we stop the libnds FIFO handling.
     bool seen = false;
@@ -85,8 +87,9 @@ static bool tube_run(TubeRun *r)
         if (!seen)
             sys_vsync();
     }
+    if (!seen)
+        return false;   // the ARM7 never started: libnds still owns the FIFO, touch nothing
     bool ok = false;
-    if (seen)
     {
         irqDisable(IRQ_FIFO_NOT_EMPTY);
         FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
@@ -166,18 +169,19 @@ static bool tube_run(TubeRun *r)
         r->ran = barrier(15);
     } while (0);
 
-    // Back to what libnds expects.
-    FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
+    // Back to what libnds expects: the receive IRQ goes on last, after the drain and the IF
+    // acknowledge, so a word arriving in between still makes an edge.
+    FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
     for (int i = 0; i < 64 && !(FCR & IPC_FIFO_RECV_EMPTY); i++)
         (void)RX;
-    FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
     REG_IF = IRQ_FIFO_NOT_EMPTY;
     irqEnable(IRQ_FIFO_NOT_EMPTY);
+    FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
     // ARM9_READY tells the ARM7 our FIFO is back; its DONE follows. Nothing is sent to it before that.
     REG_IPC_SYNC = CV_SYNC_ARM9_READY << 8;
-    for (int i = 0; i < 300 && !sys_tube_done(); i++)
+    for (int i = 0; i < 300 && !sys_tube_done(id); i++)
         sys_vsync();
-    return r->ran && sys_tube_done();
+    return r->ran && sys_tube_done(id);
 }
 
 // ---------------------------------------------------------------------------

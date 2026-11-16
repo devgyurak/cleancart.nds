@@ -77,5 +77,5 @@ RESULT_WORDS=64 tools/emu/emu.sh run games/ledgerine/ledgerine-rehearsal.nds 900
 
 종료 코드 0: 모든 gating 항목이 통과했거나 실패한 집합이 프로필과 같습니다. `expected.json`의 `known`에 에뮬레이터 버전과
 렌더러별 프로필이 있습니다. **규칙서는 에뮬레이터가 돌리는 BIOS를 채점합니다.** 여기 프로필은 headless melonDS의 내장 대체
-BIOS와 DeSmuME의 HLE에서 나온 것이고, 실제 BIOS 덤프로 돌리면 다를 수 있으며 그 프로필은 항목을 따로 추가해야 합니다. 기송관·금고·
+BIOS와 DeSmuME의 HLE에서 나온 것이고, 실제 BIOS 덤프로 돌리면 다를 수 있으며 그 프로필은 항목을 따로 추가해야 합니다. **`ledgerine-press-min.nds`**는 따로 채점합니다(`judge.py` boot `press-min`, 항목 1개): 모드 2 나눗셈 `-2^63 / -1`이 DeSmuME를 멈추게 해서 리허설에는 넣지 않았고, DeSmuME를 채점하는 CI는 이 ROM을 건너뜁니다. 기송관·금고·
 규칙서의 ARM7 쪽은 이 ROM의 ARM7 코어가 필요합니다(실험 한 번 동안 libnds FIFO 처리를 멈춥니다).

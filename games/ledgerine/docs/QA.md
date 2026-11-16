@@ -19,6 +19,7 @@ plays rooms 3 to 6 and the credits after it).
 
 | Demo | What it reports | Status |
 |---|---|---|
+| `press-min` | `ledgerine-press-min.nds`: only `-2^63 / -1` in divider mode 2 (item `math-overflow-min64`); result block id `0x4D50444C` (`LDPM`), values[0] = 1 when done, values[1] bit 0 = the check. It is a ROM of its own because DeSmuME's divider hangs the whole emulator on this division | melonDS 1.1 soft / GL classic / GL compute: OK; DeSmuME: hangs (not graded) |
 | `rehearsal` | `ledgerine-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): every room's audit; result block id `0x4852444C` (`LDRH`), layout in `game/ledger.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute: profile MATCH, see below |
 
 Hardware: not run yet.
@@ -28,7 +29,7 @@ Hardware: not run yet.
 | Emulator | NG items | Notes |
 |---|---|---|
 | melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS) | `ipc-empty-last` (empty read returns the next cell: word 7A000001h, not the last word B), `dma-itcm-runs` (the CPU halts for the whole DMA: 000d7f6b ticks against 00090027 for the DMA alone), `bios-arm7-guard` (the replacement BIOS copies from the BIOS area) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers |
-| DeSmuME (py-desmume 0.0.9) | not profiled | the headless harness did not finish the rehearsal in 10+ minutes (the ARM7 IPC experiment is the suspect: with the old ROM without rooms 2, 4 and 5 it finished); no profile yet, `expected.json` has none for DeSmuME |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game, rehearsal and QA run never do it (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
 
 The three NG items are results to check against hardware (items stay gating because GBATEK states them); the hardware run
 (`docs/HW-QA.md` when it exists) would tell whether the emulator or the reading of GBATEK is at fault.
@@ -48,6 +49,7 @@ rehearsal's layout, graded with `python3 games/ledgerine/tools/judge.py --profil
 | melonDS 1.1 software | `RESULT PASS` at frame 1770, 6 checkpoints, `parse_log.py` ok | `melonds-1.1-software` MATCH |
 | melonDS 1.1 GL classic | PASS | `melonds-1.1-gl-classic` MATCH |
 | melonDS 1.1 GL compute | PASS | `melonds-1.1-gl-compute` MATCH |
+| DeSmuME (py-desmume 0.0.9) | verdict 1, block at frame 1770 | `desmume-pydesmume-0.0.9` MATCH |
 
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`, 6 checkpoints); `tools/qa/lint.py` passes. The
 software run has no save chip (homebrew run for the SD card): the save mirror read back identical, the chip write is not

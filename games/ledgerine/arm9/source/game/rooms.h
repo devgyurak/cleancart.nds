@@ -51,6 +51,9 @@ bool puzzle_solution(const Puzzle *p, int *a, int *b);
 // The key the QA pilot presses next in the room scene (game/room_scene.c); 0 for none.
 u16 room_pilot_key(void);
 
+// The 64-bit divider overflow check of the press (game/press.c); only the press-min demo calls it.
+u32 press_overflow64(void);
+
 // Hardware result vs model result, for the ledger line (true = machine agrees).
 bool puzzle_agrees(const Puzzle *p, int a, int b, u32 *hw, u32 *model);
 

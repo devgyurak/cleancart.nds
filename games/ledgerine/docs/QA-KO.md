@@ -19,6 +19,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 
 | 데모 | 보고하는 것 | 상태 |
 |---|---|---|
+| `press-min` | `ledgerine-press-min.nds`: 나눗셈기 모드 2의 `-2^63 / -1` 하나만(항목 `math-overflow-min64`). 결과 블록 id `0x4D50444C`(`LDPM`), values[0] = 끝나면 1, values[1] bit 0 = 검사 결과. DeSmuME의 나눗셈기가 이 계산에서 에뮬레이터째 멈추기 때문에 별도 ROM입니다 | melonDS 1.1 soft / GL classic / GL compute: OK. DeSmuME: 멈춤(채점 안 함) |
 | `rehearsal` | `ledgerine-rehearsal.nds`는 곧바로 리허설로 부팅합니다(저장 칩, NitroFS 없음): 모든 방의 감사. 결과 블록 id `0x4852444C`(`LDRH`), 배치는 `game/ledger.h`. `python3 tools/judge.py`(boot `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute: 프로필 MATCH. 아래 참고 |
 
 실기: 아직 돌리지 않았습니다.
@@ -28,7 +29,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 | 에뮬레이터 | NG 항목 | 비고 |
 |---|---|---|
 | melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS) | `ipc-empty-last`(빈 읽기가 마지막 워드 B가 아니라 다음 칸 7A000001h를 돌려줌), `dma-itcm-runs`(DMA 내내 CPU가 멈춤: DMA만 00090027 틱, 루프를 더하면 000d7f6b 틱), `bios-arm7-guard`(대체 BIOS가 BIOS 영역에서 복사함) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 세 렌더러가 같음 |
-| DeSmuME (py-desmume 0.0.9) | 프로필 없음 | 헤드리스 하네스가 10분이 넘도록 리허설을 끝내지 못했습니다(ARM7 IPC 실험이 의심스럽고, 2·4·5번 방이 없던 이전 ROM은 끝났습니다). `expected.json`에 DeSmuME 프로필은 아직 없습니다 |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | 프로필 `desmume-pydesmume-0.0.9` MATCH. 리허설이 예전에 여기서 멈췄던 이유: 모드 2의 `-2^63 / -1` 나눗셈에서 DeSmuME가 통째로 멈춥니다(호스트가 `INT64_MIN`을 -1로 나눔). 그래서 이 검사는 `press-min` ROM으로 옮겼고, 게임·리허설·QA 실행은 이 계산을 하지 않습니다(1번 방 "가장 낮은 빚" 줄은 모드 0만 줍니다). upstream에 보고할 만합니다 |
 
 NG 세 항목은 실기로 확인할 결과입니다(GBATEK이 적은 내용이라 gating을 유지합니다). 실기를 돌리면 에뮬레이터 쪽 문제인지 GBATEK을
 읽은 쪽 문제인지 알 수 있습니다.
@@ -47,6 +48,7 @@ NG 세 항목은 실기로 확인할 결과입니다(GBATEK이 적은 내용이�
 | melonDS 1.1 software | 프레임 1770에서 `RESULT PASS`, 체크포인트 6개, `parse_log.py` 통과 | `melonds-1.1-software` MATCH |
 | melonDS 1.1 GL classic | PASS | `melonds-1.1-gl-classic` MATCH |
 | melonDS 1.1 GL compute | PASS | `melonds-1.1-gl-compute` MATCH |
+| DeSmuME (py-desmume 0.0.9) | verdict 1, 프레임 1770에 블록 | `desmume-pydesmume-0.0.9` MATCH |
 
 소프트웨어 렌더러로 두 번 돌린 체크포인트 해시는 같고(`tools/qa/compare.py`, 체크포인트 6개) `tools/qa/lint.py`도 통과합니다. 소프트웨어
 실행에는 저장 칩이 없어서(SD 카드용 홈브류 실행) 저장 미러의 읽기 비교는 같았지만 칩 쓰기는 확인하지 못했습니다. 실제 DS Lite + R4: 아직

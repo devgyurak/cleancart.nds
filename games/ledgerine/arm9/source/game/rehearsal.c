@@ -24,12 +24,19 @@ void rehearsal_run(void)
     ledger_clear();
     for (int i = 0; i < LG_ROOMS; i++)
     {
-        text_printf(&main_text, 2, 5 + 2 * i, TP_GRAY, "ROOM %d %-16s", i + 1, lg_rooms[i]->name);
         lg_rooms[i]->audit();
         lg_res[LV_DONE] |= 1u << i;
-        text_printf(&main_text, 28, 5 + 2 * i, TP_GREEN, "DONE");
-        scene_frame_end();
     }
+    // The vault takes over the VRAM map while it runs and the screens are left in pieces: set them up again.
+    scene_text_screens(&main_text, &sub_text);
+    fx_bright(FX_BOTH, 0);
+    text_center(&main_text, 2, TP_YELLOW, "REHEARSAL");
+    for (int i = 0; i < LG_ROOMS; i++)
+    {
+        text_printf(&main_text, 2, 5 + 2 * i, TP_GRAY, "ROOM %d %-16s", i + 1, lg_rooms[i]->name);
+        text_printf(&main_text, 28, 5 + 2 * i, TP_GREEN, "DONE");
+    }
+    scene_frame_end();
     lg_res[LV_DONE] |= LV_DONE_REHEARSAL;
     ledger_publish(REHEARSAL_ID, cv_frame);
 }

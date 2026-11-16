@@ -46,8 +46,8 @@ each build when `tools/` changes.
   the puzzle record: two dials, a hardware function `hw`, the GBATEK model `model`, the wanted value `want`),
   `room_scene.c` (the room scene; `room_pilot_key()` is what the QA pilot presses next), `ledger.h/.c` (the result
   words `lg_res` and the block publisher; layout in `ledger.h`), `rehearsal.c/.h` (every room's audit in order, one
-  block with id `LDRH`), `qa_game.c` + `qa_tune.h` (the QA run). One file per room, each with its puzzles and its
-  `audit_*()` (the judged experiments, bit meanings in the file header): `press.c` (maths unit), `tube.c` (IPC FIFO,
+  block with id `LDRH`), `qa_game.c` + `qa_tune.h` (the QA run; its state hash covers the flag words `lg_res[0..7]` only: raw timer readings differ from run to run on a console). One file per room, each with its puzzles and its
+  `audit_*()` (the judged experiments, bit meanings in the file header): `press.c` (maths unit; `press_overflow64()` is the `-2^63 / -1` check, run only by the `press-min` demo because it hangs DeSmuME), `tube.c` (IPC FIFO,
   the ARM9 half of the barrier script), `clock.c` (timers 0-3), `belt.c` (DMA channels 0, 1, 3; ITCM spin
   function), `vault.c` (WRAMCNT, VRAMCNT, STRB; takes over the VRAM map while it runs and ends with
   `vram_layout(VL_MENU)`), `rules.c` (BIOS calls with sentinel buffers).
@@ -55,7 +55,7 @@ each build when `tools/` changes.
   FIFO value handler (`CV_VAULT_STEP | step` on `CV_FIFO_SYS`, reply `CV_VAULT_REPLY | result`; `core/sys.c`
   `sys_vault_step()`). The tube script is requested by `CV_SYS_TUBE_START`, run from the ARM7 main loop with
   `tube7_busy` set (no input packets, libnds FIFO IRQ off), uses 15 numbered barriers on the IPCSYNC nibbles (a CPU
-  shows n and waits for the other to show n or n+1) and puts the FIFO back before it sends `CV_SYS_TUBE_DONE`. Keep
+  shows n and waits for the other to show n or n+1) and puts the FIFO back (receive IRQ on last) before it sends `CV_TUBE_DONE | run id` after seeing the ARM9 restored (the ARM9 ignores a stale id). Vault replies carry the step number (`CV_VAULT_REPLY | step << 8 | result`); a missing answer is `0xFFFFFFFF`, never a result. Keep
   both scripts in step with the barrier table in `tube.c`.
 - `tools/ledger_model.py` + `tools/tests/test_model.py`: the GBATEK divider/root model in Python with the GBATEK
   constants as tests; `press.c` carries the same model in C.
