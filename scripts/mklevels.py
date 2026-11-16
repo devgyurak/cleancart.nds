@@ -42,7 +42,8 @@ TEXT = {
 GBATEK_SECTIONS = (
     'BIOS Arithmetic Functions', 'BIOS Decompression Functions', 'BIOS Memory Copy', 'BIOS Misc Functions',
     'DS 3D Display Control', 'DS 3D Status', 'DS 3D Texture Attributes', 'DS 3D Polygon Attributes',
-    'DS 3D Matrix Stack', 'DS 3D Geometry Commands', 'DS 3D Tests', 'DS 3D Polygon Definitions by Vertices',
+    'DS 3D Matrix Stack', 'DS 3D Matrix Load/Multiply', 'DS 3D Geometry Commands', 'DS 3D Tests',
+    'DS 3D Texture Coordinates', 'DS 3D Polygon Definitions by Vertices',
     'DS Cartridge Backup', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
     'DS DMA Transfers', 'DS Firmware User Settings', 'DS Inter Process Communication', 'DS Interrupts',
     'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
@@ -54,7 +55,7 @@ GBATEK_SECTIONS = (
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 

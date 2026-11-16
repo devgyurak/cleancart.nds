@@ -32,7 +32,7 @@
   실패한 항목으로 드러납니다.
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
-  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell, L2 Lightenette, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
+  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
@@ -40,10 +40,11 @@
 
 | 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
 |---|---|---|---|---|
-| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 엔진, DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 표시 제어·상태(지오메트리·텍스처는 Paneveil 담당), DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 19 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 17<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
+| [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -60,7 +61,7 @@
 이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
 
 <!-- levels:begin -->
-<details><summary><b>L1 기능</b> · Corvane, Hushwell (134 개)</summary>
+<details><summary><b>L1 기능</b> · Corvane, Hushwell, Paneveil (164 개)</summary>
 
 #### Corvane · graphics and system
 
@@ -206,6 +207,41 @@
 - `snd-wave-pan-left` · Pan 0 (hard left) puts an audible wave into the left mixer (peak-to-peak 16 to 255) · [expected.json](games/hushwell/expected.json)
 - `snd-wave-pan-right` · Pan 126 (hard right) leaves the left mixer all but silent: a swing under 5 % of the audible pan-0 swing (about 200), so at most 9 (the exact GBATEK rounding is an L2 item in Lightenette) · [expected.json](games/hushwell/expected.json)
 
+#### Paneveil · 3D geometry and texturing
+
+목표 30 · 전제 조건 1
+
+- `play-windows` · The rehearsal baked the first window of every chapter that has windows (5 windows) · [expected.json](games/paneveil/expected.json)
+- `mtx-push-level` · Three pushes leave the position stack at level 3 (GXSTAT bits 8-12) · [expected.json](games/paneveil/expected.json)
+- `mtx-pop-restores` · MTX_POP returns the matrix that was pushed: 0 of 16 CLIPMTX_RESULT words differ · [expected.json](games/paneveil/expected.json)
+- `mtx-pop-n-level` · MTX_POP with N = 2 from level 3 leaves level 1 · [expected.json](games/paneveil/expected.json)
+- `mtx-pop-n-matrix` · MTX_POP with N = 2 loads the second pushed matrix: 0 words differ · [expected.json](games/paneveil/expected.json)
+- `mtx-store-level-kept` · MTX_STORE leaves the stack pointer alone (level stays 2) · [expected.json](games/paneveil/expected.json)
+- `mtx-restore-matrix` · MTX_RESTORE brings the stored matrix back: 0 words differ · [expected.json](games/paneveil/expected.json)
+- `mtx-proj-push-level` · The projection stack has one level: a push reads 1 in GXSTAT bit 13 · [expected.json](games/paneveil/expected.json)
+- `mtx-proj-pop-level` · The projection pop reads 0 in GXSTAT bit 13 · [expected.json](games/paneveil/expected.json)
+- `mtx-proj-pop-matrix` · The projection pop returns the pushed matrix: 0 words differ · [expected.json](games/paneveil/expected.json)
+- `mtx-load-mult-clip` · Load and multiply (4x4, 4x3, 3x3, translate): CLIPMTX_RESULT equals the model, 0 of 16 words differ · [expected.json](games/paneveil/expected.json)
+- `mtx-vec-mult` · Mode 2 multiplications: VECMTX_RESULT equals the model, 0 of 9 words differ · [expected.json](games/paneveil/expected.json)
+- `gx-packed-fifo` · The mixed sequence sent as packed GXFIFO words leaves the model result (0 of 25 words differ) · [expected.json](games/paneveil/expected.json)
+- `gx-direct-ports` · The same sequence through the direct command ports leaves the model result (0 of 25 words differ) · [expected.json](games/paneveil/expected.json)
+- `gx-vtx-formats` · Six quads, each in another vertex format (VTX_16, VTX_10, XY, XZ, YZ, DIFF), all land where they belong (6 of 6 samples) · [expected.json](games/paneveil/expected.json)
+- `poly-cull-default` · Default culling shows front faces only: 4 front quads drawn, 4 back quads hidden (8 of 8 samples) · [expected.json](games/paneveil/expected.json)
+- `poly-back-render` · The back render bit shows back faces, the cleared front bit hides front faces (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `poly-alpha-half` · Alpha 16 over an opaque quad mixes about half and half: 12 to 16 of 16 samples within 3 levels · [expected.json](games/paneveil/expected.json)
+- `poly-wire-hollow` · Alpha 0 (wireframe) leaves the inside transparent: the quad behind shows (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `poly-wire-edges` · Alpha 0 draws the edges: edge-coloured pixels in the bands across the quads top edges (1 to 64 of 28) · [expected.json](games/paneveil/expected.json)
+- `poly-depth-equal` · Depth test Equal draws a coplanar polygon over the first (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `poly-depth-less` · Depth test Less hides a coplanar polygon (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `tex-repeat` · Repeat S and repeat T show the texture again (8 of 8 texel samples) · [expected.json](games/paneveil/expected.json)
+- `tex-flip` · Flip S and flip T mirror every second repeat (8 of 8 texel samples) · [expected.json](games/paneveil/expected.json)
+- `tex-clamp` · Without repeat the edge texels are stretched (4 of 4 texel samples) · [expected.json](games/paneveil/expected.json)
+- `tex-colour0-hidden` · Colour 0 made transparent shows what lies behind (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `tex-colour0-shown` · Colour 0 displayed shows palette entry 0 (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `tex-pltt-base` · PLTT_BASE picks the palette set (4 of 4 texel samples) · [expected.json](games/paneveil/expected.json)
+- `tex-coord-mode1` · Transformation mode 1 applies the texture matrix: a swap of S and T transposes the texture (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `qa-verdict` · The QA run ended with PASS (QARN verdict 1) · [expected.json](games/paneveil/expected.json)
+
 </details>
 
 <details><summary><b>L2 경계</b> · Lightenette (19 개)</summary>
@@ -337,6 +373,7 @@ games/corvane/    게임 하나: 소스, build.sh, Dockerfile, 문서, 라이선
 games/hushwell/   게임 하나(corvane 템플릿으로 시작)
 games/lightenette/ 게임 하나(corvane 템플릿으로 시작)
 games/elevane/    게임 하나(lightenette에서 시작)
+games/paneveil/   게임 하나(elevane에서 시작)
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
@@ -353,7 +390,7 @@ CONTRIBUTING-KO.md 받는 기여의 범위 (이슈만)
 | 범위 | 라이선스 |
 |---|---|
 | `games/` 밖의 모든 것(도구, 스크립트, 문서, 로고, `.github/`) | Apache License 2.0, [LICENSE](LICENSE) |
-| [corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE) | Apache License 2.0, 각 게임 폴더의 `LICENSE` |
+| [corvane](games/corvane/LICENSE), [hushwell](games/hushwell/LICENSE), [lightenette](games/lightenette/LICENSE), [elevane](games/elevane/LICENSE), [paneveil](games/paneveil/LICENSE) | Apache License 2.0, 각 게임 폴더의 `LICENSE` |
 
 ROM에 들어가는 서드파티 구성 요소는 각 게임의 `THIRD_PARTY_NOTICES`에 있습니다. ROM은 커밋하지
 않으니 소스에서 빌드해 주세요.

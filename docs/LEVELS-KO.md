@@ -56,7 +56,7 @@
 
 | 레벨 | 게임(영역) |
 |---|---|
-| L1 | Corvane(그래픽·시스템), Hushwell(소리·입출력) |
+| L1 | Corvane(그래픽·시스템), Hushwell(소리·입출력), Paneveil(3D 지오메트리·텍스처) |
 | L2 | Lightenette |
 | L3 | Elevane |
 | L4 | `probes/`: 참고용만, 에뮬레이터별 프로필로 기록 |
