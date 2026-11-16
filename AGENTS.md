@@ -1,14 +1,14 @@
 # cleancart.nds
 
-Original Nintendo DS homebrew games, one per folder under `games/` (`games/corvane/`, `games/hushwell/`, `games/lightenette/`, `games/elevane/`).
+Original Nintendo DS homebrew games, one per folder under `games/` (`games/corvane/`, `games/hushwell/`, `games/lightenette/`, `games/elevane/`, `games/paneveil/`).
 Everything that ships in a ROM must be licence-clean: our own code and our own
 generated assets, plus clearly noticed third-party runtime libraries.
 
 Purpose: homebrew for emulator developers to develop against and verify with. Each ROM is a
 complete game that also judges itself (result block + `expected.json` + `judge.py`), usable in CI,
 and licence-clean. Every judged item carries a difficulty level L1–L4 and every game has one
-target level (`docs/LEVELS.md`): L1 Corvane (graphics and system) and Hushwell (sound and I/O),
-L2 Lightenette, L3 Elevane. Games hold no L4 item: L4 lives in `probes/`, a collection of
+target level (`docs/LEVELS.md`): L1 Corvane (graphics and system), Hushwell (sound and I/O)
+and Paneveil (3D geometry and texturing), L2 Lightenette, L3 Elevane. Games hold no L4 item: L4 lives in `probes/`, a collection of
 research probe ROMs that is not a game. See the Purpose section of `README.md`.
 
 This file is the single source of truth for both Claude Code and Codex.
@@ -115,7 +115,7 @@ LICENSE / CONTRIBUTING.md     Apache-2.0 for everything outside games/; issues-o
 .github/workflows/pr-guard.yml required PR check: title prefix (develop), head = develop (main)
 .github/rulesets/             branch/tag rulesets; apply with .github/scripts/setup-rulesets.sh
 games/<game>/                 one game: Makefile, build.sh, Dockerfile, sources, docs
-                              (corvane, hushwell, lightenette, elevane)
+                              (corvane, hushwell, lightenette, elevane, paneveil)
 probes/                       L4 research probes (not a game: no QA mode, no play-through; see probes/AGENTS.md)
 ```
 
