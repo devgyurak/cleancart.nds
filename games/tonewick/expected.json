@@ -1,0 +1,843 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+ "schema": 3,
+ "target_level": 2,
+ "area": "sound and I/O edges",
+ "about": "Expected result-block values for the Tonewick rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/lab.h. Every item reads one or two raw measurements (values[1..36]) taken by the ROM with the capture units and the system devices, and the range or value GBATEK gives; a value a capture never reached is 0xFFFF and fails its item. Items carry \"done\": the completion bit of their district in values[0]. \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The save items need a save chip (env \"cart\", n/a when the run has none).",
+ "block": {
+  "address": "0x0237F000",
+  "magic": 1380275779
+ },
+ "boots": {
+  "rehearsal": {
+   "rom": "tonewick-rehearsal.nds",
+   "item_id": 1213355860,
+   "item_id_text": "TWRH",
+   "frames": 600,
+   "note": "every district's lines solved by script and audited in order; no save chip, no NitroFS"
+  },
+  "qa": {
+   "rom": "tonewick.nds",
+   "item_id": 1314013521,
+   "item_id_text": "QARN",
+   "frames": 5000,
+   "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): all four districts played by key script, the credits; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+  }
+ },
+ "sources": {
+  "GBATEK": "documented hardware behaviour; gating",
+  "report:<ref>": "a hardware report by a third party; gating",
+  "hw:<model>": "measured by us on real hardware; gating",
+  "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+  "unconfirmed": "no hardware value yet; informational only, never fails the run"
+ },
+ "items": [
+  {
+   "id": "snd-capture-live",
+   "title": "The mixer capture works: a full-scale 2 kHz square wave (PSG duty 3, volume 127, divider 0) captures with a peak-to-peak swing of 1000 to 65534",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    3
+   ],
+   "check": "range",
+   "min": 1000,
+   "max": 65534,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 1
+   }
+  },
+  {
+   "id": "snd-duty3-edges",
+   "title": "PSG duty 3 captures as a clean square wave: 120 to 136 sign changes in 1024 samples (64 cycles at 2 kHz)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 120,
+   "max": 136,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 1
+   }
+  },
+  {
+   "id": "snd-duty7-low",
+   "title": "PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 16383,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Notes",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 1
+   }
+  },
+  {
+   "id": "snd-voldiv16",
+   "title": "Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 150,
+   "max": 170,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 1
+   }
+  },
+  {
+   "id": "snd-vol127-full",
+   "title": "Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 1995,
+   "max": 2005,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Notes",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 1
+   }
+  },
+  {
+   "id": "snd-short-busy",
+   "title": "A looped channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    9
+   ],
+   "check": "eq",
+   "expect": 1,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 2
+   }
+  },
+  {
+   "id": "snd-short-silent",
+   "title": "... and makes no sound (the captured peak is at most 2)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    10
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 2,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 2
+   }
+  },
+  {
+   "id": "snd-hold-off-silent",
+   "title": "Without the hold bit a one-shot sound ends in silence (the captured level is at most 5 % of the looped level)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    12
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 5,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 2
+   }
+  },
+  {
+   "id": "snd-hold-level",
+   "title": "With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    11
+   ],
+   "check": "range",
+   "min": 90,
+   "max": 110,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Channels; gbatek:DS Sound Notes",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 2
+   }
+  },
+  {
+   "id": "snd-noise-lfsr",
+   "title": "The noise channel follows the GBATEK shift register (X = 7FFFh at the start, X = X SHR 1, carry: LOW and XOR 6000h, else HIGH): at least 240 captured bits match the model sequence",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    16
+   ],
+   "check": "range",
+   "min": 240,
+   "max": 256,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Notes",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 2
+   }
+  },
+  {
+   "id": "snd-adpcm-loop-reload",
+   "title": "An ADPCM loop started in the data part repeats exactly: index and PCM16 value are reloaded to the loop start (the drift between two passes is at most 3 %)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    15
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 30,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Channels",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 4
+   }
+  },
+  {
+   "id": "cap-pcm8-byte",
+   "title": "A PCM8 capture of a 3412h level stores the upper byte, 34h",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    24
+   ],
+   "check": "eq",
+   "expect": 52,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 4
+   }
+  },
+  {
+   "id": "cap-len-zero",
+   "title": "A capture length of 0 is read as 1 word: exactly one word of a sentinel buffer changes",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    18
+   ],
+   "check": "eq",
+   "expect": 1,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 4
+   }
+  },
+  {
+   "id": "cap-src-channel",
+   "title": "Capture 0 with source bit 1 (and add off) records channel 0 alone: a 2000h level captures as 2000h (+32768 = 40960 +-0.4 %)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    20
+   ],
+   "check": "range",
+   "min": 40796,
+   "max": 41124,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 4
+   }
+  },
+  {
+   "id": "cap-add-wrap",
+   "title": "Capture 0 with source bit 1 and add on is not clipped but ANDed with FFFFh: 7000h + 7000h reads -2000h (+32768 = 24576)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    21
+   ],
+   "check": "range",
+   "min": 24320,
+   "max": 24832,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "cap-both-negative",
+   "title": "Capture 0 with source bit 1 and add off records -8000h when channel 0 and channel 1 are both negative (+32768 = 0)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    22
+   ],
+   "check": "eq",
+   "expect": 0,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Sound Capture",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "rtc-ampm-24h",
+   "title": "In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 reads is consistent",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    25,
+    26
+   ],
+   "check": "same",
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Real-Time Clock",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "pm-reg-mirror",
+   "title": "Power management registers 4 to 7Fh mirror 0..3 on the original DS, and 5, 6, 7 mirror 4 and 8..7Fh mirror 0..7 on the DS Lite (rule by firmware byte 1Dh; n/a for any other model)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    31
+   ],
+   "check": "eq",
+   "expect": 1,
+   "na_when": [
+    31,
+    2
+   ],
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Power Management",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "save-wel-set",
+   "title": "The EEPROM write latch is set after WREN",
+   "boots": [
+    "qa"
+   ],
+   "frame": {
+    "qa": 1
+   },
+   "values": [
+    32
+   ],
+   "check": "eq",
+   "expect": 1,
+   "env": "cart",
+   "na_when": [
+    32,
+    65535
+   ],
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "save-wel-reset",
+   "title": "... and reset after the WRITE ran",
+   "boots": [
+    "qa"
+   ],
+   "frame": {
+    "qa": 1
+   },
+   "values": [
+    33
+   ],
+   "check": "eq",
+   "expect": 0,
+   "env": "cart",
+   "na_when": [
+    32,
+    65535
+   ],
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "save-status-fixed",
+   "title": "Status register bits 4 to 6 of an 8 KB to 64 KB EEPROM are always 0",
+   "boots": [
+    "qa"
+   ],
+   "frame": {
+    "qa": 1
+   },
+   "values": [
+    34
+   ],
+   "check": "mask",
+   "mask": 112,
+   "expect": 0,
+   "env": "cart",
+   "na_when": [
+    32,
+    65535
+   ],
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Cartridge Backup",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "fw-user-valid-copy",
+   "title": "At least one of the two firmware user-settings copies has a good CRC16 (over 70h bytes)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    35
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "fw-user-newest",
+   "title": "The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the boot left at 027FFC80h",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    36
+   ],
+   "check": "eq",
+   "expect": 1,
+   "tolerance": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 2,
+   "level_basis": "gbatek:DS Firmware User Settings",
+   "model": null,
+   "done": {
+    "value": 0,
+    "mask": 8
+   }
+  },
+  {
+   "id": "lines-solved",
+   "title": "All twelve signal lines were cleared (the rehearsal script, or the QA pilot at the levers)",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    41
+   ],
+   "check": "eq",
+   "expect": 12,
+   "tolerance": 0,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "districts-complete",
+   "title": "All four districts ran their audit to the end",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    0
+   ],
+   "check": "mask",
+   "mask": 15,
+   "expect": 15,
+   "tolerance": 0,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "rehearsal-finished",
+   "title": "The rehearsal (or the QA run) reached its end and published its block",
+   "boots": [
+    "rehearsal",
+    "qa"
+   ],
+   "frame": {
+    "rehearsal": 600,
+    "qa": 1
+   },
+   "values": [
+    42
+   ],
+   "check": "eq",
+   "expect": 1,
+   "tolerance": 0,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "qa-verdict",
+   "title": "The QA run ended with PASS (QARN verdict 1)",
+   "boots": [
+    "qa"
+   ],
+   "frame": {
+    "qa": 1
+   },
+   "values": [
+    48
+   ],
+   "check": "eq",
+   "expect": 1,
+   "tolerance": 0,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  }
+ ],
+ "known": {
+  "melonds-1.1-software": {
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer, built-in replacement BIOS; QA run as a homebrew run with an SD image (no save chip)",
+   "ng": [
+    "snd-hold-level",
+    "cap-add-wrap",
+    "cap-both-negative",
+    "pm-reg-mirror"
+   ],
+   "na": [
+    "save-wel-set",
+    "save-wel-reset",
+    "save-status-fixed"
+   ]
+  },
+  "melonds-1.1-gl-classic": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "ng": [
+    "snd-hold-level",
+    "cap-add-wrap",
+    "cap-both-negative",
+    "pm-reg-mirror"
+   ],
+   "na": [
+    "save-wel-set",
+    "save-wel-reset",
+    "save-status-fixed"
+   ]
+  },
+  "melonds-1.1-gl-compute": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "ng": [
+    "snd-hold-level",
+    "cap-add-wrap",
+    "cap-both-negative",
+    "pm-reg-mirror"
+   ],
+   "na": [
+    "save-wel-set",
+    "save-wel-reset",
+    "save-status-fixed"
+   ]
+  },
+  "melonds-1.1-software-save-chip": {
+   "emulator": "melonDS 1.1 core, headless runner, software renderer, the game ROM with its emulated 8 KB EEPROM (SAV=..., no SD image: no log, result block only)",
+   "ng": [
+    "snd-hold-level",
+    "cap-add-wrap",
+    "cap-both-negative",
+    "pm-reg-mirror"
+   ],
+   "na": []
+  },
+  "desmume-pydesmume-0.0.9": {
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip",
+   "ng": [
+    "snd-short-silent",
+    "snd-hold-level",
+    "snd-noise-lfsr",
+    "snd-adpcm-loop-reload",
+    "cap-add-wrap",
+    "cap-both-negative",
+    "pm-reg-mirror",
+    "save-wel-reset"
+   ],
+   "na": []
+  }
+ }
+}

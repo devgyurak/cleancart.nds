@@ -46,7 +46,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane title screen"> | Voxel silhouette puzzle in five chapters (40 orders): both screens in 3D through display capture. It also judges itself with a rehearsal ROM.<br>Tests: Display capture of 3D on both screens, HBlank-DMA compositing, the rear plane, geometry/polygon limits. | automatic (`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 target 3 · prerequisite 17<!-- /cell --> | [README](games/elevane/README.md) · [QA checklist](games/elevane/docs/QA.md) · [Hardware QA](games/elevane/docs/HW-QA.md) · [Assets](games/elevane/ASSETS.md) |
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil title screen"> | Stained-glass workshop puzzle in five chapters (30 window orders): set the glass, pattern and rosette of a window to the order and fire it in the kiln. It judges itself with a rehearsal ROM.<br>Tests (L1, 3D geometry and texturing): matrix stack, matrix load/multiply, geometry commands, polygon attributes, texture attributes and coordinates. | automatic (`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 target 30 · prerequisite 1<!-- /cell --> | [README](games/paneveil/README.md) · [QA checklist](games/paneveil/docs/QA.md) · [Hardware QA](games/paneveil/docs/HW-QA.md) · [Assets](games/paneveil/ASSETS.md) |
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine title screen"> | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 target 30 · prerequisite 11<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
-| [Tonewick](games/tonewick/) | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->judge in progress<!-- /cell --> | [README](games/tonewick/README.md) · [Assets](games/tonewick/ASSETS.md) |
+| [Tonewick](games/tonewick/) | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [Assets](games/tonewick/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -245,13 +245,9 @@ target 30 · prerequisite 1
 - `tex-coord-mode1` · Transformation mode 1 applies the texture matrix: a swap of S and T transposes the texture (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
 - `qa-verdict` · The QA run ended with PASS (QARN verdict 1) · [expected.json](games/paneveil/expected.json)
 
-#### Tonewick
-
-_judge in progress_
-
 </details>
 
-<details><summary><b>L2 Edge</b> · Ledgerine, Lightenette (49 target items)</summary>
+<details><summary><b>L2 Edge</b> · Ledgerine, Lightenette, Tonewick (66 target items)</summary>
 
 #### Ledgerine · system edges
 
@@ -311,6 +307,28 @@ target 19 · prerequisite 18
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
 - `snd-wave-pan-right-exact` · Pan 126 (hard right) mixes the left side with 2/128 (GBATEK rounding): the left mixer swing is at most 2, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
+
+#### Tonewick · sound and I/O edges
+
+target 17 · prerequisite 10
+
+- `snd-duty7-low` · PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384) · [expected.json](games/tonewick/expected.json)
+- `snd-voldiv16` · Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170) · [expected.json](games/tonewick/expected.json)
+- `snd-vol127-full` · Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005) · [expected.json](games/tonewick/expected.json)
+- `snd-short-busy` · A looped channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set · [expected.json](games/tonewick/expected.json)
+- `snd-short-silent` · ... and makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
+- `snd-hold-level` · With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level) · [expected.json](games/tonewick/expected.json)
+- `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = 7FFFh at the start, X = X SHR 1, carry: LOW and XOR 6000h, else HIGH): at least 240 captured bits match the model sequence · [expected.json](games/tonewick/expected.json)
+- `snd-adpcm-loop-reload` · An ADPCM loop started in the data part repeats exactly: index and PCM16 value are reloaded to the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
+- `cap-len-zero` · A capture length of 0 is read as 1 word: exactly one word of a sentinel buffer changes · [expected.json](games/tonewick/expected.json)
+- `cap-src-channel` · Capture 0 with source bit 1 (and add off) records channel 0 alone: a 2000h level captures as 2000h (+32768 = 40960 +-0.4 %) · [expected.json](games/tonewick/expected.json)
+- `cap-add-wrap` · Capture 0 with source bit 1 and add on is not clipped but ANDed with FFFFh: 7000h + 7000h reads -2000h (+32768 = 24576) · [expected.json](games/tonewick/expected.json)
+- `cap-both-negative` · Capture 0 with source bit 1 and add off records -8000h when channel 0 and channel 1 are both negative (+32768 = 0) · [expected.json](games/tonewick/expected.json)
+- `rtc-ampm-24h` · In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 reads is consistent · [expected.json](games/tonewick/expected.json)
+- `pm-reg-mirror` · Power management registers 4 to 7Fh mirror 0..3 on the original DS, and 5, 6, 7 mirror 4 and 8..7Fh mirror 0..7 on the DS Lite (rule by firmware byte 1Dh; n/a for any other model) · [expected.json](games/tonewick/expected.json)
+- `save-wel-reset` · ... and reset after the WRITE ran · [expected.json](games/tonewick/expected.json)
+- `save-status-fixed` · Status register bits 4 to 6 of an 8 KB to 64 KB EEPROM are always 0 · [expected.json](games/tonewick/expected.json)
+- `fw-user-newest` · The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the boot left at 027FFC80h · [expected.json](games/tonewick/expected.json)
 
 </details>
 
