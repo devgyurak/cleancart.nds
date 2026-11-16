@@ -29,7 +29,7 @@ duty 7인 사각파는 바닥을 떠나지 않고, 4워드보다 짧은 테이�
 
 - 언어: C(게임, ARM9 + 자체 ARM7 코어), Python 3(빌드 도구)
 - 툴체인: BlocksDS v1.25.0 (다이제스트로 고정한 Docker 이미지)
-- 라이선스: Apache-2.0 — 서드파티 고지는 `THIRD_PARTY_NOTICES`, 에셋 출처는 `ASSETS.md`
+- 라이선스: Apache-2.0 — 서드파티 고지는 `THIRD_PARTY_NOTICES`, 에셋 출처는 `ASSETS-KO.md`
 
 ## 플레이
 
@@ -80,11 +80,13 @@ GBATEK 범위와 견주며, 판정 창은 프레임 단위와 비율이고 사�
 그 항목이 실패합니다.
 
 ```sh
-tools/melonds/mds.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+RTC=2026-11-16-15-30-00 tools/melonds/mds.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
   | python3 games/tonewick/tools/judge.py --profile melonds-1.1-software
-RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+RTC_HOUR=15 RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
   | python3 games/tonewick/tools/judge.py --profile desmume-pydesmume-0.0.9
 ```
+
+`rtc-ampm-24h`는 AM/PM 플래그를 읽으므로 12시 이후에만 채점됩니다(그 전에는 n/a). 그래서 위 명령은 시각을 오후로 고정합니다.
 
 종료 코드 0: gating 항목이 모두 통과했거나, 실패한 집합이 프로필과 같습니다. `expected.json`의 `known`에는 에뮬레이터 버전과
 렌더러마다 프로필이 하나씩 있습니다. **현재 에뮬레이터에서 목표 항목 몇 개는 실패하는 것이 정상입니다**(melonDS 1.1: hold

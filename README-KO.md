@@ -311,23 +311,23 @@
 
 목표 17 · 전제 조건 10
 
-- `snd-duty7-low` · PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384) · [expected.json](games/tonewick/expected.json)
+- `snd-duty7-low` · PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384; 12.5 % HIGH would read about -24575 + 32768 = 8193, so 0 to 4095 only) · [expected.json](games/tonewick/expected.json)
 - `snd-voldiv16` · Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170) · [expected.json](games/tonewick/expected.json)
 - `snd-vol127-full` · Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005) · [expected.json](games/tonewick/expected.json)
-- `snd-short-busy` · A looped channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set · [expected.json](games/tonewick/expected.json)
-- `snd-short-silent` · ... and makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
+- `snd-short-busy` · A one-shot channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set after the sound should have ended (a 4-word one-shot clears it) · [expected.json](games/tonewick/expected.json)
+- `snd-short-silent` · ... and, looped, makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
 - `snd-hold-level` · With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level) · [expected.json](games/tonewick/expected.json)
-- `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = 7FFFh at the start, X = X SHR 1, carry: LOW and XOR 6000h, else HIGH): at least 240 captured bits match the model sequence · [expected.json](games/tonewick/expected.json)
-- `snd-adpcm-loop-reload` · An ADPCM loop started in the data part repeats exactly: index and PCM16 value are reloaded to the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
+- `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = X SHR 1, carry: LOW and XOR 6000h, else HIGH; accepted from any offset of the 32767-step sequence): at least 240 captured bits match the model · [expected.json](games/tonewick/expected.json)
+- `snd-adpcm-loop-reload` · An ADPCM loop started in the data part (word 9, not the header) repeats exactly: index and PCM16 value are reloaded to the values that appeared at the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
 - `cap-len-zero` · A capture length of 0 is read as 1 word: exactly one word of a sentinel buffer changes · [expected.json](games/tonewick/expected.json)
-- `cap-src-channel` · Capture 0 with source bit 1 (and add off) records channel 0 alone: a 2000h level captures as 2000h (+32768 = 40960 +-0.4 %) · [expected.json](games/tonewick/expected.json)
+- `cap-src-channel` · Capture 0 with source bit 1 (and add off) records channel 0 alone: with channel 0 and channel 1 both playing 2000h it captures 2000h, not the mixer sum 4000h (+32768 = 40960 +-0.4 %) · [expected.json](games/tonewick/expected.json)
 - `cap-add-wrap` · Capture 0 with source bit 1 and add on is not clipped but ANDed with FFFFh: 7000h + 7000h reads -2000h (+32768 = 24576) · [expected.json](games/tonewick/expected.json)
 - `cap-both-negative` · Capture 0 with source bit 1 and add off records -8000h when channel 0 and channel 1 are both negative (+32768 = 0) · [expected.json](games/tonewick/expected.json)
-- `rtc-ampm-24h` · In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 reads is consistent · [expected.json](games/tonewick/expected.json)
+- `rtc-ampm-24h` · In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 raw reads is consistent. n/a before noon, when the flag is 0 either way · [expected.json](games/tonewick/expected.json)
 - `pm-reg-mirror` · Power management registers 4 to 7Fh mirror 0..3 on the original DS, and 5, 6, 7 mirror 4 and 8..7Fh mirror 0..7 on the DS Lite (rule by firmware byte 1Dh; n/a for any other model) · [expected.json](games/tonewick/expected.json)
 - `save-wel-reset` · ... and reset after the WRITE ran · [expected.json](games/tonewick/expected.json)
 - `save-status-fixed` · Status register bits 4 to 6 of an 8 KB to 64 KB EEPROM are always 0 · [expected.json](games/tonewick/expected.json)
-- `fw-user-newest` · The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the boot left at 027FFC80h · [expected.json](games/tonewick/expected.json)
+- `fw-user-newest` · The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the loader left at 027FFC80h (saved by the ARM7 before its own start-up replaces it) · [expected.json](games/tonewick/expected.json)
 
 </details>
 

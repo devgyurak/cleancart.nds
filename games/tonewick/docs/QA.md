@@ -26,15 +26,15 @@ Hardware: not run yet, see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
-Rehearsal and QA run (boot `qa`) of the release ROM give the same verdicts.
+Rehearsal and QA run (boot `qa`) of the release ROM give the same verdicts. **Run the profiles at an hour of 12 or later**: `rtc-ampm-24h` reads the AM/PM flag, which is 0 either way before noon, so it is n/a then and a profile comparison reports `NEWLY N/A`. melonDS: `RTC=2026-11-16-15-30-00`; DeSmuME (host clock): `RTC_HOUR=15 tools/emu/emu.sh run ...`.
 
 | Emulator | NG items | Notes |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS) | `snd-hold-level` (the hold bit is not implemented: the output returns to 0 after a one-shot), `cap-add-wrap` (a capture with the add bit set writes nothing), `cap-both-negative` (reads -4000h, the two channels added, instead of -8000h), `pm-reg-mirror` (the generated firmware says DS Lite, register 5 reads 0 where register 4 reads 40h) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers. The three save items are n/a in the QA run with an SD image (a homebrew run has no save chip); with the emulated 8 KB EEPROM (`SAV=`, profile `melonds-1.1-software-save-chip`) all three are OK |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM) | `snd-short-silent` (a tape of 3 words plays), `snd-hold-level`, `snd-noise-lfsr` (152 matching bits), `snd-adpcm-loop-reload` (the loop does not reload), `cap-add-wrap` (no capture), `cap-both-negative` (reads -2000h), `pm-reg-mirror`, `save-wel-reset` (WEL stays set after the write) | profile `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low` passes there |
+| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS, `RTC=2026-11-16-15-30-00`) | `snd-hold-level` (the hold bit is not implemented: the output returns to 0 after a one-shot), `cap-src-channel` (bit 1 is ignored: the mixer sum 4000h is captured, not channel 0's 2000h), `cap-add-wrap` (a capture with the add bit set writes nothing), `cap-both-negative` (reads -4000h, the two channels added, instead of -8000h), `pm-reg-mirror` (the generated firmware says DS Lite, register 5 reads 0 where register 4 reads 40h) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers. The three save items are n/a in the QA run with an SD image (a homebrew run has no save chip); with the emulated 8 KB EEPROM (`SAV=`, profile `melonds-1.1-software-save-chip`) all three are OK |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM, local hour 15 via `RTC_HOUR=15`) | `snd-short-busy` (a 3-word one-shot ends and clears the busy bit), `snd-short-silent` (a tape of 3 words plays), `snd-hold-level`, `snd-noise-lfsr` (152 matching bits), `snd-adpcm-loop-reload` (the loop does not reload), `cap-add-wrap` (no capture), `cap-both-negative` (reads -2000h), `pm-reg-mirror`, `save-wel-reset` (WEL stays set after the write) | profile `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low` passes there |
 
 All NG items are results to check against hardware (items stay gating because GBATEK states them); the capture bugs in
-particular are only documented in GBATEK. If the DS Lite disagrees, those two items move to `probes/` as level 4.
+particular are only documented in GBATEK. What happens when the DS Lite disagrees is written in [HW-QA.md](HW-QA.md), section "Judging the hardware result".
 
 ## Auto QA run
 
@@ -42,13 +42,13 @@ Hidden mode of the release ROM (`tonewick.nds`): on the title screen press L and
 frames. The game plays the normal flow by itself: title, districts 1 to 4 (the pilot finds each line's dials with the GBATEK
 model, turns them with the keys and listens; Start ends the shift), the credits and the title again, then ends with
 `RESULT PASS`. Log on the SD card (`cleancart/tonewick/qa-<date>-<time>.log`), result block `QARN` in the rehearsal's layout,
-graded with `python3 games/tonewick/tools/judge.py --profile <profile> <log>` (boot `qa`, extra item `qa-verdict`). Headless:
-`SDDIR=out/tw/x tools/melonds/mds.sh run games/tonewick/tonewick.nds 3000 out/tw/x "300:L:140,300:R:140,300:X:140,300:Y:140"`
-(create `out/tw/x/cleancart/tonewick/` first; `RENDERER=gl|compute` for the GL renderers).
+graded from the runner output (the `RESULT` line; the SD log holds no result block) with `python3 games/tonewick/tools/judge.py --boot qa --profile <profile>` (extra item `qa-verdict`). Headless:
+`RTC=2026-11-16-15-30-00 SDDIR=out/tw/x tools/melonds/mds.sh run games/tonewick/tonewick.nds 3000 out/tw/x "300:L:140,300:R:140,300:X:140,300:Y:140" | python3 games/tonewick/tools/judge.py --boot qa --profile melonds-1.1-software`
+(create `out/tw/x/cleancart/tonewick/` first; `RENDERER=gl|compute` for the GL renderers; `parse_log.py` checks the SD log).
 
 | Renderer | QA run (2026-11-16) | `judge.py --profile` |
 |---|---|---|
-| melonDS 1.1 software | `RESULT PASS` at frame 1575, 4 checkpoints, `parse_log.py` ok | `melonds-1.1-software` MATCH |
+| melonDS 1.1 software | `RESULT PASS` at frame 1582, 4 checkpoints, `parse_log.py` ok | `melonds-1.1-software` MATCH |
 | melonDS 1.1 GL classic | PASS | `melonds-1.1-gl-classic` MATCH |
 | melonDS 1.1 GL compute | PASS | `melonds-1.1-gl-compute` MATCH |
 | DeSmuME (py-desmume 0.0.9) | verdict 1 | `desmume-pydesmume-0.0.9` MATCH |

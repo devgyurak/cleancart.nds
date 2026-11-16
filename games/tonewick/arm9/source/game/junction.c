@@ -69,7 +69,7 @@ static u32 p12_hw(int a, int b)
     EarSys sys;
     switch (a)
     {
-        case 0:
+        case 0:   // (before noon nothing is checked: the flag is 0 either way, see the audit)
             return ear_sys(&sys) ? (sys.rtc_n > 0 && sys.rtc_ok == sys.rtc_n) : EAR_FAIL;
         case 1:
             return ear_sys(&sys) ? (u32)sys.pm_rule : EAR_FAIL;
@@ -124,6 +124,7 @@ static void audit_junction(void)
     {
         tw_res[TV_RTC_OK] = (u32)sys.rtc_ok;
         tw_res[TV_RTC_N] = (u32)sys.rtc_n;
+        tw_res[TV_RTC_PM] = (u32)sys.rtc_pm;
         tw_res[TV_PM_MODEL] = sys.pm_model & 0xFFFF;
         tw_res[TV_PM4] = sys.pm4 & 0xFFFF;
         tw_res[TV_PM5] = sys.pm5 & 0xFFFF;
@@ -145,6 +146,6 @@ static void audit_junction(void)
 }
 
 const Room room_junction = {
-    "THE JUNCTION", "LOWER TOWER", "DS SOUND CAPTURE", junction_puzzles,
+    "THE JUNCTION", "LOWER TOWER", "SOUND CAPTURE", junction_puzzles,
     (int)(sizeof(junction_puzzles) / sizeof(junction_puzzles[0])), audit_junction,
 };

@@ -46,6 +46,7 @@ def good_values(boot):
             raise AssertionError('test helper does not know check %s' % it['check'])
         if 'done' in it:
             v[it['done']['value']] |= it['done']['mask']
+    v[19] = 8   # RTC samples at an hour of 12 or later: the AM/PM rule was exercised
     return v
 
 
@@ -100,6 +101,18 @@ class Grading(unittest.TestCase):
         rc, out = run_judge(['--allow-na'], block_line(QA_ID, v, frame=2000))
         self.assertEqual(rc, 0, out)
         self.assertIn('N/A     save-wel-reset', out)
+
+    def test_rtc_item_needs_an_afternoon_and_an_answer(self):
+        v = good_values('rehearsal')
+        v[19] = 0   # before noon: the flag is 0 either way, nothing was tested
+        rc, out = run_judge(['--allow-na'], block_line(REHEARSAL_ID, v))
+        self.assertEqual(rc, 0, out)
+        self.assertIn('N/A     rtc-ampm-24h', out)
+        v = good_values('rehearsal')
+        v[25] = v[26] = 0xFFFF   # the ARM7 never answered: equal, but not a result
+        rc, out = run_judge([], block_line(REHEARSAL_ID, v))
+        self.assertEqual(rc, 1, out)
+        self.assertIn('NG      rtc-ampm-24h', out)
 
     def test_pm_rule_n_a_for_an_unknown_model(self):
         v = good_values('rehearsal')

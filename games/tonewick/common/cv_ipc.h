@@ -188,7 +188,8 @@ typedef struct {
     uint8_t  fw[2][256];  // user settings at 0x3FE00 and 0x3FF00 (as found in the firmware)
     uint32_t fw_ok;       // bit n: copy n was read
     uint32_t fw_model;    // firmware header byte 1Dh (FFh original DS, 20h DS Lite), 0xFFFFFFFF if not read
-    uint8_t  rtc_hour[8]; // hour as libnds returns it after BCD conversion (the AM/PM flag shows as +40)
+    uint8_t  fw_boot[0x80]; // the 70h bytes the loader left at 027FFC80h, copied before the ARM7 start-up overwrites them
+    uint8_t  rtc_hour[8]; // the RTC hour register as read (BCD; bit 6 = AM/PM flag; libnds would mask it away)
     uint8_t  rtc_status[8]; // RTC status register 1 (bit 1 = 24 hour mode)
     uint32_t rtc_n;       // samples read
     uint32_t rejected;    // ops the ARM7 refused (address outside the sound registers)

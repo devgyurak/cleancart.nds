@@ -5,6 +5,7 @@
 # Headless DeSmuME runner. Paths are relative to the repository root.
 #   tools/emu/emu.sh run   games/corvane/corvane.nds 600 out/boot "60:A,200:START" 150,599
 #   tools/emu/emu.sh demos games/corvane        # every corvane-*.nds, prints RESULT lines
+#   RTC_HOUR=15 tools/emu/emu.sh run ...        # make the host-clock hour 15 (DeSmuME has no RTC setting)
 #   tools/emu/emu.sh montage out/m.png out/boot_00150.png out/boot_00599.png
 # Output files land under the repository (e.g. out/); keep them out of git.
 set -eu
@@ -21,8 +22,16 @@ words_for() {
   esac
 }
 RW=8
+# DeSmuME's RTC follows the host clock: RTC_HOUR=15 starts the container with a time zone that makes the local hour 15
+# (the RTC items of tonewick need an hour of 12 or later to be graded).
+TZ_ARG=""
+if [ -n "${RTC_HOUR:-}" ]; then
+  off=$(( (RTC_HOUR - $(date -u +%H | sed 's/^0//') + 24) % 24 ))
+  [ "$off" -gt 12 ] && off=$((off - 24))
+  TZ_ARG="-e TZ=Etc/GMT$(printf '%+d' $((-off)))"
+fi
 RUN() {
-  docker run --rm --platform linux/amd64 -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} \
+  docker run --rm --platform linux/amd64 $TZ_ARG -e SAVETYPE=${SAVETYPE:-3} -e POKE=${POKE:-} \
     -e RESULT_WORDS="$RW" -v "$ROOT":/work -w /work "$IMAGE" "$@"
 }
 

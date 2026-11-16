@@ -6,7 +6,7 @@ Tonewick의 그래픽, 폰트, 효과음, 음악은 모두 **이 저장소의 �
 폰트, 녹음, 악보는 없고 CC0 에셋도 쓰지 않습니다. 아래 에셋은 모두 소스와 같은 저작권·라이선스의 오리지널 작업물입니다:
 **Apache-2.0** (Copyright 2026 devgyurak, the cleancart.nds maintainer).
 
-생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`에 있습니다(다른 게임과 공유). 같은
+생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`에 있습니다(다른 게임과 공유하며, `twart.py`만 Tonewick 전용입니다). 같은
 소스는 언제나 같은 바이트를 만듭니다.
 
 `docs/images/`의 PNG 파일(있다면)은 빌드한 ROM에서 찍은 README 스크린샷입니다. 에셋이 아니라 문서이므로 빌드가

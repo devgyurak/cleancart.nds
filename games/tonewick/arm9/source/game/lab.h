@@ -17,6 +17,7 @@
 //   values[15]   ADPCM loop drift x1000
 //   values[16,17] noise: longest run of matching bits, capture phase
 //   values[18]   capture length 0: words changed
+//   values[19]   RTC: samples taken at an hour of 12 or later (0: the 24 hour AM/PM rule was not exercised, n/a)
 //   values[20..22] capture source channel / add overflow / both negative, each + 32768
 //   values[24]   PCM8 capture byte
 //   values[25,26] RTC: samples with a consistent AM/PM flag / samples read
@@ -39,7 +40,7 @@ enum {
     TV_DUTY3_EDGES = 1, TV_DUTY7, TV_P2P0, TV_P2P3, TV_DIV_RATIO, TV_VOL127, TV_VOL64, TV_VOL_RATIO,
     TV_SHORT_BUSY, TV_SHORT_PEAK, TV_HOLD_ON, TV_HOLD_OFF, TV_LOOP_LEVEL, TV_HELD_LEVEL,
     TV_ADPCM, TV_NOISE_RUN, TV_NOISE_PHASE, TV_LEN0,
-    TV_CAP_SRC = 20, TV_CAP_ADD, TV_CAP_NEG,
+    TV_RTC_PM = 19, TV_CAP_SRC = 20, TV_CAP_ADD, TV_CAP_NEG,
     TV_PCM8 = 24, TV_RTC_OK, TV_RTC_N,
     TV_PM_MODEL = 27, TV_PM4, TV_PM5, TV_PM12, TV_PM_RULE,
     TV_WEL_WREN = 32, TV_WEL_WRITE, TV_RDSR,

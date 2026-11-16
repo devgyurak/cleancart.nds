@@ -34,7 +34,7 @@ button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game tonewick` then g
 1. Build: `cd games/tonewick && ./build.sh -j8 release`. Note `shasum -a 256` of `build/release/rom/tonewick.nds` and of
    `build/release/judge/tonewick-rehearsal.nds`.
 2. Copy both ROMs to the R4 card and create `cleancart/tonewick/`.
-3. **Rehearsal**: start `tonewick-rehearsal.nds`, touch nothing, wait about ten seconds until the four districts read DONE.
+3. **Rehearsal**: do this once in the morning and once at 12:00 or later: before noon the AM/PM flag is 0 either way and `rtc-ampm-24h` is n/a. Start `tonewick-rehearsal.nds`, touch nothing, wait about ten seconds until the four districts read DONE.
    Use headphones or leave the volume low: the speaker amplifier is switched off during the experiments but the console is
    being asked for sound.
 4. **Auto QA run**: leave an empty `cleancart/tonewick/autoqa` on the card (or hold L+R+X+Y for two seconds on the title). The
@@ -42,6 +42,22 @@ button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game tonewick` then g
    Then `python3 tools/qa/ingest.py /Volumes/<card> --game tonewick` and compare with an emulator run
    (`python3 tools/qa/compare.py <emu.log> <hw.log> --info`).
 5. Optional, by hand: open the test menu (Select on the title) and the morning log; write down what it shows.
+
+## Judging the hardware result
+
+Applies to every item, and in particular to the two capture bugs that only GBATEK documents (`cap-add-wrap`, `cap-both-negative`).
+Before judging, rule out coupling: both bugs rest on volume register 127 counting as 128 (unity gain on the channel path), so check `snd-vol127-full`, `snd-voldiv16` and `cap-src-channel` first; a failure there explains the others.
+Run the rehearsal at least three times (and the QA run once) and on every console you have (DS Lite and the original DS,
+firmware byte 1Dh in `values[27]`).
+
+| Outcome | What it means | What changes (file, in the PR that records the run) |
+|---|---|---|
+| The value is in the range every time | GBATEK and the ROM are right | `expected.json`: `source` becomes `hw:ds-lite`, `level_basis` gets `; hw:ds-lite`; the item stays level 2 |
+| The value differs from the range, but is the same every run and has an explanation (the bug as another source describes it, a register mirror, the loader) | the expectation was wrong, the item is documented | `expected.json`: range or `expect` changed to the measured value, `source` `hw:ds-lite`, the explanation in `title`/`level_basis`; the item stays level 2; the lines' model in the district file follows (`junction.c` lines 10 and 11 use the GBATEK bug as their model) |
+| The value differs between runs or between consoles, or nobody can explain it | not a documented behaviour: level 4 research | `expected.json`: `role` becomes `relocate` with `"to": "probes"` and the item is informational (never fails a run); in a later PR a demo ROM with the two experiments goes into `probes/` (its `known` profiles per emulator), the item leaves `expected.json`, the district audit may keep the number as a raw value, lines 10 and 11 keep working (their model is the GBATEK bug and the ear's answer is shown beside it); `mklevels.py` regenerates LEVELS and README cells |
+
+Whoever records the run (the maintainer, with a console and the QA checklist above) opens the PR; the profile `hw-ds-lite`
+lists the items that fail on the console.
 
 ## Recording
 

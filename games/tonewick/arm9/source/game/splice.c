@@ -37,7 +37,7 @@ static u32 p4_hw(int a, int b)
 
 static u32 p4_model(int a, int b)
 {
-    return words_v[a] < 4 ? 2u : 3u;   // a loop is busy for good either way
+    return words_v[a] < 4 ? 2u : 1u;   // below 4 words: busy for good and silent; else it plays and ends
 }
 
 // ---------------------------------------------------------------------------
@@ -125,6 +125,6 @@ static void audit_splice(void)
 }
 
 const Room room_splice = {
-    "THE SPLICE", "UPPER TOWER", "DS SOUND CHANNELS", splice_puzzles,
+    "THE SPLICE", "UPPER TOWER", "SOUND CHANNELS", splice_puzzles,
     (int)(sizeof(splice_puzzles) / sizeof(splice_puzzles[0])), audit_splice,
 };

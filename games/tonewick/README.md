@@ -85,11 +85,13 @@ the sound started) to numbers. Every item is a measurement compared with a GBATE
 and ratios, never a cycle count. A value a capture never reached stays 0xFFFF and fails its item.
 
 ```sh
-tools/melonds/mds.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+RTC=2026-11-16-15-30-00 tools/melonds/mds.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
   | python3 games/tonewick/tools/judge.py --profile melonds-1.1-software
-RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+RTC_HOUR=15 RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
   | python3 games/tonewick/tools/judge.py --profile desmume-pydesmume-0.0.9
 ```
+
+`rtc-ampm-24h` reads the AM/PM flag and is graded only at 12:00 or later (n/a before), which is why the commands above fix the clock to the afternoon.
 
 Exit code 0: every gating item passed (or the failing set equals the profile's). `known` in `expected.json` holds one profile
 per emulator version and renderer. **Several target items are expected to fail in current emulators** (melonDS 1.1: the hold

@@ -38,6 +38,7 @@
 #define LAB_TIMER(ticks)  ((u16)(0x10000 - (ticks)))
 
 void sndlab_begin(void);                                   // empty script
+// (the waits of one script add up to at most 300 frames; after a run that never answered nothing is sent)
 bool sndlab_w(u32 kind, u32 addr, u32 value, u16 wait);    // false: the script is full
 // A channel: SAD, TMR, PNT, LEN, then CNT (which starts it when it carries LAB_START). The wait
 // (vblanks) follows the last write.

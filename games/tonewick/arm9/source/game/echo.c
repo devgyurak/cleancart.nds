@@ -101,17 +101,18 @@ static void audit_echo(void)
 {
     int drift, n, byte;
     s32 mean;
-    if (ear_adpcm(1, &drift))
+    if (ear_adpcm(9, &drift))   // loop start at word 9: its decoder state is not the header state
         tw_res[TV_ADPCM] = (u32)drift;
     if (ear_cap_len(0, &n))
         tw_res[TV_LEN0] = (u32)n;
-    if (ear_cap_chan(true, 1, -1, false, &mean))
+    // Channel 1 plays +2000h too: the mixer would read 4000h, channel 0 alone 2000h.
+    if (ear_cap_chan(true, 1, 1, false, &mean))
         tw_res[TV_CAP_SRC] = (u32)(mean + 32768);
     if (ear_pcm8(&byte))
         tw_res[TV_PCM8] = (u32)byte;
 }
 
 const Room room_echo = {
-    "THE ECHO ROOM", "LOWER TOWER", "DS SOUND CAPTURE", echo_puzzles,
+    "THE ECHO ROOM", "LOWER TOWER", "SOUND CAPTURE", echo_puzzles,
     (int)(sizeof(echo_puzzles) / sizeof(echo_puzzles[0])), audit_echo,
 };

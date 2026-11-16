@@ -33,13 +33,28 @@ Tonewick은 아직 콘솔에서 측정하지 않았습니다. 이 문서는 그 
 1. 빌드: `cd games/tonewick && ./build.sh -j8 release`. `build/release/rom/tonewick.nds`와
    `build/release/judge/tonewick-rehearsal.nds`의 `shasum -a 256`을 적어 둡니다.
 2. 두 ROM을 R4 카드에 복사하고 `cleancart/tonewick/`를 만듭니다.
-3. **리허설**: `tonewick-rehearsal.nds`를 시작하고 아무것도 만지지 말고 지역 네 곳이 DONE이 될 때까지 10초쯤 기다립니다.
+3. **리허설**: 오전에 한 번, 12시 이후에 한 번 돌립니다. 정오 전에는 AM/PM 플래그가 어느 쪽이든 0이라 `rtc-ampm-24h`가 n/a입니다. `tonewick-rehearsal.nds`를 시작하고 아무것도 만지지 말고 지역 네 곳이 DONE이 될 때까지 10초쯤 기다립니다.
    이어폰을 쓰거나 볼륨을 낮추세요. 실험하는 동안 스피커 앰프는 꺼지지만 콘솔에 소리를 내라고 시키는 실험입니다.
 4. **자동 QA 실행**: 카드에 빈 `cleancart/tonewick/autoqa`를 둡니다(또는 타이틀에서 L+R+X+Y를 2초 누릅니다). 게임이 스스로
    크레딧까지(약 30초) 진행하고 `cleancart/tonewick/qa-*.log`를 씁니다.
    그 뒤 `python3 tools/qa/ingest.py /Volumes/<카드> --game tonewick`를 실행하고 에뮬레이터 실행과 견줍니다
    (`python3 tools/qa/compare.py <emu.log> <hw.log> --info`).
 5. 선택, 손으로: 테스트 메뉴(타이틀에서 Select)와 아침 점검 일지를 열고 보이는 것을 적어 둡니다.
+
+## 실기 결과 판정
+
+모든 항목에 해당하며, 특히 GBATEK에만 적힌 캡처 버그 둘(`cap-add-wrap`, `cap-both-negative`)에 중요합니다. 판정하기 전에 결합을
+배제하세요. 두 버그는 볼륨 레지스터 127이 128으로 세어진다는 것(채널 경로의 단위 이득)에 기대므로 `snd-vol127-full`,
+`snd-voldiv16`, `cap-src-channel`을 먼저 보세요. 거기서 실패하면 나머지는 그 때문입니다. 리허설은 세 번 이상, QA 실행은 한 번,
+가진 콘솔마다(DS Lite와 구형 DS, 펌웨어 바이트 1Dh는 `values[27]`) 돌립니다.
+
+| 결과 | 뜻 | 바뀌는 것 (파일, 실행을 기록하는 PR에서) |
+|---|---|---|
+| 값이 매번 범위 안 | GBATEK과 ROM이 맞음 | `expected.json`: `source`는 `hw:ds-lite`, `level_basis`에 `; hw:ds-lite` 추가. 항목은 레벨 2 유지 |
+| 범위를 벗어나지만 매번 같고 설명이 있음(다른 자료가 말하는 버그, 레지스터 미러, 로더) | 기대값이 틀렸고 항목은 문서화됨 | `expected.json`: 범위나 `expect`를 측정값으로 바꾸고 `source`는 `hw:ds-lite`, 설명은 `title`/`level_basis`에. 항목은 레벨 2 유지. 줄의 모델도 따라감(`junction.c`의 10·11번 줄은 GBATEK 버그를 모델로 씁니다) |
+| 값이 실행마다 또는 콘솔마다 다르거나 아무도 설명하지 못함 | 문서화된 동작이 아님: 레벨 4 연구 | `expected.json`: `role`을 `relocate`, `"to": "probes"`로 바꾸고 항목은 참고용(실행을 실패시키지 않음). 이후 PR에서 두 실험을 담은 데모 ROM을 `probes/`에 넣고(에뮬레이터별 `known` 프로필 포함), 항목은 `expected.json`에서 빼며, 지역 감사는 숫자를 원값으로 남겨도 됩니다. 10·11번 줄은 그대로 동작합니다(모델은 GBATEK 버그, 귀의 답은 옆에 표시). `mklevels.py`가 LEVELS와 README 칸을 다시 만듭니다 |
+
+실행을 기록하는 사람(콘솔이 있는 관리자)이 PR을 엽니다. 프로필 `hw-ds-lite`는 콘솔에서 실패하는 항목을 나열합니다.
 
 ## 기록
 
