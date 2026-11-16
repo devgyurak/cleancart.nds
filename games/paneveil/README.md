@@ -20,9 +20,9 @@ store, restore, the projection stack and the GXSTAT stack level), matrix load/mu
 formats), polygon attributes (front/back face, alpha, wireframe, depth test) and texture attributes
 (repeat, flip, clamp, colour 0, palette base, texture coordinate source).
 
-**Status.** Chapters 1 (glass) and 2 (pattern) are playable: twelve windows, the 3D window on the top
+**Status.** Chapters 1 (glass), 2 (pattern), 3 (rose) and 4 (finish) are playable: 24 windows, the 3D window on the top
 screen, the settings on the bottom screen, a 2D schematic mode (Select), the kiln lamp, the rehearsal and its judge
-(kiln check and light box: 30 items) and the hidden auto QA run. Chapters 3 to 5 are still to come. Nothing has been
+(kiln check and light box: 30 items) and the hidden auto QA run. Chapter 5 is still to come. Nothing has been
 measured on real hardware.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
@@ -52,9 +52,9 @@ waits for GXSTAT bit 27 to clear, and compares GXSTAT stack levels, `CLIPMTX_RES
 answer does not depend on how a product is rounded, and no renderer is involved.
 
 ```sh
-tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 1000 out/pv "" 999 \
   | python3 games/paneveil/tools/judge.py --profile melonds-1.1-software
-RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 1000 out/pv "" 999 \
   | python3 games/paneveil/tools/judge.py --profile desmume-pydesmume-0.0.9
 ```
 

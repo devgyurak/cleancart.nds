@@ -9,7 +9,7 @@ Repo-wide rules are in `../../AGENTS.md`. Created from elevane (which came from 
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's layers (keep fixes
 in sync when they apply to all games).
 
-Status: chapters 1 and 2 (twelve windows), play scene, kiln check, light box, QA mode. Chapters 3 to 5 follow. Target level 1, area "3D geometry and texturing"
+Status: chapters 1 to 4 (24 windows), play scene, kiln check, light box, QA mode. Chapter 5 follows. Target level 1, area "3D geometry and texturing"
 (GBATEK sections no other game judges: matrix stack, matrix load/multiply, geometry commands,
 polygon attributes, texture attributes, texture coordinates).
 

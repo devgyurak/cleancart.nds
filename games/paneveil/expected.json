@@ -13,7 +13,7 @@
       "rom": "paneveil-rehearsal.nds",
       "item_id": 1213355600,
       "item_id_text": "PVRH",
-      "frames": 300,
+      "frames": 900,
       "note": "the kiln check, the light box and a scripted play of the first window of every chapter; no save chip, no NitroFS"
     },
     "qa": {
@@ -34,20 +34,20 @@
   "items": [
     {
       "id": "play-windows",
-      "title": "The rehearsal baked the first window of every chapter that has windows (2 windows)",
+      "title": "The rehearsal baked the first window of every chapter that has windows (4 windows)",
       "boots": [
         "rehearsal",
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
         1
       ],
       "check": "eq",
-      "expect": 2,
+      "expect": 4,
       "tolerance": 0,
       "source": "rom",
       "role": "target",
@@ -63,7 +63,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -87,7 +87,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -110,7 +110,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -133,7 +133,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -156,7 +156,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -179,7 +179,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -202,7 +202,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -225,7 +225,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -248,7 +248,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -271,7 +271,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -294,7 +294,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -317,7 +317,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -340,7 +340,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -363,7 +363,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -386,7 +386,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -414,7 +414,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -442,7 +442,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -470,7 +470,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -499,7 +499,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -527,7 +527,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -556,7 +556,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -584,7 +584,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -612,7 +612,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -640,7 +640,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -668,7 +668,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -696,7 +696,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -724,7 +724,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -752,7 +752,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [
@@ -780,7 +780,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 300,
+        "rehearsal": 900,
         "qa": 1
       },
       "values": [

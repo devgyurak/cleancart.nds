@@ -212,7 +212,7 @@ target 41 · prerequisite 4
 
 target 29 · prerequisite 1
 
-- `play-windows` · The rehearsal baked the first window of every chapter that has windows (2 windows) · [expected.json](games/paneveil/expected.json)
+- `play-windows` · The rehearsal baked the first window of every chapter that has windows (4 windows) · [expected.json](games/paneveil/expected.json)
 - `mtx-push-level` · Three pushes leave the position stack at level 3 (GXSTAT bits 8-12) · [expected.json](games/paneveil/expected.json)
 - `mtx-pop-restores` · MTX_POP returns the matrix that was pushed: 0 of 16 CLIPMTX_RESULT words differ · [expected.json](games/paneveil/expected.json)
 - `mtx-pop-n-level` · MTX_POP with N = 2 from level 3 leaves level 1 · [expected.json](games/paneveil/expected.json)
