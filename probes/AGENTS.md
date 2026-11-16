@@ -73,7 +73,7 @@ a row to `docs/QA.md` and `docs/QA-KO.md`, re-measure the seven profiles, and ru
 
 ## Result block on the SD card
 
-`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+`core/sdcard.c/.h` (identical in all five kits): when the
 folder `<drive>cleancart/probes/` already exists on the card, the probe `finish()` writes its result
 block there as `res-<date>-<time>-probes-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
 line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the

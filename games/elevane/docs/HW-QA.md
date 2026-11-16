@@ -6,6 +6,12 @@ Nothing in Elevane has been measured on a console yet. This is the checklist for
 first values can be recorded and the `unconfirmed` items in `expected.json` can be promoted.
 The console is operated by a person; the steps below are what to do and what to write down.
 
+**Automatic route (skill `nds-hw-qa`):** create the empty folder `cleancart/elevane/` on the card and the ROMs
+write their result blocks there (`RESULT SAVED` on the demos); an empty file `cleancart/elevane/autoqa` starts the QA
+run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game elevane` then grades everything with
+`judge.py --hardware --partial`. The photo route below (steps 3 and 6) stays as the fallback when the card cannot be
+written. Hardware NG items are findings, not profiles: see the template pages of the other kits for the record table.
+
 ## What the hardware has to answer
 
 | Question | Where it shows |
@@ -29,7 +35,7 @@ The console is operated by a person; the steps below are what to do and what to 
 4. **Game**: start `elevane.nds`. Play a puzzle (`1-01`: a row of four, then A to deliver), press X for the showcase,
    A to switch preset, B back. Write down per preset: complete picture / half missing (which side) / flicker /
    bright seam column.
-5. **Auto QA run** (skill `nds-hw-qa`): on the title press L and R, then X and Y, hold all four for two seconds.
+5. **Auto QA run** (skill `nds-hw-qa`): on the title press L and R, then X and Y, hold all four for two seconds (or leave an empty `cleancart/elevane/autoqa` on the card: no button needed).
    The game plays itself to the credits (about 5 minutes) and writes `cleancart/elevane/qa-*.log` to the SD card.
    Then `python3 tools/qa/ingest.py /Volumes/<card> --game elevane` and compare with an emulator run
    (`python3 tools/qa/compare.py <emu.log> <hw.log> --info`).

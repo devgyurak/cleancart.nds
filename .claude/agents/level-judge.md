@@ -28,6 +28,14 @@ Rules to apply (full text in `docs/LEVELS.md`):
 - Levels are metadata. Never propose a change to expected values, verdicts or profiles in the
   level table; put any such observation in a separate note.
 
+Hardware evidence (`hw:`): when a `games/<game>/docs/HW-QA.md` or `probes/docs/HW-QA.md` has a recorded
+run, read its per-item table and the matching `res-*.log` judge summary. A game item whose hardware value
+agrees with the ROM's expectation can keep or lower its level with basis `hw:<that file>`; a hardware NG is a
+finding about the expected value, so list it under Notes and propose no level from it. A probe item with a
+recorded hardware value (`known.hardware-dslite-r4.observed` in `probes/expected.json`) may move down to L2/L3
+only when the value matches a documented or reproducible behaviour; say which. Never infer a hardware value
+from an emulator profile.
+
 Output:
 1. A table: item | current level | proposed level | evidence (GBATEK section name and the key
    sentence, issue or HW-QA link) | `level_basis` (`gbatek:<section>`, `report:<ref>`,
