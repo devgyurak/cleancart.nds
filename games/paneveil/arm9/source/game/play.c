@@ -175,8 +175,7 @@ PvScene scene_play(void)
         return SC_SELECT;
     // The kiln lamp: the judge's matrix check, once per visit (it draws nothing).
     u32 kr[KILN_ITEMS];
-    kiln_run(kr);
-    kiln_good = kiln_ok(kr);
+    kiln_good = kiln_run(kr) && kiln_ok(kr);
     kiln_done = true;
 
     if (pv_view3d)

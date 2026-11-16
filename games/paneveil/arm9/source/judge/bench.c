@@ -56,12 +56,17 @@ static void put_mat(Seq *s, u8 cmd, int n, const s32 *m)
         g->p[i] = m[i];
 }
 
+static bool timed_out;
+
 static void wait_idle(void)
 {
     // bit 27: geometry engine busy, bit 14: a push or pop is executing, bit 0: a test is running.
     // Bounded: a stuck engine must not hang the boot (a pending buffer swap clears within a frame).
-    for (u32 n = 0; n < 4000000u && (GX_STAT & ((1u << 27) | (1u << 14) | 1u)); n++)
-        ;
+    u32 n = 0;
+    while (n < 4000000u && (GX_STAT & ((1u << 27) | (1u << 14) | 1u)))
+        n++;
+    if (n >= 4000000u)
+        timed_out = true;
 }
 
 static void send_direct(const Seq *s)
@@ -76,19 +81,25 @@ static void send_direct(const Seq *s)
     }
 }
 
-// Packed: up to four command ids in a word, then their parameters, in order.
+// Packed: up to four command ids in a word, then their parameters, in order. GBATEK: the last
+// (top-most) command of a packed word must have parameters, so a group ends at the last command
+// that has some; a lone command without any is sent unpacked (one command in the word).
 static void send_packed(const Seq *s)
 {
-    for (int i = 0; i < s->n; i += 4)
+    int i = 0;
+    while (i < s->n)
     {
-        u32 head = 0;
         int cnt = s->n - i < 4 ? s->n - i : 4;
+        while (cnt > 1 && s->c[i + cnt - 1].n == 0)
+            cnt--;
+        u32 head = 0;
         for (int k = 0; k < cnt; k++)
             head |= (u32)s->c[i + k].cmd << (8 * k);
         GX_FIFO = head;
         for (int k = 0; k < cnt; k++)
             for (int j = 0; j < s->c[i + k].n; j++)
                 GX_FIFO = (u32)s->c[i + k].p[j];
+        i += cnt;
     }
 }
 
@@ -346,28 +357,29 @@ static void three_pushes(Seq *s)
     put(s, C_PUSH, 0);
 }
 
-// The mixed sequence of the two port checks: every command of the level 1 set. The stack commands
-// run in mode 2 (position and vector matrices together); the documented exception that mode 1
-// stack commands also move the vector matrix is not part of this check.
+// The mixed sequence of the two port checks: every command of the level 1 set, in an order where each
+// one changes the final matrices (a command that does nothing shows). The stack commands run in mode 2
+// (position and vector matrices together); the documented exception that mode 1 stack commands also
+// move the vector matrix is not part of this check.
 static void mixed(Seq *s)
 {
     put(s, C_MODE, 1, 0);
     put_mat(s, C_LOAD44, 16, PROJ);
     put(s, C_MODE, 1, 2);
-    put(s, C_IDENT, 0);
-    put_mat(s, C_MULT43, 12, M43);
+    put_mat(s, C_LOAD43, 12, M43);
     put(s, C_PUSH, 0);
     put_mat(s, C_MULT33, 9, RX);
     put(s, C_STORE, 1, 3);
+    put_mat(s, C_MULT33, 9, HALF3);
+    put(s, C_RESTORE, 1, 3);          // back to the stored matrix: the half turn above is gone
+    put(s, C_PUSH, 0);
+    put(s, C_TRANS, 3, K(1), 0, K(1));
+    put(s, C_POP, 1, 1);              // back to the pushed matrix: the shift above is gone
     put(s, C_MODE, 1, 1);
     put(s, C_SCALE, 3, K(2), H(1), K(1));
     put(s, C_TRANS, 3, K(1), 0, -K(1));
     put_mat(s, C_MULT44, 16, M44);
     put(s, C_MODE, 1, 2);
-    put(s, C_PUSH, 0);
-    put_mat(s, C_MULT33, 9, HALF3);
-    put(s, C_POP, 1, 1);
-    put(s, C_RESTORE, 1, 3);
     put_mat(s, C_MULT43, 12, M43B);
 }
 
@@ -389,8 +401,9 @@ static int sequence_wrong(bool packed)
     return diff_clip(m) + diff_vec(m);
 }
 
-void kiln_run(u32 r[KILN_ITEMS])
+bool kiln_run(u32 r[KILN_ITEMS])
 {
+    timed_out = false;
     Model *mp = &model;
     Seq *sp = &seq;
 
@@ -418,7 +431,7 @@ void kiln_run(u32 r[KILN_ITEMS])
     // Store leaves the stack pointer alone, restore brings the stored matrix back.
     reset(mp);
     sp->n = 0;
-    put(sp, C_MODE, 1, 1);
+    put(sp, C_MODE, 1, 2);   // stack commands in mode 2: mode 1 is the same by GBATEK but emulators leave it unconfirmed
     put(sp, C_TRANS, 3, K(1), K(2), K(3));
     put(sp, C_PUSH, 0);
     put(sp, C_PUSH, 0);
@@ -478,6 +491,7 @@ void kiln_run(u32 r[KILN_ITEMS])
 
     reset(mp);
     wait_idle();
+    return !timed_out;
 }
 
 bool kiln_ok(const u32 r[KILN_ITEMS])

@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 1,
   "area": "3D geometry and texturing",
-  "about": "Expected result-block values for the Paneveil rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. \"frame\" is the minimum number of frames to run, per boot. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's \"not captured\" marker). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "about": "Expected result-block values for the Paneveil rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. \"frame\" is the minimum number of frames to run, per boot. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's \"not captured\" marker). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Items of the kiln check carry \"done\" on flags bit 0: the check ran to the end and no GXSTAT wait timed out.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -100,7 +100,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-restores",
@@ -123,7 +127,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-n-level",
@@ -146,7 +154,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-n-matrix",
@@ -169,7 +181,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-store-level-kept",
@@ -192,7 +208,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-restore-matrix",
@@ -215,7 +235,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-push-level",
@@ -238,7 +262,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-pop-level",
@@ -261,7 +289,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-pop-matrix",
@@ -284,7 +316,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-load-mult-clip",
@@ -307,7 +343,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-vec-mult",
@@ -330,7 +370,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-packed-fifo",
@@ -353,7 +397,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Geometry Commands",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-direct-ports",
@@ -376,7 +424,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Geometry Commands",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-vtx-formats",

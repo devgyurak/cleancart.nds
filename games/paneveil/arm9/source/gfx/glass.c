@@ -124,7 +124,7 @@ static void set_grain(int grain)
     MATRIX_CONTROL = 3;
     for (int i = 0; i < 16; i++)
         MATRIX_LOAD4x4 = (u32)m[i];
-    MATRIX_CONTROL = 1;
+    MATRIX_CONTROL = 2;   // back to position and vector together: store / restore below are mode 2 stack commands
 }
 
 static void petal(const u8 *cur, int reps)

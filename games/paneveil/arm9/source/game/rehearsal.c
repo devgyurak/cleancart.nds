@@ -56,10 +56,10 @@ void rehearsal_run(void)
 
     // The kiln check (judge/bench.c): values[3..15].
     u32 kiln[KILN_ITEMS];
-    kiln_run(kiln);
+    bool kiln_complete = kiln_run(kiln);
     for (int i = 0; i < KILN_ITEMS; i++)
         result[3 + i] = kiln[i];
-    result[0] |= 1u | (kiln_ok(kiln) ? 2u : 0);
+    result[0] |= (kiln_complete ? 1u : 0) | (kiln_ok(kiln) ? 2u : 0);
 
     // The first window of every chapter that has windows, through the live play scene.
     pv_play_hook = script_hook;

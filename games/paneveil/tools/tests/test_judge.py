@@ -41,6 +41,8 @@ def good_values(boot):
             v[i] = it['min']
         else:
             raise AssertionError('test helper does not know check %s' % it['check'])
+        if 'done' in it:
+            v[it['done']['value']] |= it['done']['mask']
     return v
 
 
@@ -81,6 +83,13 @@ class Grading(unittest.TestCase):
         rc, out = run_judge([], block_line(REHEARSAL_ID, v))
         self.assertEqual(rc, 1, out)
         self.assertIn('NG      mtx-push-level', out)
+
+    def test_an_unfinished_kiln_check_is_not_graded_ok(self):
+        v = good_values('rehearsal')
+        v[0] &= ~1       # the kiln check did not run to the end: its zero values mean nothing
+        rc, out = run_judge([], block_line(REHEARSAL_ID, v))
+        self.assertEqual(rc, 1, out)
+        self.assertIn('NG      mtx-pop-restores', out)
 
     def test_boot_must_agree_with_the_block(self):
         rc, out = run_judge(['--boot', 'qa'], block_line(REHEARSAL_ID, good_values('rehearsal')))

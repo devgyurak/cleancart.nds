@@ -76,14 +76,14 @@ void qa_game_words(u32 *w)
 static void judge_epilogue(void)
 {
     u32 kiln[KILN_ITEMS];
-    kiln_run(kiln);
+    bool kiln_complete = kiln_run(kiln);
     for (int i = 0; i < KILN_ITEMS; i++)
         res[3 + i] = kiln[i];
     LightboxResult lb;
     lightbox_run(&lb);
     for (int i = 0; i < LB_ITEMS; i++)
         res[16 + i] = lb.v[i];
-    res[0] = 1u | (kiln_ok(kiln) ? 2u : 0) | lb.done << 8;
+    res[0] = (kiln_complete ? 1u : 0) | (kiln_ok(kiln) ? 2u : 0) | lb.done << 8;
     res[1] = (u32)__builtin_popcount(chapters_done);
     res[2] = chapters_done;
     judged = true;
