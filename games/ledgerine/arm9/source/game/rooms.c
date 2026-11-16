@@ -4,19 +4,11 @@
 #include "game/rooms.h"
 
 extern const Room room_press;
+extern const Room room_tube;
 extern const Room room_clock;
 extern const Room room_belt;
 extern const Room room_vault;
 extern const Room room_rules;
-
-static void audit_none(void)
-{
-}
-
-#define STUB_ROOM(sym, nm, tw, hw_) \
-    static const Room sym = { nm, tw, hw_, 0, 0, audit_none }
-
-STUB_ROOM(room_tube, "THE TUBE", "BOTH TOWERS", "IPC FIFO");
 
 const Room *const lg_rooms[LG_ROOMS] = {
     &room_press, &room_tube, &room_clock, &room_belt, &room_vault, &room_rules,
