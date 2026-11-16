@@ -100,6 +100,10 @@ def pick_latest(paths):
                                                  ' (values or build differ: %s vs %s)' % (qb, build) if diff else ''),
                   file=sys.stderr)
         print('grading %s (build=%s)' % (os.path.basename(p), build), flush=True)
+    builds = {result_info(p)[2] for p in chosen}
+    if len(builds) > 1:
+        print('warning: the graded files come from different builds (%s): a ROM that was not run again after a rebuild is graded with its old result; '
+              'clear the old res-*.log from the card and run it again' % ', '.join(sorted(builds)), file=sys.stderr)
     return chosen
 
 
