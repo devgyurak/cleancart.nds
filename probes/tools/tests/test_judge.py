@@ -99,6 +99,12 @@ class Grading(unittest.TestCase):
         with self.assertRaises(judge.Fatal):
             judge.verdict({'check': 'eq', 'values': [9], 'expect': 1}, v)
 
+    def test_signed_items(self):
+        item = {'check': 'range', 'values': [0], 'min': -64, 'max': 64, 'signed': True}
+        self.assertEqual(judge.verdict(item, [0xFFFFFFFD]), 'SAME')    # -3
+        self.assertEqual(judge.verdict(item, [0xFFFFFFC0 - 1]), 'DIFFERS')   # -65
+        self.assertEqual(judge.verdict(dict(item, signed=False), [0xFFFFFFFD]), 'DIFFERS')
+
     def test_observe_applies_the_mask(self):
         self.assertEqual(judge.observe({'values': [0, 1], 'mask': 0xFF0000}, [0x120005, 0x340000]),
                          [0x120000, 0x340000])

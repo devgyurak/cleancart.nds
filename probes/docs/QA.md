@@ -50,8 +50,8 @@ the only ones inspected by eye: the melonDS runs were compared by their result b
 | l4-acc-dual | front view top / plan view bottom, then a large city in two passes blended by the capture | frame latency, front/plan clear-colour pixels, composite pixels, pass flags | `1 b4b4ab3b 1c501df9 1f` (soft) |
 | l4-acc-split-rear | one screen in two passes at 60 fps, the split moving every 8 frames; the captured side comes back as the 3D rear plane | latency, variant, split x | `1 3 56` |
 | l4-acc-split-hdma | the same with an HBlank DMA from the capture bank into engine B's bitmap BG | latency, variant, split x, frames with holes | `1 6 56 0` (master GL/Compute `1 6 56 808`: 8 + 8 frames with holes, 2056 hole pixels) |
-| l4-vcount-write | console lines `WRITE <value> AT <line>: <n> LINES, RES <r>` (VCOUNT writes at 212, 205, 212 and 100 against a frame without a write; the probe finishes at once, not at frame 120) | lines of the four cases, then residual cycles and frame length in values[4..8] | `11 4 3 51` (residual 1 3 2 3) |
-| l4-tex-late | console lines `WRITE AT <line>: <n> OLD LINES` (a full-screen textured quad whose palette entry is rewritten at that line after the swap; one captured column) | old-colour lines for writes at 200, 213, 214, 216, then 192, 230, 250 in values[4..6] | `0 0 0 192` |
+| l4-vcount-write | console lines `WRITE <value> AT <line>: <n> LINES, RES <r>/16` (VCOUNT writes at 212, 205, 212 and 100 against a frame without a write, means of 8 frames with a dithered poll delay; the probe finishes as soon as it is done (frame 3), not at frame 120; a write at line 100 may tear the picture of that frame on a console) | lines of the four cases, then the signed residual x16 of each (0xFFFF when no whole line was added) and the frame length in values[4..8] | `11 4 3 51` (residual about 0 cycles) |
+| l4-tex-late | console lines `WRITE AT <line>: <n> NOT NEW` (a full-screen textured quad whose palette entry is rewritten at that line after the swap, interrupts off; one captured column) | lines that do not show the new colour for writes at 200, 213, 214, 216, then 192, 230, 250 in values[4..6] and 215 in values[8] | `0 0 0 192` |
 | l4-acc-rear-plane | the same two-pass scheme with the rear plane (stands for Elevane preset 2); the rear plane is set up first, then the opaque samples of the captured pass are counted (4096 = both halves) | latency, variant, split x, 0, opaque samples, left half, right half (values[4..6]) | `1 7 56 0`, `1000 800 800` (soft, DeSmuME); GL: `580 580 0` |
 
 ## Measured table (2026-11-12)
@@ -83,7 +83,7 @@ observation (what the emulators gave when the probe was written, or the value th
 | `rear-plane` | l4-acc-rear-plane | non-zero | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
 | `rear-plane-full` | l4-acc-rear-plane | 4096 | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
 | `vcw-212-lines` | l4-vcount-write | 10 to 11 | 11 | 11 | 11 | 11 | 11 | 11 | 0 |
-| `vcw-212-residual` | l4-vcount-write | 0 to 4 | 1 | 1 | 1 | 1 | 1 | 1 | 6 |
+| `vcw-212-residual` | l4-vcount-write | -64 to 64 (x16) | -6 | -6 | -6 | -6 | -6 | -6 | 65535 |
 | `vcw-205-lines` | l4-vcount-write | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 0 |
 | `vcw-212-210-lines` | l4-vcount-write | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 0 |
 | `vcw-outside-lines` | l4-vcount-write | 0 | 51 | 51 | 51 | 51 | 51 | 51 | 0 |
@@ -91,6 +91,7 @@ observation (what the emulators gave when the probe was written, or the value th
 | `tex-late-200` | l4-tex-late | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tex-late-213` | l4-tex-late | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tex-late-214` | l4-tex-late | 0 to 192 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tex-late-215` | l4-tex-late | 0 to 192 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
 | `tex-late-216` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-230` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-250` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
@@ -110,7 +111,7 @@ What differs between the emulators:
   read 653 (`sys-dma-disp-pixels`) and 768 (`2d-display-pixels`) wrong samples of the main-memory display FIFO where 1.1 reads 0.
 - **All seven** keep the last OBJ group on a line of 120 sprites (`2d-obj-line-budget` 3: no emulator drops sprites at the
   per-line budget, and nobody has measured where a console does).
-- **VCOUNT writes** (`l4-vcount-write`, measured 2026-11-16, new probes for Heddlemere's review): every melonDS profile applies a write wherever it is made: 202 at line 212 repeats 11 lines, 202 at 205 four, 210 at 212 three, and 50 at line 100, outside the 202..212 range GBATEK allows, 51 lines (the model without a range). DeSmuME ignores all four writes (0 lines). **Texture palette written late** (`l4-tex-late`): melonDS (all profiles) shows a write made up to line 214 and loses one made from line 216 on completely (192 old lines), with no partial case in between; DeSmuME shows the new colour for every line, so it reads the palette after the last write we make.
+- **VCOUNT writes** (`l4-vcount-write`, measured 2026-11-16, new probes for Heddlemere's review): every melonDS profile applies a write wherever it is made: 202 at line 212 repeats 11 lines, 202 at 205 four, 210 at 212 three, and 50 at line 100, outside the 202..212 range GBATEK allows, 51 lines (the model without a range). DeSmuME ignores all four writes (0 lines). **Texture palette written late** (`l4-tex-late`): melonDS (all profiles) shows a write made up to line 215 and loses one made from line 216 on completely (192 old lines), with no partial case in between; DeSmuME shows the new colour for every line, so it reads the palette after the last write we make.
 - Everything else (polygon counts, `BOX_TEST`/`POS_TEST`/`VEC_TEST` results, front/plan views, rear-plane latency 1) is the same
   on all melonDS profiles; the 3D-test values match DeSmuME too except `vec-z`. Frame latency is 1 everywhere since the
   boot-time pending SwapBuffers is flushed before the measuring loop (before that fix it read 2 in the Elevane copies).
