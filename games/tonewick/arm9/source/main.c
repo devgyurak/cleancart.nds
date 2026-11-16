@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+//
+// Tonewick - an original machine-room ledger puzzle for the Nintendo DS.
+
+#include <nds.h>
+
+#include "core/cart.h"
+#include "core/input.h"
+#include "core/nitro.h"
+#include "core/qa.h"
+#include "core/save.h"
+#include "core/snd.h"
+#include "core/sys.h"
+#ifdef CV_DEMO
+#include "demo/demo.h"
+#endif
+#include "game/scenes.h"
+
+int tw_room;
+
+int main(int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    // Keep the last 4 KB of the ARM9 heap free for the result block.
+    reduceHeapSize(4096);
+
+    sys_init();
+#ifdef CV_DEMO
+    // Demo builds (the rehearsal) never touch the cart or the save chip, so they
+    // run on any cart kernel.
+    save_defaults();
+    demo_main(CV_DEMO);
+#else
+    nitro_init();
+    cart_init();
+    if (!save_load())
+        save_write();
+    cv_sfx_volume = cv_save.sfx_volume;
+    snd_master(cv_save.volume);
+#endif
+
+    static const char *const scene_names[] = { "title", "room", "menu", "rehearsal", "credits" };
+    TwScene scene = SC_TITLE;
+    for (;;)
+    {
+        qa_scene(scene, (unsigned)scene < sizeof(scene_names) / sizeof(*scene_names)
+                            ? scene_names[scene] : "?");
+        switch (scene)
+        {
+            case SC_ROOM:  scene = scene_room(); break;
+            case SC_MENU:  scene = scene_menu(); break;
+            case SC_REHEARSAL: scene = scene_rehearsal(); break;
+            case SC_CREDITS: scene = scene_credits(); break;
+            case SC_TITLE:
+            default:       scene = scene_title(); break;
+        }
+    }
+}

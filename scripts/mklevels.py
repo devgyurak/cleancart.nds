@@ -55,7 +55,7 @@ GBATEK_SECTIONS = (
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 
