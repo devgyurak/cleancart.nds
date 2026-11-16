@@ -16,6 +16,7 @@
 #include "core/sys.h"
 
 static bool fat_tried;
+static bool fat_checked;
 static bool fat_failed;
 static bool fat_premounted;
 static int last_errno;
@@ -45,7 +46,13 @@ bool sd_up(void)
     struct stat st;
     bool owner = cart_bus_claim();
     bool mounted = stat(drive, &st) == 0;
-    fat_premounted = mounted;
+    if (!fat_checked)
+    {
+        // Only the first look says whether the mount was already there; a later call would
+        // see our own mount and report it as pre-mounted.
+        fat_checked = true;
+        fat_premounted = mounted;
+    }
     if (!mounted && !fat_tried)
     {
         fat_tried = true;
@@ -130,15 +137,18 @@ bool sd_result_save(const char *kit, const char *name)
     snprintf(stamp, sizeof(stamp), "20%02u%02u%02u-%02u%02u%02u", cv_arm7.year, cv_arm7.month,
              cv_arm7.day, cv_arm7.hour, cv_arm7.minute, cv_arm7.second);
     char path[128];
-    snprintf(path, sizeof(path), "%s%s/res-%s-%s-%s.log", fatGetDefaultDrive(), rel, stamp, kit, name);
+    if (snprintf(path, sizeof(path), "%s%s/res-%s-%s-%s.log", fatGetDefaultDrive(), rel, stamp, kit, name)
+        >= (int)sizeof(path))
+        return false;   // a cut path would name another file
     // A fixed clock (emulators) or a missing RTC would reuse the name: never
     // overwrite an earlier run.
     for (int k = 2; sd_exists(path); k++)
     {
         if (k >= 10)
             return false;   // nine earlier runs with this name and clock: leave them alone
-        snprintf(path, sizeof(path), "%s%s/res-%s-%s-%s-%d.log", fatGetDefaultDrive(), rel, stamp,
-                 kit, name, k);
+        if (snprintf(path, sizeof(path), "%s%s/res-%s-%s-%s-%d.log", fatGetDefaultDrive(), rel, stamp,
+                     kit, name, k) >= (int)sizeof(path))
+            return false;
     }
 
     u32 words[RES_WORDS];
@@ -146,15 +156,18 @@ bool sd_result_save(const char *kit, const char *name)
     for (unsigned i = 0; i < RES_WORDS; i++)
         words[i] = src[i];
 
-    int n = 0;
-    n += snprintf(res_text + n, sizeof(res_text) - n, "# %s-%s", kit, name);
+    // snprintf returns the length it wanted, not what fitted: stop at the first cut piece.
+    int n = snprintf(res_text, sizeof(res_text), "# %s-%s", kit, name);
 #ifdef CV_BUILD_ID
-    n += snprintf(res_text + n, sizeof(res_text) - n, " build=%s", CV_BUILD_ID);
+    if (n < (int)sizeof(res_text))
+        n += snprintf(res_text + n, sizeof(res_text) - n, " build=%s", CV_BUILD_ID);
 #endif
-    n += snprintf(res_text + n, sizeof(res_text) - n, " rtc=20%02u-%02u-%02uT%02u:%02u:%02u sd=1\n",
-                  cv_arm7.year, cv_arm7.month, cv_arm7.day, cv_arm7.hour, cv_arm7.minute,
-                  cv_arm7.second);
-    n += snprintf(res_text + n, sizeof(res_text) - n, "%s-%s RESULT", kit, name);
+    if (n < (int)sizeof(res_text))
+        n += snprintf(res_text + n, sizeof(res_text) - n, " rtc=20%02u-%02u-%02uT%02u:%02u:%02u sd=1\n",
+                      cv_arm7.year, cv_arm7.month, cv_arm7.day, cv_arm7.hour, cv_arm7.minute,
+                      cv_arm7.second);
+    if (n < (int)sizeof(res_text))
+        n += snprintf(res_text + n, sizeof(res_text) - n, "%s-%s RESULT", kit, name);
     if (n > (int)sizeof(res_text) - (int)(RES_WORDS * 9) - 2)
         return false;   // the header alone is too long: never write a cut line
     for (unsigned i = 0; i < RES_WORDS; i++)
@@ -162,14 +175,12 @@ bool sd_result_save(const char *kit, const char *name)
     res_text[n++] = '\n';
 
     // A repeating DMA (a demo's line-start or HBlank table) may still run: park DMA 0-3 while the
-    // card is busy (a DLDI driver can use them) and put them back afterwards. Only reached with
-    // the folder on the card.
-    u32 dma_saved[4];
+    // card is busy (a DLDI driver can use them). They stay parked: the source, destination and
+    // length registers cannot be read back and the driver may have rewritten them, so enabling a
+    // channel again could run a wrong transfer. The values are already in the block, so only a
+    // screen effect of a finished demo ends. Only reached with the folder on the card.
     for (int i = 0; i < 4; i++)
-    {
-        dma_saved[i] = DMA_CR(i);
-        DMA_CR(i) = dma_saved[i] & ~DMA_ENABLE;
-    }
+        DMA_CR(i) &= ~DMA_ENABLE;
     bool ok = sd_append(path, res_text, (u32)n) && read_back_equal(path, res_text, (u32)n);
     if (!ok)
     {
@@ -177,7 +188,5 @@ bool sd_result_save(const char *kit, const char *name)
         int m = snprintf(msg, sizeof(msg), "# write-failed errno=%d\n", last_errno);
         sd_append(path, msg, (u32)m);
     }
-    for (int i = 0; i < 4; i++)
-        DMA_CR(i) = dma_saved[i];
     return ok;
 }

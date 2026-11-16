@@ -12,6 +12,9 @@ carry the run's date and time, so runs never overwrite each other), runs parse_l
 QA log and prints one line per log. The res-*.log files hold the `RESULT` lines of demo,
 rehearsal and probe ROMs (core/sdcard.c); they are graded with the kit's
 `tools/judge.py --hardware --partial` (Lightenette: one run per file, it grades one block at a time).
+Only the res-*.log files copied from the card in this call are graded, one per ROM: the newest
+(file name stamp, then the -2..-9 suffix as a number). Older runs of the same ROM are listed
+as superseded, with a warning when their values or build differ.
 Hardware values are never compared with an emulator profile; the exit code is the
 worst of parse_log and judge.
 """
@@ -19,6 +22,7 @@ worst of parse_log and judge.
 import argparse
 import glob
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -46,16 +50,57 @@ def main(argv):
         kit = os.path.join(ROOT, 'probes') if game == 'probes' else os.path.join(ROOT, 'games', game)
         dst = os.path.join(kit, 'build', 'qa')
         os.makedirs(dst, exist_ok=True)
+        fresh = []
         for path in sorted(glob.glob(os.path.join(src, 'qa-*.log')) + glob.glob(os.path.join(src, 'save-*.bin'))
                            + glob.glob(os.path.join(src, 'res-*.log'))):
             out = os.path.join(dst, os.path.basename(path))
             shutil.copyfile(path, out)
+            if os.path.basename(path).startswith('res-'):
+                fresh.append(out)
         for log in sorted(glob.glob(os.path.join(dst, 'qa-*.log'))):
             rc = parse_log.main([log, '--json', log[:-4] + '.json'])
             status = max(status, rc)
         if not args.no_judge:
-            status = max(status, judge_results(kit, game, sorted(glob.glob(os.path.join(dst, 'res-*.log')))))
+            status = max(status, judge_results(kit, game, pick_latest(fresh)))
     return status
+
+
+def result_info(path):
+    """(rom, sort key, build, RESULT words) of one res-*.log (the name carries the run's clock)."""
+    base = os.path.basename(path)
+    m = re.match(r'res-(\d{8}-\d{6})-(.+?)(?:-([2-9]))?\.log$', base)
+    stamp, rom, k = (m.group(1), m.group(2), int(m.group(3) or 1)) if m else ('', base, 1)
+    build, words = '?', ''
+    with open(path, errors='replace') as f:
+        for line in f:
+            b = re.search(r'\bbuild=(\S+)', line)
+            if line.startswith('#') and b:
+                build = b.group(1)
+            r = re.search(r'\bRESULT((?: [0-9a-fA-F]{8})+)\s*$', line)
+            if r:
+                words = r.group(1).strip()
+    return rom, (stamp, k), build, words
+
+
+def pick_latest(paths):
+    """One file per ROM: the newest; says what it left out and warns when that differs."""
+    groups = {}
+    for p in paths:
+        rom, key, build, words = result_info(p)
+        groups.setdefault(rom, []).append((key, p, build, words))
+    chosen = []
+    for rom, runs in sorted(groups.items()):
+        runs.sort()
+        key, p, build, words = runs[-1]
+        chosen.append(p)
+        for _, q, qb, qw in runs[:-1]:
+            diff = qw != words or qb != build
+            print('%s %s: superseded by %s%s' % ('warning:' if diff else 'note:', os.path.basename(q),
+                                                 os.path.basename(p),
+                                                 ' (values or build differ: %s vs %s)' % (qb, build) if diff else ''),
+                  file=sys.stderr)
+        print('grading %s (build=%s)' % (os.path.basename(p), build), flush=True)
+    return chosen
 
 
 def judge_results(kit, name, logs):
