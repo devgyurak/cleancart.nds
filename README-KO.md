@@ -47,7 +47,7 @@
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 30 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick 타이틀 화면"> | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 목표 17 · 전제 조건 10<!-- /cell --> | [README](games/tonewick/README-KO.md) · [QA 점검표](games/tonewick/docs/QA-KO.md) · [실기 QA](games/tonewick/docs/HW-QA-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
-| [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 18 · 전제 조건 9<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
+| [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -332,7 +332,7 @@
 
 </details>
 
-<details><summary><b>L3 타이밍</b> · Elevane, Heddlemere (21 개)</summary>
+<details><summary><b>L3 타이밍</b> · Elevane, Heddlemere (18 개)</summary>
 
 #### Elevane · display timing and compositing
 
@@ -344,15 +344,12 @@
 
 #### Heddlemere · 3D engine and scanline timing
 
-목표 18 · 전제 조건 9
+목표 15 · 전제 조건 11
 
 - `line-cycles` · A scanline is 355 dots x 6 = 2130 cycles (x16 fixed point, mean over 2000 lines) · [expected.json](games/heddlemere/expected.json)
 - `frame-cycles` · A frame is 263 lines = 560190 cycles (mean over 32 frames) · [expected.json](games/heddlemere/expected.json)
-- `hblank-low-arm9` · The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged) · [expected.json](games/heddlemere/expected.json)
+- `hblank-low-arm9` · The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584 _(참고용)_ · [expected.json](games/heddlemere/expected.json)
 - `hblank-low-arm7` · The same on the ARM7 core: GBATEK gives 1613 "for whatever reason" (x16); informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
-- `vblank-flag-lines` · The VBlank flag is set on lines 192..261 only: 70 lines, not on line 262 · [expected.json](games/heddlemere/expected.json)
-- `vcount-write-lines` · A VCOUNT write at line 212 (value 202) repeats 10 or 11 lines · [expected.json](games/heddlemere/expected.json)
-- `vcount-write-residual` · The frame grown by that write is a whole number of lines within 4 cycles · [expected.json](games/heddlemere/expected.json)
 - `gx-identity-slope` · MTX_IDENTITY costs 19 cycles (slope of two run lengths, x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-pushpop-slope` · MTX_PUSH 17 + MTX_POP 36 = 53 cycles per pair (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-trans-cycles` · MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)

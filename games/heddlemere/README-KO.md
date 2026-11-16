@@ -17,10 +17,10 @@
 ## 상태
 
 다섯 장(주문 40개), 플레이 장면, 래스터로 짠 천과 도면 보기, 모터 램프가 있는 3D 잉아 틀, 타이틀, 측정 항목 18개가 든 리허설 ROM,
-QA 실행이 끝났고 v0.1.0이 다음입니다. `tools/judge.py`가 리허설 블록과 QA 실행의 블록을 `expected.json`(L3, gating 목표 14개,
-실기를 기다리는 정보용 4개)과 대조하고, 에뮬레이터 프로필 네 개(DeSmuME, melonDS 1.1 소프트웨어·GL Classic·GL Compute)가 맞습니다.
-콘솔에서 잰 값은 아직 없습니다. [docs/HW-QA-KO.md](docs/HW-QA-KO.md)가 점검표이고, 가장 위험한 수치는 ARM9 HBlank 낮은 구간
-(GBATEK 1606사이클, melonDS 1584)입니다. 천은 HBlank 인터럽트가 라인마다 스크롤(짜임)과 팔레트 항목(실 색)을 써서 짭니다.
+QA 실행이 끝났고 v0.1.0이 다음입니다. `tools/judge.py`가 리허설 블록과 QA 실행의 블록을 `expected.json`(L3, gating 목표 10개와
+실기를 기다리는 정보용 5개, 그리고 전제 조건)과 대조하고, 에뮬레이터 프로필 네 개(DeSmuME, melonDS 1.1 소프트웨어·GL Classic·GL Compute)가 맞습니다.
+콘솔에서 잰 값은 아직 없습니다. [docs/HW-QA-KO.md](docs/HW-QA-KO.md)가 점검표이고, 먼저 확정할 수치는 ARM9 HBlank 낮은 구간
+(GBATEK 1606사이클, melonDS 1584, 실측 전까지 정보용)입니다. 천은 HBlank 인터럽트가 라인마다 스크롤(짜임)과 팔레트 항목(실 색)을 써서 짭니다.
 Select를 누르면 도면 보기로 바뀌고, 같은 픽셀을 래스터 효과 없이 CPU가 계산해서 그립니다. 주문을 납품하면 프로그램을 지오메트리
 엔진에 돌려 잰 사이클을 GBATEK 비용과 견주는 램프가 켜집니다(정보용).
 

@@ -79,7 +79,7 @@ static ITCM_CODE NOINLINE u32 span_frames(void)
     return NOW() - a;
 }
 
-// A sled of 64 ARM nops (one ARM9 cycle each in ITCM): jumping in at n runs 64 - n of them, so the delay before the
+// A sled of 65 ARM nops (one ARM9 cycle each in ITCM): jumping in at n runs n + 1 of them, so the delay before the
 // fall poll can be set to any whole ARM9 cycle (half a bus cycle), independent of the loops around it.
 static ITCM_CODE NOINLINE __attribute__((target("arm"))) void delay_sled(u32 n)
 {
@@ -602,11 +602,13 @@ u32 timing_motor_run(const u8 *programs, int passes, u32 *planned)
 static ITCM_CODE NOINLINE void lever_write(void)
 {
     SPIN(VCOUNT != 212);
-    VCOUNT = 202;
+    if (!g_timeout)
+        VCOUNT = 202;   // never outside the 202..212 range GBATEK allows
 }
 
 void timing_lever_kick(void)
 {
+    g_timeout = false;
     sys_vsync();                 // interrupts on: the raster keeps weaving until the VBlank
     u32 ime = REG_IME;
     REG_IME = 0;                 // off for about twenty lines, all of them in the VBlank

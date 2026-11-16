@@ -81,11 +81,21 @@ static void vblank_handler(void)
 // (the delay before each fall poll sweeps, so the poll grid is sampled evenly). Runs from the main loop with IME off for
 // the few frames it takes. Timers 2 and 3 (cascaded) are the stopwatch: the sequencer uses timer 0, the PCM stream
 // (unused by this game, snd_stream_start has no caller) timers 2 and 3.
-#define HM_LINES 512
+#define HM_LINES 2048
 
 static volatile bool measure_requested;
 
 // Bounded: a flag that never toggles ends the measurement after about 40 x 65536 cycles instead of hanging the core.
+// The same nop sled as the ARM9 judge (arm9/source/judge/timing.c): the delay before the fall poll in steps of one cycle.
+static __attribute__((target("arm"), noinline)) void delay_sled(u32 n)
+{
+    asm volatile("add pc, pc, %0, lsl #2\n\t"
+                 "nop\n\t"
+                 ".rept 64\n\t"
+                 "nop\n\t"
+                 ".endr" :: "r"(63 - (n & 63)) : "memory");
+}
+
 static u32 measure_hblank_low(void)
 {
     TIMER_DATA(2) = 0;
@@ -94,16 +104,17 @@ static u32 measure_hblank_low(void)
     TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1;
     u32 ime = REG_IME;
     REG_IME = 0;   // a VBlank or sequencer interrupt inside a sample would lengthen it
-    u32 sum = 0, taken = 0;
+    u32 sum = 0, taken = 0, lcg = 0x2545F491u;
     bool stuck = false;
-    // Every wait checks the stopwatch (timer 3 counts 65536 cycles): a flag that never toggles ends the run.
-#define WAIT(cond) while (cond) { if (TIMER_DATA(3) > 40) { stuck = true; break; } }
+    // Every wait is bounded by a plain counter (not the stopwatch: reading a timer would lengthen the poll loop): a flag that
+    // never toggles ends the run.
+#define WAIT(cond) for (u32 n_ = 0; cond; ) { if (++n_ > 400000u) { stuck = true; break; } }
     for (u32 i = 0; i < HM_LINES && !stuck; i++)
     {
         WAIT(REG_DISPSTAT & 2);
         WAIT(!(REG_DISPSTAT & 2));
-        for (volatile u32 d = (i * 37) & 15; d; d--)   // well inside the 524 cycles of the high phase
-            ;
+        lcg = lcg * 1664525u + 1013904223u;
+        delay_sled(lcg >> 24);   // 1..64 ARM cycles, well inside the 524 cycles of the high phase
         if (!(REG_DISPSTAT & 2))
             continue;
         WAIT(REG_DISPSTAT & 2);
