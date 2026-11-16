@@ -1,0 +1,8 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+ "schema": 3,
+ "target_level": 1,
+ "area": "3D geometry and texturing",
+ "about": "Expected result-block values for the Paneveil rehearsal ROM, judged by tools/judge.py. The items arrive with the judge changes.",
+ "items": []
+}
