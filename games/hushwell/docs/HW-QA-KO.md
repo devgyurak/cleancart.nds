@@ -7,7 +7,7 @@ Hushwell(L1, 사운드·I/O)은 데모와 자동 QA 실행으로 판정합니다
 
 ## 카드에 넣을 것
 
-- ROM: `build/release/rom/hushwell.nds`, `build/release/demos/`에서 채점 대상 데모만(나머지 데모는 채점하지 않으니 원하면 손으로 실행): `sys-ipc.nds`, `sys-dma-cart.nds`, `sys-keys.nds`, `snd-mix.nds`, `snd-pcm.nds`, `snd-adpcm.nds`, `snd-psg.nds`, `snd-capture.nds`, `snd-stream.nds`, `io-cart.nds`, `io-save-eeprom.nds`, `io-save-flash.nds`, `io-save-fram.nds`, `io-firmware.nds`, `io-rtc.nds`, `io-touch.nds`, `io-power.nds`, `snd-wave.nds`
+- ROM: `build/release/rom/hushwell.nds`, `build/release/demos/`에서 채점 대상 데모만(나머지 데모는 채점하지 않으니 원하면 손으로 실행): `hushwell-sys-ipc.nds`, `hushwell-sys-dma-cart.nds`, `hushwell-sys-keys.nds`, `hushwell-snd-mix.nds`, `hushwell-snd-pcm.nds`, `hushwell-snd-adpcm.nds`, `hushwell-snd-psg.nds`, `hushwell-snd-capture.nds`, `hushwell-snd-stream.nds`, `hushwell-io-cart.nds`, `hushwell-io-save-eeprom.nds`, `hushwell-io-save-flash.nds`, `hushwell-io-save-fram.nds`, `hushwell-io-firmware.nds`, `hushwell-io-rtc.nds`, `hushwell-io-touch.nds`, `hushwell-io-power.nds`, `hushwell-snd-wave.nds`
 - 빈 폴더 `cleancart/hushwell/` (없으면 ROM이 아무것도 쓰지 않음) 및 QA 실행용 빈 파일 `cleancart/hushwell/autoqa`
 
 ## 실행

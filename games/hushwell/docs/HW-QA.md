@@ -8,7 +8,7 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 ## What to put on the card
 
-- ROMs: `build/release/rom/hushwell.nds`, the judged demos from `build/release/demos/` (the other demos are not graded; run them by hand if wanted): `sys-ipc.nds`, `sys-dma-cart.nds`, `sys-keys.nds`, `snd-mix.nds`, `snd-pcm.nds`, `snd-adpcm.nds`, `snd-psg.nds`, `snd-capture.nds`, `snd-stream.nds`, `io-cart.nds`, `io-save-eeprom.nds`, `io-save-flash.nds`, `io-save-fram.nds`, `io-firmware.nds`, `io-rtc.nds`, `io-touch.nds`, `io-power.nds`, `snd-wave.nds`
+- ROMs: `build/release/rom/hushwell.nds`, the judged demos from `build/release/demos/` (the other demos are not graded; run them by hand if wanted): `hushwell-sys-ipc.nds`, `hushwell-sys-dma-cart.nds`, `hushwell-sys-keys.nds`, `hushwell-snd-mix.nds`, `hushwell-snd-pcm.nds`, `hushwell-snd-adpcm.nds`, `hushwell-snd-psg.nds`, `hushwell-snd-capture.nds`, `hushwell-snd-stream.nds`, `hushwell-io-cart.nds`, `hushwell-io-save-eeprom.nds`, `hushwell-io-save-flash.nds`, `hushwell-io-save-fram.nds`, `hushwell-io-firmware.nds`, `hushwell-io-rtc.nds`, `hushwell-io-touch.nds`, `hushwell-io-power.nds`, `hushwell-snd-wave.nds`
 - The empty folder `cleancart/hushwell/` (without it the ROMs write nothing) and the empty file `cleancart/hushwell/autoqa` for the QA run
 
 ## Run

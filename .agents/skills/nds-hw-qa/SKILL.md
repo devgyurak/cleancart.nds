@@ -25,7 +25,9 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 2. Copy to the R4 card: the game ROM and `build/release/demos/*.nds` (the rehearsal and judge ROMs are
    in `demos/` too; do not copy `judge/` as well); for probes `build/release/demos/*.nds`. Hushwell: only the
    demos its `expected.json` lists are graded.
-3. Create the **empty folder** `cleancart/<kit>/` for every kit that will run (this is what turns on
+3. Move or delete the old `res-*.log` on the card (they pile up; after a rebuild a ROM that is not run again
+   would be graded with its old result, and `ingest.py` only warns when the builds differ).
+   Create the **empty folder** `cleancart/<kit>/` for every kit that will run (this is what turns on
    the result files). For the games you want QA-run, create the empty file `cleancart/<game>/autoqa`.
 4. Tell the user: put the card in, power on.
 
