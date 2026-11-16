@@ -43,6 +43,8 @@ timing figures (L3) and which nobody has confirmed (L4, goes to `probes/`, not i
 3. **Game concept**: the technique is the core of play. A fallback path so the game can be played to the end on any
    emulator (as Elevane's 2D grid does); how the rehearsal and the QA mode steer it.
 4. **Assets to generate by code** and an originality check (no names, characters, levels or look of existing games).
+   Include the **title screen**: what it shows from the game's own theme (a generated picture or a scene drawn by the
+   game's renderer) and the lettering, so it looks like no other game in the repo.
 5. **What needs real hardware**, scope, and a PR split.
 
 Be concrete and short: a recommendation, not a survey. Name the risks you could not check.
