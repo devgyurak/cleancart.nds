@@ -15,7 +15,7 @@ Tonewick은 아직 콘솔에서 측정하지 않았습니다. 이 문서는 그 
 
 | 질문 | 항목 / 보이는 곳 |
 |---|---|
-| GBATEK이 적은 캡처 버그 둘이 실제로 있는가? add 오버플로: 7000h + 7000h가 -2000h로 캡처됨. 둘 다 음수: -8000h. 둘 다 다른 사람이 확인한 적이 없습니다. 콘솔이 다르면 두 항목은 `probes/`로 옮깁니다 | `cap-add-wrap`(`values[21]`), `cap-both-negative`(`values[22]`) |
+| GBATEK이 적은 캡처 버그 둘이 실제로 있는가? add 오버플로: 7000h + 7000h가 -2000h로 캡처됨. 둘 다 음수: -8000h. 둘 다 다른 사람이 확인한 적이 없습니다. 다를 때 어떻게 하는지는 아래 "실기 결과 판정" 절에 있습니다 | `cap-add-wrap`(`values[21]`), `cap-both-negative`(`values[22]`) |
 | 채널 0을 캡처 소스(비트 1)로 하면 채널 0 혼자의 값이 나오는가? | `cap-src-channel`, `values[20]` |
 | 캡처 길이 0은 1워드인가? | `cap-len-zero`, `values[18]` |
 | duty 7 PSG 파형은 LOW에 머무는가? (DeSmuME는 예전에 HIGH라고 함) | `snd-duty7-low`, `values[2]` |
@@ -50,9 +50,9 @@ Tonewick은 아직 콘솔에서 측정하지 않았습니다. 이 문서는 그 
 
 | 결과 | 뜻 | 바뀌는 것 (파일, 실행을 기록하는 PR에서) |
 |---|---|---|
-| 값이 매번 범위 안 | GBATEK과 ROM이 맞음 | `expected.json`: `source`는 `hw:ds-lite`, `level_basis`에 `; hw:ds-lite` 추가. 항목은 레벨 2 유지 |
-| 범위를 벗어나지만 매번 같고 설명이 있음(다른 자료가 말하는 버그, 레지스터 미러, 로더) | 기대값이 틀렸고 항목은 문서화됨 | `expected.json`: 범위나 `expect`를 측정값으로 바꾸고 `source`는 `hw:ds-lite`, 설명은 `title`/`level_basis`에. 항목은 레벨 2 유지. 줄의 모델도 따라감(`junction.c`의 10·11번 줄은 GBATEK 버그를 모델로 씁니다) |
-| 값이 실행마다 또는 콘솔마다 다르거나 아무도 설명하지 못함 | 문서화된 동작이 아님: 레벨 4 연구 | `expected.json`: `role`을 `relocate`, `"to": "probes"`로 바꾸고 항목은 참고용(실행을 실패시키지 않음). 이후 PR에서 두 실험을 담은 데모 ROM을 `probes/`에 넣고(에뮬레이터별 `known` 프로필 포함), 항목은 `expected.json`에서 빼며, 지역 감사는 숫자를 원값으로 남겨도 됩니다. 10·11번 줄은 그대로 동작합니다(모델은 GBATEK 버그, 귀의 답은 옆에 표시). `mklevels.py`가 LEVELS와 README 칸을 다시 만듭니다 |
+| 값이 매번 범위 안 | GBATEK과 ROM이 맞음 | `expected.json`: `source`는 `hw:ds-lite`(기종), `level_basis`에 `; hw:docs/HW-QA.md`(실행을 기록한 파일) 추가. 항목은 레벨 2 유지 |
+| 범위를 벗어나지만 매번 같고 설명이 있음(다른 자료가 말하는 버그, 레지스터 미러, 로더) | 기대값이 틀렸고 항목은 문서화됨 | `expected.json`: 범위나 `expect`를 측정값으로 바꾸고 `source`는 `hw:ds-lite`, `level_basis`는 `hw:docs/HW-QA.md`, 설명은 `title`에. 항목은 레벨 2 유지. 줄의 모델도 따라감(`junction.c`의 10·11번 줄은 GBATEK 버그를 모델로 씁니다) |
+| 값이 실행마다 또는 콘솔마다 다르거나 아무도 설명하지 못함 | 문서화된 동작이 아님: 레벨 4 연구 | **한 PR에서 모두 합니다**(`role: relocate` 항목은 `mklevels.py --check`가 실패시키므로 커밋하지 않습니다). 항목은 `expected.json`에서 빠지고, 그 실험을 담은 데모 ROM이 `probes/`에 들어가며(에뮬레이터별 `known` 프로필, `probes/AGENTS.md` 참고), 지역 감사는 숫자를 원값으로 남겨도 되고, 10·11번 줄은 그대로 동작하며(모델은 GBATEK 버그, 귀의 답은 옆에 표시), 프로필의 `ng`에서 항목을 빼고, `mklevels.py`가 LEVELS와 README 칸을 다시 만듭니다 |
 
 실행을 기록하는 사람(콘솔이 있는 관리자)이 PR을 엽니다. 프로필 `hw-ds-lite`는 콘솔에서 실패하는 항목을 나열합니다.
 

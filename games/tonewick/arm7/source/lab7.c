@@ -58,6 +58,11 @@ static bool addr_ok(const CvLabOp *op, u32 size)
     u32 a = op->addr;
     if (a < 0x04000400u || a > 0x04000520u - size || (a & (size - 1)))
         return false;
+    // SNDCAPxCNT takes byte writes only, the LEN registers half-word writes only (a wider write would skip capture_ok()).
+    if (a >= 0x04000508u && a < 0x0400050Cu && op->kind != CV_LAB_W8 && op->kind != CV_LAB_R8 && op->kind != CV_LAB_R32)
+        return false;
+    if ((a == 0x04000514u || a == 0x0400051Cu) && op->kind == CV_LAB_W32)
+        return false;
     if (is_pointer_word(a) && (op->kind == CV_LAB_W8 || op->kind == CV_LAB_W16))
         return false;
     if (is_pointer_word(a) && op->kind == CV_LAB_W32 && !in_main_ram(op->value))

@@ -16,7 +16,7 @@ button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game tonewick` then g
 
 | Question | Item / where it shows |
 |---|---|
-| Do the two capture bugs GBATEK documents exist? Add overflow: 7000h + 7000h captures as -2000h; both negative: -8000h. Neither is confirmed by anyone else; if the console disagrees the two items move to `probes/` | `cap-add-wrap` (`values[21]`), `cap-both-negative` (`values[22]`) |
+| Do the two capture bugs GBATEK documents exist? Add overflow: 7000h + 7000h captures as -2000h; both negative: -8000h. Neither is confirmed by anyone else; what a disagreement leads to is in "Judging the hardware result" below | `cap-add-wrap` (`values[21]`), `cap-both-negative` (`values[22]`) |
 | Does channel 0 as the capture source (bit 1) give the level of channel 0 alone? | `cap-src-channel`, `values[20]` |
 | Is a capture length of 0 one word? | `cap-len-zero`, `values[18]` |
 | Does a PSG wave with duty 7 stay LOW? (DeSmuME used to say HIGH) | `snd-duty7-low`, `values[2]` |
@@ -52,9 +52,9 @@ firmware byte 1Dh in `values[27]`).
 
 | Outcome | What it means | What changes (file, in the PR that records the run) |
 |---|---|---|
-| The value is in the range every time | GBATEK and the ROM are right | `expected.json`: `source` becomes `hw:ds-lite`, `level_basis` gets `; hw:ds-lite`; the item stays level 2 |
-| The value differs from the range, but is the same every run and has an explanation (the bug as another source describes it, a register mirror, the loader) | the expectation was wrong, the item is documented | `expected.json`: range or `expect` changed to the measured value, `source` `hw:ds-lite`, the explanation in `title`/`level_basis`; the item stays level 2; the lines' model in the district file follows (`junction.c` lines 10 and 11 use the GBATEK bug as their model) |
-| The value differs between runs or between consoles, or nobody can explain it | not a documented behaviour: level 4 research | `expected.json`: `role` becomes `relocate` with `"to": "probes"` and the item is informational (never fails a run); in a later PR a demo ROM with the two experiments goes into `probes/` (its `known` profiles per emulator), the item leaves `expected.json`, the district audit may keep the number as a raw value, lines 10 and 11 keep working (their model is the GBATEK bug and the ear's answer is shown beside it); `mklevels.py` regenerates LEVELS and README cells |
+| The value is in the range every time | GBATEK and the ROM are right | `expected.json`: `source` becomes `hw:ds-lite` (the model) and `level_basis` gets `; hw:docs/HW-QA.md` (the file that records the run); the item stays level 2 |
+| The value differs from the range, but is the same every run and has an explanation (the bug as another source describes it, a register mirror, the loader) | the expectation was wrong, the item is documented | `expected.json`: range or `expect` changed to the measured value, `source` `hw:ds-lite`, `level_basis` `hw:docs/HW-QA.md`, the explanation in `title`; the item stays level 2; the lines' model in the district file follows (`junction.c` lines 10 and 11 use the GBATEK bug as their model) |
+| The value differs between runs or between consoles, or nobody can explain it | not a documented behaviour: level 4 research | **One PR does all of it** (a `role: relocate` item fails `mklevels.py --check`, so it is never committed): the item leaves `expected.json`, a demo ROM with the experiment goes into `probes/` (its `known` profiles per emulator, see `probes/AGENTS.md`), the district audit may keep the number as a raw value, lines 10 and 11 keep working (their model is the GBATEK bug and the ear's answer is shown beside it), the profiles drop the item from `ng`, and `mklevels.py` regenerates the LEVELS and README cells |
 
 Whoever records the run (the maintainer, with a console and the QA checklist above) opens the PR; the profile `hw-ds-lite`
 lists the items that fail on the console.

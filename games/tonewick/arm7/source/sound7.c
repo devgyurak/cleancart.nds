@@ -627,10 +627,10 @@ static void snd_address_handler(void *address, void *userdata)
 
     if (*p == CV_LAB_MAGIC)
         lab7_request(address);
+    else if (*p == CV_BANK_MAGIC)
+        bank = address;   // only a pointer: fine during a lab run
     else if (lab_active)
         return;   // streams and recordings wait: the lab owns the channels and the capture units
-    else if (*p == CV_BANK_MAGIC)
-        bank = address;
     else if (*p == CV_REC_MAGIC)
         record_start(address);
     else

@@ -794,7 +794,7 @@
    ]
   },
   "melonds-1.1-gl-classic": {
-   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe, RTC=2026-11-16-15-30-00; QA run with an SD image (no save chip)",
    "ng": [
     "snd-hold-level",
     "cap-src-channel",
@@ -809,7 +809,7 @@
    ]
   },
   "melonds-1.1-gl-compute": {
-   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe, RTC=2026-11-16-15-30-00; QA run with an SD image (no save chip)",
    "ng": [
     "snd-hold-level",
     "cap-src-channel",
@@ -824,7 +824,7 @@
    ]
   },
   "melonds-1.1-software-save-chip": {
-   "emulator": "melonDS 1.1 core, headless runner, software renderer, the game ROM with its emulated 8 KB EEPROM (SAV=..., no SD image: no log, result block only)",
+   "emulator": "melonDS 1.1 core, headless runner, software renderer, RTC=2026-11-16-15-30-00, the game ROM with its emulated 8 KB EEPROM (SAV=..., no SD image: no log, result block only)",
    "ng": [
     "snd-hold-level",
     "cap-src-channel",
@@ -835,7 +835,7 @@
    "na": []
   },
   "desmume-pydesmume-0.0.9": {
-   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip",
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip, local hour 15 (RTC_HOUR=15)",
    "ng": [
     "snd-short-busy",
     "snd-short-silent",
