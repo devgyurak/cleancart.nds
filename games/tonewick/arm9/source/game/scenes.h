@@ -13,6 +13,7 @@ typedef enum {
     SC_ROOM,
     SC_MENU,
     SC_REHEARSAL,
+    SC_LOG,
     SC_CREDITS,
 } TwScene;
 
@@ -31,6 +32,7 @@ TwScene scene_title(void);
 TwScene scene_room(void);
 TwScene scene_menu(void);
 TwScene scene_rehearsal(void);
+TwScene scene_log(void);
 TwScene scene_credits(void);
 
 #endif // TW_SCENES_H

@@ -89,6 +89,7 @@ void qa_game_scene(int id)
             break;
         case SC_MENU:
         case SC_REHEARSAL:
+        case SC_LOG:
         {
             u32 w[QA_GAME_WORDS];
             qa_game_words(w);
