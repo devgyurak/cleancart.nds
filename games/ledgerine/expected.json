@@ -1,0 +1,1214 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 2,
+  "area": "system edges",
+  "about": "Expected result-block values for the Ledgerine rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/ledger.h. Every item reads a flag word (values[1..7]) filled by one room's audit and carries \"done\": the completion bit of that room in values[0] (the rooms-complete items read values[0] itself, qa-verdict reads values[48]; the press-min boot has its own block, id LDPM). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The BIOS items (rule book) grade the BIOS the emulator runs: headless melonDS and the profiles here use its built-in replacement BIOS, a real BIOS dump can differ.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "ledgerine-rehearsal.nds",
+      "item_id": 1213350988,
+      "item_id_text": "LDRH",
+      "frames": 300,
+      "note": "every room's audit in order; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "ledgerine.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 4000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): all six rooms played by key script, the credits; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+    },
+    "press-min": {
+      "rom": "ledgerine-press-min.nds",
+      "item_id": 1297105996,
+      "item_id_text": "LDPM",
+      "frames": 120,
+      "note": "the 64-bit divider overflow check alone (-2^63 / -1, mode 2): DeSmuME's divider hangs the emulator on it, so the rehearsal and the QA run never run it; a CI that grades DeSmuME skips this ROM"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "math-div0",
+      "title": "Division by zero: remainder = numerator, quotient = -1 (+1 for a negative numerator), mode 0 inverts the upper result word, the DIV0 flag is set (modes 0 and 2)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 135,
+      "expect": 135,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "math-div0-flag-upper",
+      "title": "Mode 0 with denominator 0000000100000000h: the DIV0 flag stays clear (it follows the whole 64-bit denominator)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "math-overflow-min32",
+      "title": "-MAX / -1 in mode 0 stays -MAX (reads 0000000080000000h) and sets no DIV0",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "math-overflow-min64",
+      "title": "-MAX / -1 in mode 2 stays -MAX (8000000000000000h) and sets no DIV0 (own ROM: it hangs DeSmuME)",
+      "boots": [
+        "press-min"
+      ],
+      "frame": {
+        "press-min": 120
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "math-mode3",
+      "title": "The reserved divider mode 3 divides like mode 1",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "math-sqrt-edges",
+      "title": "SQRT(2^64-1) = FFFFFFFFh in 64-bit mode; mode 0 ignores the upper half of PARAM",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 768,
+      "expect": 768,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "ipc-empty-last",
+      "title": "An empty FIFO read returns the last word received and sets the error bit",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 3,
+      "expect": 3,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-error-ack",
+      "title": "Writing 1 to IPCFIFOCNT bit 14 clears the error",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-empty-cleared",
+      "title": "An empty read after the remote side cleared its send FIFO returns 0",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-send-full",
+      "title": "The send FIFO is full after 16 words; the 17th write sets the error and is dropped (the other CPU counts 16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-disabled",
+      "title": "FIFO disabled: a write is ignored without error, reads show the oldest word without taking it",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 96,
+      "expect": 96,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-irq-edge",
+      "title": "The receive IRQ is edge-triggered: enabling it with a word waiting raises IF bit 18 once, the acknowledge sticks",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "mask",
+      "mask": 128,
+      "expect": 128,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication; gbatek:DS Interrupts",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "timer-cascade-prescaler",
+      "title": "A count-up timer ignores its prescaler bits: it counts exactly the overflows of the timer before it",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Timers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "timer-start32-reload",
+      "title": "One 32-bit write of reload and start loads the new reload (counter in R..R+2 straight after)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Timers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "timer-reload-deferred",
+      "title": "A reload written while the timer runs waits for the next overflow; writing the control register again with start still 1 does not reload",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 12,
+      "expect": 12,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Timers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "timer-frozen-read",
+      "title": "A stopped timer reads its frozen counter (equal a frame apart)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Timers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "dma-repeat-src-advance",
+      "title": "A VBlank repeat DMA does not reload SAD: frame k copies the k-th piece of the source",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "dma-repeat-dst",
+      "title": "Repeat reloads DAD only in Increment/Reload mode; mode 0 continues where the last repeat stopped",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "mask",
+      "mask": 6,
+      "expect": 6,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "dma-regs-unchanged",
+      "title": "After a transfer SAD, DAD and CNT_L read their initial values and the enable bit is off",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "dma-itcm-runs",
+      "title": "The CPU keeps running ITCM code while a long DMA runs (DMA plus an ITCM loop half its length takes about the DMA alone)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "wram-half-swap",
+      "title": "WRAMCNT 1 / 2 give the ARM9 the second / first 16 KB, mirrored over all of 03xxxxxxh",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "mask",
+      "mask": 7,
+      "expect": 7,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Memory Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "wram-arm7-mirror",
+      "title": "With 0 KB of shared WRAM for the ARM7, 03000000h mirrors the ARM7 WRAM and WRAMSTAT reads 0",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Memory Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "vram-byte-write",
+      "title": "ARM9 byte writes (STRB) to LCDC VRAM, palette and OAM are ignored",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Memory Control - VRAM",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "vram-fg-offset",
+      "title": "Bank G as main BG VRAM with OFS 2 / 3 shows at 06010000h / 06014000h",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Memory Control - VRAM",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "vram-arm7-bytes",
+      "title": "Bank C given to the ARM7 with OFS 1 takes the ARM7 byte stores; VRAMSTAT bit 0 reads 1 whatever the offset",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Memory Control - VRAM",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "bios-fastset-any-count",
+      "title": "NDS CpuFastSet writes exactly 5 and exactly 13 words (no rounding up to 8)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:BIOS Memory Copy",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "bios-lz77-disp0",
+      "title": "LZ77 (SWI 11h): a block with displacement field 0 repeats the last byte",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:BIOS Decompression Functions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "bios-bitunpack-zero",
+      "title": "BitUnPack: the Zero Data Flag adds the offset to zero units, without it zeroes stay zero",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:BIOS Decompression Functions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "bios-rl-max",
+      "title": "RLUnComp: a 130-byte run and a 128-byte literal",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:BIOS Decompression Functions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "bios-arm7-guard",
+      "title": "ARM7 CpuSet from a source in the BIOS area writes nothing",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:BIOS Memory Copy",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "pre-math-divide",
+      "title": "Plain divide: 1000 / 7 = 142 remainder 6",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Maths",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "pre-ipc-roundtrip",
+      "title": "IPC round trip: 16 words A0..A15 arrive in order and the other CPU counts the 16 words of the burst",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "pre-wram-take",
+      "title": "WRAMCNT 0 gives the ARM9 all 32 KB of shared WRAM",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Memory Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "pre-timer-irq",
+      "title": "A timer overflow raises its IRQ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Timers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "pre-vram-lcdc-alias",
+      "title": "Data written through bank A in LCDC mode shows when A is mapped as main BG VRAM",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Memory Control - VRAM",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "pre-bios-fastset8",
+      "title": "CpuFastSet of 8 words",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:BIOS Memory Copy",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "pre-bios-div",
+      "title": "BIOS Div(-1234, 10) = -123",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:BIOS Arithmetic Functions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "pre-dma-decrement",
+      "title": "Source decrement with destination increment reverses a block",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "rooms-complete",
+      "title": "All six rooms ran their audit to the end",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        0
+      ],
+      "check": "mask",
+      "mask": 63,
+      "expect": 63,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "rehearsal-done",
+      "title": "The rehearsal ran every room and published its block",
+      "boots": [
+        "rehearsal"
+      ],
+      "frame": {
+        "rehearsal": 300
+      },
+      "values": [
+        0
+      ],
+      "check": "mask",
+      "mask": 256,
+      "expect": 256,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run ended with PASS (QARN verdict 1)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    }
+  ],
+  "known": {
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer, built-in replacement BIOS",
+      "ng": [
+        "ipc-empty-last",
+        "dma-itcm-runs",
+        "bios-arm7-guard"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe, built-in replacement BIOS",
+      "ng": [
+        "ipc-empty-last",
+        "dma-itcm-runs",
+        "bios-arm7-guard"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe, built-in replacement BIOS",
+      "ng": [
+        "ipc-empty-last",
+        "dma-itcm-runs",
+        "bios-arm7-guard"
+      ],
+      "na": []
+    },
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS; the press-min ROM is not graded (DeSmuME's divider hangs the emulator on -2^63 / -1)",
+      "ng": [
+        "math-div0",
+        "ipc-empty-last",
+        "ipc-disabled",
+        "timer-reload-deferred",
+        "dma-regs-unchanged",
+        "dma-itcm-runs",
+        "bios-arm7-guard"
+      ],
+      "na": []
+    }
+  }
+}

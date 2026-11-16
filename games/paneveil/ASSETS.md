@@ -9,7 +9,7 @@ are original work under the same copyright and licence as the source:
 **Apache-2.0** (Copyright 2026 devgyurak, the cleancart.nds maintainer).
 
 The generator is `tools/mkassets.py`; the code that draws, synthesises and lays out
-lives in `tools/cvtools/` (shared with the other games). The same source always produces the same bytes.
+lives in `tools/cvtools/` (shared with the other games, plus `pvart.py` of its own). The same source always produces the same bytes.
 
 The PNG files in `docs/images/` (if any) are README screenshots captured from the
 built ROM. They are documentation, not assets: the build never reads them and they
@@ -20,7 +20,9 @@ are not in the ROM.
 | `cv_font_tiles` | 5x7 pixel font (ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS` (glyphs drawn as strings) | original, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
-| `cv_song_*`, `cv_song_names` | the songs, composed by code and shared with the other games; only `lantern` is played (the credits) | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `cv_title_tiles`, `cv_title_map`, `cv_title_pal` | the title lettering "PANEVEIL": 24 x 4 tiles (4bpp) cut in glass, dark lead came around each letter and between diamond panes of eight colours, plus a blank and a solid panel tile; one 16-colour palette line (BG palette line 8) | `cvtools/pvart.py` `title_lettering()` | original, Apache-2.0 |
+| `pv_title_preset` | the twelve window settings of the rose behind the title (clear glass, 8 petals, 3 rings; no order of chapters 1-5 asks for it, `tools/tests/test_title.py`) | `cvtools/pvart.py` `TITLE_PRESET` | original, Apache-2.0 |
+| `cv_song_*`, `cv_song_names` | the song `clerestory` (slow minor pad piece, no drums), composed by code; played on the title and in the credits | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
 | `cv_tex_chevron`, `cv_tex_arc`, `cv_tex_bars` | the three glass motifs, 32x32, 8 bits per texel (indices 0-7, index 0 is the cut-out colour), drawn as geometry (a leaning V, quarter-circle bands, staggered bars) with a lead rim | `tools/glassgen.py` `motif()` | original, Apache-2.0 |
 | `cv_tex_lbox` | the light box texture, 8x8, 8 bits per texel, an asymmetric index table with four index-0 holes | `tools/glassgen.py` `LBOX` | original, Apache-2.0 |
 | `cv_pal_tex` | the texture palette block: eight sets of eight colours (sets 0-3 amber, ruby, sea, violet glass from an HSV ramp; sets 4-7 light box colours) | `tools/glassgen.py` `palette_block()` | original, Apache-2.0 |

@@ -25,7 +25,6 @@
 void (*pv_play_hook)(void);
 
 static PlayView pv;
-static bool glass_ready;
 static bool kiln_good, kiln_done;
 static CvText top_text, bot_text;
 static u32 turn;
@@ -49,39 +48,10 @@ static bool load_window(void)
     return win_find(pv_chapter, pv_index, &pv.win) >= 0;
 }
 
-// 3D top screen (engine A: BG0 3D, BG1 text) and a text bottom screen (engine B).
 static void enter_3d(void)
 {
-    display_reset();
-    vram_layout(VL_JUDGE);
-    g3_textures_reset();
-    g3_textures_load();
-    if (!glass_ready)
-    {
-        glass_init();
-        glass_ready = true;
-    }
-    glDisable(GL_FOG | GL_FOG_ONLY_ALPHA | GL_OUTLINE | GL_ANTIALIAS | GL_TOON_HIGHLIGHT | GL_CLEAR_BMP
-              | GL_ALPHA_TEST);
-    glEnable(GL_TEXTURE_2D | GL_BLEND);
-    glClearColor(3, 3, 8, 31);
-    glClearPolyID(63);
-    glClearDepth(0x7FFF);
-    REG_DISPCNT = MODE_0_3D | DISPLAY_BG1_ACTIVE;
-    REG_BG0CNT = 1;
-    REG_BG1CNT = 0 | (0 << 2) | (31 << 8);
-    text_load_tiles(MAIN_BG);
-    text_load_palette(CV_PAL_BG_MAIN);
-    text_init(&top_text, (u16 *)(MAIN_BG + 31 * 2048), 0);
-    text_clear(&top_text);
-    REG_DISPCNT_SUB = MODE_0_2D | DISPLAY_BG0_ACTIVE;
-    REG_BG0CNT_SUB = 0 | (0 << 2) | (31 << 8);
-    text_load_tiles(SUB_BG);
-    text_load_palette(CV_PAL_BG_SUB);
-    CV_PAL_BG_SUB[0] = RGB15(2, 2, 6);
-    text_init(&bot_text, (u16 *)(SUB_BG + 31 * 2048), 0);
-    text_clear(&bot_text);
-    fx_bright(FX_BOTH, 0);
+    display_3d_top(&top_text, &bot_text);
+    glass_init();
 }
 
 static void enter_2d(void)

@@ -172,7 +172,7 @@ EvScene scene_credits(void)
 {
     CvText main_text, sub_text;
     scene_text_screens(&main_text, &sub_text);
-    snd_bgm(CV_SONG_LANTERN);
+    snd_bgm(CV_SONG_WORKBENCH);
     text_center(&sub_text, 20, TP_GRAY, "X: LICENSE VIEWER  B: BACK");
     fx_bright(FX_BOTH, 0);
     int scroll = 0;

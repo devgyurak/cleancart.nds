@@ -6,7 +6,7 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 
 | Scene | Check | Status |
 |---|---|---|
-| Title | "PANEVEIL" and the tagline on the top screen, X hint at the bottom of it; licence, ARM7 and save lines on the bottom screen. Start opens the window list, X the credits | headless run: see below; not yet by hand in melonDS |
+| Title | the 3D rose window (a preset of its own) turning behind the glass lettering "PANEVEIL", on a dark panel with the tagline, a blinking PRESS START and the X hint, the clerestory theme playing (stopped when leaving); licence, ARM7 and save lines on the bottom screen. Start opens the window list, X the credits | headless run: see below; not yet by hand in melonDS |
 | Window list | "CHAPTER n" header, the six windows of the chapter, left/right changes the chapter, A starts, B back | headless run only |
 | Window (3D) | top: the rose window turning about the vertical axis against the backlight, lead frame; bottom: the 12 settings (NOW / ORDER), steps and par, `KILN OK` lamp. Up/down chooses a setting, left/right turns it one step, A fires when everything matches ("FIRED ***"), A again goes to the next window, B list. Select: 2D schematic (the same state as text), solvable without 3D | ✅ melonDS 1.1 software (screenshots of 2-01 looked at); hands-on feel not checked |
 | Title → X (credits) | scrolling credits (libnds, BlocksDS crts MPL-2.0 with source URL, picolibc, libgcc); X opens the licence viewer (every text of `licenses/`, X next file, B back); without NitroFS the viewer says "CART FILES NOT AVAILABLE" | not yet checked |
