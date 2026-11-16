@@ -22,8 +22,9 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 
 1. Build the release ROMs: `games/<game>/build.sh -j8 release` (probes: `probes/build.sh -j8 release`).
    Note `shasum -a 256` of every ROM that goes on the card.
-2. Copy to the R4 card: the game ROM, `build/release/demos/*.nds` and the rehearsal/judge ROM of the
-   game (`build/release/judge/`); for probes `build/release/demos/*.nds`.
+2. Copy to the R4 card: the game ROM and `build/release/demos/*.nds` (the rehearsal and judge ROMs are
+   in `demos/` too; do not copy `judge/` as well); for probes `build/release/demos/*.nds`. Hushwell: only the
+   demos its `expected.json` lists are graded.
 3. Create the **empty folder** `cleancart/<kit>/` for every kit that will run (this is what turns on
    the result files). For the games you want QA-run, create the empty file `cleancart/<game>/autoqa`.
 4. Tell the user: put the card in, power on.
@@ -34,7 +35,8 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
   credits (Corvane about 4 minutes, the others longer). Nothing is drawn for it. Then power off.
 - **Demos, probes:** start each ROM from the R4 menu one after another. When `RESULT SAVED` shows,
   that ROM is done; reset to the menu and start the next one. A ROM that never shows it either did not
-  reach its checkpoint or has no folder: say which ROM.
+  reach its checkpoint or has no folder: say which ROM. Exceptions that write silently: the rehearsals
+  and Lightenette `acc-stage` (their screens are full); look for the file instead.
 - **Rehearsal (Lightenette, Elevane):** start it, touch nothing; the result screen appears after about
   a minute. The file is written silently when that screen shows.
 - Items that need the test harness' input (touch, keys) have `"env"` and are n/a on hardware; if a demo

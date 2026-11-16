@@ -7,7 +7,7 @@ Lightenette(L2)는 리허설, `l2-*` 데모, 자동 QA 실행으로 판정합니
 
 ## 카드에 넣을 것
 
-- ROM: `build/release/rom/lightenette.nds`, `build/release/demos/*.nds`, `build/release/judge/lightenette-rehearsal.nds`
+- ROM: `build/release/rom/lightenette.nds`, `build/release/demos/*.nds` (리허설과 `acc-stage` ROM도 demos에 들어 있음)
 - 빈 폴더 `cleancart/lightenette/` (없으면 ROM이 아무것도 쓰지 않음) 및 QA 실행용 빈 파일 `cleancart/lightenette/autoqa`
 
 ## 실행

@@ -22,8 +22,6 @@ probe(L4)는 기준값이 없는 연구용 ROM이고, 실기 값이 그 목적�
 | 날짜, 콘솔, 카드, R4 커널 | |
 | ROM SHA-256 | |
 | `ingest.py` / `judge.py --hardware` 요약 | |
-| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | |
-| melonDS와 처음 갈리는 체크포인트 | |
 | 랙 프레임 | |
 
 | 항목 | 실기 | melonDS 1.1 soft | GL | Compute | DeSmuME | 차이? |

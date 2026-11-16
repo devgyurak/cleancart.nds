@@ -13,7 +13,7 @@ Corvane(L1, 그래픽·시스템)은 데모와 자동 QA 실행으로 판정합�
 ## 실행
 
 1. 게임 QA: `corvane.nds`를 켜고 크레딧까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
-2. 데모·리허설: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면(리허설은 결과 화면이 뜰 때 조용히 기록) 리셋합니다.
+2. 데모: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면 리셋합니다.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game corvane`.
 
 ## 기록 (실행마다 한 블록)

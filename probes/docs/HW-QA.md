@@ -23,9 +23,6 @@ the probe item has a new reference value (recorded as proposed below).
 | Date, console, card, R4 kernel | |
 | ROM SHA-256s | |
 | `ingest.py` / `judge.py --hardware` summary | |
-| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | |
-| First checkpoint that differs from melonDS | |
-| Lag frames | |
 
 | Item | Hardware | melonDS 1.1 soft | GL | Compute | DeSmuME | Differs? |
 |---|---|---|---|---|---|---|

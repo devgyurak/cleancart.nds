@@ -14,7 +14,7 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 ## Run
 
 1. Game QA: start `corvane.nds`, leave it alone until the credits (the marker file starts QA on the title).
-2. Demos and rehearsal: start each ROM one by one; wait for `RESULT SAVED` (the rehearsal writes silently when its result screen shows), then reset.
+2. Demos: start each ROM one by one; wait for `RESULT SAVED`, then reset.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game corvane`.
 
 ## Record (one block per run)

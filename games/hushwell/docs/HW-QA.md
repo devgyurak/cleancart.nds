@@ -8,13 +8,13 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 ## What to put on the card
 
-- ROMs: `build/release/rom/hushwell.nds`, `build/release/demos/*.nds`
+- ROMs: `build/release/rom/hushwell.nds`, the judged demos from `build/release/demos/` (the other demos are not graded; run them by hand if wanted): `sys-ipc.nds`, `sys-dma-cart.nds`, `sys-keys.nds`, `snd-mix.nds`, `snd-pcm.nds`, `snd-adpcm.nds`, `snd-psg.nds`, `snd-capture.nds`, `snd-stream.nds`, `io-cart.nds`, `io-save-eeprom.nds`, `io-save-flash.nds`, `io-save-fram.nds`, `io-firmware.nds`, `io-rtc.nds`, `io-touch.nds`, `io-power.nds`, `snd-wave.nds`
 - The empty folder `cleancart/hushwell/` (without it the ROMs write nothing) and the empty file `cleancart/hushwell/autoqa` for the QA run
 
 ## Run
 
 1. Game QA: start `hushwell.nds`, leave it alone until the credits (the marker file starts QA on the title).
-2. Demos and rehearsal: start each ROM one by one; wait for `RESULT SAVED` (the rehearsal writes silently when its result screen shows), then reset.
+2. Demos: start each ROM one by one; wait for `RESULT SAVED`, then reset.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game hushwell`.
 
 ## Record (one block per run)

@@ -8,7 +8,7 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 ## What to put on the card
 
-- ROMs: `build/release/rom/lightenette.nds`, `build/release/demos/*.nds`, `build/release/judge/lightenette-rehearsal.nds`
+- ROMs: `build/release/rom/lightenette.nds`, `build/release/demos/*.nds` (the rehearsal and `acc-stage` ROMs are among the demos)
 - The empty folder `cleancart/lightenette/` (without it the ROMs write nothing) and the empty file `cleancart/lightenette/autoqa` for the QA run
 
 ## Run

@@ -7,13 +7,13 @@ Hushwell(L1, 사운드·I/O)은 데모와 자동 QA 실행으로 판정합니다
 
 ## 카드에 넣을 것
 
-- ROM: `build/release/rom/hushwell.nds`, `build/release/demos/*.nds`
+- ROM: `build/release/rom/hushwell.nds`, `build/release/demos/`에서 채점 대상 데모만(나머지 데모는 채점하지 않으니 원하면 손으로 실행): `sys-ipc.nds`, `sys-dma-cart.nds`, `sys-keys.nds`, `snd-mix.nds`, `snd-pcm.nds`, `snd-adpcm.nds`, `snd-psg.nds`, `snd-capture.nds`, `snd-stream.nds`, `io-cart.nds`, `io-save-eeprom.nds`, `io-save-flash.nds`, `io-save-fram.nds`, `io-firmware.nds`, `io-rtc.nds`, `io-touch.nds`, `io-power.nds`, `snd-wave.nds`
 - 빈 폴더 `cleancart/hushwell/` (없으면 ROM이 아무것도 쓰지 않음) 및 QA 실행용 빈 파일 `cleancart/hushwell/autoqa`
 
 ## 실행
 
 1. 게임 QA: `hushwell.nds`를 켜고 크레딧까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
-2. 데모·리허설: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면(리허설은 결과 화면이 뜰 때 조용히 기록) 리셋합니다.
+2. 데모: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면 리셋합니다.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game hushwell`.
 
 ## 기록 (실행마다 한 블록)
