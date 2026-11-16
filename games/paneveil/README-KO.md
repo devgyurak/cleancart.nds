@@ -18,9 +18,9 @@ restore, 투영 스택, GXSTAT 스택 레벨), 행렬 load/multiply(CLIPMTX_RESU
 지오메트리 명령(packed GXFIFO와 직접 포트, 버텍스 포맷 6종), 폴리곤 속성(앞/뒷면, alpha,
 와이어프레임, 깊이 시험), 텍스처 속성(repeat, flip, clamp, 색 0, 팔레트 base, 텍스처 좌표 원천).
 
-**상태.** 1장(유리)과 2장(문양)을 플레이할 수 있습니다. 창 12개, 위 화면의 3D 창, 아래 화면의 설정, 2D 도식
+**상태.** 1장(유리), 2장(문양), 3장(장미창), 4장(마감)을 플레이할 수 있습니다. 창 24개, 위 화면의 3D 창, 아래 화면의 설정, 2D 도식
 모드(Select), 가마 램프, 리허설과 그 판정기(가마 점검과 라이트박스, 30항목), 숨은 자동 QA 실행이 있습니다.
-3~5장은 아직 없습니다. 실기에서 측정한 값은 없습니다.
+5장은 아직 없습니다. 실기에서 측정한 값은 없습니다.
 
 - 언어: C(게임, ARM9 + 자체 ARM7 코어), Python 3(빌드 시점 도구)
 - 툴체인: BlocksDS v1.25.0(Docker 이미지를 digest로 고정)
@@ -49,9 +49,9 @@ restore, 투영 스택, GXSTAT 스택 레벨), 행렬 load/multiply(CLIPMTX_RESU
 렌더러도 관여하지 않습니다.
 
 ```sh
-tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 1000 out/pv "" 999 \
   | python3 games/paneveil/tools/judge.py --profile melonds-1.1-software
-RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 1000 out/pv "" 999 \
   | python3 games/paneveil/tools/judge.py --profile desmume-pydesmume-0.0.9
 ```
 

@@ -1,0 +1,7 @@
+# Chapter 3 ROSE: petals and rings (the matrix stack: push, rotate, pop per petal; store and restore per ring).
+SIX PETALS: petals=6
+TWIN RING: petals=5 rings=2
+TRIPLE RING: petals=8 rings=3
+RUBY ROSE: petals=7 rings=2 colour=RUBY
+SMOKED ROSE: petals=8 rings=3 tint=TINT
+GRAND ROSE: petals=7 rings=3 motif=ARC colour=VIOLET

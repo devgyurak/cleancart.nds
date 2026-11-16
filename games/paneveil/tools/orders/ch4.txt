@@ -1,0 +1,7 @@
+# Chapter 4 FINISH: the decal overlay (depth test equal) and the grain (texture coordinate mode 1).
+DECAL: decal=ON
+GRAIN ONE: grain=1
+GRAIN TURN: decal=ON grain=3
+SEA DECAL: colour=SEA decal=ON grain=2
+CUT GRAIN: motif=BARS cutout=CUT decal=ON grain=1
+SLOW GRAIN: colour=VIOLET repeat=2X flip=T grain=2
