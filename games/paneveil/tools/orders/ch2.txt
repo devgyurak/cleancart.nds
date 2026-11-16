@@ -1,0 +1,7 @@
+# Chapter 2 PATTERN: motif, repeat, mirror, edge, colour and cutout (texture attributes).
+ARC LEAF: motif=ARC
+TWO BARS: motif=BARS repeat=2X
+MIRROR ARC: motif=ARC repeat=2X flip=S
+CLAMPED: motif=BARS repeat=4X edge=CLAMP
+RUBY CUT: motif=ARC colour=RUBY cutout=CUT
+SEA MIRROR: motif=BARS repeat=4X flip=ST colour=SEA cutout=CUT

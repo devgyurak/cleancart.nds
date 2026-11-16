@@ -20,9 +20,10 @@ store, restore, the projection stack and the GXSTAT stack level), matrix load/mu
 formats), polygon attributes (front/back face, alpha, wireframe, depth test) and texture attributes
 (repeat, flip, clamp, colour 0, palette base, texture coordinate source).
 
-**Status.** Scaffold: title, window list, credits with the licence viewer and the hidden auto QA
-run. The windows, the play scene and the judge are still to come. Nothing has been measured on real
-hardware.
+**Status.** Chapters 1 (glass) and 2 (pattern) are playable: twelve windows, the 3D window on the top
+screen, the settings on the bottom screen, a 2D schematic mode (Select), the kiln lamp, the rehearsal and its judge
+(kiln check and light box: 30 items) and the hidden auto QA run. Chapters 3 to 5 are still to come. Nothing has been
+measured on real hardware.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)

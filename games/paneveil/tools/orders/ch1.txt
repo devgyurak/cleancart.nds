@@ -1,0 +1,7 @@
+# Chapter 1 GLASS: the side and the tint of the glass (polygon attributes).
+FIRST PANE: side=BOTH
+SMOKED: tint=TINT
+BACK GLASS: side=BACK tint=TINT
+SKETCH: side=BOTH tint=SKETCH
+DEEP BACK: side=BACK tint=SKETCH
+DOUBLE TINT: side=BOTH tint=TINT

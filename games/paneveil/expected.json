@@ -13,7 +13,7 @@
       "rom": "paneveil-rehearsal.nds",
       "item_id": 1213355600,
       "item_id_text": "PVRH",
-      "frames": 400,
+      "frames": 300,
       "note": "the kiln check, the light box and a scripted play of the first window of every chapter; no save chip, no NitroFS"
     },
     "qa": {
@@ -33,6 +33,53 @@
   },
   "items": [
     {
+      "id": "play-windows",
+      "title": "The rehearsal baked the first window of every chapter that has windows (2 windows)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 2,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "target",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "play-capture-done",
+      "title": "All five light-box captures finished (flags bits 8-12)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        0
+      ],
+      "check": "mask",
+      "mask": 7936,
+      "expect": 7936,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode",
+      "model": null
+    },
+    {
       "id": "mtx-push-level",
       "title": "Three pushes leave the position stack at level 3 (GXSTAT bits 8-12)",
       "boots": [
@@ -40,7 +87,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -63,7 +110,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -86,7 +133,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -109,7 +156,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -132,7 +179,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -155,7 +202,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -178,7 +225,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -201,7 +248,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -224,7 +271,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -247,7 +294,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -270,7 +317,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -293,7 +340,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -316,7 +363,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 400,
+        "rehearsal": 300,
         "qa": 1
       },
       "values": [
@@ -330,12 +377,436 @@
       "level": 1,
       "level_basis": "gbatek:DS 3D Geometry Commands",
       "model": null
+    },
+    {
+      "id": "gx-vtx-formats",
+      "title": "Six quads, each in another vertex format (VTX_16, VTX_10, XY, XZ, YZ, DIFF), all land where they belong (6 of 6 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        16
+      ],
+      "check": "eq",
+      "expect": 6,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 256
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-cull-default",
+      "title": "Default culling shows front faces only: 4 front quads drawn, 4 back quads hidden (8 of 8 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        17
+      ],
+      "check": "eq",
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 256
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-back-render",
+      "title": "The back render bit shows back faces, the cleared front bit hides front faces (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        18
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 256
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-alpha-half",
+      "title": "Alpha 16 over an opaque quad mixes about half and half: 12 to 16 of 16 samples within 3 levels",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        19
+      ],
+      "check": "range",
+      "min": 12,
+      "max": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 512
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-wire-hollow",
+      "title": "Alpha 0 (wireframe) leaves the inside transparent: the quad behind shows (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        20
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 512
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-wire-edges",
+      "title": "Alpha 0 draws the edges: edge-coloured pixels in the bands across the quads top edges (1 to 64 of 28)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        21
+      ],
+      "check": "range",
+      "min": 1,
+      "max": 64,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 512
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-depth-equal",
+      "title": "Depth test Equal draws a coplanar polygon over the first (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        22
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1024
+      },
+      "pixels": true
+    },
+    {
+      "id": "poly-depth-less",
+      "title": "Depth test Less hides a coplanar polygon (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1024
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-repeat",
+      "title": "Repeat S and repeat T show the texture again (8 of 8 texel samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        24
+      ],
+      "check": "eq",
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2048
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-flip",
+      "title": "Flip S and flip T mirror every second repeat (8 of 8 texel samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        25
+      ],
+      "check": "eq",
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2048
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-clamp",
+      "title": "Without repeat the edge texels are stretched (4 of 4 texel samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        26
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2048
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-colour0-hidden",
+      "title": "Colour 0 made transparent shows what lies behind (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        27
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4096
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-colour0-shown",
+      "title": "Colour 0 displayed shows palette entry 0 (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        28
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4096
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-pltt-base",
+      "title": "PLTT_BASE picks the palette set (4 of 4 texel samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        29
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Attributes",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4096
+      },
+      "pixels": true
+    },
+    {
+      "id": "tex-coord-mode1",
+      "title": "Transformation mode 1 applies the texture matrix: a swap of S and T transposes the texture (4 of 4 samples)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        30
+      ],
+      "check": "eq",
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Coordinates",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4096
+      },
+      "pixels": true
     }
   ],
   "known": {
     "desmume-pydesmume-0.0.9": {
       "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
-      "ng": [],
+      "ng": [
+        "poly-wire-edges"
+      ],
       "na": []
     },
     "melonds-1.1-software": {
@@ -345,7 +816,9 @@
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-      "ng": [],
+      "ng": [
+        "poly-wire-edges"
+      ],
       "na": []
     },
     "melonds-1.1-gl-compute": {

@@ -7,6 +7,7 @@
 #include "core/dma.h"
 #include "core/hw.h"
 #include "gfx/gl3d.h"
+#include "gfx/vram.h"
 
 // ---------------------------------------------------------------------------
 // Display lists
@@ -321,19 +322,17 @@ bool g3_overflowed(void)
 
 typedef struct {
     const void *data;
-    const void *pal;
-    u32 pal_bytes;
-    GL_TEXTURE_TYPE_ENUM type;
     int size;
-    int params;
 } TexDesc;
 
 static const TexDesc tex_desc[TEX_COUNT] = {
-    [TEX_PAPER]   = { cv_tex_paper, NULL, 0, GL_RGBA, 32,
-                      GL_TEXTURE_WRAP_S | GL_TEXTURE_WRAP_T | TEXGEN_TEXCOORD },
+    [TEX_CHEVRON] = { cv_tex_chevron, 32 },
+    [TEX_ARC]     = { cv_tex_arc, 32 },
+    [TEX_BARS]    = { cv_tex_bars, 32 },
+    [TEX_LBOX]    = { cv_tex_lbox, 8 },
 };
 
-static int tex_name[TEX_COUNT];
+static u32 tex_param[TEX_COUNT];   // TEXIMAGE_PARAM without the flag bits
 static bool tex_loaded[TEX_COUNT];
 
 void g3_textures_reset(void)
@@ -343,29 +342,44 @@ void g3_textures_reset(void)
         tex_loaded[i] = false;
 }
 
-bool g3_texture_load(CvTex t)
+static void load_palette(void)
 {
-    const TexDesc *d = &tex_desc[t];
-    if (tex_loaded[t])
-        return true;
-    glGenTextures(1, &tex_name[t]);
-    glBindTexture(0, tex_name[t]);
-    if (!glTexImage2D(0, 0, d->type, d->size, d->size, 0, d->params, d->data))
-        return false;
-    if (d->pal)
-        glColorTableEXT(0, 0, d->pal_bytes / 2, 0, 0, d->pal);
-    tex_loaded[t] = true;
+    // The palette block lives at offset 0 of the texture palette bank: write it while the bank is LCDC.
+    vram_set(VB_G, 0, 0);
+    const u16 *src = (const u16 *)cv_pal_tex;
+    vu16 *dst = (vu16 *)0x06894000;
+    for (int i = 0; i < 64; i++)
+        dst[i] = src[i];
+    vram_set(VB_G, 3, 0);
+}
+
+bool g3_textures_load(void)
+{
+    for (int t = 0; t < TEX_COUNT; t++)
+    {
+        const TexDesc *d = &tex_desc[t];
+        int name;
+        glGenTextures(1, &name);
+        glBindTexture(0, name);
+        if (!glTexImage2D(0, 0, GL_RGB256, d->size, d->size, 0, 0, d->data))
+            return false;
+        // libnds knows the address and size encoding: keep its parameter, replace the flags.
+        tex_param[t] = glGetTexParameter() & ~(0xFu << 16 | 3u << 29 | 1u << 29 | 3u << 30);
+        tex_loaded[t] = true;
+    }
+    load_palette();
     return true;
 }
 
-void g3_texture_bind(CvTex t)
+void g3_tex_set(CvTex t, u32 flags, int pal_set)
 {
     if (t >= TEX_COUNT || !tex_loaded[t])
     {
         GFX_TEX_FORMAT = 0;
         return;
     }
-    glBindTexture(0, tex_name[t]);
+    GFX_TEX_FORMAT = tex_param[t] | flags;
+    GFX_PAL_FORMAT = (u32)pal_set;
 }
 
 int g3_texture_size(CvTex t)

@@ -9,8 +9,7 @@ Repo-wide rules are in `../../AGENTS.md`. Created from elevane (which came from 
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's layers (keep fixes
 in sync when they apply to all games).
 
-Status: scaffold (title, window list, credits with the licence viewer, QA mode). Not yet: the
-windows, the play scene, the judge. Target level 1, area "3D geometry and texturing"
+Status: chapters 1 and 2 (twelve windows), play scene, kiln check, light box, QA mode. Chapters 3 to 5 follow. Target level 1, area "3D geometry and texturing"
 (GBATEK sections no other game judges: matrix stack, matrix load/multiply, geometry commands,
 polygon attributes, texture attributes, texture coordinates).
 
@@ -42,7 +41,7 @@ polygon attributes, texture attributes, texture coordinates).
 
 - `arm9/source/main.c`: init, scene loop.
 - `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (chapter and
-  window list, every window open), `play.c` (one window), `window.c/.h` (the `cv_windows` blob, the
+  window list, every window open), `play.c` (one window: 3D top screen or the 2D schematic, the settings list, the kiln lamp, bake; `pv_play_hook` lets the rehearsal replace the input), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot: the first wrong setting, down to it, left or right the short way, A), `window.c/.h` (the `cv_windows` blob, the
   setting model, par arithmetic; pure logic), `credits.c` (credits and the licence viewer; NitroFS
   needed only here), `qa_game.c` + `qa_tune.h`, `rehearsal.c/.h`.
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them
@@ -57,6 +56,18 @@ polygon attributes, texture attributes, texture coordinates).
   file (row-major matrices, `C = M * C`, clip = position * projection, GBATEK "DS 3D Matrix Load/Multiply").
   Matrices only hold values that are exact in 1.19.12 (no rounding dependence). It draws nothing; the game
   runs it once for the kiln lamp, the rehearsal for `values[3..15]`. `reset()` first empties both stacks.
+- `arm9/source/gfx/glass.c/.h`: the window from the twelve settings (`window.h` `F_*`): side -> polygon render bits,
+  tint -> alpha 31/16/0, motif/repeat/flip/edge/colour/cutout -> TEXIMAGE_PARAM + PLTT_BASE (`g3_tex_set()`),
+  petals and rings -> push / rotate / pop per petal and store / restore per ring, decal -> a second pass with depth test
+  Equal, grain -> texture matrix + transformation mode 1; the lead frame is a display list built once with VTX_16, VTX_XY and
+  VTX_10 vertices and sent through the packed GXFIFO. Textures are 8 bits per texel (indices 0-7) sharing one palette block of
+  eight sets of eight colours (`tools/glassgen.py`): PLTT_BASE n picks set n; libnds uploads the texture, `g3_textures_load()`
+  writes the palette into bank G and keeps libnds' address and size bits in each texture's parameter.
+- `arm9/source/judge/lightbox.c/.h`: the light box, five still scenes with identity matrices (vertex = screen pixel;
+  x exact, y exact for multiples of 3), fixed colours, captured into bank D; items count samples of the right colour at texel
+  centres at least 3 px inside a polygon (edge rules never decide). Scenes: 1 vertex formats and culling, 2 alpha and wireframe,
+  3 depth test, 4 repeat/flip/clamp, 5 colour 0, PLTT_BASE, coordinate mode 1. libnds leaves the last uploaded texture bound:
+  the frame loop unbinds with `g3_tex_set(TEX_COUNT, 0, 0)` first. Result `values[16..30]`, capture bits in flags 8-12.
 - `expected.json` + `tools/judge.py` (from lightenette: boots `rehearsal` and `qa`, exit 0 pass, 1 NG / profile
   mismatch, 2 no usable result) + `tools/tests/test_judge.py`. Items from GBATEK / `rom` gate, `unconfirmed` ones are
   informational. `known` has one profile per emulator version and renderer (DeSmuME, melonDS 1.1 software / GL Classic /

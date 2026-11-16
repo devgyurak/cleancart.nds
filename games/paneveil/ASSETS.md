@@ -21,7 +21,9 @@ are not in the ROM.
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the songs, composed by code and shared with the other games; only `lantern` is played (the credits) | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
-| `cv_tex_paper` | 32x32 direct-colour paper texture (placeholder until the glass motifs land) | `images.textures()` `paper` | original, Apache-2.0 |
+| `cv_tex_chevron`, `cv_tex_arc`, `cv_tex_bars` | the three glass motifs, 32x32, 8 bits per texel (indices 0-7, index 0 is the cut-out colour), drawn as geometry (a leaning V, quarter-circle bands, staggered bars) with a lead rim | `tools/glassgen.py` `motif()` | original, Apache-2.0 |
+| `cv_tex_lbox` | the light box texture, 8x8, 8 bits per texel, an asymmetric index table with four index-0 holes | `tools/glassgen.py` `LBOX` | original, Apache-2.0 |
+| `cv_pal_tex` | the texture palette block: eight sets of eight colours (sets 0-3 amber, ruby, sea, violet glass from an HSV ramp; sets 4-7 light box colours) | `tools/glassgen.py` `palette_block()` | original, Apache-2.0 |
 | `cv_windows` | the window orders (target setting values) and par per window, packed by `tools/pvorder/pack.py` | `tools/window_check.py` reading `tools/orders/ch*.txt` (written by hand) | original, Apache-2.0 |
 | `pv_field_*`, `pv_chapter_name` | setting and chapter names and value counts (text tables) | `tools/mkassets.py` from `tools/pvorder/model.py` | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |

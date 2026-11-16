@@ -24,6 +24,11 @@
 #define GX_NORMAL     0x21
 #define GX_TEXCOORD   0x22
 #define GX_VTX16      0x23
+#define GX_VTX10      0x24
+#define GX_VTX_XY     0x25
+#define GX_VTX_XZ     0x26
+#define GX_VTX_YZ     0x27
+#define GX_VTX_DIFF   0x28
 #define GX_POLY_ATTR  0x29
 #define GX_TEX_PARAM  0x2A
 #define GX_DIF_AMB    0x30
@@ -116,14 +121,30 @@ int g3_flushed_vert_count(void);
 bool g3_overflowed(void);
 
 // --- Textures ---------------------------------------------------------------
+// All textures are 8 bits per texel (indices 0-7) and share one palette block of eight
+// sets of eight colours: PLTT_BASE n selects set n (sets 0-3 glass, 4-7 light box).
 typedef enum {
-    TEX_PAPER,    // direct colour paper grain (paneveil ships only this one)
+    TEX_CHEVRON,
+    TEX_ARC,
+    TEX_BARS,
+    TEX_LBOX,     // 8x8 light box texture
     TEX_COUNT
 } CvTex;
 
+// TEXIMAGE_PARAM flag bits (GBATEK DS 3D Texture Attributes)
+#define TXF_REPEAT_S  (1u << 16)
+#define TXF_REPEAT_T  (1u << 17)
+#define TXF_FLIP_S    (1u << 18)
+#define TXF_FLIP_T    (1u << 19)
+#define TXF_COLOR0    (1u << 29)         // colour 0 made transparent
+#define TXF_MODE(n)   ((u32)(n) << 30)   // coordinate transformation mode
+
 void g3_textures_reset(void);
-bool g3_texture_load(CvTex t);
-void g3_texture_bind(CvTex t);   // TEX_COUNT = untextured
+// Uploads every texture and the palette block (needs the VL_JUDGE bank layout).
+bool g3_textures_load(void);
+// Sends TEXIMAGE_PARAM (the texture's address and size plus `flags`) and PLTT_BASE (`pal_set`)
+// straight to the command ports. TEX_COUNT unbinds.
+void g3_tex_set(CvTex t, u32 flags, int pal_set);
 int  g3_texture_size(CvTex t);   // width in texels
 
 #endif // CV_GL3D_H

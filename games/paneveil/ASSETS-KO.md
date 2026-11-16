@@ -19,7 +19,9 @@ cleancart.nds 유지보수자).
 | `cv_ui_tiles`, `cv_ui_pal` | 창 테두리와 게이지 타일 | `images.ui_tiles()` | 오리지널, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플(`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 오리지널, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | 코드로 작곡한, 다른 게임과 공유하는 곡. 재생하는 것은 `lantern`뿐(크레딧) | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
-| `cv_tex_paper` | 32x32 다이렉트 컬러 종이 텍스처(유리 문양이 들어올 때까지의 자리표시) | `images.textures()` `paper` | 오리지널, Apache-2.0 |
+| `cv_tex_chevron`, `cv_tex_arc`, `cv_tex_bars` | 유리 문양 세 가지. 32x32, 텍셀당 8비트(인덱스 0-7, 인덱스 0은 오려 내는 색). 기하 도형(기운 V자, 사분원 띠, 엇갈린 막대)과 납 테두리를 코드로 그림 | `tools/glassgen.py` `motif()` | 오리지널, Apache-2.0 |
+| `cv_tex_lbox` | 라이트박스 텍스처. 8x8, 텍셀당 8비트, 일부러 비대칭인 인덱스 표와 인덱스 0 구멍 네 개 | `tools/glassgen.py` `LBOX` | 오리지널, Apache-2.0 |
+| `cv_pal_tex` | 텍스처 팔레트 블록: 8색 세트 여덟 개(0-3번은 HSV 램프로 만든 호박·루비·바다·보라 유리, 4-7번은 라이트박스 색) | `tools/glassgen.py` `palette_block()` | 오리지널, Apache-2.0 |
 | `cv_windows` | 창 주문서(목표 설정값)와 창마다의 par. `tools/pvorder/pack.py`가 묶음 | `tools/window_check.py`가 `tools/orders/ch*.txt`(손으로 작성)를 읽음 | 오리지널, Apache-2.0 |
 | `pv_field_*`, `pv_chapter_name` | 설정과 장 이름, 값 개수(글자 표) | `tools/pvorder/model.py`에서 `tools/mkassets.py`가 생성 | 오리지널, Apache-2.0 |
 | `probe.bin`(NitroFS) | 카트 점검이 읽는 CRC가 알려진 2 KB 파일 | `tools/mkassets.py` | 오리지널, Apache-2.0 |
