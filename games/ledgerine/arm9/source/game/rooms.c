@@ -4,6 +4,8 @@
 #include "game/rooms.h"
 
 extern const Room room_press;
+extern const Room room_clock;
+extern const Room room_belt;
 
 static void audit_none(void)
 {
@@ -13,8 +15,6 @@ static void audit_none(void)
     static const Room sym = { nm, tw, hw_, 0, 0, audit_none }
 
 STUB_ROOM(room_tube, "THE TUBE", "BOTH TOWERS", "IPC FIFO");
-STUB_ROOM(room_clock, "THE CLOCK WALL", "UPPER TOWER", "TIMERS");
-STUB_ROOM(room_belt, "THE BELT", "LOWER TOWER", "DMA");
 STUB_ROOM(room_vault, "THE VAULT", "LOWER TOWER", "WRAM AND VRAM");
 extern const Room room_rules;
 
