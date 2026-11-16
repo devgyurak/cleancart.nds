@@ -44,7 +44,9 @@ static void buf_prepare(void)
 
 static void buf_after(void)
 {
-    DC_InvalidateRange(&buf, sizeof(buf));
+    // The BIOS wrote with CPU stores (and the decompressors read their own output back): flush, not
+    // just invalidate, so no dirty line of the buffer is thrown away.
+    DC_FlushRange(&buf, sizeof(buf));
 }
 
 static bool sentinels_ok(void)

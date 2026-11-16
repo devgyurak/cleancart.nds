@@ -173,8 +173,9 @@ static bool tube_run(TubeRun *r)
     FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_NOT_EMPTY_IRQ;
     REG_IF = IRQ_FIFO_NOT_EMPTY;
     irqEnable(IRQ_FIFO_NOT_EMPTY);
+    // ARM9_READY tells the ARM7 our FIFO is back; its DONE follows. Nothing is sent to it before that.
     REG_IPC_SYNC = CV_SYNC_ARM9_READY << 8;
-    for (int i = 0; i < 120 && !sys_tube_done(); i++)
+    for (int i = 0; i < 300 && !sys_tube_done(); i++)
         sys_vsync();
     return r->ran && sys_tube_done();
 }

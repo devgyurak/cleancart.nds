@@ -45,6 +45,8 @@ static void fifo_reset(void)
     FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR;
 }
 
+// Runs in the main loop with IRQs on. Nothing else may send on the FIFO from IRQ context meanwhile:
+// tube7_busy keeps the VBlank handler's input packets (and with them the lid message) off it.
 void tube7_run(void)
 {
     uint32_t count = 0;
@@ -70,7 +72,7 @@ void tube7_run(void)
         TX = 0x7C000000u;                                   // C, then the clear of our own send side
         if (!barrier(6))
             break;
-        FCR |= IPC_FIFO_SEND_CLEAR;
+        FCR = IPC_FIFO_ENABLE | IPC_FIFO_SEND_CLEAR;
         if (!barrier(7) || !barrier(8))
             break;
         while (!(FCR & IPC_FIFO_RECV_EMPTY) && count < 64)  // what the ARM9 wrote: 17 attempts
@@ -100,6 +102,11 @@ void tube7_run(void)
     FCR = IPC_FIFO_ENABLE | IPC_FIFO_ERROR | IPC_FIFO_RECV_IRQ;
     REG_IF = IRQ_FIFO_NOT_EMPTY;
     irqEnable(IRQ_FIFO_NOT_EMPTY);
+    out(0xA);
+    // Say DONE only once the ARM9 has restored its own FIFO (it shows ARM9_READY then): a word sent
+    // earlier would be drained away by its restore.
+    for (int i = 0; i < SPIN && (REG_IPC_SYNC & 0xF) != CV_SYNC_ARM9_READY; i++)
+        ;
     REG_IPC_SYNC = CV_SYNC_ARM7_READY << 8;
     tube7_busy = false;
     fifoSendValue32(CV_FIFO_SYS, CV_SYS_TUBE_DONE);
