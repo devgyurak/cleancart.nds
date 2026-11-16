@@ -34,3 +34,11 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 `AGENTS.md` 참고).
 ## 지금까지 확인한 것
 
 무엇을 어디서 돌렸는지는 골격을 넣은 풀 리퀘스트를 참고하세요.
+
+## 버튼 없이 QA 시작 (SD 표시 파일)
+
+SD 카드에 빈 파일 `cleancart/elevane/autoqa`를 두면(폴더가 있어야 함) 부팅 후 처음 나타난 타이틀 화면이
+버튼 조합과 같은 QA 실행을 시작합니다. 시작하기 전에 파일 이름을 `autoqa.used-<날짜>-<시각>`으로 바꾸므로
+실행은 한 번만 일어납니다. 이름 바꾸기에 실패하면 아무것도 시작하지 않고 `autoqa-error.log`에 한 줄을 남깁니다.
+로그의 `qa start` 줄에 `start=marker` 또는 `start=keys`가 적힙니다.
+헤드리스: `out/x/cleancart/elevane/autoqa`를 만들고 키 입력 없이 `SDDIR=out/x tools/melonds/mds.sh run …`.

@@ -205,3 +205,11 @@ melonDS 검수 전에, 이 게임을 만든 세션에서 헤드리스 DeSmuME 0.
 - 스모크 테스트로 확인하지 못한 것: 벌레 떼
   폴리곤 초과(DeSmuME는 0을 보고), 역재생된 녹음이 실제로 어떻게 들리는지와 마이크(헤드리스
   실행에는 오디오 입력이 없음), melonDS에서의 모든 것.
+
+## 버튼 없이 QA 시작 (SD 표시 파일)
+
+SD 카드에 빈 파일 `cleancart/hushwell/autoqa`를 두면(폴더가 있어야 함) 부팅 후 처음 나타난 타이틀 화면이
+버튼 조합과 같은 QA 실행을 시작합니다. 시작하기 전에 파일 이름을 `autoqa.used-<날짜>-<시각>`으로 바꾸므로
+실행은 한 번만 일어납니다. 이름 바꾸기에 실패하면 아무것도 시작하지 않고 `autoqa-error.log`에 한 줄을 남깁니다.
+로그의 `qa start` 줄에 `start=marker` 또는 `start=keys`가 적힙니다.
+헤드리스: `out/x/cleancart/hushwell/autoqa`를 만들고 키 입력 없이 `SDDIR=out/x tools/melonds/mds.sh run …`.

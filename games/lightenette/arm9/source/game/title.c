@@ -61,7 +61,7 @@ LtScene scene_title(void)
         // Blink the prompt.
         text_center(&main_text, 21, (f / 30) & 1 ? TP_GRAY : TP_WHITE, "PRESS START");
         scene_frame_end();
-        if (qa_title_poll())
+        if (qa_title_poll() || qa_marker_poll())
         {
             // Hidden auto QA mode (core/qa.h): the normal flow from act 1, left like Start.
             snd_sfx(CV_SFX_CHIME, 100, 64);
