@@ -51,7 +51,17 @@ polygon attributes, texture attributes, texture coordinates).
 - `arm9/source/judge/capture.*`: every display capture goes through `cap_start()` and `cap_done()`
   (bank D is the capture target).
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.
-- `expected.json` + `tools/judge.py`: the grader (added with the judge changes).
+- `arm9/source/judge/bench.c/.h`: the kiln check. Command sequences go to the geometry engine through the
+  direct ports and the packed GXFIFO; after GXSTAT bits 27/14/0 clear it reads GXSTAT stack levels,
+  `CLIPMTX_RESULT` and `VECMTX_RESULT` and counts the words that differ from the integer model in the same
+  file (row-major matrices, `C = M * C`, clip = position * projection, GBATEK "DS 3D Matrix Load/Multiply").
+  Matrices only hold values that are exact in 1.19.12 (no rounding dependence). It draws nothing; the game
+  runs it once for the kiln lamp, the rehearsal for `values[3..15]`. `reset()` first empties both stacks.
+- `expected.json` + `tools/judge.py` (from lightenette: boots `rehearsal` and `qa`, exit 0 pass, 1 NG / profile
+  mismatch, 2 no usable result) + `tools/tests/test_judge.py`. Items from GBATEK / `rom` gate, `unconfirmed` ones are
+  informational. `known` has one profile per emulator version and renderer (DeSmuME, melonDS 1.1 software / GL Classic /
+  GL Compute); re-measure all four after changing the ROM (`judge.py --profile NAME`). The generator of the file's items is
+  not in the repo: edit the JSON (keep `values` indices in step with `game/rehearsal.h`).
 - `tools/mkassets.py`, `tools/cvtools/`: asset generators (Python 3, stdlib only).
 - `tools/pvorder/` + `tools/orders/ch*.txt` + `tools/window_check.py`: the window orders. One line per
   window: `NAME: setting=VALUE ...` (settings and values in `pvorder/model.py` `FIELDS`; unnamed settings

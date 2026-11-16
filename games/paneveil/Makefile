@@ -149,7 +149,7 @@ demos:
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
 # build/release/rom (game + save variants), build/release/demos and build/release/judge
-# (the rehearsal ROM, expected.json, judge.py, compare.py), each with the licence texts
+# (the rehearsal ROM, expected.json, judge.py), each with the licence texts
 # and notices a binary distribution has to carry.
 RELEASE := build/release
 
@@ -167,7 +167,7 @@ release:
 	@for d in $(DEMOS); do cp paneveil-$$d.nds $(RELEASE)/demos/ || exit 1; done
 	@# The emulator-test kit: the rehearsal ROM with the files that grade it.
 	@mkdir -p $(RELEASE)/judge && \
-		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json $(RELEASE)/judge/ && \
+		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/ && \
 		cp paneveil-rehearsal.nds $(RELEASE)/judge/
 
 clean:

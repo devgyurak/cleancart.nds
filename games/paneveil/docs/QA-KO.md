@@ -9,6 +9,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 `AGENTS.md` 참고).
 | 타이틀 | 위 화면에 "PANEVEIL"과 한 줄 소개, 그 아래 X 안내. 아래 화면에 라이선스, ARM7, 세이브 줄. Start는 창 목록, X는 크레딧 | 헤드리스 실행은 아래 참고. melonDS 손 조작은 아직 |
 | 창 목록 | "CHAPTER n" 머리글. 장이 들어오기 전에는 "NO WINDOWS YET". B 뒤로 | 헤드리스 실행만 |
 | 타이틀 → X (크레딧) | 스크롤 크레딧(libnds, 소스 URL이 있는 BlocksDS crts MPL-2.0, picolibc, libgcc). X로 라이선스 뷰어(`licenses/`의 모든 문서, X 다음 파일, B 뒤로). NitroFS가 없으면 뷰어는 "CART FILES NOT AVAILABLE"이라고 함 | 아직 확인 안 함 |
+| 리허설 데모 | `paneveil-rehearsal.nds`는 곧바로 리허설로 부팅합니다(세이브 칩·NitroFS 없음). 가마 점검을 돌리고, 결과 블록 id는 `0x48525650`(`PVRH`), values[3..15]가 가마 점검 13항목입니다. 채점: `RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 400 out/x "" 399 \| python3 games/paneveil/tools/judge.py --profile desmume-pydesmume-0.0.9` 또는 `tools/melonds/mds.sh run … 400 out/x "" 399 \| python3 games/paneveil/tools/judge.py --profile melonds-1.1-software` (`RENDERER=gl`, `compute`) | ✅ 프로필 네 개를 2026-11-16에 측정, `judge.py --profile`이 모두 MATCH(DeSmuME py-desmume 0.0.9와 melonDS 1.1 software·GL Classic·GL Compute에서 게이트 항목 13개 모두 OK). 실기 값은 아직 없음 |
 
 실기: 아직 돌리지 않았습니다. [HW-QA-KO.md](HW-QA-KO.md)를 보세요.
 

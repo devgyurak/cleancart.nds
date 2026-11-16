@@ -1,8 +1,357 @@
 {
- "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
- "schema": 3,
- "target_level": 1,
- "area": "3D geometry and texturing",
- "about": "Expected result-block values for the Paneveil rehearsal ROM, judged by tools/judge.py. The items arrive with the judge changes.",
- "items": []
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 1,
+  "area": "3D geometry and texturing",
+  "about": "Expected result-block values for the Paneveil rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. \"frame\" is the minimum number of frames to run, per boot. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's \"not captured\" marker). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "paneveil-rehearsal.nds",
+      "item_id": 1213355600,
+      "item_id_text": "PVRH",
+      "frames": 400,
+      "note": "the kiln check, the light box and a scripted play of the first window of every chapter; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "paneveil.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 4000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): every window played, the credits, then the kiln check and the light box once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "mtx-push-level",
+      "title": "Three pushes leave the position stack at level 3 (GXSTAT bits 8-12)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "eq",
+      "expect": 3,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
+      "model": null
+    },
+    {
+      "id": "mtx-pop-restores",
+      "title": "MTX_POP returns the matrix that was pushed: 0 of 16 CLIPMTX_RESULT words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-pop-n-level",
+      "title": "MTX_POP with N = 2 from level 3 leaves level 1",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-pop-n-matrix",
+      "title": "MTX_POP with N = 2 loads the second pushed matrix: 0 words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-store-level-kept",
+      "title": "MTX_STORE leaves the stack pointer alone (level stays 2)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "eq",
+      "expect": 2,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-restore-matrix",
+      "title": "MTX_RESTORE brings the stored matrix back: 0 words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        8
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-proj-push-level",
+      "title": "The projection stack has one level: a push reads 1 in GXSTAT bit 13",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        9
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
+      "model": null
+    },
+    {
+      "id": "mtx-proj-pop-level",
+      "title": "The projection pop reads 0 in GXSTAT bit 13",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        10
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
+      "model": null
+    },
+    {
+      "id": "mtx-proj-pop-matrix",
+      "title": "The projection pop returns the pushed matrix: 0 words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        11
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Stack",
+      "model": null
+    },
+    {
+      "id": "mtx-load-mult-clip",
+      "title": "Load and multiply (4x4, 4x3, 3x3, translate): CLIPMTX_RESULT equals the model, 0 of 16 words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        12
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
+      "model": null
+    },
+    {
+      "id": "mtx-vec-mult",
+      "title": "Mode 2 multiplications: VECMTX_RESULT equals the model, 0 of 9 words differ",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        13
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
+      "model": null
+    },
+    {
+      "id": "gx-packed-fifo",
+      "title": "The mixed sequence sent as packed GXFIFO words leaves the model result (0 of 25 words differ)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        14
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Geometry Commands",
+      "model": null
+    },
+    {
+      "id": "gx-direct-ports",
+      "title": "The same sequence through the direct command ports leaves the model result (0 of 25 words differ)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 400,
+        "qa": 1
+      },
+      "values": [
+        15
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Geometry Commands",
+      "model": null
+    }
+  ],
+  "known": {
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    }
+  }
 }

@@ -41,4 +41,21 @@ Two clean builds give the same SHA-256.
 
 ## Using it as an emulator test
 
-The judge arrives with the judge changes; see `docs/QA.md`.
+`paneveil-rehearsal.nds` (`./build.sh DEMO=rehearsal`) runs the judge and leaves a 64-word result block
+at 0x0237F000 (layout in `arm9/source/game/rehearsal.h`); `tools/judge.py` grades it against
+`expected.json` (target level 1, area "3D geometry and texturing"). No save chip and no NitroFS are needed.
+
+The **kiln check** sends fixed command sequences to the geometry engine (direct ports and packed GXFIFO),
+waits for GXSTAT bit 27 to clear, and compares GXSTAT stack levels, `CLIPMTX_RESULT` (16 words) and
+`VECMTX_RESULT` (9 words) with an integer model of GBATEK's rules. Every matrix element is exact in 1.19.12, so the
+answer does not depend on how a product is rounded, and no renderer is involved.
+
+```sh
+tools/melonds/mds.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+  | python3 games/paneveil/tools/judge.py --profile melonds-1.1-software
+RESULT_WORDS=64 tools/emu/emu.sh run games/paneveil/paneveil-rehearsal.nds 400 out/pv "" 399 \
+  | python3 games/paneveil/tools/judge.py --profile desmume-pydesmume-0.0.9
+```
+
+Exit code 0: every gating item passed (or the failing set equals the profile's). `known` in `expected.json`
+holds one profile per emulator version and renderer.
