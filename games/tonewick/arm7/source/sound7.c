@@ -683,6 +683,7 @@ uint8_t snd7_cap_busy(void)
 // The sound lab (lab7.c) takes every channel and both capture units: stop what the engine runs.
 void snd7_lab_enter(void)
 {
+    lab_active = true;   // first: a FIFO command arriving while the channels are stopped must not start one again
     bgm_stop();
     stream_stop();
     echo_set(false);
@@ -694,7 +695,6 @@ void snd7_lab_enter(void)
     }
     CAP0_CNT = 0;
     CAP1_CNT = 0;
-    lab_active = true;
 }
 
 void snd7_lab_leave(void)

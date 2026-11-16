@@ -10,9 +10,20 @@
 // Main RAM, cache-line aligned: the ARM7 writes results into it.
 static CvLabDesc desc __attribute__((aligned(32)));
 static u32 run_id;
+static bool lab_busy;   // a run was sent and its answer has not been seen (a timeout leaves it set)
+
+_Static_assert(sizeof(CvLabDesc) % 32 == 0, "the descriptor must fill whole cache lines");
 
 void sndlab_begin(void)
 {
+    // A run that timed out may still be executing the old script: give it time before the buffer is rewritten.
+    for (int f = 0; lab_busy && f < 120; f++)
+    {
+        if (sys_lab_done(desc.id))
+            lab_busy = false;
+        else
+            sys_vsync();
+    }
     memset(&desc, 0, sizeof(desc));
     desc.magic = CV_LAB_MAGIC;
 }
@@ -68,11 +79,13 @@ bool sndlab_run(u32 sys)
     desc.fw_model = 0xFFFFFFFFu;
     DC_FlushRange(&desc, sizeof(desc));
     sys_lab_start(desc.id);
+    lab_busy = true;
     fifoSendAddress(CV_FIFO_SND, &desc);
     for (int f = 0; f < 600; f++)
     {
         if (sys_lab_done(desc.id))
         {
+            lab_busy = false;
             DC_InvalidateRange(&desc, sizeof(desc));
             return true;
         }

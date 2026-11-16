@@ -192,7 +192,7 @@ typedef struct {
     uint8_t  rtc_status[8]; // RTC status register 1 (bit 1 = 24 hour mode)
     uint32_t rtc_n;       // samples read
     uint32_t rejected;    // ops the ARM7 refused (address outside the sound registers)
-} CvLabDesc;
+} __attribute__((aligned(32))) CvLabDesc;   // a multiple of the cache line: the ARM9 flushes and invalidates it whole
 
 // Shared WRAM as seen by each CPU when it owns all 32 KB.
 #define CV_SWRAM_ARM9 ((volatile uint8_t *)0x03000000)

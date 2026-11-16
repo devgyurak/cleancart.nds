@@ -36,11 +36,11 @@ void lab7_request(void *desc)
 static bool addr_ok(const CvLabOp *op, u32 size)
 {
     u32 a = op->addr;
-    if (a < 0x04000400u || a + size > 0x04000520u || (a & (size - 1)))
+    if (a < 0x04000400u || a > 0x04000520u - size || (a & (size - 1)))
         return false;
     // Channel SAD (offset 4) and capture destinations (510h, 518h) are DMA-like pointers: main RAM only.
     bool ptr = (a < 0x04000500u && (a & 0xF) == 4) || a == 0x04000510u || a == 0x04000518u;
-    if (ptr && op->kind != CV_LAB_R32 && (op->value < 0x02000000u || op->value >= 0x02400000u))
+    if (ptr && op->kind == CV_LAB_W32 && (op->value < 0x02000000u || op->value >= 0x02400000u))
         return false;
     return true;
 }
@@ -73,8 +73,13 @@ static void run_op(CvLabDesc *d, CvLabOp *op)
 static void read_sys(CvLabDesc *d)
 {
     if (d->sys & CV_LAB_SYS_PM)
+    {
+        // The power management chip shares the SPI bus with the touch screen the VBlank handler reads.
+        int old = enterCriticalSection();
         for (int r = 0; r < 16; r++)
             d->pm[r] = (u32)readPowerManagement(r) & 0xFF;
+        leaveCriticalSection(old);
+    }
     if (d->sys & CV_LAB_SYS_FW)
     {
         u8 model = 0;
@@ -116,16 +121,26 @@ void lab7_poll(void)
     d->rejected = 0;
     // The speaker amplifier is switched off through power management for the experiment (never SOUNDCNT: that
     // would change what the capture sees). Both the amplifier bit and the old DS's mute bit are set.
+    const int pm_mask = PM_SOUND_AMP | PM_SOUND_MUTE;
+    int irq = enterCriticalSection();
     int pm = readPowerManagement(PM_CONTROL_REG);
     if (d->count)
         writePowerManagement(PM_CONTROL_REG, (pm & ~PM_SOUND_AMP) | PM_SOUND_MUTE);
+    leaveCriticalSection(irq);
     snd7_lab_enter();
     u32 n = d->count > CV_LAB_MAX_OPS ? CV_LAB_MAX_OPS : d->count;
     for (u32 i = 0; i < n; i++)
         run_op(d, &d->ops[i]);
     snd7_lab_leave();
     if (d->count)
-        writePowerManagement(PM_CONTROL_REG, pm);
+    {
+        // Put back only the two bits changed above, and only if nobody (the lid handler) changed them meanwhile.
+        irq = enterCriticalSection();
+        int now = readPowerManagement(PM_CONTROL_REG);
+        if ((now & pm_mask) == (((pm & ~PM_SOUND_AMP) | PM_SOUND_MUTE) & pm_mask))
+            writePowerManagement(PM_CONTROL_REG, (now & ~pm_mask) | (pm & pm_mask));
+        leaveCriticalSection(irq);
+    }
     read_sys(d);
     fifoSendValue32(CV_FIFO_SYS, CV_LAB_DONE | (d->id & 0xFFFF));
 }
