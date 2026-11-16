@@ -20,6 +20,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import glassgen  # noqa: E402
 import window_check  # noqa: E402
 from cvtools import audio, codec, images  # noqa: E402
 from pvorder import model as pv_model, pack as pv_pack  # noqa: E402
@@ -164,10 +165,12 @@ def main():
             % (len(pv_model.CHAPTERS), ', '.join('"%s"' % c for c in pv_model.CHAPTERS)))
 
     # --- 3D ---------------------------------------------------------------
-    # Only the paper grain ships: the other corvane textures, the sprite sheet and the
-    # toon table are not used by any paneveil scene.
-    data, pal, tw, th = images.textures()['paper']
-    w.blob('cv_tex_paper', data, 'texture %dx%d' % (tw, th))
+    # Three glass motifs (32x32), the light box texture (8x8), one palette block (tools/glassgen.py).
+    for name in ('chevron', 'arc', 'bars'):
+        w.blob('cv_tex_%s' % name, glassgen.flat(glassgen.motif(name)), 'texture 32x32, 8bpp, indices 0-7')
+    w.blob('cv_tex_lbox', bytes(v for r in glassgen.LBOX for v in r),
+           'light box texture 8x8, 8bpp, indices 0-7')
+    w.blob('cv_pal_tex', u16s(glassgen.palette_block()), 'texture palette: 8 sets of 8 colours')
 
     # --- Sound ------------------------------------------------------------
     samples = audio.make_samples()

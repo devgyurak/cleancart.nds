@@ -14,8 +14,10 @@
 #include "core/qalog.h"
 #include "core/save.h"
 #include "core/sys.h"
+#include "game/play.h"
 #include "game/qa_tune.h"
 #include "game/scenes.h"
+#include "game/script.h"
 #include "game/window.h"
 
 // No tunable numbers (see qa_tune.h).
@@ -138,6 +140,13 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
                 out->keys = KEY_RIGHT;
             else
                 out->keys = KEY_A;
+            break;
+        }
+        case SC_PLAY:
+        {
+            u16 keys;
+            script_step(&keys, true);
+            out->keys = keys;
             break;
         }
         case SC_CREDITS:
