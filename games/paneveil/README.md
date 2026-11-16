@@ -6,6 +6,10 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/chapter2.png" width="256" alt="Chapter 2, a window being set"> <img src="docs/images/chapter3.png" width="256" alt="Chapter 3, a rose"> <img src="docs/images/chapter4.png" width="256" alt="Chapter 4, a window"> <img src="docs/images/schematic.png" width="256" alt="The 2D schematic"></p>
+
+<sub>Captured from the built ROM in headless melonDS 1.1 (`tools/melonds/mds.sh`), not DeSmuME or real hardware; chapters 2 to 4 come from the rehearsal ROM, which plays by script, mid-setting. Top screen only at 2x nearest-neighbour (512×384).</sub>
+
 An original stained-glass workshop game for the Nintendo DS. Each order describes a rose window:
 the glass, the pattern, the colour and how many petals and rings it has. Set the window to the
 order and fire it in the kiln; fewer turns earn more stars. The top screen shows the window in 3D,
@@ -20,14 +24,39 @@ store, restore, the projection stack and the GXSTAT stack level), matrix load/mu
 formats), polygon attributes (front/back face, alpha, wireframe, depth test) and texture attributes
 (repeat, flip, clamp, colour 0, palette base, texture coordinate source).
 
-**Status.** Chapters 1 (glass), 2 (pattern), 3 (rose) and 4 (finish) are playable: 24 windows, the 3D window on the top
+**Status.** All five chapters (30 windows) are playable: the 3D window on the top
 screen, the settings on the bottom screen, a 2D schematic mode (Select), the kiln lamp, the rehearsal and its judge
-(kiln check and light box: 30 items) and the hidden auto QA run. Chapter 5 is still to come. Nothing has been
-measured on real hardware.
+(kiln check and light box: 30 items) and the hidden auto QA run. Nothing has been measured on real hardware; items whose
+expected value does not come from GBATEK or the ROM's own logic stay informational until it is. Hands-on feel in a desktop
+emulator has not been reviewed. Progress and stars are not saved yet.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
 - Licence: Apache-2.0 — third-party notices in `THIRD_PARTY_NOTICES`, asset sources in `ASSETS.md`
+
+## Playing
+
+Start on the title, choose a chapter (left/right) and a window (up/down), A to start.
+An order names a target value for some of the twelve settings; every setting you leave out stays at its first value.
+
+| Chapter | Settings | Hardware behind it |
+|---|---|---|
+| 1 Glass | side, tint | polygon front/back render bits, alpha 31 / 16 / 0 (wireframe) |
+| 2 Pattern | motif, repeat, mirror, edge, colour, cutout | texture repeat, flip, clamp, palette base, colour 0 |
+| 3 Rose | petals, rings | matrix stack: push / rotate / pop per petal, store / restore per ring |
+| 4 Finish | decal, grain | depth test Equal overlay, texture coordinate transformation mode 1 |
+| 5 Pavilion | most of them, the last window all twelve | everything |
+
+| DS button | Action (melonDS key) |
+|---|---|
+| D-pad up/down (arrows) | choose a setting |
+| D-pad left/right | turn the setting one step (either way round) |
+| A (X) | fire the window when it matches the order; again for the next window |
+| B (Z) | back to the list |
+| Select (Backspace) | 3D window / 2D schematic (the same state as text; every window can be solved in it) |
+
+Stars compare your steps with par (3: within par, 2: up to 3 above, 1: more). The kiln lamp on the bottom screen shows the
+result of the judge's matrix check; a wrong 3D picture never blocks progress.
 
 ## Build
 

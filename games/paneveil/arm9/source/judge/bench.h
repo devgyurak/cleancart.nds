@@ -34,7 +34,8 @@ enum {
 
 // Runs every check; r[i] is the value of item i. Leaves the stacks empty, both modelview and
 // projection matrices at the identity and the matrix mode at modelview.
-void kiln_run(u32 r[KILN_ITEMS]);
+// Returns false when a GXSTAT wait ran out (the values are then not to be trusted).
+bool kiln_run(u32 r[KILN_ITEMS]);
 
 // True when every value is the expected one (the lamp of the game).
 bool kiln_ok(const u32 r[KILN_ITEMS]);

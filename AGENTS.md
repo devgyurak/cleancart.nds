@@ -92,6 +92,7 @@ so builds stay reproducible (two clean builds must give the same SHA-256).
 QA shortcuts in corvane: title + Select = start-stage select; pause + hold L+R + A = clear stage.
 Hushwell maps the same keys to its own actions (walk, examine, run, flashlight, map/recorder,
 hush, flare, swap screens); see `games/hushwell/AGENTS.md`. Its QA shortcuts are the same.
+Paneveil uses only the D-pad (setting, turn), A (fire), B (list) and Select (3D / 2D schematic); see `games/paneveil/README.md`.
 `tools/melonds/set_keys.py` writes this mapping (see skill `melonds-mac`).
 
 ## Repository layout

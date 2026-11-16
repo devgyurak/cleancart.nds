@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 1,
   "area": "3D geometry and texturing",
-  "about": "Expected result-block values for the Paneveil rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. \"frame\" is the minimum number of frames to run, per boot. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's \"not captured\" marker). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "about": "Expected result-block values for the Paneveil rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. \"frame\" is the minimum number of frames to run, per boot. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's \"not captured\" marker). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Items of the kiln check carry \"done\" on flags bit 0: the check ran to the end and no GXSTAT wait timed out.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -13,14 +13,14 @@
       "rom": "paneveil-rehearsal.nds",
       "item_id": 1213355600,
       "item_id_text": "PVRH",
-      "frames": 900,
+      "frames": 1200,
       "note": "the kiln check, the light box and a scripted play of the first window of every chapter; no save chip, no NitroFS"
     },
     "qa": {
       "rom": "paneveil.nds",
       "item_id": 1314013521,
       "item_id_text": "QARN",
-      "frames": 4000,
+      "frames": 4500,
       "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): every window played, the credits, then the kiln check and the light box once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
     }
   },
@@ -34,20 +34,20 @@
   "items": [
     {
       "id": "play-windows",
-      "title": "The rehearsal baked the first window of every chapter that has windows (4 windows)",
+      "title": "The rehearsal baked the first window of every chapter that has windows (5 windows)",
       "boots": [
         "rehearsal",
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
         1
       ],
       "check": "eq",
-      "expect": 4,
+      "expect": 5,
       "tolerance": 0,
       "source": "rom",
       "role": "target",
@@ -63,7 +63,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -87,7 +87,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -100,7 +100,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-restores",
@@ -110,7 +114,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -123,7 +127,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-n-level",
@@ -133,7 +141,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -146,7 +154,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-pop-n-matrix",
@@ -156,7 +168,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -169,7 +181,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-store-level-kept",
@@ -179,7 +195,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -192,7 +208,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-restore-matrix",
@@ -202,7 +222,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -215,7 +235,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-push-level",
@@ -225,7 +249,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -238,7 +262,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-pop-level",
@@ -248,7 +276,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -261,7 +289,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack; gbatek:DS 3D Status",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-proj-pop-matrix",
@@ -271,7 +303,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -284,7 +316,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Stack",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-load-mult-clip",
@@ -294,7 +330,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -307,7 +343,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "mtx-vec-mult",
@@ -317,7 +357,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -330,7 +370,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Matrix Load/Multiply",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-packed-fifo",
@@ -340,7 +384,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -353,7 +397,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Geometry Commands",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-direct-ports",
@@ -363,7 +411,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -376,7 +424,11 @@
       "role": "target",
       "level": 1,
       "level_basis": "gbatek:DS 3D Geometry Commands",
-      "model": null
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
     },
     {
       "id": "gx-vtx-formats",
@@ -386,7 +438,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -414,7 +466,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -442,7 +494,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -470,7 +522,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -499,7 +551,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -527,7 +579,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -556,7 +608,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -584,7 +636,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -612,7 +664,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -640,7 +692,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -668,7 +720,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -696,7 +748,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -724,7 +776,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -752,7 +804,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -780,7 +832,7 @@
         "qa"
       ],
       "frame": {
-        "rehearsal": 900,
+        "rehearsal": 1200,
         "qa": 1
       },
       "values": [
@@ -799,6 +851,27 @@
         "mask": 4096
       },
       "pixels": true
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run ended with PASS (QARN verdict 1)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "target",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
     }
   ],
   "known": {
