@@ -18,8 +18,8 @@ cleancart.nds 유지보수자).
 | `cv_font_tiles` | 5x7 픽셀 폰트(ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS`(글자를 문자열로 그림) | 오리지널, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | 창 테두리와 게이지 타일 | `images.ui_tiles()` | 오리지널, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플(`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 오리지널, Apache-2.0 |
-| `cv_song_*`, `cv_song_names` | 곡 `clerestory`(느린 단조 패드 곡, 드럼 없음), 코드로 작곡. 타이틀과 크레딧에서 재생 | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
-| `cv_title_tiles`, `cv_title_map`, `cv_title_pal` | 타이틀 레터링 "HEDDLEMERE": 30 x 4 타일(4bpp). 어두운 윤곽선과 여섯 실 색, 빈 타일과 단색 패널 타일 포함. 16색 팔레트 한 줄(BG 팔레트 8번 줄). 이름을 여섯 실 색으로 짜 넣고(씨실이 날실 위아래로 지나가는 짙은 2x2 바둑판), 어두운 윤곽선과 그 뒤의 어두운 띠를 둡니다. 타이틀 장면은 이것을 `gfx/loom.c`가 그린 천 위에 얹습니다 | `cvtools/hmart.py` `title_lettering()` | 오리지널, Apache-2.0 |
+| `cv_song_*`, `cv_song_names` | 곡 `selvage`(88 bpm의 꾸준한 도리아 선법 곡, 드럼 없음), 코드로 작곡. 타이틀과 크레딧에서 재생 | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
+| `cv_title_tiles`, `cv_title_map`, `cv_title_pal` | 타이틀 레터링 "HEDDLEMERE": 30 x 4 타일(4bpp). 어두운 윤곽선과 여섯 실 색, 빈 타일과 단색 패널 타일 포함. 16색 팔레트 한 줄(BG 팔레트 8번 줄). 글자는 짜 넣은 모양으로, 여섯 실 색에 (씨실이 날실 위아래로 지나가는 짙은 2x2 바둑판), 어두운 윤곽선과 그 뒤의 어두운 띠를 둡니다. 타이틀 장면은 이것을 `gfx/loom.c`가 그린 천 위에 얹습니다 | `cvtools/hmart.py` `title_lettering()` | 오리지널, Apache-2.0 |
 | `cv_orders` | 베틀 주문 40개(줄마다 목표 색·짜임·염색, 예산, 패스 수, 여유)와 par. `tools/hmorder/pack.py`가 묶음 | `tools/order_check.py`가 `tools/orders/ch*.txt`(직접 쓴 텍스트, 탐색으로 검사)를 읽음 | 오리지널, Apache-2.0 |
 | `hm_col_*`, `hm_chapter_name`, `hm_active_cols`, `hm_program_ticks`, `hm_dye_line` | 열·값·장 이름, 장마다 돌리는 열, 잉아 프로그램 네 가지의 GX 사이클 비용(GBATEK 수치), 염색 라인 | `tools/hmorder/model.py`를 읽는 `tools/mkassets.py` | 오리지널, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 점검이 읽는 CRC 고정 2 KB 파일 | `tools/mkassets.py` | 오리지널, Apache-2.0 |

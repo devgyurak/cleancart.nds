@@ -37,7 +37,8 @@ enum {
     TM_RAM_191 = 18,     // polygon RAM count at the HBlank of line 191 and 192
     TM_RAM_192 = 19,
     TM_TEX_LINES = 20,   // lines of a captured column that did not show the palette written in the quiet lines
-    TM_ITEMS = 21,
+    TM_RAM_150 = 24,     // polygon RAM count at the HBlank of line 150 (before the swap)
+    TM_ITEMS = 25,
 };
 
 // Never call this from live play: it keeps IME off for about two seconds (the ARM7's input packets are dropped meanwhile)
@@ -51,7 +52,7 @@ bool timing_run(u32 *v);
 // tools/hmorder/model.py). Returns the measured cycles; *planned is the sum the GBATEK costs give. Draws nothing.
 u32 timing_motor_run(const u8 *programs, int passes, u32 *planned);
 
-// One VCOUNT write at line 212 (value 202): the slack lever. Takes about two frames.
+// One VCOUNT write at line 212 (value 202): the slack lever. Waits for the next VBlank; the raster keeps running until then.
 void timing_lever_kick(void);
 
 #endif // HM_TIMING_H

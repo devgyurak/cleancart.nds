@@ -28,11 +28,12 @@ static bool g_timeout;   // a wait gave up
 
 // A bounded wait: a flag or counter that never changes (a stuck emulator) ends the measurement instead of hanging the ROM.
 #define SPIN_LIMIT 8000000u
-#define SPIN(cond) do { u32 n_ = 0; while (cond) { if (++n_ > SPIN_LIMIT) { g_timeout = true; break; } } } while (0)
+// Once one wait gave up (g_timeout) every later wait returns at once, so a stuck flag costs one limit, not one per wait.
+#define SPIN(cond) do { u32 n_ = 0; while (!g_timeout && (cond)) { if (++n_ > SPIN_LIMIT) { g_timeout = true; break; } } } while (0)
 
 #define LINE_COUNT   2000
 #define FRAME_COUNT  32
-#define HB_LINES     512
+#define HB_LINES     2048
 #define REPEATS      4
 
 // The stopwatch: timer 0 counts bus cycles, timer 1 counts its overflows (32 bits). A read retries when
@@ -78,22 +79,39 @@ static ITCM_CODE NOINLINE u32 span_frames(void)
     return NOW() - a;
 }
 
-// The HBlank flag's low span: from the poll that sees it fall to the poll that sees it rise again. A poll
-// only sees an edge on its grid (every few cycles), so one sample is off by up to a period; the delay
-// before the fall poll sweeps, which makes the sample mean exact when averaged over many lines.
-static ITCM_CODE NOINLINE u32 hblank_low_sum(void)
+// A sled of 65 ARM nops (one ARM9 cycle each in ITCM): jumping in at n runs n + 1 of them, so the delay before the
+// fall poll can be set to any whole ARM9 cycle (half a bus cycle), independent of the loops around it.
+static ITCM_CODE NOINLINE __attribute__((target("arm"))) void delay_sled(u32 n)
 {
-    u32 sum = 0;
+    asm volatile("add pc, pc, %0, lsl #2\n\t"
+                 "nop\n\t"
+                 ".rept 64\n\t"
+                 "nop\n\t"
+                 ".endr" :: "r"(63 - (n & 63)) : "memory");
+}
+
+// The HBlank flag's low span: from the poll that sees it fall to the poll that sees it rise again. A poll
+// only sees an edge on its grid (every few cycles), so one sample is off by up to a period. The delay before the fall
+// poll is drawn from a fixed LCG (same run, same numbers) and spans more than two poll periods in steps of one ARM9
+// cycle, so each sample's phase against the poll grid is independent of the loops' own period and of the earlier samples;
+// the mean over many lines is then unbiased. Samples whose fall was already past when the poll started are dropped.
+static ITCM_CODE NOINLINE u32 hblank_low_sum(u32 *taken)
+{
+    u32 sum = 0, n = 0, lcg = 0x2545F491u;
     for (u32 i = 0; i < HB_LINES; i++)
     {
         HBLANK_RISE();
-        for (volatile u32 d = (i * 37) & 63; d; d--)
-            ;
+        lcg = lcg * 1664525u + 1013904223u;
+        delay_sled(lcg >> 24);
+        if (!(DISPSTAT & 2))
+            continue;   // the delay overran the high phase
         SPIN(DISPSTAT & 2);
         u32 a = NOW();
         SPIN(!(DISPSTAT & 2));
         sum += NOW() - a;
+        n++;
     }
+    *taken = n;
     return sum;
 }
 
@@ -198,12 +216,15 @@ static ITCM_CODE NOINLINE u32 gx_half_time(int m)
 
 // Polygon RAM count at the HBlank of lines 191 and 192 around the buffer swap: `pairs` is the polygon
 // stream, sent after the swap command was queued in the previous call.
-static ITCM_CODE NOINLINE void ram_counts(const u32 *pairs, int n, u32 *c191, u32 *c192)
+static ITCM_CODE NOINLINE void ram_counts(const u32 *pairs, int n, u32 *c150, u32 *c191, u32 *c192)
 {
     SPIN(VCOUNT != 100);
     for (int i = 0; i < n; i++)
         GXPORT(pairs[2 * i]) = pairs[2 * i + 1];
     SWAP_BUF = 0;
+    SPIN(VCOUNT != 150);
+    SPIN(!(DISPSTAT & 2));
+    *c150 = RAMCOUNT;   // the list is already in polygon RAM: tells a missing counter from a reset that comes too early
     SPIN(VCOUNT != 191);
     SPIN(!(DISPSTAT & 2));
     *c191 = RAMCOUNT;
@@ -420,7 +441,10 @@ bool timing_run(u32 *v)
     v[TM_FRAME] = (frame + FRAME_COUNT / 2) / FRAME_COUNT;
 
     // The HBlank flag low span.
-    v[TM_HBLANK9] = hblank_low_sum() * 16 / HB_LINES;
+    u32 hb_n;
+    u32 hb_sum = hblank_low_sum(&hb_n);
+    if (hb_n >= HB_LINES / 2)
+        v[TM_HBLANK9] = hb_sum * 16 / hb_n;
 
     // VBlank flag lines, LYC with a ninth bit (LYC 262 = 6 + 256).
     static u8 vb[263], lyc[263];
@@ -469,7 +493,9 @@ bool timing_run(u32 *v)
     s32 scale2 = slope16(K_SCALE, 16, 48, 2, &halted);
     v[TM_GX_TRANS] = (u32)trans1;
     v[TM_GX_TRANS2] = (u32)(trans2 - trans1);
-    v[TM_GX_SCALE2] = (u32)(scale2 - scale1);
+    // A difference of two slopes means nothing when the engine has no command timing at all (every slope near zero).
+    if ((s32)v[TM_GX_IDENT] >= 160)
+        v[TM_GX_SCALE2] = (u32)(scale2 - scale1);
     v[TM_GX_BOX] = (u32)slope16(K_BOX, 8, 24, 1, &halted);
     flags |= halted ? 4u : 0;
     v[TM_LYC] = flags;
@@ -507,7 +533,8 @@ bool timing_run(u32 *v)
     // Polygon RAM counts around the swap.
     ram_stream();
     wait_gx_idle();
-    ram_counts(stream, stream_n, &v[TM_RAM_191], &v[TM_RAM_192]);
+    ram_counts(stream, stream_n, &v[TM_RAM_150], &v[TM_RAM_191], &v[TM_RAM_192]);
+    v[TM_RAM_150] &= 0xFFF;
     wait_gx_idle();
     v[TM_RAM_191] &= 0xFFF;
     v[TM_RAM_192] &= 0xFFF;
@@ -536,6 +563,7 @@ u32 timing_motor_run(const u8 *programs, int passes, u32 *planned)
 {
     static const u16 cost[4] = { 19, 17 + 22 + 36, 17 + 52 + 36, 19 + 17 + 52 + 22 + 36 };   // model.py TICKS
     stream_n = 0;
+    g_timeout = false;   // before the stream is built: put() sets it when the stream does not fit
     u32 plan = 0;
     for (int r = 0; r < 4; r++)
     {
@@ -563,7 +591,6 @@ u32 timing_motor_run(const u8 *programs, int passes, u32 *planned)
     u32 ime = REG_IME;
     REG_IME = 0;
     stopwatch_start();
-    g_timeout = false;
     wait_gx_idle();
     u32 t = gx_burst(stream, stream_n);
     stopwatch_stop();
@@ -571,12 +598,20 @@ u32 timing_motor_run(const u8 *programs, int passes, u32 *planned)
     return t;
 }
 
+// The write itself, in ITCM: from the VBlank (line 192) to line 212 the CPU only polls VCOUNT.
+static ITCM_CODE NOINLINE void lever_write(void)
+{
+    SPIN(VCOUNT != 212);
+    if (!g_timeout)
+        VCOUNT = 202;   // never outside the 202..212 range GBATEK allows
+}
+
 void timing_lever_kick(void)
 {
+    g_timeout = false;
+    sys_vsync();                 // interrupts on: the raster keeps weaving until the VBlank
     u32 ime = REG_IME;
-    REG_IME = 0;
-    stopwatch_start();
-    frame_with_write(true);
-    stopwatch_stop();
+    REG_IME = 0;                 // off for about twenty lines, all of them in the VBlank
+    lever_write();
     REG_IME = ime;
 }

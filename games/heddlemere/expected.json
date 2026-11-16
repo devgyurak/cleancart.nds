@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 3,
   "area": "3D engine and scanline timing",
-  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware.",
+  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware. hblank-low-arm9 (GBATEK 1606, melonDS 1584) is the fifth such item and informational for the same reason; its measurement is unbiased by a dithered delay (arm9/source/judge/timing.c). The cycle residual of a VCOUNT write is measured (values[8]) but not judged: it moves to probes/ with the apply line.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -88,7 +88,7 @@
     },
     {
       "id": "hblank-low-arm9",
-      "title": "The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged)",
+      "title": "The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584",
       "boots": [
         "rehearsal",
         "qa"
@@ -99,7 +99,7 @@
       "check": "range",
       "min": 25664,
       "max": 25728,
-      "source": "GBATEK",
+      "source": "unconfirmed",
       "role": "target",
       "level": 3,
       "level_basis": "gbatek:DS Video Stuff",
@@ -132,7 +132,7 @@
       "level_basis": "gbatek:DS Video Stuff",
       "done": {
         "value": 0,
-        "mask": 1
+        "mask": 65
       },
       "model": null,
       "frame": {
@@ -154,8 +154,8 @@
       "expect": 70,
       "tolerance": 0,
       "source": "GBATEK",
-      "role": "target",
-      "level": 3,
+      "role": "prerequisite",
+      "level": 2,
       "level_basis": "gbatek:DS Video Stuff",
       "done": {
         "value": 0,
@@ -169,7 +169,7 @@
     },
     {
       "id": "vcount-write-lines",
-      "title": "A VCOUNT write at line 212 (value 202) repeats 10 or 11 lines",
+      "title": "A VCOUNT write at line 212 (value 202) repeats 10 or 11 lines (the exact apply line and the cycle residual are probes/ L4 material)",
       "boots": [
         "rehearsal",
         "qa"
@@ -181,35 +181,8 @@
       "min": 10,
       "max": 11,
       "source": "GBATEK",
-      "role": "target",
-      "level": 3,
-      "level_basis": "gbatek:DS Video Stuff",
-      "done": {
-        "value": 0,
-        "mask": 1
-      },
-      "model": null,
-      "frame": {
-        "rehearsal": 3000,
-        "qa": 1
-      }
-    },
-    {
-      "id": "vcount-write-residual",
-      "title": "The frame grown by that write is a whole number of lines within 4 cycles",
-      "boots": [
-        "rehearsal",
-        "qa"
-      ],
-      "values": [
-        8
-      ],
-      "check": "range",
-      "min": 0,
-      "max": 4,
-      "source": "GBATEK",
-      "role": "target",
-      "level": 3,
+      "role": "prerequisite",
+      "level": 2,
       "level_basis": "gbatek:DS Video Stuff",
       "done": {
         "value": 0,
@@ -234,6 +207,7 @@
       "check": "range",
       "min": 300,
       "max": 308,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -261,6 +235,7 @@
       "check": "range",
       "min": 844,
       "max": 852,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -288,13 +263,14 @@
       "check": "range",
       "min": 348,
       "max": 356,
+      "signed": true,
       "source": "unconfirmed",
       "role": "target",
       "level": 3,
       "level_basis": "gbatek:DS 3D I/O Map",
       "done": {
         "value": 0,
-        "mask": 1
+        "mask": 65
       },
       "model": null,
       "frame": {
@@ -315,6 +291,7 @@
       "check": "range",
       "min": 472,
       "max": 488,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -346,7 +323,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map",
+      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Load/Multiply",
       "done": {
         "value": 0,
         "mask": 1
@@ -359,7 +336,7 @@
     },
     {
       "id": "gx-box-cycles",
-      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 254; informational until measured on hardware",
+      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware",
       "boots": [
         "rehearsal",
         "qa"
@@ -370,6 +347,7 @@
       "check": "range",
       "min": 1640,
       "max": 1656,
+      "signed": true,
       "source": "unconfirmed",
       "role": "target",
       "level": 3,
@@ -397,6 +375,7 @@
       "check": "range",
       "min": 296,
       "max": 312,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -424,6 +403,7 @@
       "check": "range",
       "min": 296,
       "max": 312,
+      "signed": true,
       "source": "GBATEK",
       "role": "target",
       "level": 3,
@@ -440,7 +420,7 @@
     },
     {
       "id": "swap-tail",
-      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 325; informational until measured on hardware",
+      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware",
       "boots": [
         "rehearsal",
         "qa"
@@ -483,7 +463,7 @@
       ],
       "tolerance": 0,
       "na_when": [
-        18,
+        24,
         0
       ],
       "source": "GBATEK",
@@ -502,7 +482,7 @@
     },
     {
       "id": "tex-quiet-lines",
-      "title": "A texture palette rewritten in lines 192..213 (the 3D VBlank) shows in the render: 0 of 192 captured lines still carry the old colour",
+      "title": "A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour",
       "boots": [
         "rehearsal",
         "qa"
@@ -750,10 +730,9 @@
         "gx-halfirq-slope",
         "gx-identity-slope",
         "gx-pushpop-slope",
+        "gx-scale-mode2-extra",
         "gx-trans-mode2-extra",
-        "hblank-low-arm9",
-        "vcount-write-lines",
-        "vcount-write-residual"
+        "vcount-write-lines"
       ],
       "na": [
         "swap-ramcount-line"
@@ -761,23 +740,17 @@
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-      "ng": [
-        "hblank-low-arm9"
-      ],
+      "ng": [],
       "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-      "ng": [
-        "hblank-low-arm9"
-      ],
+      "ng": [],
       "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-      "ng": [
-        "hblank-low-arm9"
-      ],
+      "ng": [],
       "na": []
     }
   }

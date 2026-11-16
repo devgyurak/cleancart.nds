@@ -47,7 +47,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil title screen"> | Stained-glass workshop puzzle in five chapters (30 window orders): set the glass, pattern and rosette of a window to the order and fire it in the kiln. It judges itself with a rehearsal ROM.<br>Tests (L1, 3D geometry and texturing): matrix stack, matrix load/multiply, geometry commands, polygon attributes, texture attributes and coordinates. | automatic (`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 target 30 · prerequisite 1<!-- /cell --> | [README](games/paneveil/README.md) · [QA checklist](games/paneveil/docs/QA.md) · [Hardware QA](games/paneveil/docs/HW-QA.md) · [Assets](games/paneveil/ASSETS.md) |
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine title screen"> | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 target 30 · prerequisite 11<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick title screen"> | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [QA checklist](games/tonewick/docs/QA.md) · [Hardware QA](games/tonewick/docs/HW-QA.md) · [Assets](games/tonewick/ASSETS.md) |
-| [Heddlemere](games/heddlemere/) | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 18 · prerequisite 9<!-- /cell --> | [README](games/heddlemere/README.md) · [Assets](games/heddlemere/ASSETS.md) |
+| [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -333,7 +333,7 @@ target 17 · prerequisite 10
 
 </details>
 
-<details><summary><b>L3 Timing</b> · Elevane, Heddlemere (21 target items)</summary>
+<details><summary><b>L3 Timing</b> · Elevane, Heddlemere (18 target items)</summary>
 
 #### Elevane · display timing and compositing
 
@@ -345,26 +345,23 @@ target 3 · prerequisite 17
 
 #### Heddlemere · 3D engine and scanline timing
 
-target 18 · prerequisite 9
+target 15 · prerequisite 11
 
 - `line-cycles` · A scanline is 355 dots x 6 = 2130 cycles (x16 fixed point, mean over 2000 lines) · [expected.json](games/heddlemere/expected.json)
 - `frame-cycles` · A frame is 263 lines = 560190 cycles (mean over 32 frames) · [expected.json](games/heddlemere/expected.json)
-- `hblank-low-arm9` · The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged) · [expected.json](games/heddlemere/expected.json)
+- `hblank-low-arm9` · The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584 _(informational)_ · [expected.json](games/heddlemere/expected.json)
 - `hblank-low-arm7` · The same on the ARM7 core: GBATEK gives 1613 "for whatever reason" (x16); informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
-- `vblank-flag-lines` · The VBlank flag is set on lines 192..261 only: 70 lines, not on line 262 · [expected.json](games/heddlemere/expected.json)
-- `vcount-write-lines` · A VCOUNT write at line 212 (value 202) repeats 10 or 11 lines · [expected.json](games/heddlemere/expected.json)
-- `vcount-write-residual` · The frame grown by that write is a whole number of lines within 4 cycles · [expected.json](games/heddlemere/expected.json)
 - `gx-identity-slope` · MTX_IDENTITY costs 19 cycles (slope of two run lengths, x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-pushpop-slope` · MTX_PUSH 17 + MTX_POP 36 = 53 cycles per pair (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-trans-cycles` · MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
 - `gx-trans-mode2-extra` · MTX_TRANS in matrix mode 2 costs 30 cycles more than in mode 1 (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-scale-mode2-extra` · MTX_SCALE costs no extra cycles in matrix mode 2 (x16, signed, within 0.5 cycle) · [expected.json](games/heddlemere/expected.json)
-- `gx-box-cycles` · BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 254; informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
+- `gx-box-cycles` · BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
 - `gx-full-stall-rate` · With the geometry FIFO full a write waits for an entry to leave: one IDENTITY (19 cycles) per write (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-halfirq-slope` · The "less than half full" IRQ flag (IF bit 21) rises one IDENTITY (19 cycles) later per entry of fill (x16) · [expected.json](games/heddlemere/expected.json)
-- `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 325; informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
+- `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware _(informational)_ · [expected.json](games/heddlemere/expected.json)
 - `swap-ramcount-line` · Polygon RAM holds the 64 polygons at the HBlank of line 191 and 0 at line 192: the swap happens at line 192 (RAM_COUNT) · [expected.json](games/heddlemere/expected.json)
-- `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (the 3D VBlank) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
+- `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
 
 </details>
 
