@@ -48,6 +48,9 @@ extern const Room *const lg_rooms[LG_ROOMS];
 // Solves a puzzle for the pilot: finds dials with model(a, b) == want. Returns false if none.
 bool puzzle_solution(const Puzzle *p, int *a, int *b);
 
+// The key the QA pilot presses next in the room scene (game/room_scene.c); 0 for none.
+u16 room_pilot_key(void);
+
 // Hardware result vs model result, for the ledger line (true = machine agrees).
 bool puzzle_agrees(const Puzzle *p, int a, int b, u32 *hw, u32 *model);
 

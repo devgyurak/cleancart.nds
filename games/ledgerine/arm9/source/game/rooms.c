@@ -3,6 +3,8 @@
 
 #include "game/rooms.h"
 
+extern const Room room_press;
+
 static void audit_none(void)
 {
 }
@@ -10,12 +12,11 @@ static void audit_none(void)
 #define STUB_ROOM(sym, nm, tw, hw_) \
     static const Room sym = { nm, tw, hw_, 0, 0, audit_none }
 
-STUB_ROOM(room_press, "THE PRESS", "UPPER TOWER", "DS MATHS");
 STUB_ROOM(room_tube, "THE TUBE", "BOTH TOWERS", "IPC FIFO");
 STUB_ROOM(room_clock, "THE CLOCK WALL", "UPPER TOWER", "TIMERS");
 STUB_ROOM(room_belt, "THE BELT", "LOWER TOWER", "DMA");
 STUB_ROOM(room_vault, "THE VAULT", "LOWER TOWER", "WRAM AND VRAM");
-STUB_ROOM(room_rules, "THE RULE BOOK", "UPPER TOWER", "BIOS");
+extern const Room room_rules;
 
 const Room *const lg_rooms[LG_ROOMS] = {
     &room_press, &room_tube, &room_clock, &room_belt, &room_vault, &room_rules,
