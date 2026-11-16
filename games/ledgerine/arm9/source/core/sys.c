@@ -20,6 +20,7 @@ volatile bool cv_lid_closed;
 
 static volatile bool wram_released;
 static volatile bool pong;
+static volatile bool tube_done;
 static volatile u32 vault_reply = 0xFFFFFFFFu;
 static bool wram_arm9;
 static u16 ipcsync_seen;
@@ -54,6 +55,7 @@ static void sys_value_handler(u32 value, void *userdata)
         case CV_SYS_LID_CLOSED:    cv_lid_closed = true; break;
         case CV_SYS_LID_OPENED:    cv_lid_closed = false; break;
         case CV_SYS_PONG:          pong = true; break;
+        case CV_SYS_TUBE_DONE:     tube_done = true; break;
         default: break;
     }
 }
@@ -188,6 +190,16 @@ int sys_ping_arm7(void)
         sys_vsync();
     }
     return (int)(cv_frame - start);
+}
+
+bool sys_tube_done(void)
+{
+    return tube_done;
+}
+
+void sys_tube_done_clear(void)
+{
+    tube_done = false;
 }
 
 u32 sys_vault_step(u32 step)

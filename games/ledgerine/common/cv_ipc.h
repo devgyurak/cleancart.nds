@@ -147,6 +147,8 @@ enum {
     CV_SYS_LID_OPENED,         // ARM7 -> ARM9
     CV_SYS_PING,               // ARM9 -> ARM7, answered with CV_SYS_PONG
     CV_SYS_PONG,
+    CV_SYS_TUBE_START,         // ARM9 -> ARM7: run the IPC FIFO experiment (ledgerine's tube room)
+    CV_SYS_TUBE_DONE,          // ARM7 -> ARM9: experiment over, FIFO handling restored
 };
 
 // Ledgerine's vault and rule book (the ARM7 side of the audits, arm7/source/vault7.c): the ARM9 sends

@@ -10,6 +10,7 @@
 
 #include "cv_ipc.h"
 #include "sound7.h"
+#include "tube7.h"
 #include "vault7.h"
 
 static volatile bool exit_loop;
@@ -76,7 +77,7 @@ static void vblank_handler(void)
     frame_seq++;
     // Talk only once the ARM9 has mounted its FIFO handlers (IPCSYNC): an
     // unread backlog would fill the FIFO buffers before it can drain them.
-    if ((REG_IPC_SYNC & 0xF) == CV_SYNC_ARM9_READY)
+    if (!tube7_busy && (REG_IPC_SYNC & 0xF) == CV_SYNC_ARM9_READY)
         send_input();
     snd7_vblank();
 }
@@ -98,6 +99,9 @@ static void sys_value_handler(u32 value, void *userdata)
             break;
         case CV_SYS_WRAM_GRANTED:
             snd7_wram_granted();
+            break;
+        case CV_SYS_TUBE_START:
+            tube7_request = true;   // the main loop runs it: the experiment takes frames
             break;
         case CV_SYS_PING:
             fifoSendValue32(CV_FIFO_SYS, CV_SYS_PONG);
@@ -147,6 +151,12 @@ int main(int argc, char *argv[])
 
         if ((keys_pressed & key_mask) == key_mask)
             exit_loop = true;
+
+        if (tube7_request)
+        {
+            tube7_request = false;
+            tube7_run();
+        }
 
         // The RTC is slow to read over SPI; once a second is enough.
         if (++rtc_counter >= 60)
