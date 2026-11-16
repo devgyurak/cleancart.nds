@@ -37,7 +37,7 @@ a showcase mode (two presets) and the rehearsal/judge ROMs; those come in later 
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c`, `select.c` (chapter and puzzle list, every chapter open),
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c` (BG3 bitmap from `cvtools/evart.py` under the text layer, plays the `workbench` song and stops it on every exit), `select.c` (chapter and puzzle list, every chapter open),
   `play.c` (one puzzle: input, judge, both 3D views, the text overlay and the 2D-grid mode, view turning, work layer, parts), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot), `puzzle.c/.h` (the
   `cv_puzzles` blob, silhouettes, judge, stars; pure logic), `credits.c` (credits and the licence viewer; NitroFS
   needed only here), `qa_game.c` + `qa_tune.h`.

@@ -9,7 +9,7 @@ are original work under the same copyright and licence as the source:
 **Apache-2.0** (Copyright 2026 devgyurak, the cleancart.nds maintainer).
 
 The generator is `tools/mkassets.py`; the code that draws, synthesises and lays out
-lives in `tools/cvtools/` (shared with corvane and lightenette). The same source
+lives in `tools/cvtools/` (shared with corvane and lightenette, plus `evart.py` of its own). The same source
 always produces the same bytes.
 
 The PNG files in `docs/images/` (if any) are README screenshots captured from the
@@ -23,7 +23,8 @@ All 40 puzzles (chapters 1-5) are in `tools/puzzles/ch*.txt`.
 | `cv_font_tiles` | 5x7 pixel font (ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS` (glyphs drawn as strings) | original, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
-| `cv_song_*`, `cv_song_names` | the two songs `lantern` and `puppets`, composed by code and shared with lightenette; only `lantern` is played (the credits), `puppets` is linked but unused | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `cv_title_lz`, `cv_title_pal` | the title picture, 256x192 8bpp (LZ77) and palette entries 96-255: an isometric voxel gate on a workbench floor grid, its front and plan silhouettes as insets (checked against the puzzle model's support and view rules), the name built from small cubes | `cvtools/evart.py` `title_art()` | original, Apache-2.0 |
+| `cv_song_*`, `cv_song_names` | the song `workbench` (calm major-key theme, no drums), composed by code; played on the title and in the credits | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
 | `cv_tex_paper` | 32x32 direct-colour paper texture, shared with lightenette; the only texture linked into the ROM, not used by any Elevane scene (the views are flat-coloured polygons) | `images.textures()` `paper` | original, Apache-2.0 |
 | `cv_puzzles` | the puzzle orders (front and plan silhouettes), par block counts and a minimal solution per puzzle, packed by `tools/evpuzzle/pack.py` | `tools/puzzle_check.py` reading `tools/puzzles/ch*.txt` (the maker's structures, written by hand as height maps or layers) | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
