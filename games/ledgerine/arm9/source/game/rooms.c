@@ -6,6 +6,8 @@
 extern const Room room_press;
 extern const Room room_clock;
 extern const Room room_belt;
+extern const Room room_vault;
+extern const Room room_rules;
 
 static void audit_none(void)
 {
@@ -15,8 +17,6 @@ static void audit_none(void)
     static const Room sym = { nm, tw, hw_, 0, 0, audit_none }
 
 STUB_ROOM(room_tube, "THE TUBE", "BOTH TOWERS", "IPC FIFO");
-STUB_ROOM(room_vault, "THE VAULT", "LOWER TOWER", "WRAM AND VRAM");
-extern const Room room_rules;
 
 const Room *const lg_rooms[LG_ROOMS] = {
     &room_press, &room_tube, &room_clock, &room_belt, &room_vault, &room_rules,

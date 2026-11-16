@@ -10,6 +10,7 @@
 
 #include "cv_ipc.h"
 #include "sound7.h"
+#include "vault7.h"
 
 static volatile bool exit_loop;
 static uint16_t frame_seq;
@@ -84,6 +85,11 @@ static void sys_value_handler(u32 value, void *userdata)
 {
     (void)userdata;
 
+    if ((value & CV_VAULT_TAG_MASK) == CV_VAULT_STEP)
+    {
+        fifoSendValue32(CV_FIFO_SYS, CV_VAULT_REPLY | (vault7_step(value & 0xFFFF) & 0xFFFF));
+        return;
+    }
     switch (value)
     {
         case CV_SYS_WRAM_RELEASE:
