@@ -32,7 +32,7 @@
   실패한 항목으로 드러납니다.
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
-  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
+  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
@@ -46,6 +46,7 @@
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 17<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 30 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
+| [Tonewick](games/tonewick/) | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->판정기 작성 중<!-- /cell --> | [README](games/tonewick/README-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -243,6 +244,10 @@
 - `tex-coord-mode1` · Transformation mode 1 applies the texture matrix: a swap of S and T transposes the texture (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
 - `qa-verdict` · The QA run ended with PASS (QARN verdict 1) · [expected.json](games/paneveil/expected.json)
 
+#### Tonewick
+
+_판정기 작성 중_
+
 </details>
 
 <details><summary><b>L2 경계</b> · Ledgerine, Lightenette (49 개)</summary>
@@ -411,6 +416,7 @@ games/lightenette/ 게임 하나(corvane 템플릿으로 시작)
 games/elevane/    게임 하나(lightenette에서 시작)
 games/paneveil/   게임 하나(elevane에서 시작)
 games/ledgerine/  게임 하나(lightenette에서 시작)
+games/tonewick/   게임 하나(ledgerine에서 시작)
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)
