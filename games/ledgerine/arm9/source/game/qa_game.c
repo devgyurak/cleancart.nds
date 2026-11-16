@@ -17,6 +17,7 @@
 #include "core/sys.h"
 #include "game/ledger.h"
 #include "game/qa_tune.h"
+#include "game/rooms.h"
 #include "game/scenes.h"
 
 // No tunable numbers (see qa_tune.h).
@@ -125,8 +126,8 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
     switch (scene)
     {
         case SC_ROOM:
-            if (f > 30 && (f & 15) == 8)
-                out->keys = KEY_A;       // close the books (rooms get their dial script later)
+            if (f > 30 && (f & 3) == 0)
+                out->keys = room_pilot_key();   // dials, lever, then close the books
             break;
         case SC_TITLE:
             if (rooms_done == (1u << LG_ROOMS) - 1 && f > 20 && (f & 15) == 8)
