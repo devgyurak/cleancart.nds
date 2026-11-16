@@ -62,7 +62,7 @@ L4 lives in a separate probe collection (`probes/`), which is not a game.
 | Level | Game (area) |
 |---|---|
 | L1 | Corvane (graphics and system), Hushwell (sound and I/O), Paneveil (3D geometry and texturing) |
-| L2 | Lightenette |
+| L2 | Lightenette (display edge cases), Ledgerine (system edges) |
 | L3 | Elevane |
 | L4 | `probes/`: informational only, recorded per emulator as a profile |
 
