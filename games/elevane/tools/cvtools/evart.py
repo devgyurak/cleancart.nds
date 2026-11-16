@@ -178,12 +178,12 @@ def title_art():
     for (x, y, z) in sorted(s.cells, key=lambda c: (c[0] + c[1] + c[2], c[2], c[0])):
         _cube(pix, CX + (x - y) * HW, BASEY + (x + y) * HH - (z + 1) * CH, z)
 
-    # The player's orders: front view (x across, z up) and plan view (x across, y down).
+    # The player's orders: front view (x across, z up) and plan view (x across, y up, like the play scene).
     order = model.Order.of(s)
     _inset(pix, 14, 68, 48, 40, FRONT_CLEAR, s.w, s.h,
            lambda c, r: order.front_has(c, s.h - 1 - r), 'FRONT')
     _inset(pix, 194, 68, 48, 40, PLAN_CLEAR, s.w, s.d,
-           lambda c, r: order.plan_has(c, r), 'PLAN')
+           lambda c, r: order.plan_has(c, s.d - 1 - r), 'PLAN')
 
     _wordmark(pix, 'ELEVANE', (W - 7 * 24) // 2 + 4, 4, 4)
 

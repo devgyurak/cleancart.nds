@@ -54,7 +54,7 @@ def env(i, n, attack=0.01, release=1.0):
     return a * (1 - t) ** release
 
 
-SAMPLES_USED = ('bass', 'pad', 'kick', 'snare', 'hat', 'chime', 'click')
+SAMPLES_USED = ('bass', 'pad', 'chime', 'click')
 
 
 def make_samples():
