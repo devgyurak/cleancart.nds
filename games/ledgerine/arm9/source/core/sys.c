@@ -20,6 +20,7 @@ volatile bool cv_lid_closed;
 
 static volatile bool wram_released;
 static volatile bool pong;
+static volatile u32 vault_reply = 0xFFFFFFFFu;
 static bool wram_arm9;
 static u16 ipcsync_seen;
 
@@ -42,6 +43,11 @@ static void input_handler(int bytes, void *userdata)
 static void sys_value_handler(u32 value, void *userdata)
 {
     (void)userdata;
+    if ((value & CV_VAULT_TAG_MASK) == CV_VAULT_REPLY)
+    {
+        vault_reply = value & 0xFFFF;
+        return;
+    }
     switch (value)
     {
         case CV_SYS_WRAM_RELEASED: wram_released = true; break;
@@ -182,6 +188,15 @@ int sys_ping_arm7(void)
         sys_vsync();
     }
     return (int)(cv_frame - start);
+}
+
+u32 sys_vault_step(u32 step)
+{
+    vault_reply = 0xFFFFFFFFu;
+    fifoSendValue32(CV_FIFO_SYS, CV_VAULT_STEP | step);
+    for (int i = 0; i < 100000 && vault_reply == 0xFFFFFFFFu; i++)
+        swiDelay(100);
+    return vault_reply;
 }
 
 u16 sys_ipcsync_seen(void)

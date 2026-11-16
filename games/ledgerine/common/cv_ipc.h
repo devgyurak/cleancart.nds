@@ -149,6 +149,18 @@ enum {
     CV_SYS_PONG,
 };
 
+// Ledgerine's vault and rule book (the ARM7 side of the audits, arm7/source/vault7.c): the ARM9 sends
+// CV_VAULT_STEP | step on CV_FIFO_SYS, the ARM7 runs the step and answers CV_VAULT_REPLY | result.
+#define CV_VAULT_TAG_MASK 0xFFFF0000u
+#define CV_VAULT_STEP     0x56410000u   // "VA"
+#define CV_VAULT_REPLY    0x56520000u   // "VR"
+enum {
+    CV_VAULT_WRAM_MIRROR = 1,   // result bit 0: 03000000h reads like 03800000h; bit 1: WRAMSTAT is 0
+    CV_VAULT_VRAM_BYTES,        // bytes 5Ah, A5h stored to 06020000h; result bit 0: VRAMSTAT bit 0
+    CV_VAULT_VRAMSTAT,          // result bit 0: VRAMSTAT bit 0 (any offset)
+    CV_VAULT_CPUSET_GUARD,      // result bit 0: CpuSet from the BIOS area wrote nothing
+};
+
 // Shared WRAM as seen by each CPU when it owns all 32 KB.
 #define CV_SWRAM_ARM9 ((volatile uint8_t *)0x03000000)
 #define CV_SWRAM_ARM7 ((volatile uint8_t *)0x03000000)

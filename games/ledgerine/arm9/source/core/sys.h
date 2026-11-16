@@ -31,6 +31,9 @@ void sys_handle_lid(void);
 // Round-trip a FIFO ping to the ARM7; returns frames taken or -1.
 int sys_ping_arm7(void);
 
+// Runs one vault step on the ARM7 (cv_ipc.h) and returns its result, or 0xFFFFFFFF when it never answered.
+u32 sys_vault_step(u32 step);
+
 // IPCSYNC value the ARM7 left during boot.
 u16 sys_ipcsync_seen(void);
 
