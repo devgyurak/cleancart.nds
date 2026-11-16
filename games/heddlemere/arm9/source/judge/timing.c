@@ -24,6 +24,12 @@
 
 #define NOINLINE __attribute__((noinline))
 
+static bool g_timeout;   // a wait gave up
+
+// A bounded wait: a flag or counter that never changes (a stuck emulator) ends the measurement instead of hanging the ROM.
+#define SPIN_LIMIT 8000000u
+#define SPIN(cond) do { u32 n_ = 0; while (cond) { if (++n_ > SPIN_LIMIT) { g_timeout = true; break; } } } while (0)
+
 #define LINE_COUNT   2000
 #define FRAME_COUNT  32
 #define HB_LINES     512
@@ -33,8 +39,8 @@
 // the high half moved between the two reads.
 #define NOW() ({ u32 h1_, l_, h2_; do { h1_ = T1; l_ = T0; h2_ = T1; } while (h1_ != h2_); h1_ << 16 | l_; })
 
-#define VBLANK_RISE() do { while (DISPSTAT & 1) ; while (!(DISPSTAT & 1)) ; } while (0)
-#define HBLANK_RISE() do { while (DISPSTAT & 2) ; while (!(DISPSTAT & 2)) ; } while (0)
+#define VBLANK_RISE() do { SPIN(DISPSTAT & 1); SPIN(!(DISPSTAT & 1)); } while (0)
+#define HBLANK_RISE() do { SPIN(DISPSTAT & 2); SPIN(!(DISPSTAT & 2)); } while (0)
 
 static void stopwatch_start(void)
 {
@@ -83,11 +89,9 @@ static ITCM_CODE NOINLINE u32 hblank_low_sum(void)
         HBLANK_RISE();
         for (volatile u32 d = (i * 37) & 63; d; d--)
             ;
-        while (DISPSTAT & 2)
-            ;
+        SPIN(DISPSTAT & 2);
         u32 a = NOW();
-        while (!(DISPSTAT & 2))
-            ;
+        SPIN(!(DISPSTAT & 2));
         sum += NOW() - a;
     }
     return sum;
@@ -116,8 +120,7 @@ static ITCM_CODE NOINLINE u32 frame_with_write(bool write)
     u32 a = NOW();
     if (write)
     {
-        while (VCOUNT != 212)
-            ;
+        SPIN(VCOUNT != 212);
         VCOUNT = 202;
     }
     VBLANK_RISE();
@@ -131,20 +134,23 @@ static ITCM_CODE NOINLINE u32 frame_with_write(bool write)
 // flag rising to GXSTAT bit 27 clearing; *halted is whether the engine was still busy at line 150.
 static ITCM_CODE NOINLINE u32 gx_time(const u32 *pairs, int n, bool *halted)
 {
-    while (VCOUNT != 100)
-        ;
+    SPIN(VCOUNT != 100);
     SWAP_BUF = 0;
     for (int i = 0; i < n; i++)
         GXPORT(pairs[2 * i]) = pairs[2 * i + 1];
-    while (VCOUNT != 150)
-        ;
+    SPIN(VCOUNT != 150);
     *halted = (GXSTAT >> 27 & 1) != 0;
-    while (!(DISPSTAT & 1))
-        ;
+    SPIN(!(DISPSTAT & 1));
     u32 a = NOW();
-    while (GXSTAT & (1u << 27))
-        ;
+    SPIN(GXSTAT & (1u << 27));
     return NOW() - a;
+}
+
+// Waits until the ARM9 write buffer is empty (CP15 c7, c10, 4): a buffered store would otherwise let the stopwatch be
+// read before the last write has really left. ARM state: the thumb instruction set has no coprocessor access.
+static ITCM_CODE NOINLINE __attribute__((target("arm"))) void drain_write_buffer(void)
+{
+    asm volatile("mcr p15, 0, %0, c7, c10, 4" :: "r"(0) : "memory");
 }
 
 // Full FIFO: after SWAP_BUFFERS fill the FIFO to 256 entries, then send k more IDENTITYs; the writes wait
@@ -154,13 +160,20 @@ static ITCM_CODE NOINLINE u32 gx_stall_time(int k)
 {
     VBLANK_RISE();
     u32 a = NOW();
-    while (VCOUNT != 100)
-        ;
+    SPIN(VCOUNT != 100);
     SWAP_BUF = 0;
-    while ((GXSTAT >> 16 & 0x1FF) < 256)
+    for (u32 n = 0; (GXSTAT >> 16 & 0x1FF) < 256; n++)
+    {
+        if (n > SPIN_LIMIT)
+        {
+            g_timeout = true;
+            break;
+        }
         GXPORT(0x15) = 0;
+    }
     for (int i = 0; i < k; i++)
         GXPORT(0x15) = 0;
+    drain_write_buffer();
     return NOW() - a;
 }
 
@@ -168,18 +181,15 @@ static ITCM_CODE NOINLINE u32 gx_stall_time(int k)
 // m - 127 commands. Returns the time from the VBlank flag rising to IF bit 21 (GXFIFO) being set.
 static ITCM_CODE NOINLINE u32 gx_half_time(int m)
 {
-    while (VCOUNT != 100)
-        ;
+    SPIN(VCOUNT != 100);
     SWAP_BUF = 0;
     for (int i = 0; i < m; i++)
         GXPORT(0x15) = 0;
     GXSTAT = (GXSTAT & ~(3u << 30)) | 1u << 30;   // IRQ when less than half full
     GXIF = 1u << 21;
-    while (!(DISPSTAT & 1))
-        ;
+    SPIN(!(DISPSTAT & 1));
     u32 a = NOW();
-    while (!(GXIF & (1u << 21)))
-        ;
+    SPIN(!(GXIF & (1u << 21)));
     u32 t = NOW() - a;
     GXSTAT &= ~(3u << 30);
     GXIF = 1u << 21;
@@ -190,20 +200,15 @@ static ITCM_CODE NOINLINE u32 gx_half_time(int m)
 // stream, sent after the swap command was queued in the previous call.
 static ITCM_CODE NOINLINE void ram_counts(const u32 *pairs, int n, u32 *c191, u32 *c192)
 {
-    while (VCOUNT != 100)
-        ;
+    SPIN(VCOUNT != 100);
     for (int i = 0; i < n; i++)
         GXPORT(pairs[2 * i]) = pairs[2 * i + 1];
     SWAP_BUF = 0;
-    while (VCOUNT != 191)
-        ;
-    while (!(DISPSTAT & 2))
-        ;
+    SPIN(VCOUNT != 191);
+    SPIN(!(DISPSTAT & 2));
     *c191 = RAMCOUNT;
-    while (VCOUNT != 192)
-        ;
-    while (!(DISPSTAT & 2))
-        ;
+    SPIN(VCOUNT != 192);
+    SPIN(!(DISPSTAT & 2));
     *c192 = RAMCOUNT;
 }
 
@@ -259,17 +264,15 @@ static void quad_send(void)
 
 static ITCM_CODE NOINLINE bool quiet_frame(void)
 {
-    while (VCOUNT != 100)
-        ;
+    SPIN(VCOUNT != 100);
     quad_send();
     SWAP_BUF = 0;
     cap_start();                                       // captures the frame after this one
-    while (!(DISPSTAT & 1))
-        ;
+    SPIN(!(DISPSTAT & 1));
     vram_set(VB_G, 0, 0);
     ((vu16 *)0x06894000)[1] = TEX_B;
     vram_set(VB_G, 3, 0);
-    return VCOUNT <= 213;
+    return VCOUNT >= 192 && VCOUNT <= 213;
 }
 
 static u32 tex_quiet_lines(bool *finished)
@@ -297,18 +300,21 @@ static u32 tex_quiet_lines(bool *finished)
 
 // --- streams ----------------------------------------------------------------------------
 
-#define MAXPAIRS 640
+#define MAXPAIRS 2400
 static u32 stream[2 * MAXPAIRS];
 static int stream_n;
 
 static void put(int port, u32 word)
 {
+    if (stream_n >= MAXPAIRS)
+    {
+        g_timeout = true;   // the stream does not fit: never write past the array
+        return;
+    }
     stream[2 * stream_n] = (u32)port;
     stream[2 * stream_n + 1] = word;
     stream_n++;
 }
-
-static bool g_timeout;
 
 static void wait_gx_idle(void)
 {
@@ -442,10 +448,11 @@ bool timing_run(u32 *v)
             if (wr[j] < wr[i]) { u32 t = wr[i]; wr[i] = wr[j]; wr[j] = t; }
         }
     s32 delta = (s32)(wr[1] - norm[1]);
-    if (delta > 0)
+    u32 lines = delta > 0 ? ((u32)delta + 1065) / 2130 : 0;
+    v[TM_VC_LINES] = lines;
+    if (lines > 0)
     {
-        u32 lines = ((u32)delta + 1065) / 2130;
-        v[TM_VC_LINES] = lines;
+        // The residual only means something when whole lines were added.
         s32 res = delta - (s32)lines * 2130;
         v[TM_VC_RESIDUAL] = (u32)(res < 0 ? -res : res);
     }
@@ -468,17 +475,23 @@ bool timing_run(u32 *v)
     v[TM_LYC] = flags;
     v[TM_SWAP_TAIL] = gx_sum(K_SWAP, 0, 1, NULL) * 16 / REPEATS;
 
-    // Full FIFO stall rate: the same frame length is subtracted from both runs.
+    // Full FIFO stall rate: the same frame length is subtracted from both runs. A first pair warms the engine up
+    // (the rate settles after the first use of the full FIFO) and is not counted.
     wait_gx_idle();
     u32 s64 = 0, s192 = 0;
-    for (int r = 0; r < 2; r++)
+    for (int r = 0; r < 5; r++)
     {
-        s64 += gx_stall_time(64);
+        u32 a = gx_stall_time(64);
         wait_gx_idle();
-        s192 += gx_stall_time(192);
+        u32 b = gx_stall_time(192);
         wait_gx_idle();
+        if (r > 0)
+        {
+            s64 += a;
+            s192 += b;
+        }
     }
-    v[TM_GX_STALL] = (s32)(s192 - s64) > 0 ? (s192 - s64) * 16 / (2 * (192 - 64)) : 0;
+    v[TM_GX_STALL] = (s32)(s192 - s64) > 0 ? (s192 - s64) * 16 / (4 * (192 - 64)) : 0;
 
     // Half-full IRQ flag.
     u32 h250 = 0, h200 = 0;
@@ -505,4 +518,65 @@ bool timing_run(u32 *v)
     stopwatch_stop();
     REG_IME = ime;
     return !g_timeout && tex_done;
+}
+
+// --- the motor of the play scene ------------------------------------------------------------
+
+// Sends the pairs and waits for the engine to go idle; the time includes the writes that wait for FIFO room.
+static ITCM_CODE NOINLINE u32 gx_burst(const u32 *pairs, int n)
+{
+    u32 a = NOW();
+    for (int i = 0; i < n; i++)
+        GXPORT(pairs[2 * i]) = pairs[2 * i + 1];
+    SPIN(GXSTAT & (1u << 27));
+    return NOW() - a;
+}
+
+u32 timing_motor_run(const u8 *programs, int passes, u32 *planned)
+{
+    static const u16 cost[4] = { 19, 17 + 22 + 36, 17 + 52 + 36, 19 + 17 + 52 + 22 + 36 };   // model.py TICKS
+    stream_n = 0;
+    u32 plan = 0;
+    for (int r = 0; r < 4; r++)
+    {
+        int m = programs[r];
+        plan += (u32)cost[m] * (u32)passes;
+        put(0x10, m >= 2 ? 2u : 1u);                   // matrix mode 2 for the programs that translate in it
+        for (int i = 0; i < passes; i++)
+        {
+            if (m == 0 || m == 3)
+                put(0x15, 0);
+            if (m >= 1)
+                put(0x11, 0);
+            if (m == 1)
+                put(0x1C, 0), put(0x1C, 0), put(0x1C, 0);
+            if (m >= 2)
+                put(0x1C, 0), put(0x1C, 0), put(0x1C, 0);
+            if (m == 3)
+                put(0x1B, 0x1000), put(0x1B, 0x1000), put(0x1B, 0x1000);
+            if (m >= 1)
+                put(0x12, 1);
+        }
+    }
+    if (planned)
+        *planned = plan;
+    u32 ime = REG_IME;
+    REG_IME = 0;
+    stopwatch_start();
+    g_timeout = false;
+    wait_gx_idle();
+    u32 t = gx_burst(stream, stream_n);
+    stopwatch_stop();
+    REG_IME = ime;
+    return t;
+}
+
+void timing_lever_kick(void)
+{
+    u32 ime = REG_IME;
+    REG_IME = 0;
+    stopwatch_start();
+    frame_with_write(true);
+    stopwatch_stop();
+    REG_IME = ime;
 }

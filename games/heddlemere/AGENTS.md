@@ -35,11 +35,17 @@ QA and docs). Target level 3, area "3D engine and scanline timing" (GBATEK secti
 ## Code map
 
 - `arm9/source/main.c`: init, scene loop.
-- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset, text screens, `display_3d_top()`), `title.c` (placeholder title,
-  `TODO(title)`), `select.c` (chapter and order list), `play.c` (one order: the cell table, the cloth, deliver; `hm_play_hook` lets
+- `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset, text screens, `display_3d_top()`), `title.c` (the woven name on BG2 over a raster-woven cloth), `select.c` (chapter and order list), `play.c` (one order: the cell table, the cloth, deliver; `hm_play_hook` lets
   the rehearsal replace the input), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot: follows `order_plan()`),
   `order.c/.h` (the `cv_orders` blob and the rules: pure logic, mirrors `tools/hmorder/model.py`), `credits.c`, `qa_game.c` + `qa_tune.h`,
   `rehearsal.c/.h` (block layout `HMRH`, `rehearsal_measure()`).
+- `arm9/source/gfx/loom.c/.h`: the cloth on BG1 (char base 1, map block 29, palette line 9). Raster: one checker tile, the HBlank IRQ writes `BG1HOFS` (weave shift of the
+  line: plain 0, twill k, herringbone and diamond triangle waves) and palette entry 1 (thread colour) for the next line. Blueprint (Select): the same pixels computed by the
+  CPU into unique tiles, no IRQ, so a wrong raster effect never blocks the game; the two renderings are pixel-identical in melonDS software (checked with screenshots).
+- `arm9/source/gfx/loom3d.c/.h`: the heddle frame in 3D on BG0 (screen lines 144..191, the rest transparent): one bar per row, moved by the row's program with the real
+  push / translate / scale / pop / identity commands (matrix mode 2 where the program says so). `display_3d_top()` puts the text on BG3 and leaves BG1 to the cloth.
+  `game/play.c` `run_motor()` runs the programs through the engine at delivery (`timing_motor_run()`) and lights the motor lamp (information only);
+  every lever pulled costs one real VCOUNT write (`timing_lever_kick()`). Dye is model logic in the ROM (the quiet-line hardware behaviour is judged by the rehearsal).
 - `arm9/source/judge/timing.c/.h`: the measurements (values[1..20]). Polling loops in ITCM with the 33.51 MHz stopwatch (timers 0+1), IME=0: line and
   frame length (means over 2000 lines / 32 frames), HBlank-low span (the delay before the fall poll sweeps, so the poll grid averages out),
   VBlank flag lines and 9-bit LYC from one frame of lines, VCOUNT write (frame with and without a write at line 212, medians), geometry

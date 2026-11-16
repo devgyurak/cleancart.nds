@@ -13,10 +13,16 @@
 #include "game/play.h"
 #include "game/scenes.h"
 #include "gfx/fx.h"
+#include "gfx/gl3d.h"
+#include "gfx/loom.h"
+#include "gfx/loom3d.h"
+#include "judge/timing.h"
 #include "gfx/text.h"
 
 void (*hm_play_hook)(void);
 static PlayView pv;
+static bool lamp_done, lamp_ok;      // the motor lamp (run_motor())
+static u32 lamp_measured, lamp_planned;
 static CvText top_text, bot_text;
 
 void play_view(PlayView *v)
@@ -66,6 +72,7 @@ static void draw_table(void)
         // The order's own values in gray under the cells that matter.
         text_put(&bot_text, col_x[COL_COLOUR], y + 1, TP_GRAY, hm_col_value[COL_COLOUR][o->colour[r]]);
         text_put(&bot_text, col_x[COL_WEAVE], y + 1, TP_GRAY, hm_col_value[COL_WEAVE][o->weave[r]]);
+        text_printf(&bot_text, col_x[COL_PROGRAM], y + 1, TP_GRAY, "T%lu", (unsigned long)order_row_ticks(o, pv.cur, r));
         if (o->dye[r])
             text_put(&bot_text, col_x[COL_DYE], y + 1, TP_GRAY, "QUIET");
         for (int c = 0; c < HM_COLS; c++)
@@ -81,27 +88,76 @@ static void draw_table(void)
     {
         text_printf(&bot_text, 1, 19, TP_GREEN, "DELIVERED  %.*s", play_stars(pv.moves, o->par), "***");
         text_put(&bot_text, 1, 21, TP_GRAY, "A: NEXT  B: LIST");
+        text_printf(&bot_text, 17, 17, lamp_done ? (lamp_ok ? TP_GREEN : TP_RED) : TP_GRAY, "MOTOR %s",
+                    lamp_done ? (lamp_ok ? "OK" : "CHECK") : "--");
     }
     else
     {
         text_put(&bot_text, 1, 19, TP_GRAY, "UP/DOWN CELL  L/R TURN");
-        text_put(&bot_text, 1, 21, TP_GRAY, "A: DELIVER  B: LIST");
+        text_put(&bot_text, 1, 21, TP_GRAY, "A DELIVER B LIST SEL VIEW");
     }
 }
 
-// The cloth on the top screen: one band per row (the raster weave replaces this, see AGENTS.md).
+// The cloth on the top screen: four bands of thread woven by gfx/loom.c (raster interrupt, or the CPU-drawn blueprint
+// with Select), the order name above and the chapter below.
+static bool blueprint;
+static u8 shown_colour[HM_ROWS], shown_weave[HM_ROWS];
+
+static void sync_cloth(bool force)
+{
+    bool changed = force;
+    for (int r = 0; r < HM_ROWS; r++)
+    {
+        u8 c = pv.cur[r * HM_COLS + COL_COLOUR], w = pv.cur[r * HM_COLS + COL_WEAVE];
+        if (force || c != shown_colour[r] || w != shown_weave[r])
+        {
+            loom_row(r, c, w);
+            shown_colour[r] = c;
+            shown_weave[r] = w;
+            changed = true;
+        }
+    }
+    if (changed && !force)
+        loom_refresh();
+}
+
+// The programs the rows run: the cell in the chapters that have the column, else the loom's own (the weave's).
+static void row_programs(u8 *programs, u8 *dyed)
+{
+    for (int r = 0; r < HM_ROWS; r++)
+    {
+        programs[r] = pv.cur[r * HM_COLS + (order_col_active(pv.order.chapter, COL_PROGRAM) ? COL_PROGRAM : COL_WEAVE)];
+        int dye = order_col_active(pv.order.chapter, COL_DYE) ? pv.cur[r * HM_COLS + COL_DYE] : 0;
+        dyed[r] = dye >= 2 && dye <= 4;   // lines 192, 200, 213 (assets: hm_dye_line)
+    }
+}
+
+// The motor runs when the cloth is delivered: the programs through the geometry engine, one lever kick per lever pulled.
+// The lamp compares the measured cycles with the GBATEK costs; it is information only and never blocks the delivery.
+static void run_motor(void)
+{
+    u8 programs[HM_ROWS], dyed[HM_ROWS];
+    row_programs(programs, dyed);
+    lamp_measured = timing_motor_run(programs, pv.order.passes, &lamp_planned);
+    for (int i = order_levers(pv.cur); i > 0; i--)
+        timing_lever_kick();
+    lamp_ok = lamp_measured * 20 >= lamp_planned * 19 && lamp_measured * 10 <= lamp_planned * 11;
+    lamp_done = true;
+}
+
 static void draw_cloth(void)
 {
+    u8 programs[HM_ROWS], dyed[HM_ROWS], colours[HM_ROWS];
+    row_programs(programs, dyed);
+    for (int r = 0; r < HM_ROWS; r++)
+        colours[r] = pv.cur[r * HM_COLS + COL_COLOUR];
+    loom3d_draw(colours, programs, dyed);
+    g3_flush(false);
     text_clear(&top_text);
     const HmOrder *o = &pv.order;
     text_printf(&top_text, 1, 0, TP_YELLOW, "%s", o->name);
-    text_printf(&top_text, 1, 22, TP_GRAY, "CHAPTER %d  %s", o->chapter, hm_chapter_name[o->chapter - 1]);
-    for (int r = 0; r < HM_ROWS; r++)
-    {
-        text_printf(&top_text, 2, 3 + r * 4, TP_WHITE, "ROW %d  %s %s", r + 1, hm_col_value[COL_COLOUR][pv.cur[r * HM_COLS + COL_COLOUR]],
-                    hm_col_value[COL_WEAVE][pv.cur[r * HM_COLS + COL_WEAVE]]);
-        text_printf(&top_text, 2, 4 + r * 4, TP_GRAY, "TICKS %lu", (unsigned long)order_row_ticks(o, pv.cur, r));
-    }
+    text_printf(&top_text, 1, 1, TP_GRAY, "CH %d %s", o->chapter, hm_chapter_name[o->chapter - 1]);
+    text_put(&top_text, 20, 1, TP_GRAY, blueprint ? "BLUEPRINT" : "RASTER");
 }
 
 static void apply_input(void)
@@ -129,16 +185,26 @@ HmScene scene_play(void)
 {
     if (!load_order())
         return SC_SELECT;
-    scene_text_screens(&top_text, &bot_text);
+    display_3d_top(&top_text, &bot_text);
     fx_bright(FX_BOTH, 0);
+    lamp_done = false;
+    loom_begin(16, HM_ROWS, 40);
+    sync_cloth(true);
+    loom_show(blueprint);
     for (;;)
     {
+        sync_cloth(false);
         draw_cloth();
         draw_table();
         scene_frame_end();
         if (hm_play_hook)
             hm_play_hook();
         apply_input();
+        if (cv_in.pressed & KEY_SELECT)
+        {
+            blueprint = !blueprint;
+            loom_show(blueprint);
+        }
         if (cv_in.pressed & KEY_A)
         {
             if (pv.done)
@@ -148,6 +214,10 @@ HmScene scene_play(void)
                 {
                     hm_index++;
                     load_order();
+                    lamp_done = false;
+                    loom_begin(16, HM_ROWS, 40);
+                    sync_cloth(true);
+                    loom_show(blueprint);
                 }
                 else
                     return SC_SELECT;
@@ -155,6 +225,7 @@ HmScene scene_play(void)
             else if (order_solved(&pv.order, pv.cur))
             {
                 pv.done = true;
+                run_motor();
                 hm_done_bits |= 1ull << order_find(pv.order.chapter, pv.order.index, NULL);
                 snd_sfx(CV_SFX_CHIME, 100, 64);
             }

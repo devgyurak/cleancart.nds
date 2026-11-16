@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
-// Title screen (scaffold placeholder, TODO(title): replaced by a picture of the loom before the release).
-// The name is a generated tile BG (BG2) over the text screen.
+// Title screen: the name, woven in six thread colours (a generated tile BG on BG2), over a cloth of six raster-woven
+// bands (gfx/loom.c, BG1) whose threads and weaves drift.
 //
 // Layers on the top screen (engine A, scene_text_screens()): BG0 = text (char base 0, map block 31,
 // priority 0), BG2 = lettering (char base 2 = 0x06008000, map block 30 = 0x0600F000, palette line 8,
-// priority 0, below the text because it has the higher BG number). The font is 82 tiles at
+// priority 1, below the text; the cloth is BG1 at priority 2). The font is 82 tiles at
 // 0x06000000, so the lettering tiles end well below block 30.
 
 #include <nds.h>
@@ -20,6 +20,7 @@
 #include "core/sys.h"
 #include "game/scenes.h"
 #include "gfx/fx.h"
+#include "gfx/loom.h"
 #include "gfx/text.h"
 
 #define MAIN_BG ((u8 *)0x06000000)
@@ -42,13 +43,16 @@ static void load_lettering(void)
     // for the bottom text.
     for (int i = 0; i < 32 * 32; i++)
         map[i] = HM_TITLE_BLANK | HM_TITLE_PAL_LINE << 12;
+    // A dark strip behind the lettering, one tile row above and below it, so the cloth does not eat the letters.
+    for (int i = (LETTER_ROW - 1) * 32; i < (LETTER_ROW + HM_TITLE_ROWS + 1) * 32; i++)
+        map[i] = HM_TITLE_PANEL | HM_TITLE_PAL_LINE << 12;
     for (int i = PANEL_ROW * 32; i < 24 * 32; i++)
         map[i] = HM_TITLE_PANEL | HM_TITLE_PAL_LINE << 12;
     const u16 *src = (const u16 *)cv_title_map;
     for (int r = 0; r < HM_TITLE_ROWS; r++)
         for (int c = 0; c < HM_TITLE_COLS; c++)
             map[(LETTER_ROW + r) * 32 + LETTER_COL + c] = src[r * HM_TITLE_COLS + c];
-    REG_BG2CNT = BG_TILE_BASE(LETTER_CHAR_BASE) | BG_MAP_BASE(LETTER_MAP_BLOCK) | BG_PRIORITY(0);
+    REG_BG2CNT = BG_TILE_BASE(LETTER_CHAR_BASE) | BG_MAP_BASE(LETTER_MAP_BLOCK) | BG_PRIORITY(1);
     REG_BG2HOFS = 0;
     REG_BG2VOFS = 0;
     REG_DISPCNT |= DISPLAY_BG2_ACTIVE;
@@ -58,6 +62,10 @@ HmScene scene_title(void)
 {
     scene_text_screens(&main_text, &sub_text);
     load_lettering();
+    loom_begin(0, 6, 32);
+    for (int r = 0; r < 6; r++)
+        loom_row(r, r, (r * 5 + 1) & 3);
+    loom_show(false);
 
     text_center(&main_text, 18, TP_GRAY, "A PUNCH CARD LOOM");
     text_center(&main_text, 21, TP_WHITE, "PRESS START");
@@ -76,6 +84,10 @@ HmScene scene_title(void)
         // Fade in inside the loop (fx_fade_in() only waits for vblanks).
         if (f < 20)
             fx_bright(FX_BOTH, -(16 * (19 - f) / 20));
+        // The cloth drifts: every 90 frames the threads move one band down.
+        if (f % 90 == 0)
+            for (int r = 0; r < 6; r++)
+                loom_row(r, (r + f / 90) % 6, ((r + f / 90) * 5 + 1) & 3);
         // Blink the prompt.
         text_center(&main_text, 21, (f / 30) & 1 ? TP_GRAY : TP_WHITE, "PRESS START");
         scene_frame_end();

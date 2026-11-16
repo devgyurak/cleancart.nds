@@ -26,7 +26,7 @@ static void vblank_dispatch(void)
         vblank_fns[i]();
 }
 
-static void hblank_dispatch(void)
+static ITCM_CODE void hblank_dispatch(void)
 {
     cv_hblank_count++;
     if (hblank_fn)

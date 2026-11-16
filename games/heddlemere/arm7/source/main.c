@@ -82,6 +82,9 @@ static void vblank_handler(void)
 // handler. Timers 2 and 3 (cascaded) are the stopwatch: the sound code only uses timer 0.
 #define HM_LINES 512
 
+static volatile bool measure_requested;
+
+// Bounded: a flag that never toggles ends the measurement after about 40 x 65536 cycles instead of hanging the core.
 static u32 measure_hblank_low(void)
 {
     TIMER_DATA(2) = 0;
@@ -91,6 +94,12 @@ static u32 measure_hblank_low(void)
     u32 sum = 0;
     for (u32 i = 0; i < HM_LINES; i++)
     {
+        if (TIMER_DATA(3) > 40)
+        {
+            TIMER_CR(2) = 0;
+            TIMER_CR(3) = 0;
+            return 0xFFFF;
+        }
         while (REG_DISPSTAT & 2)
             ;
         while (!(REG_DISPSTAT & 2))
@@ -127,7 +136,7 @@ static void sys_value_handler(u32 value, void *userdata)
             fifoSendValue32(CV_FIFO_SYS, CV_SYS_PONG);
             break;
         case CV_SYS_HM_HBLANK:
-            fifoSendValue32(CV_FIFO_SYS, CV_SYS_REPLY | measure_hblank_low());
+            measure_requested = true;   // run from the main loop: about four frames with the interrupts on
             break;
         default:
             break;
@@ -180,6 +189,12 @@ int main(int argc, char *argv[])
         {
             rtc_counter = 0;
             read_rtc();
+        }
+
+        if (measure_requested)
+        {
+            measure_requested = false;
+            fifoSendValue32(CV_FIFO_SYS, CV_SYS_REPLY | measure_hblank_low());
         }
 
         swiWaitForVBlank();

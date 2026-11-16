@@ -762,7 +762,6 @@
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
       "ng": [
-        "gx-full-stall-rate",
         "hblank-low-arm9"
       ],
       "na": []
@@ -770,7 +769,6 @@
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
       "ng": [
-        "gx-full-stall-rate",
         "hblank-low-arm9"
       ],
       "na": []
@@ -778,7 +776,6 @@
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
       "ng": [
-        "gx-full-stall-rate",
         "hblank-low-arm9"
       ],
       "na": []
