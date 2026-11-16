@@ -346,7 +346,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map",
+      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Stack",
       "done": {
         "value": 0,
         "mask": 1
@@ -359,7 +359,7 @@
     },
     {
       "id": "gx-box-cycles",
-      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 254; informational until measured on hardware",
+      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware",
       "boots": [
         "rehearsal",
         "qa"
@@ -440,7 +440,7 @@
     },
     {
       "id": "swap-tail",
-      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 325; informational until measured on hardware",
+      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware",
       "boots": [
         "rehearsal",
         "qa"
