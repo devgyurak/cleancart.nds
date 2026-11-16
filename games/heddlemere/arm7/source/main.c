@@ -96,6 +96,23 @@ static __attribute__((target("arm"), noinline)) void delay_sled(u32 n)
                  ".endr" :: "r"(63 - (n & 63)) : "memory");
 }
 
+// One low span: both timer reads sit right after their poll loop exits, so nothing the caller does next can be scheduled
+// between an edge and its read (the compiler moved the loop condition in front of the second read: +10 cycles).
+static __attribute__((noinline)) u32 low_span(void)
+{
+    u32 n = 0;
+    while (REG_DISPSTAT & 2)
+        if (++n > 400000u)
+            return 0xFFFFFFFFu;
+    u32 a = TIMER_DATA(2);
+    n = 0;
+    while (!(REG_DISPSTAT & 2))
+        if (++n > 400000u)
+            return 0xFFFFFFFFu;
+    u32 b = TIMER_DATA(2);
+    return (b - a) & 0xFFFF;   // the span is far below 65536 cycles
+}
+
 static u32 measure_hblank_low(void)
 {
     TIMER_DATA(2) = 0;
@@ -117,11 +134,13 @@ static u32 measure_hblank_low(void)
         delay_sled(lcg >> 24);   // 1..64 ARM cycles, well inside the 524 cycles of the high phase
         if (!(REG_DISPSTAT & 2))
             continue;
-        WAIT(REG_DISPSTAT & 2);
-        u32 a = TIMER_DATA(2);
-        WAIT(!(REG_DISPSTAT & 2));
-        u32 b = TIMER_DATA(2);
-        sum += (b - a) & 0xFFFF;   // the span is far below 65536 cycles
+        u32 span = low_span();
+        if (span == 0xFFFFFFFFu)
+        {
+            stuck = true;
+            break;
+        }
+        sum += span;
         taken++;
     }
 #undef WAIT
