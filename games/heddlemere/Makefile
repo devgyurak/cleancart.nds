@@ -32,7 +32,7 @@ GAME_SUBTITLE := A stained glass workshop
 GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. HDLM
-# is in no ROM list we know of (corvane CRVN, hushwell HSWL, lightenette LNTT, elevane ELVN, probes PRBS); melonDS then emulates an 8 KB EEPROM.
+# is in no ROM list we know of (corvane CRVN, hushwell HSWL, lightenette LNTT, elevane ELVN, paneveil PNVL, ledgerine LDGR, tonewick TWCK, probes PRBS); melonDS then emulates an 8 KB EEPROM.
 GAME_CODE     := HDLM 00 HEDDLEMERE
 # DS-only unit code. With the default (2, DS or DSi) and no DSi region,
 # melonDS blocks every card read of a non-homebrew ROM in DS mode as "DSi

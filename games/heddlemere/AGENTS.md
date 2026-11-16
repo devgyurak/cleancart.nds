@@ -6,8 +6,8 @@ with a Korean twin `*-KO.md`): `README.md`, `docs/QA.md`, `ASSETS.md`; plus `THI
 Repo-wide rules are in `../../AGENTS.md`. Created from paneveil (which came from elevane, lightenette and the corvane
 template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's layers (keep fixes in sync when they apply to all games).
 
-Status: scaffold (stack of PRs onto develop: scaffold, measurement core, raster weave and blueprint, motor/lever/dye,
-QA and docs). Target level 3, area "3D engine and scanline timing" (GBATEK sections `DS Video Stuff`, `DS 3D I/O Map`,
+Status: all five chapters, play scene, loom (raster + blueprint + 3D frame), measurements, judge with four profiles, QA run and docs; v0.1.0 is next
+(release PR develop -> main, tag `heddlemere-v0.1.0`; trademark check and hardware QA open). Target level 3, area "3D engine and scanline timing" (GBATEK sections `DS Video Stuff`, `DS 3D I/O Map`,
 `LCD I/O Interrupts and Status`).
 
 ## Design principles

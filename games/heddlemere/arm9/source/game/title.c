@@ -77,7 +77,7 @@ HmScene scene_title(void)
                 sys_ipcsync_seen() == CV_SYNC_ARM7_READY ? "MOUNTED" : "WAITING");
     text_printf(&sub_text, 1, 22, TP_GRAY, "SAVE CHIP: %s", save_type_name());
 
-    snd_bgm(CV_SONG_CLERESTORY);
+    snd_bgm(CV_SONG_SELVAGE);
     fx_bright(FX_BOTH, -16);
     for (int f = 0;; f++)
     {

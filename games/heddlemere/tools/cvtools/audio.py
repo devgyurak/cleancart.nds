@@ -390,8 +390,8 @@ def compose(seed, root, scale, prog, bpm, bars_per_chord=1, density=0.6,
 
 
 SONGS = [
-    # name, composer arguments (Heddlemere: a slow cathedral pad piece in minor, no drums; title and credits)
-    ('clerestory', dict(seed=0xC4ED, root=50, scale='minor', prog=[0, 5, 3, 6, 0, 3, 4, 0], bpm=66, bars_per_chord=2, drums='none', intro_bars=2, density=0.35)),
+    # name, composer arguments (Heddlemere: a steady dorian shuttle piece, no drums; title and credits)
+    ('selvage', dict(seed=0x5E1B, root=53, scale='dorian', prog=[0, 3, 4, 0, 5, 3, 1, 4], bpm=88, bars_per_chord=2, drums='none', intro_bars=2, density=0.5)),
 ]
 
 
