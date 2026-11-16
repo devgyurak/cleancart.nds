@@ -1,0 +1,7 @@
+# Chapter 5 PAVILION: windows that use most settings; the last one sets all twelve.
+LANTERN: side=BACK tint=TINT motif=ARC petals=6 rings=2
+CHAPEL: motif=BARS repeat=4X edge=CLAMP colour=RUBY petals=8 decal=ON
+ORIEL: tint=SKETCH flip=ST colour=SEA rings=3 grain=2
+ROTUNDA: side=BOTH motif=ARC repeat=2X flip=S colour=VIOLET cutout=CUT petals=7 rings=3
+SOLARIUM: tint=TINT motif=BARS flip=T colour=SEA petals=5 rings=2 decal=ON grain=3
+GRAND HALL: side=BACK tint=SKETCH motif=BARS repeat=4X flip=ST edge=CLAMP colour=RUBY cutout=CUT petals=8 rings=3 decal=ON grain=1

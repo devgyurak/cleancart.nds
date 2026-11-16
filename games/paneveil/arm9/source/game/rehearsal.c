@@ -63,7 +63,7 @@ void rehearsal_run(void)
 
     // The first window of every chapter that has windows, through the live play scene.
     pv_play_hook = script_hook;
-    u32 played = 0;
+    u32 played = 0, chapters = 0;
     for (int ch = 1; ch <= PV_CHAPTERS; ch++)
     {
         if (win_chapter_size(ch) == 0)
@@ -73,9 +73,10 @@ void rehearsal_run(void)
         pv_view3d = true;
         scene_play();
         played |= 1u << (ch - 1);
+        chapters += win_was_baked(ch, 1);
     }
     pv_play_hook = NULL;
-    result[1] = (u32)win_baked_count();
+    result[1] = chapters;
     result[2] = played;
 
     // The light box (judge/lightbox.c): values[16..30], capture bits in flags 8..12.

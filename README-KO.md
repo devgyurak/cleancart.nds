@@ -44,7 +44,7 @@
 | [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
 | [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 19 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 17<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
-| [Paneveil](games/paneveil/) | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 29 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
+| [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -61,7 +61,7 @@
 이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
 
 <!-- levels:begin -->
-<details><summary><b>L1 기능</b> · Corvane, Hushwell, Paneveil (163 개)</summary>
+<details><summary><b>L1 기능</b> · Corvane, Hushwell, Paneveil (164 개)</summary>
 
 #### Corvane · graphics and system
 
@@ -209,9 +209,9 @@
 
 #### Paneveil · 3D geometry and texturing
 
-목표 29 · 전제 조건 1
+목표 30 · 전제 조건 1
 
-- `play-windows` · The rehearsal baked the first window of every chapter that has windows (4 windows) · [expected.json](games/paneveil/expected.json)
+- `play-windows` · The rehearsal baked the first window of every chapter that has windows (5 windows) · [expected.json](games/paneveil/expected.json)
 - `mtx-push-level` · Three pushes leave the position stack at level 3 (GXSTAT bits 8-12) · [expected.json](games/paneveil/expected.json)
 - `mtx-pop-restores` · MTX_POP returns the matrix that was pushed: 0 of 16 CLIPMTX_RESULT words differ · [expected.json](games/paneveil/expected.json)
 - `mtx-pop-n-level` · MTX_POP with N = 2 from level 3 leaves level 1 · [expected.json](games/paneveil/expected.json)
@@ -240,6 +240,7 @@
 - `tex-colour0-shown` · Colour 0 displayed shows palette entry 0 (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
 - `tex-pltt-base` · PLTT_BASE picks the palette set (4 of 4 texel samples) · [expected.json](games/paneveil/expected.json)
 - `tex-coord-mode1` · Transformation mode 1 applies the texture matrix: a swap of S and T transposes the texture (4 of 4 samples) · [expected.json](games/paneveil/expected.json)
+- `qa-verdict` · The QA run ended with PASS (QARN verdict 1) · [expected.json](games/paneveil/expected.json)
 
 </details>
 

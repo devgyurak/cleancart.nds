@@ -346,7 +346,9 @@ static void three_pushes(Seq *s)
     put(s, C_PUSH, 0);
 }
 
-// The mixed sequence of the two port checks: every command of the level 1 set.
+// The mixed sequence of the two port checks: every command of the level 1 set. The stack commands
+// run in mode 2 (position and vector matrices together); the documented exception that mode 1
+// stack commands also move the vector matrix is not part of this check.
 static void mixed(Seq *s)
 {
     put(s, C_MODE, 1, 0);
@@ -356,13 +358,13 @@ static void mixed(Seq *s)
     put_mat(s, C_MULT43, 12, M43);
     put(s, C_PUSH, 0);
     put_mat(s, C_MULT33, 9, RX);
+    put(s, C_STORE, 1, 3);
     put(s, C_MODE, 1, 1);
     put(s, C_SCALE, 3, K(2), H(1), K(1));
-    put(s, C_STORE, 1, 3);
     put(s, C_TRANS, 3, K(1), 0, -K(1));
     put_mat(s, C_MULT44, 16, M44);
-    put(s, C_PUSH, 0);
     put(s, C_MODE, 1, 2);
+    put(s, C_PUSH, 0);
     put_mat(s, C_MULT33, 9, HALF3);
     put(s, C_POP, 1, 1);
     put(s, C_RESTORE, 1, 3);

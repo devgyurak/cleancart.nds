@@ -9,7 +9,7 @@ Repo-wide rules are in `../../AGENTS.md`. Created from elevane (which came from 
 corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's layers (keep fixes
 in sync when they apply to all games).
 
-Status: chapters 1 to 4 (24 windows), play scene, kiln check, light box, QA mode. Chapter 5 follows. Target level 1, area "3D geometry and texturing"
+Status: all five chapters (30 windows), play scene, kiln check, light box, QA mode with the judge epilogue; v0.1.0 is next. Target level 1, area "3D geometry and texturing"
 (GBATEK sections no other game judges: matrix stack, matrix load/multiply, geometry commands,
 polygon attributes, texture attributes, texture coordinates).
 
@@ -46,7 +46,11 @@ polygon attributes, texture attributes, texture coordinates).
   needed only here), `qa_game.c` + `qa_tune.h`, `rehearsal.c/.h`.
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them
   identical to the other games'). Title: hold **L+R+X+Y for 120 frames** (press L and R before X), or the
-  SD marker `cleancart/paneveil/autoqa`.
+  SD marker `cleancart/paneveil/autoqa`. The run is title -> window list -> all 30 windows (`script_step()` through the
+  live play scene; the list is driven with the D-pad and A) -> list -> title -> credits -> title; there `judge_epilogue()`
+  (`game/qa_game.c`) runs the kiln check and the light box once and `qa_game_publish()` rewrites the block in the rehearsal's
+  layout (`values[0..30]`) plus the QA words at `values[48..54]` (48 = verdict 1 PASS), so `tools/judge.py` grades it as
+  boot `qa`. Nothing is tuned (`QaTune` is empty). A checkpoint per chapter, one for the judge and one at the credits.
 - `arm9/source/judge/capture.*`: every display capture goes through `cap_start()` and `cap_done()`
   (bank D is the capture target).
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers.

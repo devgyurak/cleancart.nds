@@ -19,12 +19,16 @@
 #include "game/scenes.h"
 #include "game/script.h"
 #include "game/window.h"
+#include "judge/bench.h"
+#include "judge/lightbox.h"
 
 // No tunable numbers (see qa_tune.h).
 const QaTune qa_tune_off = { 0 };
 const QaTune qa_tune_on = { 0 };
 
-static bool credits_seen, save_proved;
+// The combined block in the rehearsal's layout (game/rehearsal.h): values[0..30].
+static u32 res[31];
+static bool credits_seen, save_proved, judged;
 static unsigned chapters_done;   // bit n-1: chapter n was left through the window list
 static int prev_scene = -1;
 
@@ -35,7 +39,8 @@ const char *qa_game_name(void)
 
 void qa_game_reset(void)
 {
-    credits_seen = save_proved = false;
+    memset(res, 0, sizeof(res));
+    credits_seen = save_proved = judged = false;
     chapters_done = 0;
     prev_scene = -1;
     // A run starts from the same place whatever the player did before: first window, 3D view,
@@ -53,7 +58,7 @@ static unsigned baked(void)
 
 u32 qa_game_hash(void)
 {
-    u32 w[3] = { baked(), chapters_done, credits_seen };
+    u32 w[4] = { baked(), chapters_done, credits_seen, judged };
     return qalog_fnv(QALOG_FNV_INIT, w, sizeof(w));
 }
 
@@ -64,7 +69,25 @@ void qa_game_words(u32 *w)
     w[2] = credits_seen;
     w[3] = chapters_done;
     w[4] = cv_frame;
-    w[5] = 0;
+    w[5] = judged;
+}
+
+// The kiln check and the light box once, after the credits: the same measurement the rehearsal makes.
+static void judge_epilogue(void)
+{
+    u32 kiln[KILN_ITEMS];
+    kiln_run(kiln);
+    for (int i = 0; i < KILN_ITEMS; i++)
+        res[3 + i] = kiln[i];
+    LightboxResult lb;
+    lightbox_run(&lb);
+    for (int i = 0; i < LB_ITEMS; i++)
+        res[16 + i] = lb.v[i];
+    res[0] = 1u | (kiln_ok(kiln) ? 2u : 0) | lb.done << 8;
+    res[1] = (u32)__builtin_popcount(chapters_done);
+    res[2] = chapters_done;
+    judged = true;
+    qa_checkpoint("judge", qa_game_hash());
 }
 
 void qa_game_scene(int id)
@@ -74,7 +97,8 @@ void qa_game_scene(int id)
         // A chapter ends here (the last window returns to the list).
         static const char *const names[] = { "ch0", "ch1", "ch2", "ch3", "ch4", "ch5" };
         int ch = pv_chapter >= 1 && pv_chapter <= PV_CHAPTERS ? pv_chapter : 0;
-        chapters_done |= 1u << (ch - 1 < 0 ? 0 : ch - 1);
+        if (ch)
+            chapters_done |= 1u << (ch - 1);
         qa_checkpoint(names[ch], qa_game_hash());
         qalog_line("game", "chapter_end", "n=%d baked=%u", ch, baked());
     }
@@ -94,6 +118,7 @@ void qa_game_scene(int id)
         case SC_TITLE:
             if (credits_seen)
             {
+                judge_epilogue();
                 qa_checkpoint("credits", qa_game_hash());
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
@@ -105,10 +130,22 @@ void qa_game_scene(int id)
     }
 }
 
-// The block stays in the common QA layout (core/qalog.c): nothing to add.
+// The rehearsal's block layout (values[0..30]) plus the QA words after it (values[48..54]).
 void qa_game_publish(bool pass)
 {
+    volatile CvResult *r = CV_RESULT;
+    u32 common[7];
+    for (int i = 0; i < 7; i++)
+        common[i] = r->values[i];
+    r->magic = 0;
+    for (int i = 0; i < 61; i++)
+        r->values[i] = i < 31 ? res[i] : 0;
+    for (int i = 0; i < 7; i++)
+        r->values[48 + i] = common[i];
     (void)pass;
+    DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    r->magic = CV_RESULT_MAGIC;   // last
+    DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 
 // The first chapter that still has a window that was not baked during this run (0: none).

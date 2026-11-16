@@ -8,8 +8,8 @@
 //
 // Block (CvResult, 64 words: magic, id, frame, values[0..60]); id "PVRH" = 0x48525650.
 //   values[0]   flags: bit 0 the kiln check ran, 1 every kiln value is the expected one
-//   values[1]   windows baked by the scripted play (5)
-//   values[2]   reserved
+//   values[1]   chapters whose first window the scripted play baked (5); in the QA run, chapters finished
+//   values[2]   mask of those chapters, bit n-1 = chapter n (0x1f)
 //   values[3..15]  the kiln check (judge/bench.h, KILN_*): stack levels, words that differ
 //               from the model after pop / pop N / store / restore, the projection stack,
 //               CLIPMTX_RESULT and VECMTX_RESULT against the model, packed GXFIFO and direct ports
