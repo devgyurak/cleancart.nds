@@ -133,6 +133,6 @@ static void audit_trestle(void)
 }
 
 const Room room_trestle = {
-    "THE TRESTLE", "UPPER TOWER", "DS SOUND NOTES", trestle_puzzles,
+    "THE TRESTLE", "UPPER TOWER", "SOUND NOTES", trestle_puzzles,
     (int)(sizeof(trestle_puzzles) / sizeof(trestle_puzzles[0])), audit_trestle,
 };

@@ -28,11 +28,11 @@ ifeq ($(DEMO),io-save-fram)
 endif
 
 GAME_TITLE    := Tonewick
-GAME_SUBTITLE := A machine-room ledger puzzle
+GAME_SUBTITLE := A listening-post signal puzzle
 GAME_AUTHOR   := devgyurak
 # Header game code, maker code and title. Not "####": melonDS (and some
 # loaders) treat that code as homebrew and attach no save chip at all. TWCK
-# is in no ROM list we know of (corvane CRVN, hushwell HSWL, lightenette LNTT); melonDS then emulates an 8 KB EEPROM.
+# is in no ROM list we know of (corvane CRVN, hushwell HSWL, lightenette LNTT, ledgerine LDGR); melonDS then emulates an 8 KB EEPROM.
 GAME_CODE     := TWCK 00 TONEWICK
 # DS-only unit code. With the default (2, DS or DSi) and no DSi region,
 # melonDS blocks every card read of a non-homebrew ROM in DS mode as "DSi

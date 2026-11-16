@@ -3,7 +3,7 @@
  "schema": 3,
  "target_level": 2,
  "area": "sound and I/O edges",
- "about": "Expected result-block values for the Tonewick rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/lab.h. Every item reads one or two raw measurements (values[1..36]) taken by the ROM with the capture units and the system devices, and the range or value GBATEK gives; a value a capture never reached is 0xFFFF and fails its item. Items carry \"done\": the completion bit of their district in values[0]. \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The save items need a save chip (env \"cart\", n/a when the run has none).",
+ "about": "Expected result-block values for the Tonewick rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/lab.h. Every item reads one or two raw measurements (values[1..36]) taken by the ROM with the capture units and the system devices, and the range or value GBATEK gives; a value a capture never reached is 0xFFFF, which fails every range, eq and mask item here (the RTC item names it in not_value). Items carry \"done\": the completion bit of their district in values[0] (the audit ran; it does not say its captures finished). The RTC item is n/a when the run was before noon. \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The save items need a save chip (env \"cart\", n/a when the run has none).",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -90,7 +90,7 @@
   },
   {
    "id": "snd-duty7-low",
-   "title": "PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384)",
+   "title": "PSG duty 7 is 0.0 % HIGH: the output stays LOW (about -7FFFh), not silent (the captured mean is below -16384; 12.5 % HIGH would read about -24575 + 32768 = 8193, so 0 to 4095 only)",
    "boots": [
     "rehearsal",
     "qa"
@@ -104,7 +104,7 @@
    ],
    "check": "range",
    "min": 0,
-   "max": 16383,
+   "max": 4095,
    "tolerance": 0,
    "source": "GBATEK",
    "role": "target",
@@ -174,7 +174,7 @@
   },
   {
    "id": "snd-short-busy",
-   "title": "A looped channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set",
+   "title": "A one-shot channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set after the sound should have ended (a 4-word one-shot clears it)",
    "boots": [
     "rehearsal",
     "qa"
@@ -201,7 +201,7 @@
   },
   {
    "id": "snd-short-silent",
-   "title": "... and makes no sound (the captured peak is at most 2)",
+   "title": "... and, looped, makes no sound (the captured peak is at most 2)",
    "boots": [
     "rehearsal",
     "qa"
@@ -285,7 +285,7 @@
   },
   {
    "id": "snd-noise-lfsr",
-   "title": "The noise channel follows the GBATEK shift register (X = 7FFFh at the start, X = X SHR 1, carry: LOW and XOR 6000h, else HIGH): at least 240 captured bits match the model sequence",
+   "title": "The noise channel follows the GBATEK shift register (X = X SHR 1, carry: LOW and XOR 6000h, else HIGH; accepted from any offset of the 32767-step sequence): at least 240 captured bits match the model",
    "boots": [
     "rehearsal",
     "qa"
@@ -313,7 +313,7 @@
   },
   {
    "id": "snd-adpcm-loop-reload",
-   "title": "An ADPCM loop started in the data part repeats exactly: index and PCM16 value are reloaded to the loop start (the drift between two passes is at most 3 %)",
+   "title": "An ADPCM loop started in the data part (word 9, not the header) repeats exactly: index and PCM16 value are reloaded to the values that appeared at the loop start (the drift between two passes is at most 3 %)",
    "boots": [
     "rehearsal",
     "qa"
@@ -332,7 +332,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Channels",
+   "level_basis": "gbatek:DS Sound Notes",
    "model": null,
    "done": {
     "value": 0,
@@ -395,7 +395,7 @@
   },
   {
    "id": "cap-src-channel",
-   "title": "Capture 0 with source bit 1 (and add off) records channel 0 alone: a 2000h level captures as 2000h (+32768 = 40960 +-0.4 %)",
+   "title": "Capture 0 with source bit 1 (and add off) records channel 0 alone: with channel 0 and channel 1 both playing 2000h it captures 2000h, not the mixer sum 4000h (+32768 = 40960 +-0.4 %)",
    "boots": [
     "rehearsal",
     "qa"
@@ -478,7 +478,7 @@
   },
   {
    "id": "rtc-ampm-24h",
-   "title": "In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 reads is consistent",
+   "title": "In 24 hour mode the RTC hour register carries the AM/PM flag (read only, set for hours 12 to 23): every one of 8 raw reads is consistent. n/a before noon, when the flag is 0 either way",
    "boots": [
     "rehearsal",
     "qa"
@@ -492,6 +492,11 @@
     26
    ],
    "check": "same",
+   "not_value": 65535,
+   "na_when": [
+    19,
+    0
+   ],
    "tolerance": 0,
    "source": "GBATEK",
    "role": "target",
@@ -655,7 +660,7 @@
   },
   {
    "id": "fw-user-newest",
-   "title": "The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the boot left at 027FFC80h",
+   "title": "The newest copy (the one whose update counter is one above the other, modulo 80h) is the copy the loader left at 027FFC80h (saved by the ARM7 before its own start-up replaces it)",
    "boots": [
     "rehearsal",
     "qa"
@@ -774,9 +779,10 @@
  ],
  "known": {
   "melonds-1.1-software": {
-   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer, built-in replacement BIOS; QA run as a homebrew run with an SD image (no save chip)",
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer, built-in replacement BIOS, RTC=2026-11-16-15-30-00; QA run as a homebrew run with an SD image (no save chip)",
    "ng": [
     "snd-hold-level",
+    "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
     "pm-reg-mirror"
@@ -788,9 +794,10 @@
    ]
   },
   "melonds-1.1-gl-classic": {
-   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe, RTC=2026-11-16-15-30-00; QA run with an SD image (no save chip)",
    "ng": [
     "snd-hold-level",
+    "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
     "pm-reg-mirror"
@@ -802,9 +809,10 @@
    ]
   },
   "melonds-1.1-gl-compute": {
-   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe; QA run with an SD image (no save chip)",
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe, RTC=2026-11-16-15-30-00; QA run with an SD image (no save chip)",
    "ng": [
     "snd-hold-level",
+    "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
     "pm-reg-mirror"
@@ -816,9 +824,10 @@
    ]
   },
   "melonds-1.1-software-save-chip": {
-   "emulator": "melonDS 1.1 core, headless runner, software renderer, the game ROM with its emulated 8 KB EEPROM (SAV=..., no SD image: no log, result block only)",
+   "emulator": "melonDS 1.1 core, headless runner, software renderer, RTC=2026-11-16-15-30-00, the game ROM with its emulated 8 KB EEPROM (SAV=..., no SD image: no log, result block only)",
    "ng": [
     "snd-hold-level",
+    "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
     "pm-reg-mirror"
@@ -826,8 +835,9 @@
    "na": []
   },
   "desmume-pydesmume-0.0.9": {
-   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip",
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip, local hour 15 (RTC_HOUR=15)",
    "ng": [
+    "snd-short-busy",
     "snd-short-silent",
     "snd-hold-level",
     "snd-noise-lfsr",

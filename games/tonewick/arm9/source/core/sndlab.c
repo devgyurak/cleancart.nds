@@ -10,17 +10,36 @@
 // Main RAM, cache-line aligned: the ARM7 writes results into it.
 static CvLabDesc desc __attribute__((aligned(32)));
 static u32 run_id;
+static bool lab_busy;
+static bool lab_skip;   // the previous run never answered: this script is not sent (its buffer may still be in use)
+static u32 lab_frames;  // frames the script waits in total   // a run was sent and its answer has not been seen (a timeout leaves it set)
+
+_Static_assert(sizeof(CvLabDesc) % 32 == 0, "the descriptor must fill whole cache lines");
 
 void sndlab_begin(void)
 {
+    // A run that timed out may still be executing the old script: give it time before the buffer is rewritten.
+    for (int f = 0; lab_busy && f < 120; f++)
+    {
+        if (sys_lab_done(desc.id))
+            lab_busy = false;
+        else
+            sys_vsync();
+    }
+    lab_skip = lab_busy;
+    if (lab_skip)
+        return;   // keep the descriptor as it is: the ARM7 may still be reading it
+    lab_frames = 0;
     memset(&desc, 0, sizeof(desc));
     desc.magic = CV_LAB_MAGIC;
 }
 
 bool sndlab_w(u32 kind, u32 addr, u32 value, u16 wait)
 {
-    if (desc.count >= CV_LAB_MAX_OPS)
+    // The waits of a script add up to at most 300 frames; a longer one would only hide a hung ARM7.
+    if (lab_skip || desc.count >= CV_LAB_MAX_OPS || lab_frames + wait > 300)
         return false;
+    lab_frames += wait;
     CvLabOp *op = &desc.ops[desc.count++];
     op->kind = (u16)kind;
     op->addr = addr;
@@ -62,17 +81,21 @@ int sndlab_read_cnt(int ch, u16 wait)
 
 bool sndlab_run(u32 sys)
 {
+    if (lab_skip)
+        return false;
     desc.sys = sys;
     desc.id = ++run_id;
     memset(desc.pm, 0xFF, sizeof(desc.pm));
     desc.fw_model = 0xFFFFFFFFu;
     DC_FlushRange(&desc, sizeof(desc));
     sys_lab_start(desc.id);
+    lab_busy = true;
     fifoSendAddress(CV_FIFO_SND, &desc);
     for (int f = 0; f < 600; f++)
     {
         if (sys_lab_done(desc.id))
         {
+            lab_busy = false;
             DC_InvalidateRange(&desc, sizeof(desc));
             return true;
         }

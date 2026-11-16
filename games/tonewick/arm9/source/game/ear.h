@@ -31,7 +31,8 @@ bool ear_psg(int duty, int div, EarStats *st);
 bool ear_dc(int level, int vol, int div, EarStats *st);
 // One-shot PCM16 DC with/without the hold bit, measured after the sound ended.
 bool ear_hold(bool hold, EarStats *st);
-// A looped PCM16 channel whose PNT+LEN is `sum` words (PNT 1): returns the busy bit in *busy.
+// A PCM16 channel whose PNT+LEN is `sum` words (PNT 1): the busy bit of a one-shot after it should have ended, and
+// the capture of a loop (is it audible?).
 bool ear_splice(int sum, int *busy, EarStats *st);
 // The ADPCM ramp looped from word `pnt`: the largest difference between two passes, x1000 of the swing.
 bool ear_adpcm(int pnt, int *drift_x1000);
@@ -47,11 +48,11 @@ bool ear_pcm8(int *byte);
 
 // Devices read through the ARM7 (RTC, power management, firmware) and the save chip.
 typedef struct {
-    int rtc_ok, rtc_n;               // consistent AM/PM flags, samples
+    int rtc_ok, rtc_n, rtc_pm;       // consistent AM/PM flags, samples, samples at an hour of 12 or later
     u32 pm_model, pm4, pm5, pm12;    // firmware byte 1Dh, power management registers 4, 5, 0Ch
     int pm_rule;                     // 1 matches the documented mirror, 0 does not, 2 no rule for this model
     int fw_valid;                    // user settings copies with a good CRC (0..2)
-    int fw_newest_boot;              // 1: the newest copy equals the boot copy at 027FFC80h
+    int fw_newest_boot;              // 1: the newest copy equals the loader's copy (saved by the ARM7 before it starts up)
     bool ok;
 } EarSys;
 bool ear_sys(EarSys *s);

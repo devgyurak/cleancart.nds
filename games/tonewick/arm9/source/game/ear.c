@@ -25,7 +25,7 @@ static const u16 dc_data[5][8] __attribute__((aligned(4))) = {
     DC8(0x2000),   // 1
     DC8(0x7000),   // 2: two of these add past +7FFFh
     DC8(0xE000),   // 3: -2000h
-    DC8(0x3412),   // 4: PCM8 capture keeps 34h
+    DC8(0x3470),   // 4: PCM8 capture keeps 34h (3470h stays 34h whether register 127 counts as 127 or 128)
 };
 static const s8 silence[64] __attribute__((aligned(4)));
 static s16 cap_buf[EAR_N + 16] __attribute__((aligned(32)));
@@ -129,15 +129,24 @@ bool ear_hold(bool hold, EarStats *st)
 
 bool ear_splice(int sum, int *busy, EarStats *st)
 {
+    int pnt = sum > 1 ? 1 : 0;
+    // Run 1, a one-shot: does the busy bit stay up after the sound would have ended? (A loop is busy for good
+    // whatever its length, so only a one-shot can show the 0..3 word hang.)
     sndlab_begin();
     quiet_ch1();
-    int pnt = sum > 1 ? 1 : 0;
-    sndlab_chan(4, LAB_START | LAB_PCM16 | LAB_LOOP | LAB_VOL(127) | LAB_PAN(0),
+    sndlab_chan(4, LAB_START | LAB_PCM16 | LAB_ONESHOT | LAB_VOL(127) | LAB_PAN(0),
                 dc_data[0], LAB_TIMER(CAPT), (u16)pnt, (u32)(sum - pnt), SETTLE);
     int rd = sndlab_read_cnt(4, 0);
-    if (!listen(0))
+    if (!sndlab_run(0))
         return false;
     *busy = (int)(sndlab_result()->ops[rd].value >> 31) & 1;
+    // Run 2, a loop: is anything audible?
+    sndlab_begin();
+    quiet_ch1();
+    sndlab_chan(4, LAB_START | LAB_PCM16 | LAB_LOOP | LAB_VOL(127) | LAB_PAN(0),
+                dc_data[0], LAB_TIMER(CAPT), (u16)pnt, (u32)(sum - pnt), SETTLE);
+    if (!listen(0))
+        return false;
     stats(st, 0, EAR_N);
     return true;
 }
@@ -308,12 +317,15 @@ bool ear_sys(EarSys *s)
 
     for (u32 i = 0; i < d->rtc_n && i < 8; i++)
     {
+        // The register as read: BCD hour in bits 0-5, AM/PM flag in bit 6 (GBATEK: in 24 hour mode read-only, set for 12..23).
         int raw = d->rtc_hour[i];
-        int hour = raw >= 40 ? raw - 40 : raw;
+        int hour = ((raw >> 4) & 3) * 10 + (raw & 15);
+        bool flag = (raw & 0x40) != 0;
         bool h24 = (d->rtc_status[i] & 2) != 0;
-        bool good = h24 ? (hour <= 23 && (hour >= 12) == (raw >= 40)) : hour <= 11;
+        bool good = h24 ? (hour <= 23 && flag == (hour >= 12)) : hour <= 11;
         s->rtc_ok += good;
         s->rtc_n++;
+        s->rtc_pm += hour >= 12;
     }
 
     s->pm_model = d->fw_model;
@@ -343,8 +355,8 @@ bool ear_sys(EarSys *s)
         newest = good[1];
     if (newest >= 0)
     {
-        DC_InvalidateRange((void *)0x027FFC80, 0x70);
-        s->fw_newest_boot = memcmp(d->fw[newest], (const void *)0x027FFC80, 0x70) == 0;
+        // The ARM7 saved what the loader left at 027FFC80h before its own start-up replaced it.
+        s->fw_newest_boot = memcmp(d->fw[newest], d->fw_boot, 0x70) == 0;
     }
     return true;
 }

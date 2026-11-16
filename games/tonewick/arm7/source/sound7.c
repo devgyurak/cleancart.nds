@@ -625,12 +625,14 @@ static void snd_address_handler(void *address, void *userdata)
     (void)userdata;
     const u32 *p = address;
 
-    if (*p == CV_BANK_MAGIC)
-        bank = address;
+    if (*p == CV_LAB_MAGIC)
+        lab7_request(address);
+    else if (*p == CV_BANK_MAGIC)
+        bank = address;   // only a pointer: fine during a lab run
+    else if (lab_active)
+        return;   // streams and recordings wait: the lab owns the channels and the capture units
     else if (*p == CV_REC_MAGIC)
         record_start(address);
-    else if (*p == CV_LAB_MAGIC)
-        lab7_request(address);
     else
         stream_start(address);
 }
@@ -683,6 +685,7 @@ uint8_t snd7_cap_busy(void)
 // The sound lab (lab7.c) takes every channel and both capture units: stop what the engine runs.
 void snd7_lab_enter(void)
 {
+    lab_active = true;   // first: a FIFO command arriving while the channels are stopped must not start one again
     bgm_stop();
     stream_stop();
     echo_set(false);
@@ -694,7 +697,6 @@ void snd7_lab_enter(void)
     }
     CAP0_CNT = 0;
     CAP1_CNT = 0;
-    lab_active = true;
 }
 
 void snd7_lab_leave(void)

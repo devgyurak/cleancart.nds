@@ -10,7 +10,7 @@
 // ("machine disagrees") and play goes on.
 //
 // The audit is the judged part: a fixed set of experiments per room whose results are
-// compared with GBATEK constants and written as flags into the result block (ledger.h).
+// compared with GBATEK constants and written into the result block (lab.h).
 
 #ifndef TW_ROOMS_H
 #define TW_ROOMS_H
@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
     const char *name;            // "THE PRESS"
     const char *tower;           // "UPPER TOWER": which screen the machine stands on
-    const char *gbatek;          // the hardware it exercises (for the ledger header)
+    const char *area;            // the hardware it exercises (for the district header)
     const Puzzle *puzzles;
     int n_puzzles;
     void (*audit)(void);         // runs the room's experiments, fills tw_res

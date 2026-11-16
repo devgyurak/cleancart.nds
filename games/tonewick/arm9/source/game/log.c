@@ -46,9 +46,17 @@ TwScene scene_log(void)
     }
     else
     {
-        verdict(&main_text, 3, "CLOCK", sys.rtc_n > 0 && sys.rtc_ok == sys.rtc_n,
-                "");
-        text_printf(&main_text, 1, 4, TP_WHITE, "%d OF %d HOUR FLAGS FIT 24H MODE", sys.rtc_ok, sys.rtc_n);
+        if (sys.rtc_pm == 0)
+        {
+            text_printf(&main_text, 1, 3, TP_GRAY, "%-9s", "CLOCK");
+            text_printf(&main_text, 11, 3, TP_GRAY, "NOT TESTED");
+            text_printf(&main_text, 1, 4, TP_WHITE, "IT IS BEFORE NOON: TRY AGAIN LATER");
+        }
+        else
+        {
+            verdict(&main_text, 3, "CLOCK", sys.rtc_n > 0 && sys.rtc_ok == sys.rtc_n, "");
+            text_printf(&main_text, 1, 4, TP_WHITE, "%d OF %d HOUR FLAGS FIT 24H MODE", sys.rtc_ok, sys.rtc_n);
+        }
         if (sys.pm_rule == 2)
         {
             text_printf(&main_text, 1, 6, TP_GRAY, "%-9s", "POWER");
@@ -78,8 +86,8 @@ TwScene scene_log(void)
     text_center(&sub_text, 3, TP_YELLOW, "WHAT THE RULES SAY");
     text_printf(&sub_text, 1, 6, TP_GRAY, "CLOCK: 24H MODE, PM FLAG IS");
     text_printf(&sub_text, 1, 7, TP_GRAY, "READ-ONLY, SET FOR HOURS 12-23");
-    text_printf(&sub_text, 1, 9, TP_GRAY, "POWER: OLD DS R4.. = R0-3,");
-    text_printf(&sub_text, 1, 10, TP_GRAY, "LITE R5-7 = R4, R8.. = R0-7");
+    text_printf(&sub_text, 1, 9, TP_GRAY, "POWER: MODEL FF R4.. = R0-3,");
+    text_printf(&sub_text, 1, 10, TP_GRAY, "MODEL 20 R5-7 = R4, R8.. = R0-7");
     text_printf(&sub_text, 1, 12, TP_GRAY, "TAPE: WREN SETS WEL, A WRITE");
     text_printf(&sub_text, 1, 13, TP_GRAY, "CLEARS IT; STATUS BITS 4-6 = 0");
     text_printf(&sub_text, 1, 15, TP_GRAY, "FIRMWARE: NEWER COPY'S COUNTER");

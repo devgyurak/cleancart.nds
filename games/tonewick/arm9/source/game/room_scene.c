@@ -36,6 +36,7 @@ static int n_lines;
 static bool all_solved;
 static bool lever_lit;      // the lever is drawn pressed for a few frames after a listen
 static bool was_touching;
+static bool listening;      // "LISTENING..." while an experiment runs
 
 static CvText main_text, sub_text;
 
@@ -53,7 +54,7 @@ static void draw(const Room *room)
     text_clear(&main_text);
     text_clear(&sub_text);
     text_printf(&main_text, 1, 1, TP_YELLOW, "DISTRICT %d  %s", tw_room + 1, room->name);
-    text_printf(&main_text, 1, 2, TP_GRAY, "%s  /  %s", room->tower, room->gbatek);
+    text_printf(&main_text, 1, 2, TP_GRAY, "%s / %s", room->tower, room->area);
     for (int i = 0; i < n_lines; i++)
         text_printf(&main_text, 1, 4 + i, i == cursor ? TP_YELLOW : lines[i].solved ? TP_GREEN : TP_WHITE,
                     "%c%s %-24s", i == cursor ? '>' : ' ', lines[i].solved ? "[X]" : "[ ]",
@@ -90,7 +91,7 @@ static void draw(const Room *room)
     text_printf(&sub_text, 1, 15, TP_CYAN, "%s %s", p->a_name, p->a_label[l->a]);
     if (p->b_n > 1)
         text_printf(&sub_text, 17, 15, TP_CYAN, "%s %s", p->b_name, p->b_label[l->b]);
-    text_printf(&sub_text, 8, 17, TP_WHITE, "A OR TAP: LISTEN");
+    text_printf(&sub_text, 8, 17, TP_WHITE, listening ? "   LISTENING...  " : "A OR TAP: LISTEN");
     if (l->pulled)
     {
         text_printf(&sub_text, 1, 20, TP_WHITE, "MODEL %08lX  EAR %08lX", (unsigned long)l->model,
@@ -209,7 +210,9 @@ TwScene scene_room(void)
             if (pressed & KEY_A)
             {
                 lever_lit = true;
+                listening = true;
                 draw_lit(room);
+                listening = false;
                 l->hw = p->hw(l->a, l->b);
                 l->model = p->model(l->a, l->b);
                 l->pulled = true;

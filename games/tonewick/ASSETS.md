@@ -8,7 +8,7 @@ All assets below are original work under the same copyright and licence as the s
 (Copyright 2026 devgyurak, the cleancart.nds maintainer).
 
 The generator is `tools/mkassets.py`; the code that draws, synthesises and lays out lives in `tools/cvtools/`
-(shared with the other games). The same source always produces the same bytes.
+(shared with the other games, except `twart.py`, which is Tonewick's own). The same source always produces the same bytes.
 
 The PNG files in `docs/images/` (if any) are README screenshots captured from the built ROM. They are
 documentation, not assets: the build never reads them and they are not in the ROM.

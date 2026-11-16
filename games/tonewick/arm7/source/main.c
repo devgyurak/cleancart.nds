@@ -10,6 +10,8 @@
 
 #include "cv_ipc.h"
 #include "sound7.h"
+#include <string.h>
+
 #include "lab7.h"
 
 static volatile bool exit_loop;
@@ -110,6 +112,9 @@ int main(int argc, char *argv[])
     // Tell the ARM9 we are alive before anything else.
     REG_IPC_SYNC = CV_SYNC_ARM7_BOOT << 8;
 
+    // What the loader left at 027FFC80h: readUserSettings() overwrites it with the settings it picks itself,
+    // so the lab (fw-user-newest) needs this copy from before.
+    memcpy(lab7_boot_fw, (const void *)0x027FFC80, sizeof(lab7_boot_fw));
     readUserSettings();
     ledBlink(LED_ALWAYS_ON);
 
