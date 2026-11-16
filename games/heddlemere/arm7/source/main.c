@@ -76,6 +76,40 @@ static void vblank_handler(void)
     snd7_vblank();
 }
 
+// The HBlank-low span as the ARM7 sees it (the ARM9 does the same in judge/timing.c): the time from the
+// HBlank flag falling to rising within a line, in 33.51 MHz cycles x16, averaged over polling phases
+// (the delay before each fall poll sweeps, so the poll grid is sampled evenly). IRQs are off in this
+// handler. Timers 2 and 3 (cascaded) are the stopwatch: the sound code only uses timer 0.
+#define HM_LINES 512
+
+static u32 measure_hblank_low(void)
+{
+    TIMER_DATA(2) = 0;
+    TIMER_DATA(3) = 0;
+    TIMER_CR(3) = TIMER_ENABLE | TIMER_CASCADE;
+    TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_1;
+    u32 sum = 0;
+    for (u32 i = 0; i < HM_LINES; i++)
+    {
+        while (REG_DISPSTAT & 2)
+            ;
+        while (!(REG_DISPSTAT & 2))
+            ;
+        for (volatile u32 d = (i * 37) & 63; d; d--)
+            ;
+        while (REG_DISPSTAT & 2)
+            ;
+        u32 a = TIMER_DATA(2);
+        while (!(REG_DISPSTAT & 2))
+            ;
+        u32 b = TIMER_DATA(2);
+        sum += (b - a) & 0xFFFF;   // the span is far below 65536 cycles
+    }
+    TIMER_CR(2) = 0;
+    TIMER_CR(3) = 0;
+    return sum * 16 / HM_LINES;
+}
+
 static void sys_value_handler(u32 value, void *userdata)
 {
     (void)userdata;
@@ -91,6 +125,9 @@ static void sys_value_handler(u32 value, void *userdata)
             break;
         case CV_SYS_PING:
             fifoSendValue32(CV_FIFO_SYS, CV_SYS_PONG);
+            break;
+        case CV_SYS_HM_HBLANK:
+            fifoSendValue32(CV_FIFO_SYS, CV_SYS_REPLY | measure_hblank_low());
             break;
         default:
             break;

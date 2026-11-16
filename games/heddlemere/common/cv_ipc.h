@@ -129,7 +129,9 @@ enum {
     CV_SYS_LID_OPENED,         // ARM7 -> ARM9
     CV_SYS_PING,               // ARM9 -> ARM7, answered with CV_SYS_PONG
     CV_SYS_PONG,
+    CV_SYS_HM_HBLANK,          // ARM9 -> ARM7: measure the HBlank-low span (heddlemere judge), answered with CV_SYS_REPLY | span x16
 };
+#define CV_SYS_REPLY 0x80000000u   // set in an answer that carries a measured value in the low 31 bits
 
 // Shared WRAM as seen by each CPU when it owns all 32 KB.
 #define CV_SWRAM_ARM9 ((volatile uint8_t *)0x03000000)

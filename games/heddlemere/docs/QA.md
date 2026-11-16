@@ -2,13 +2,14 @@
 
 [한국어](QA-KO.md)
 
-State: scaffold. The checks below were run on this change; the measurement items are added by the next changes.
+State: scaffold and measurement core. The checks below were run on this change.
 
 | Check | How | Result |
 |---|---|---|
 | Build | `./build.sh -j8`, `./build.sh DEMO=rehearsal` | zero warnings |
 | Orders | `python3 tools/order_check.py --plan-hash` | 40 of 40 ok, plan hash `0xfc5a15bb` |
 | Rehearsal block | `tools/melonds/mds.sh run games/heddlemere/heddlemere-rehearsal.nds 1500 out/hm/reh "" 1499` | id `0x48524D48` (`HMRH`), values[0] bit 5 (ARM7 answered), values[21] = 5, values[22] = `0x1f`, values[23] = `0xfc5a15bb` (equals the checker's hash) |
-| Auto QA run | hold L+R+X+Y 120 frames on the title, or the SD marker `cleancart/heddlemere/autoqa`. Headless: `SDDIR=out/hm/x tools/melonds/mds.sh run games/heddlemere/heddlemere.nds 24000 out/hm/x/o "300:L:140,300:R:140,300:X:140,300:Y:140"` (create `out/hm/x/cleancart/heddlemere/` first) | melonDS 1.1 software: `RESULT PASS`, 40 of 40 orders, chapters mask `0x1f`, 7 checkpoints; `tools/qa/parse_log.py` and `tools/qa/lint.py` ok |
+| Judge | `tools/melonds/mds.sh run games/heddlemere/heddlemere-rehearsal.nds 3000 out/hm/r "" 2999 \| python3 games/heddlemere/tools/judge.py --profile melonds-1.1-software` (`RENDERER=gl`, `compute`); DeSmuME: `RESULT_WORDS=64 tools/emu/emu.sh run … \| … --profile desmume-pydesmume-0.0.9` | 2026-11-16, rehearsal and QA boot, `--profile` MATCH on all four profiles (melonDS 1.1 software, GL Classic, GL Compute, DeSmuME py-desmume 0.0.9). melonDS (all renderers) fails `hblank-low-arm9` (1585 instead of 1606 cycles) and `gx-full-stall-rate` (18.2 instead of 19 cycles per write); DeSmuME additionally fails the GX slopes (1 tick per command), the VCOUNT write items and the half-IRQ slope, and `swap-ramcount-line` is n/a (no polygon counter). The four unconfirmed items read ARM7 HBlank 1550 / swap tail 328 / TRANS 35 / BOX_TEST 257 on melonDS. No hardware values yet |
+| Auto QA run | hold L+R+X+Y 120 frames on the title, or the SD marker `cleancart/heddlemere/autoqa`. Headless: `SDDIR=out/hm/x tools/melonds/mds.sh run games/heddlemere/heddlemere.nds 24000 out/hm/x/o "300:L:140,300:R:140,300:X:140,300:Y:140"` (create `out/hm/x/cleancart/heddlemere/` first) | melonDS 1.1 software: `RESULT PASS`, 40 of 40 orders, chapters mask `0x1f`, 7 checkpoints; `tools/qa/parse_log.py` and `tools/qa/lint.py` ok; two runs: `tools/qa/compare.py` 0 differences. DeSmuME reaches the `QARN` block too (key combo at frame 500) |
 
 Hand play (melonDS): D-pad up/down chooses a cell, left/right turns it, A delivers, B returns to the list.

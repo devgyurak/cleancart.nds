@@ -13,6 +13,7 @@
 #include "game/rehearsal.h"
 #include "game/scenes.h"
 #include "game/script.h"
+#include "judge/timing.h"
 #include "gfx/fx.h"
 #include "gfx/text.h"
 
@@ -50,11 +51,23 @@ static void publish(u32 id, const u32 *v, int n)
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 
+void rehearsal_measure(u32 *r)
+{
+    u32 tv[TM_ITEMS];
+    u32 a7 = sys_arm7_hblank_low();   // first: it needs the frame loop (IME on)
+    bool done = timing_run(tv);
+    for (int i = 1; i < TM_ITEMS; i++)
+        r[i] = tv[i];
+    r[TM_HBLANK7] = a7;
+    r[RH_FLAGS] = rehearsal_flags() | (done ? RH_FLAG_DONE : 0) | (a7 != TM_NOT_MEASURED ? RH_FLAG_ARM7_SPAN : 0);
+    r[TM_LYC] = tv[TM_LYC];
+}
+
 void rehearsal_run(void)
 {
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     memset(result, 0, sizeof(result));
-    result[RH_FLAGS] = rehearsal_flags();
+    rehearsal_measure(result);
 
     // The first order of every chapter, through the live play scene.
     hm_play_hook = script_hook;

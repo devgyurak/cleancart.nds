@@ -10,14 +10,13 @@ single steps (par) earns three stars.
 Target level **L3**, area **3D engine and scanline timing** (`docs/LEVELS.md` in the repository root). The ROM
 also judges itself: a rehearsal ROM measures line and frame length, the HBlank flag, the VBlank flag, VCOUNT
 writes and the cycle costs of geometry commands, and `tools/judge.py` grades the result block against
-`expected.json` (added in the next change of this stack; this scaffold already publishes the block `HMRH` with
-the order and plan-hash items).
+`expected.json`. It publishes the block `HMRH`; `tools/judge.py` grades it (exit 0 pass, 1 NG or profile mismatch, 2 no usable result).
 
 ## Status
 
-Scaffold: the order model, the 40 orders with their par, a plain text play scene, the scripted player, the
-rehearsal block `HMRH`, the QA run (all 40 orders, then the credits) and the shared layers. The raster weave,
-the 3D loom and the measurements follow in the next changes. The title picture is a placeholder (`TODO(title)`).
+Scaffold and measurement core: the order model, the 40 orders with their par, a plain text play scene, the scripted
+player, the rehearsal block `HMRH` with 18 measured timing items (`arm9/source/judge/timing.c`), `expected.json`, `tools/judge.py`
+with four emulator profiles, the QA run (all 40 orders, the credits, then the measurements). The raster weave and the 3D loom follow. The title picture is a placeholder (`TODO(title)`).
 
 ## Chapters
 

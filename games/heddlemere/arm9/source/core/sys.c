@@ -39,6 +39,9 @@ static void input_handler(int bytes, void *userdata)
     cv_arm7_packets++;
 }
 
+static volatile bool measure_done;
+static volatile u32 measure_reply;
+
 static void sys_value_handler(u32 value, void *userdata)
 {
     (void)userdata;
@@ -48,7 +51,13 @@ static void sys_value_handler(u32 value, void *userdata)
         case CV_SYS_LID_CLOSED:    cv_lid_closed = true; break;
         case CV_SYS_LID_OPENED:    cv_lid_closed = false; break;
         case CV_SYS_PONG:          pong = true; break;
-        default: break;
+        default:
+            if (value & CV_SYS_REPLY)
+            {
+                measure_reply = value & ~CV_SYS_REPLY;
+                measure_done = true;
+            }
+            break;
     }
 }
 
@@ -182,6 +191,20 @@ int sys_ping_arm7(void)
         sys_vsync();
     }
     return (int)(cv_frame - start);
+}
+
+u32 sys_arm7_hblank_low(void)
+{
+    measure_done = false;
+    u32 start = cv_frame;
+    fifoSendValue32(CV_FIFO_SYS, CV_SYS_HM_HBLANK);
+    while (!measure_done)
+    {
+        if (cv_frame - start > 120)
+            return 0xFFFF;
+        sys_vsync();
+    }
+    return measure_reply;
 }
 
 u16 sys_ipcsync_seen(void)

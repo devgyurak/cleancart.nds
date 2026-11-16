@@ -30,6 +30,8 @@ void sys_handle_lid(void);
 
 // Round-trip a FIFO ping to the ARM7; returns frames taken or -1.
 int sys_ping_arm7(void);
+// The ARM7's measurement of the HBlank-low span (cycles x16, heddlemere judge); 0xFFFF when it did not answer.
+u32 sys_arm7_hblank_low(void);
 
 // IPCSYNC value the ARM7 left during boot.
 u16 sys_ipcsync_seen(void);
