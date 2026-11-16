@@ -76,7 +76,7 @@ void scene_text_screens(CvText *main_text, CvText *sub_text)
     setup_text(sub_text, &REG_DISPCNT_SUB, &REG_BG0CNT_SUB, SUB_BG, CV_PAL_BG_SUB, RGB15(2, 2, 6));
 }
 
-// 3D top screen (engine A: BG0 3D, BG1 text, map block 31) and a text bottom screen (engine B).
+// 3D top screen (engine A: BG0 3D, BG3 text, map block 31) and a text bottom screen (engine B).
 // Sets up everything every time: the title and the play scene both enter through here, so
 // neither can leave GL state, texture slots or layers behind for the other.
 void display_3d_top(CvText *top, CvText *bot)
@@ -87,12 +87,14 @@ void display_3d_top(CvText *top, CvText *bot)
     glDisable(GL_FOG | GL_FOG_ONLY_ALPHA | GL_OUTLINE | GL_ANTIALIAS | GL_TOON_HIGHLIGHT | GL_CLEAR_BMP
               | GL_ALPHA_TEST);
     glEnable(GL_BLEND);
-    glClearColor(3, 3, 8, 31);
+    *(vu16 *)0x04000060 = 0;   // DISP3DCNT: textures off (the judge's quiet-lines scene turns them on)
+    glClearColor(0, 0, 0, 0);   // alpha 0: the 2D layers behind show through
     glClearPolyID(63);
     glClearDepth(0x7FFF);
-    REG_DISPCNT = MODE_0_3D | DISPLAY_BG1_ACTIVE;
+    // BG0 is the 3D layer (priority 1), the text moves to BG3 (priority 0); BG1 stays free for the cloth (gfx/loom.c).
+    REG_DISPCNT = MODE_0_3D | DISPLAY_BG3_ACTIVE;
     REG_BG0CNT = 1;
-    REG_BG1CNT = 0 | (0 << 2) | (31 << 8);
+    REG_BG3CNT = 0 | (0 << 2) | (31 << 8);
     text_load_tiles(MAIN_BG);
     text_load_palette(CV_PAL_BG_MAIN);
     text_init(top, (u16 *)(MAIN_BG + 31 * 2048), 0);

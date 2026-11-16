@@ -12,11 +12,19 @@ also judges itself: a rehearsal ROM measures line and frame length, the HBlank f
 writes and the cycle costs of geometry commands, and `tools/judge.py` grades the result block against
 `expected.json`. It publishes the block `HMRH`; `tools/judge.py` grades it (exit 0 pass, 1 NG or profile mismatch, 2 no usable result).
 
+![Heddlemere title](docs/images/title.png)
+
+*Title (top screen, 2x, captured in melonDS 1.1 software): the name woven over a raster-woven cloth.*
+
 ## Status
 
-Scaffold and measurement core: the order model, the 40 orders with their par, a plain text play scene, the scripted
+Scaffold, measurement core and weave: the order model, the 40 orders with their par, a plain text play scene, the scripted
 player, the rehearsal block `HMRH` with 18 measured timing items (`arm9/source/judge/timing.c`), `expected.json`, `tools/judge.py`
-with four emulator profiles, the QA run (all 40 orders, the credits, then the measurements). The raster weave and the 3D loom follow. The title picture is a placeholder (`TODO(title)`).
+with four emulator profiles, the QA run (all 40 orders, the credits, then the measurements). The cloth is woven on the top screen by an HBlank interrupt that writes the scroll (weave) and a palette entry (thread colour) of every line; Select switches to the blueprint view, the same pixels computed by the CPU without any raster effect. The heddle frame is drawn in 3D below the cloth with the real matrix commands, and delivering an order runs the programs through the geometry engine (a lamp compares the measured cycles with the GBATEK costs; information only). The title picture is a placeholder (`TODO(title)`).
+
+![Chapter 2 order](docs/images/chapter2.png)
+
+*Order 2-01 (top screen, 2x, melonDS 1.1 software): four bands, each its own thread colour and weave.*
 
 ## Chapters
 

@@ -40,8 +40,18 @@ enum {
     TM_ITEMS = 21,
 };
 
+// Never call this from live play: it keeps IME off for about two seconds (the ARM7's input packets are dropped meanwhile)
+// and uses timers 0 and 1 (also core/timer.c's play time, which this game does not run).
 // Runs everything; fills v[TM_ITEMS] (unmeasured items hold TM_NOT_MEASURED). Returns true when every
 // wait finished (no timeout). Draws nothing; expects the 3D engine initialised (g3_init()).
 bool timing_run(u32 *v);
+
+// The motor of the play scene: runs the heddle programs of every row `passes` times through the geometry engine and
+// measures how long the engine takes (stopwatch, IME off for about a millisecond). `programs[r]` is 0-3 (see
+// tools/hmorder/model.py). Returns the measured cycles; *planned is the sum the GBATEK costs give. Draws nothing.
+u32 timing_motor_run(const u8 *programs, int passes, u32 *planned);
+
+// One VCOUNT write at line 212 (value 202): the slack lever. Takes about two frames.
+void timing_lever_kick(void);
 
 #endif // HM_TIMING_H
