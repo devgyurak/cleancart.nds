@@ -7,7 +7,7 @@ Paneveil의 모든 그래픽, 폰트, 3D 모델, 효과음, 음악은 **빌드�
 소스와 같은 저작권·라이선스의 오리지널 작업물입니다: **Apache-2.0**(Copyright 2026 devgyurak,
 cleancart.nds 유지보수자).
 
-생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`(다른 게임과 공유)에
+생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`(다른 게임과 공유하고, `pvart.py`는 Paneveil 전용)에
 있습니다. 같은 소스는 항상 같은 바이트를 만듭니다.
 
 `docs/images/`의 PNG(있다면)는 빌드한 ROM에서 찍은 README 스크린샷입니다. 문서이지 에셋이 아니며,
@@ -18,7 +18,9 @@ cleancart.nds 유지보수자).
 | `cv_font_tiles` | 5x7 픽셀 폰트(ASCII 0x20–0x5F), 4bpp | `cvtools/font.py` `GLYPHS`(글자를 문자열로 그림) | 오리지널, Apache-2.0 |
 | `cv_ui_tiles`, `cv_ui_pal` | 창 테두리와 게이지 타일 | `images.ui_tiles()` | 오리지널, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플(`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 오리지널, Apache-2.0 |
-| `cv_song_*`, `cv_song_names` | 코드로 작곡한, 다른 게임과 공유하는 곡. 재생하는 것은 `lantern`뿐(크레딧) | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
+| `cv_title_tiles`, `cv_title_map`, `cv_title_pal` | 타이틀 레터링 "PANEVEIL": 유리로 자른 24 x 4 타일(4bpp). 글자 둘레와 여덟 색 마름모 유리 조각 사이에 어두운 납틀, 빈 타일과 단색 패널 타일 포함. 16색 팔레트 한 줄(BG 팔레트 8번 줄) | `cvtools/pvart.py` `title_lettering()` | 오리지널, Apache-2.0 |
+| `pv_title_preset` | 타이틀 뒤 장미창의 창 설정 12개(맑은 유리, 꽃잎 8, 링 3. 1~5장의 어떤 주문서도 요구하지 않는 값, `tools/tests/test_title.py`) | `cvtools/pvart.py` `TITLE_PRESET` | 오리지널, Apache-2.0 |
+| `cv_song_*`, `cv_song_names` | 곡 `clerestory`(느린 단조 패드 곡, 드럼 없음), 코드로 작곡. 타이틀과 크레딧에서 재생 | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
 | `cv_tex_chevron`, `cv_tex_arc`, `cv_tex_bars` | 유리 문양 세 가지. 32x32, 텍셀당 8비트(인덱스 0-7, 인덱스 0은 오려 내는 색). 기하 도형(기운 V자, 사분원 띠, 엇갈린 막대)과 납 테두리를 코드로 그림 | `tools/glassgen.py` `motif()` | 오리지널, Apache-2.0 |
 | `cv_tex_lbox` | 라이트박스 텍스처. 8x8, 텍셀당 8비트, 일부러 비대칭인 인덱스 표와 인덱스 0 구멍 네 개 | `tools/glassgen.py` `LBOX` | 오리지널, Apache-2.0 |
 | `cv_pal_tex` | 텍스처 팔레트 블록: 8색 세트 여덟 개(0-3번은 HSV 램프로 만든 호박·루비·바다·보라 유리, 4-7번은 라이트박스 색) | `tools/glassgen.py` `palette_block()` | 오리지널, Apache-2.0 |

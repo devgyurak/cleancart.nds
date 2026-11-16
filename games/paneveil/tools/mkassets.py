@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import glassgen  # noqa: E402
 import window_check  # noqa: E402
-from cvtools import audio, codec, images  # noqa: E402
+from cvtools import audio, codec, images, pvart  # noqa: E402
 from pvorder import model as pv_model, pack as pv_pack  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
@@ -134,6 +134,19 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    tiles, entries, pal = pvart.title_lettering()
+    w.blob('cv_title_tiles', tiles, 'title lettering, 4bpp, %d x %d tiles' % (pvart.COLS, pvart.ROWS))
+    w.blob('cv_title_map', u16s(entries), 'title lettering map entries, raster order, palette line %d' % pvart.PAL_LINE)
+    w.blob('cv_title_pal', pal, 'title lettering palette line (16 colours)')
+    w.raw_h('#define PV_TITLE_COLS %d' % pvart.COLS)
+    w.raw_h('#define PV_TITLE_ROWS %d' % pvart.ROWS)
+    w.raw_h('#define PV_TITLE_PAL_LINE %d' % pvart.PAL_LINE)
+    w.raw_h('#define PV_TITLE_BLANK %d' % pvart.BLANK_TILE)
+    w.raw_h('#define PV_TITLE_PANEL %d' % pvart.PANEL_TILE)
+    w.raw_h('extern const uint8_t pv_title_preset[%d];' % len(pvart.TITLE_PRESET))
+    w.raw_c('const uint8_t pv_title_preset[%d] = { %s };\n'
+            % (len(pvart.TITLE_PRESET), ', '.join(str(v) for v in pvart.TITLE_PRESET)))
 
     # --- Window orders ----------------------------------------------------
     # The build stops when an order fails the checker (tools/window_check.py).
