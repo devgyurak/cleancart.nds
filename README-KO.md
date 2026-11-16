@@ -358,10 +358,10 @@
 - `gx-trans-cycles` · MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
 - `gx-trans-mode2-extra` · MTX_TRANS in matrix mode 2 costs 30 cycles more than in mode 1 (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-scale-mode2-extra` · MTX_SCALE costs no extra cycles in matrix mode 2 (x16, signed, within 0.5 cycle) · [expected.json](games/heddlemere/expected.json)
-- `gx-box-cycles` · BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 254; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `gx-box-cycles` · BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
 - `gx-full-stall-rate` · With the geometry FIFO full a write waits for an entry to leave: one IDENTITY (19 cycles) per write (x16) · [expected.json](games/heddlemere/expected.json)
 - `gx-halfirq-slope` · The "less than half full" IRQ flag (IF bit 21) rises one IDENTITY (19 cycles) later per entry of fill (x16) · [expected.json](games/heddlemere/expected.json)
-- `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 325; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
 - `swap-ramcount-line` · Polygon RAM holds the 64 polygons at the HBlank of line 191 and 0 at line 192: the swap happens at line 192 (RAM_COUNT) · [expected.json](games/heddlemere/expected.json)
 - `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (the 3D VBlank) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
 
