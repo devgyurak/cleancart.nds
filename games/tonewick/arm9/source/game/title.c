@@ -92,10 +92,10 @@ TwScene scene_title(void)
 // Test menu: any district by itself, and the rehearsal.
 TwScene scene_menu(void)
 {
-    static const char *const items[TW_ROOMS + 2] = {
+    static const char *const items[TW_ROOMS + 3] = {
         "DISTRICT 1: THE TRESTLE", "DISTRICT 2: THE SPLICE", "DISTRICT 3: THE ECHO ROOM",
-        "DISTRICT 4: THE JUNCTION", "REHEARSAL: ALL DISTRICTS", "CREDITS AND LICENCES" };
-    enum { N = TW_ROOMS + 2 };
+        "DISTRICT 4: THE JUNCTION", "THE MORNING LOG", "REHEARSAL: ALL DISTRICTS", "CREDITS AND LICENCES" };
+    enum { N = TW_ROOMS + 3 };
 
     scene_text_screens(&main_text, &sub_text);
     text_center(&main_text, 4, TP_YELLOW, "TEST MENU");
@@ -125,7 +125,7 @@ TwScene scene_menu(void)
                 tw_room = sel;
                 return SC_ROOM;
             }
-            return sel == TW_ROOMS ? SC_REHEARSAL : SC_CREDITS;
+            return sel == TW_ROOMS ? SC_LOG : sel == TW_ROOMS + 1 ? SC_REHEARSAL : SC_CREDITS;
         }
         if (cv_in.pressed & KEY_B)
             return SC_TITLE;

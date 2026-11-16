@@ -8,8 +8,8 @@ field of the console's sound block. Human docs (English, each with a Korean twin
 corvane's layers (keep fixes in sync when they apply to all games). The plan is `out/WORKPLAN-tonewick.md` (not committed).
 
 Status: the sound lab, the ear (the experiments), the twelve signal lines with their GBATEK models, the scope and
-the touch control panel, the rehearsal and its judge (`expected.json`, `tools/judge.py`), the QA run; the morning log
-scene is next. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
+the touch control panel, the morning log scene (test menu), the rehearsal and its judge (`expected.json`,
+`tools/judge.py`), the QA run; docs and the hardware QA page are next. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
 the GBATEK sections corvane and hushwell judge at level 1 (DS Sound Channels, DS Sound Notes, DS Sound Capture,
 DS Real-Time Clock, DS Power Management, DS Cartridge Backup, DS Firmware User Settings).
 
@@ -43,7 +43,8 @@ when `tools/` changes.
 
 - `arm9/source/main.c`: init, scene loop (`tw_room` is the district scene's argument; the type is still called `Room`).
 - `arm9/source/game/`: scenes (`scenes.h`), `display.c` (engine reset), `title.c` (title picture on BG3 + test menu),
-  `credits.c` (credits and the licence viewer), `rooms.h/.c` (the district table and the puzzle record: two dials, a
+  `log.c` (the morning log, a diagnostic screen of the RTC, power management, save chip and firmware readings against
+  their rules; test menu only), `credits.c` (credits and the licence viewer), `rooms.h/.c` (the district table and the puzzle record: two dials, a
   hardware function `hw`, the GBATEK model `model`, the wanted value `want`), `room_scene.c` (the district scene;
   `room_pilot_key()` is what the QA pilot presses next), `lab.h/.c` (the result words `tw_res`, layout in `lab.h`),
   `scope.h/.c` (the top-screen scope with the model and ear traces and the bottom-screen brass panel with its touch

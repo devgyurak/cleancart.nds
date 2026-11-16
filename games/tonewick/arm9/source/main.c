@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     snd_master(cv_save.volume);
 #endif
 
-    static const char *const scene_names[] = { "title", "room", "menu", "rehearsal", "credits" };
+    static const char *const scene_names[] = { "title", "room", "menu", "rehearsal", "log", "credits" };
     TwScene scene = SC_TITLE;
     for (;;)
     {
@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
             case SC_ROOM:  scene = scene_room(); break;
             case SC_MENU:  scene = scene_menu(); break;
             case SC_REHEARSAL: scene = scene_rehearsal(); break;
+            case SC_LOG:   scene = scene_log(); break;
             case SC_CREDITS: scene = scene_credits(); break;
             case SC_TITLE:
             default:       scene = scene_title(); break;
