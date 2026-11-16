@@ -39,7 +39,16 @@ QA and docs). Target level 3, area "3D engine and scanline timing" (GBATEK secti
   `TODO(title)`), `select.c` (chapter and order list), `play.c` (one order: the cell table, the cloth, deliver; `hm_play_hook` lets
   the rehearsal replace the input), `script.c/.h` (the scripted player shared by the rehearsal and the QA pilot: follows `order_plan()`),
   `order.c/.h` (the `cv_orders` blob and the rules: pure logic, mirrors `tools/hmorder/model.py`), `credits.c`, `qa_game.c` + `qa_tune.h`,
-  `rehearsal.c/.h` (block layout `HMRH`).
+  `rehearsal.c/.h` (block layout `HMRH`, `rehearsal_measure()`).
+- `arm9/source/judge/timing.c/.h`: the measurements (values[1..20]). Polling loops in ITCM with the 33.51 MHz stopwatch (timers 0+1), IME=0: line and
+  frame length (means over 2000 lines / 32 frames), HBlank-low span (the delay before the fall poll sweeps, so the poll grid averages out),
+  VBlank flag lines and 9-bit LYC from one frame of lines, VCOUNT write (frame with and without a write at line 212, medians), geometry
+  command slopes (stream after SWAP_BUFFERS at line 100 so the engine runs from the VBlank; time from VBlank to GXSTAT bit 27 clear for two
+  run lengths), full-FIFO stall, half-full IRQ (IF bit 21), RAM_COUNT at lines 191/192, and the texture quiet lines (a palette rewritten in
+  lines 192..213 must show in the captured render; `judge/capture.*`). The ARM7 measures its own HBlank span on request (`CV_SYS_HM_HBLANK`, timers 2+3).
+- `expected.json` + `tools/judge.py` (from paneveil, plus `"signed"` and a list `"expect"`) + `tools/tests/test_judge.py`: boots `rehearsal` and `qa`; GBATEK
+  figures gate, `unconfirmed` items (ARM7 HBlank, swap tail, TRANS, BOX_TEST: GBATEK and melonDS disagree) are informational until hardware. `known` has one profile
+  per emulator and renderer; re-measure all four after changing the ROM (`judge.py --profile NAME`).
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep identical to the other games'). Title: hold
   **L+R+X+Y for 120 frames**, or the SD marker `cleancart/heddlemere/autoqa`. The run is title -> order list -> all 40 orders (`script_step()`
   through the live play scene) -> list -> title -> credits -> title; there `judge_epilogue()` (`game/qa_game.c`) publishes the block in the

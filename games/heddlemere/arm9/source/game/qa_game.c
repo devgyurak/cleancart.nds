@@ -70,10 +70,10 @@ void qa_game_words(u32 *w)
     w[5] = judged;
 }
 
-// After the credits: the block of the rehearsal's layout (PR 2 adds the measurements here).
+// After the credits: the measurements of the rehearsal once, then the block in the rehearsal's layout.
 static void judge_epilogue(void)
 {
-    res[RH_FLAGS] = rehearsal_flags();
+    rehearsal_measure(res);
     res[RH_ORDERS] = (u32)order_done_count();
     res[RH_CHAPTERS] = chapters_done;
     res[RH_PLAN_HASH] = order_plan_hash();
