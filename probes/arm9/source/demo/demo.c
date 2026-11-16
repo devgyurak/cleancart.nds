@@ -1618,6 +1618,198 @@ static void d_acc_rear_plane(void) { split_demo(SPLIT_REAR_PLANE, "ACC-REAR-PLAN
 
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Scanline timing (written for Heddlemere's review: games/heddlemere/arm9/source/judge/timing.c measures the same
+// things as gating items; what no document settles lives here)
+
+#define PR_DISPSTAT (*(volatile u16 *)0x04000004)
+#define PR_VCOUNT   (*(volatile u16 *)0x04000006)
+#define PR_GXSTAT   (*(volatile u32 *)0x04000600)
+#define PR_SWAP     (*(volatile u32 *)0x04000540)
+#define PR_GXPORT(p) (*(volatile u32 *)(0x04000400 + ((p) << 2)))
+#define PR_T0 (*(volatile u16 *)0x04000100)
+#define PR_T1 (*(volatile u16 *)0x04000104)
+#define PR_NOW() ({ u32 h1_, l_, h2_; do { h1_ = PR_T1; l_ = PR_T0; h2_ = PR_T1; } while (h1_ != h2_); h1_ << 16 | l_; })
+#define PR_NOINLINE __attribute__((noinline))
+
+// One frame from a VBlank rise to the next; `line` != 0: when the VCOUNT register reads `line` it is set to `value`.
+static ITCM_CODE PR_NOINLINE u32 pr_frame(int line, int value)
+{
+    while (PR_DISPSTAT & 1)
+        ;
+    while (!(PR_DISPSTAT & 1))
+        ;
+    u32 a = PR_NOW();
+    if (line)
+    {
+        while (PR_VCOUNT != line)
+            ;
+        PR_VCOUNT = (u16)value;
+    }
+    while (PR_DISPSTAT & 1)
+        ;
+    while (!(PR_DISPSTAT & 1))
+        ;
+    return PR_NOW() - a;
+}
+
+static u32 pr_median3(u32 a, u32 b, u32 c)
+{
+    if (a > b) { u32 t = a; a = b; b = t; }
+    if (b > c) { u32 t = b; b = c; c = t; }
+    return a > b ? a : b;
+}
+
+// Frame length minus the frame length without a write, in whole 2130-cycle lines (rounded) and what is left over.
+static void pr_vcount_case(int line, int value, u32 normal, s32 *lines, u32 *residual)
+{
+    u32 f[3];
+    for (int i = 0; i < 3; i++)
+    {
+        pr_frame(0, 0);
+        f[i] = pr_frame(line, value);
+    }
+    s32 delta = (s32)(pr_median3(f[0], f[1], f[2]) - normal);
+    s32 l = delta >= 0 ? (delta + 1065) / 2130 : -((-delta + 1065) / 2130);
+    s32 res = delta - l * 2130;
+    *lines = l;
+    *residual = (u32)(res < 0 ? -res : res);
+}
+
+// VCOUNT writes: GBATEK allows them in 202..212 only; how many lines does a write add, where does it apply, and what is
+// ignored? Cases: 202 written at line 212, 202 at 205, 210 at 212, 50 at line 100 (outside the range).
+static void d_vcount_write(void)
+{
+    con_2d();
+    demo_title("VCOUNT-WRITE");
+    con_printf("measuring...\n");
+    vsync();
+    u32 ime = REG_IME;
+    REG_IME = 0;
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
+    CV_TM_DATA(0) = 0;
+    CV_TM_DATA(1) = 0;
+    CV_TM_CNT(1) = CV_TM_ON | CV_TM_CASCADE;
+    CV_TM_CNT(0) = CV_TM_ON | CV_TM_DIV1;
+    u32 n[3];
+    for (int i = 0; i < 3; i++)
+        n[i] = pr_frame(0, 0);
+    u32 normal = pr_median3(n[0], n[1], n[2]);
+    static const int at[4] = { 212, 205, 212, 100 }, val[4] = { 202, 202, 210, 50 };
+    s32 lines[4];
+    u32 res[4];
+    for (int i = 0; i < 4; i++)
+        pr_vcount_case(at[i], val[i], normal, &lines[i], &res[i]);
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
+    REG_IME = ime;
+    for (int i = 0; i < 4; i++)
+        con_printf("WRITE %3d AT %3d: %2ld LINES, RES %lu\n", val[i], at[i], (long)lines[i], (unsigned long)res[i]);
+    con_printf("FRAME %lu CYCLES\n", (unsigned long)normal);
+    volatile CvResult *r = CV_RESULT;
+    for (int i = 0; i < 4; i++)
+        r->values[4 + i] = res[i];
+    r->values[8] = normal;
+    finish((u32)lines[0], (u32)lines[1], (u32)lines[2], (u32)lines[3]);
+}
+
+// Texture memory read late: a full-screen quad uses palette entry 1 of the texture palette (bank G); the frame is swapped
+// at the VBlank and the palette is rewritten through the LCDC mapping at the given line. The captured next frame shows
+// how many of its 192 lines (one column) still have the old colour: the line from which a write is too late.
+#define TL_A RGB15(31, 0, 0)
+#define TL_B RGB15(0, 0, 31)
+#define TL_TEX_OFS 0x10000      // texture 8x8 inside bank A, clear of what g3_texture_load put at the start
+#define TL_PAL_OFS 0x3000       // palette inside bank G
+
+static void tl_quad(void)
+{
+    PR_GXPORT(0x29) = 31u << 16 | 3u << 6;
+    PR_GXPORT(0x2A) = 4u << 26 | (TL_TEX_OFS >> 3);
+    PR_GXPORT(0x2B) = TL_PAL_OFS >> 4;
+    PR_GXPORT(0x20) = 0x7FFF;
+    PR_GXPORT(0x40) = 1;
+    PR_GXPORT(0x22) = 0;
+    PR_GXPORT(0x23) = 0xF000u | 0x1000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0xF000u | 0xF000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0x1000u | 0xF000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0x1000u | 0x1000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x41) = 0;
+}
+
+static void tl_palette(u16 colour)
+{
+    vram_set(VB_G, 0, 0);
+    ((vu16 *)0x06894000)[TL_PAL_OFS / 2 + 1] = colour;
+    vram_set(VB_G, 3, 0);
+}
+
+static void tl_idle(void)
+{
+    u32 n = 0;
+    while (n++ < 4000000u && (PR_GXSTAT & ((1u << 27) | (1u << 14) | 1u)))
+        ;
+}
+
+static ITCM_CODE PR_NOINLINE void tl_frame(int line)
+{
+    while (PR_VCOUNT != 100)
+        ;
+    tl_quad();
+    PR_SWAP = 0;
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)PROBE_CAP)[i] = 0;
+    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);   // captures the frame after this one
+    while (!(PR_DISPSTAT & 1))
+        ;
+    while (PR_VCOUNT != line)
+        ;
+    tl_palette(TL_B);
+}
+
+static void d_tex_late(void)
+{
+    con_3d(VL_TERRAIN);
+    demo_title("TEX-LATE");
+    vram_set(VB_A, 0, 0);
+    for (int i = 0; i < 32; i++)
+        ((vu16 *)(0x06800000 + TL_TEX_OFS))[i] = 0x0101;
+    vram_set(VB_A, 3, 0);
+    *(volatile u16 *)0x04000060 |= 1;             // DISP3DCNT: texture mapping on
+    PR_GXPORT(0x10) = 0, PR_GXPORT(0x15) = 0;
+    PR_GXPORT(0x10) = 1, PR_GXPORT(0x15) = 0;
+    static const int lines[7] = { 200, 213, 214, 216, 192, 230, 250 };
+    u32 bad[7];
+    u32 done = 0;
+    for (int k = 0; k < 7; k++)
+    {
+        tl_palette(TL_A);
+        tl_quad();
+        PR_SWAP = 0;
+        for (int f = 0; f < 3; f++)
+            vsync();
+        tl_idle();
+        vram_set(VB_D, 0, 0);
+        tl_frame(lines[k]);
+        for (int f = 0; f < 3; f++)
+            vsync();
+        tl_idle();
+        bool ok = !(REG_DISPCAPCNT & (1u << 31));
+        u32 b = 0;
+        for (int y = 0; y < 192; y++)
+            b += (probe_px(128, y) & 0x7FFF) != TL_B;
+        bad[k] = ok ? b : 0xFFFF;
+        done |= ok ? 1u << k : 0;
+        probe_release();
+        con_printf("WRITE AT %3d: %3lu OLD LINES\n", lines[k], (unsigned long)bad[k]);
+    }
+    volatile CvResult *r = CV_RESULT;
+    for (int k = 4; k < 7; k++)
+        r->values[k] = bad[k];
+    r->values[7] = done;
+    finish(bad[0], bad[1], bad[2], bad[3]);
+}
+
 typedef struct {
     const char *name;
     void (*fn)(void);
@@ -1635,6 +1827,7 @@ static const DemoEntry demos[] = {
     { "l4-acc-stage", d_acc_stage },         { "l4-acc-dual", d_acc_dual },
     { "l4-acc-split-rear", d_acc_split_rear }, { "l4-acc-split-hdma", d_acc_split_hdma },
     { "l4-acc-rear-plane", d_acc_rear_plane },
+    { "l4-vcount-write", d_vcount_write },   { "l4-tex-late", d_tex_late },
 };
 
 void demo_main(const char *name)

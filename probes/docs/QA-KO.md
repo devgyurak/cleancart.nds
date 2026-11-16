@@ -7,7 +7,7 @@ probe는 누구도 판정하지 않습니다. 실기 값이 없기 때문입니�
 
 ## 모든 probe ROM의 공통 규칙
 
-- 빌드: `./build.sh DEMO=l4-<name>` → `probes-l4-<name>.nds` (15개 전부는 `./build.sh`, 배포 폴더는 `./build.sh -j8 release`).
+- 빌드: `./build.sh DEMO=l4-<name>` → `probes-l4-<name>.nds` (17개 전부는 `./build.sh`, 배포 폴더는 `./build.sh -j8 release`).
 - 화면: probe 이름과 결과가 텍스트 BG 콘솔에 나옵니다(3D probe는 메인 화면의 BG1 콘솔).
 - 체크포인트: 시작 120프레임 뒤에 화면이 완성되고 `CHECKPOINT` 줄이 출력됩니다. 같은 값이 메인 RAM
   `0x0237F000`에 기록됩니다(`u32 magic 'CVER'`, `u32` 데모 이름의 FNV-1a, `u32 frame`, `u32 values[13]`).
@@ -24,7 +24,7 @@ python3 probes/tools/judge.py --profile melonds-1.1-software soft.log   # 종료
 ```
 
 melonDS 출력의 `SAVE 2 ...`(타입 0이 아니라 2: melonDS가 목록에 두지 않은 게임 코드에는 항상 세이브 칩이 붙음)는
-ROM이 정상 부팅했다는 뜻입니다. 15개 probe 모두 일곱 프로필(melonDS 1.1과 master `4ce2188` 각각 soft / GL classic / GL compute, DeSmuME)에서 체크포인트에 도달했습니다. master: `MELONDS_COMMIT=4ce2188 RENDERER=... tools/melonds/mds.sh demos ...`.
+ROM이 정상 부팅했다는 뜻입니다. 17개 probe 모두 일곱 프로필(melonDS 1.1과 master `4ce2188` 각각 soft / GL classic / GL compute, DeSmuME)에서 체크포인트에 도달했습니다. master: `MELONDS_COMMIT=4ce2188 RENDERER=... tools/melonds/mds.sh demos ...`.
 
 ## 기대 화면
 
@@ -50,6 +50,8 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
 | l4-acc-dual | 위 정면 / 아래 평면, 이어서 캡처로 합성한 2패스 대도시 | 프레임 지연, 정면·평면 클리어색 픽셀, 합성 픽셀, 통과 플래그 | `1 b4b4ab3b 1c501df9 1f` (소프트웨어) |
 | l4-acc-split-rear | 한 화면을 60fps 2패스로, 분할선이 8프레임마다 이동. 캡처한 쪽이 3D rear plane으로 돌아옴 | 지연, 변형, 분할 x | `1 3 56` |
 | l4-acc-split-hdma | 같은 장면을 캡처 뱅크에서 엔진 B 비트맵 BG로 HBlank DMA | 지연, 변형, 분할 x, 구멍이 있는 프레임 수 | `1 6 56 0` (master GL/Compute `1 6 56 808`: 마지막 16프레임 중 8 + 8프레임에 구멍, 구멍 픽셀 2056개) |
+| l4-vcount-write | 콘솔에 `WRITE <값> AT <라인>: <n> LINES, RES <r>`(212·205·212·100라인의 VCOUNT 쓰기를 쓰기 없는 프레임과 비교. 프레임 120이 아니라 바로 끝남) | 네 경우의 라인 수, values[4..8]에 남는 사이클과 프레임 길이 | `11 4 3 51`(남는 사이클 1 3 2 3) |
+| l4-tex-late | 콘솔에 `WRITE AT <라인>: <n> OLD LINES`(전체 화면 텍스처 사각형의 팔레트 항목을 스왑 뒤 그 라인에서 다시 씀. 캡처한 한 열) | 200·213·214·216라인 쓰기의 옛 색 라인 수, values[4..6]에 192·230·250 | `0 0 0 192` |
 | l4-acc-rear-plane | 같은 2패스 방식에 rear plane 사용(Elevane 프리셋 2에 대응). rear plane을 먼저 설정한 뒤 캡처된 패스의 불투명 샘플을 셉니다(4096 = 양쪽 절반) | 지연, 변형, 분할 x, 0, 불투명 샘플, 왼쪽 절반, 오른쪽 절반(values[4..6]) | `1 7 56 0`, `1000 800 800`(soft, DeSmuME); GL: `580 580 0` |
 
 ## 측정 표 (2026-11-12)
@@ -80,6 +82,18 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
 | `rear-plane-latency` | l4-acc-split-rear | 0 to 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
 | `rear-plane` | l4-acc-rear-plane | non-zero | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
 | `rear-plane-full` | l4-acc-rear-plane | 4096 | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
+| `vcw-212-lines` | l4-vcount-write | 10 to 11 | 11 | 11 | 11 | 11 | 11 | 11 | 0 |
+| `vcw-212-residual` | l4-vcount-write | 0 to 4 | 1 | 1 | 1 | 1 | 1 | 1 | 6 |
+| `vcw-205-lines` | l4-vcount-write | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 0 |
+| `vcw-212-210-lines` | l4-vcount-write | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 0 |
+| `vcw-outside-lines` | l4-vcount-write | 0 | 51 | 51 | 51 | 51 | 51 | 51 | 0 |
+| `tex-late-192` | l4-tex-late | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tex-late-200` | l4-tex-late | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tex-late-213` | l4-tex-late | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tex-late-214` | l4-tex-late | 0 to 192 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `tex-late-216` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
+| `tex-late-230` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
+| `tex-late-250` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 
 에뮬레이터마다 다른 점:
 
@@ -96,6 +110,7 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
   빌드는 메인 메모리 디스플레이 FIFO에서 1.1이 0인 곳에 653개(`sys-dma-disp-pixels`)와 768개(`2d-display-pixels`)가 틀립니다.
 - **일곱 모두**: 스프라이트 120개 줄에서 마지막 OBJ 그룹이 남습니다(`2d-obj-line-budget` 3: 줄당 예산에서 스프라이트를
   버리는 에뮬레이터는 없고, 콘솔이 어디서 버리는지는 아무도 측정하지 않았습니다).
+- **VCOUNT 쓰기**(`l4-vcount-write`, 2026-11-16 측정, Heddlemere 리뷰에서 나온 새 probe): melonDS는 모든 프로필에서 어디서 쓰든 적용합니다. 212라인에서 202를 쓰면 11라인, 205라인에서 202는 4라인, 212라인에서 210은 3라인이고, GBATEK이 허용하는 202..212 밖인 100라인에서 50을 써도 51라인입니다(범위 없는 모델). DeSmuME는 네 쓰기를 모두 무시합니다(0라인). **늦게 쓴 텍스처 팔레트**(`l4-tex-late`): melonDS(전 프로필)는 214라인까지 쓴 것은 보여 주고 216라인부터 쓴 것은 전부 놓칩니다(옛 색 192라인). 중간 단계는 없습니다. DeSmuME는 모든 라인에 새 색을 보여 주므로 우리가 쓰는 마지막 쓰기 뒤에 팔레트를 읽습니다.
 - 나머지(폴리곤 수, `BOX_TEST`/`POS_TEST`/`VEC_TEST` 결과, 정면·평면 화면, rear plane 지연 1)는 melonDS의 모든 프로필에서 같고,
   3D 테스트 값은 `vec-z`만 빼고 DeSmuME과도 같습니다. 프레임 지연은 부팅 때 걸려 있는 SwapBuffers를 측정 루프 전에
   비우도록 고친 뒤 모든 곳에서 1입니다(고치기 전 Elevane의 복사본은 2였음).
