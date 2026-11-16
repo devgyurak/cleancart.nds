@@ -7,7 +7,9 @@ field of the console's sound block. Human docs (English, each with a Korean twin
 (which came from lightenette and the corvane template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are
 corvane's layers (keep fixes in sync when they apply to all games). The plan is `out/WORKPLAN-tonewick.md` (not committed).
 
-Status: scaffold. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
+Status: the sound lab, the ear (the experiments), the twelve signal lines with their GBATEK models, the rehearsal and
+its judge (`expected.json`, `tools/judge.py`), the QA run; the scope, the control panel and the morning log scene are
+next. Target level 2, area "sound and I/O edges": the exceptions, boundary values and documented bugs of
 the GBATEK sections corvane and hushwell judge at level 1 (DS Sound Channels, DS Sound Notes, DS Sound Capture,
 DS Real-Time Clock, DS Power Management, DS Cartridge Backup, DS Firmware User Settings).
 
@@ -44,15 +46,21 @@ when `tools/` changes.
   `credits.c` (credits and the licence viewer), `rooms.h/.c` (the district table and the puzzle record: two dials, a
   hardware function `hw`, the GBATEK model `model`, the wanted value `want`), `room_scene.c` (the district scene;
   `room_pilot_key()` is what the QA pilot presses next), `lab.h/.c` (the result words `tw_res`, layout in `lab.h`),
-  `rehearsal.c/.h`, `qa_game.c` + `qa_tune.h` (the QA run; its state hash covers only the completion bits and the lines
+  `ear.h/.c` (the ear: every experiment as a function that builds a lab script, listens and reduces the capture to numbers;
+  `ear_lfsr()` is the GBATEK noise register), `rehearsal.c/.h`, `qa_game.c` + `qa_tune.h` (the QA run; its state hash covers only the completion bits and the lines
   solved: measured values move a little from run to run). One file per district (`trestle.c`, `splice.c`, `echo.c`,
-  `junction.c`).
+  `junction.c`), each with its three signal lines (`hw` runs the experiment and returns a coarse class, `model` is the
+  same class from the GBATEK rules, `want` the class that clears the line) and its `audit_*()` (the judged numbers).
 - `arm9/source/core/sndlab.c/.h` + `arm7/source/lab7.c/.h` (`CvLabDesc` in `common/cv_ipc.h`): the sound lab. The ARM9
   builds a script of sound-register writes (SOUNDxCNT, the capture registers; the ARM7 accepts only 04000400h-0400051Fh
   and main-RAM pointers), sends its address on `CV_FIFO_SND`, and the ARM7 runs it with its sound engine stopped and the
   speaker amplifier off through power management (never SOUNDCNT), then reads the RTC, power management and firmware
   settings if the descriptor asks, and answers `CV_LAB_DONE | id` on `CV_FIFO_SYS`. Captures land in main RAM; the ARM9
   invalidates the cache before reading. `save_lab()` in `core/save.c` reads the save chip's status around a write.
+- `expected.json` + `tools/judge.py` (tests in `tools/tests/test_judge.py`, the GBATEK models in `tools/tests/test_model.py`):
+  items read one or two raw values (`values[1..36]`) and carry `done`, the district's completion bit in `values[0]`;
+  `known` holds the per-emulator profiles. The three save items are n/a when the run has no save chip
+  (`na_when [32, 65535]`).
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers (no 3D engine code here).
 - `arm9/source/core/qa.*`, `qalog.*`: the hidden auto QA mode (skill `nds-qa-mode`; keep them identical to the other
   games'). Title: hold **L+R+X+Y for 120 frames** (press L and R before X), or the SD marker `cleancart/tonewick/autoqa`.

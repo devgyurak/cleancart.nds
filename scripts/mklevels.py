@@ -47,7 +47,7 @@ GBATEK_SECTIONS = (
     'DS Cartridge Backup', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
     'DS DMA Transfers', 'DS Firmware User Settings', 'DS Inter Process Communication', 'DS Interrupts',
     'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
-    'DS Power Management', 'DS Real-Time Clock', 'DS Sound Capture', 'DS Sound Channels', 'DS Timers',
+    'DS Power Management', 'DS Real-Time Clock', 'DS Sound Capture', 'DS Sound Channels', 'DS Sound Notes', 'DS Timers',
     'DS Touch Screen Controller', 'DS Video Capture and Main Memory Display Mode', 'DS Video OBJs',
     'LCD Dimensions and Timings', 'LCD I/O BG Control', 'LCD I/O BG Rotation/Scaling',
     'LCD I/O Color Special Effects', 'LCD I/O Display Control', 'LCD I/O Mosaic Function',

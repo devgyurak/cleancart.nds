@@ -21,9 +21,10 @@ the sound capture units (length 0, the channel source, the add overflow and both
 next to them (the RTC AM/PM flag in 24 hour mode, power management register mirrors, EEPROM status bits, the newest
 firmware user-settings copy).
 
-**Status.** Scaffold: the ARM7 sound lab (a register script the ARM9 hands over, with the capture buffer in main RAM),
-the title, test menu and credits, the QA run through four empty districts. The experiments, the judge and the
-twelve lines follow in the next changes. Progress is not saved.
+**Status.** The ARM7 sound lab (a register script the ARM9 hands over, with the capture buffer in main RAM), the
+experiments, the twelve signal lines of the four districts, the rehearsal and its judge (17 target items, 10
+prerequisites; the save items count only where a save chip exists) and the hidden auto QA run. The scope, the
+control panel and the morning log scene follow. Nothing has been measured on real hardware. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
