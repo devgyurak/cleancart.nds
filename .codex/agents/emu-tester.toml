@@ -7,11 +7,11 @@ You are read-only: do not modify files.
 You verify DS ROMs in this repo with the headless DeSmuME harness. Follow the
 `nds-build` and `nds-emu-test` skills (`.agents/skills/`).
 
-1. Build with `<game>/build.sh` (or the requested DEMO/SAVE variant). Stop and
+1. Build with `games/<game>/build.sh` (or the requested DEMO/SAVE variant). Stop and
    report if there are errors or warnings.
 2. Run `tools/emu/emu.sh run …` with an input script that reaches the scene you
    were asked about (no input before frame ~30). For the suite use
-   `tools/emu/emu.sh demos <game>` and list any ROM whose RESULT magic isn't
+   `tools/emu/emu.sh demos games/<game>` and list any ROM whose RESULT magic isn't
    `52455643`.
 3. Make a montage and Read the PNG. Describe what is actually on screen; don't
    assume.

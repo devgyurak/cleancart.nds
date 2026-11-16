@@ -1,0 +1,111 @@
+# Corvane
+
+Original 3D hover shooter for the DS. Design doc: the user's Claude Docs page
+"Corvane — 3D 액션 슈팅게임 기획서". Human docs (English, each with a Korean
+twin `*-KO.md`): `README.md`, `docs/QA.md` (melonDS checklist + expected demo
+screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`.
+
+## Build
+
+```sh
+./build.sh                  # corvane.nds (EEPROM 64 KB)
+./build.sh SAVE=flash|fram  # save-chip variants
+./build.sh DEMO=<name>      # one feature demo (names: Makefile DEMOS, 49 of them)
+./build.sh demos            # all demos
+./build.sh -j8 release      # build/release/{rom,demos} (tag corvane-vX.Y.Z runs this in CI)
+./build.sh clean
+```
+
+`tools/mkassets.py` regenerates every asset into `build/gen` (C arrays) and
+`build/nitrofs` (cart files) on each build when `tools/` changes.
+
+## Code map
+
+| Path | Contents |
+|---|---|
+| `common/cv_ipc.h` | ARM9↔ARM7 protocol: IPCSYNC values, FIFO channels (user 01–03), sound command words, input packet |
+| `arm7/source/` | own ARM7 core: input/RTC/power via libnds, register-level sound engine (`sound7.c`) |
+| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA), qalog (QA log on the SD card + `QARN` result block) |
+| `arm9/source/gfx/` | vram (bank plan table), oam, text, fx, gl3d, models, terrain |
+| `arm9/source/game/` | scenes, stage loop, boss, stagefx (per-stage hardware showcase), hud, ending, qa_game (auto QA: tune, autopilot, run judge) |
+| `arm9/source/demo/demo.c` | feature demos (`make DEMO=…`) |
+| `tools/` | `mkassets.py` + `cvtools/`, `stage_editor.py`, `replay.py`, `stages/*.json` overrides |
+
+## Stage → technique
+
+1 coast: 4x4 compressed terrain, fog, 2D sea BG behind 3D + HBlank-DMA wave ·
+2 sky: affine sky (**mode 2**), alpha-blended clouds, alpha-only fog, RTC night windows ·
+3 station: 1024x512 large bitmap (mode 6, banks A–C), toon + edges, capture afterimage, ext-palette affine meteors ·
+4 interior: screen swap + touch aim, Z-buffer, 4 lights, shadow volume ·
+5 core: hierarchical boss + BoxTest picking, rear-plane bitmap (banks C/D), AA, sound-capture echo, polygon overload.
+
+## Judging
+
+`expected.json` + `tools/judge.py` grade the demo result blocks (target level 1, area "graphics and system"; sound and I/O demos belong to Hushwell, L2 to Lightenette, L3 to Elevane, L4 to `probes/`; see `docs/QA.md`, "Judging"; shipped in
+`build/release/judge`). Every item has `level` 1-4 and `level_basis` (`../../docs/LEVELS.md`). When a demo's
+`finish()` values change, update `expected.json` and re-measure every profile (`judge.py --profile NAME`);
+expected values come from GBATEK, a report or the ROM's own logic, never from "what melonDS printed" (then the
+item is `unconfirmed`). The screen demos capture their own output (bank D, `probe_capture*` in `demo/demo.c`) and write `values[4..8]`;
+the ARM7 reports channel/capture state in `CvInputPacket` for the sound demos.
+
+## Contracts other code depends on
+
+- **Demo result block** at `0x0237F000`: `u32 'CVER', u32 FNV-1a(name), u32 frame, u32 values[13]`,
+  written at frame 120. The last 4 KB of the ARM9 heap is reserved for it (`reduceHeapSize(4096)`).
+- **Auto QA mode** (`core/qa.c`, `game/qa_game.c`, `game/qa_tune.h`): same ROM as the release.
+  Title screen, hold **L+R+X+Y for 120 frames** (nothing is drawn). The game then plays stages
+  1-5, the ending and the credits by itself and ends with `RESULT PASS|FAIL` in the QA log and the
+  `QARN` block. Only numbers change (`qa_tune()`: boss HP x0.1, hits cost no life, 9 lives,
+  9 bombs); effects, sound, rendering, scene flow and saves run as shipped. The pilot enters
+  through `core/input.c` like a replay (never while a replay plays), RTC hour is fixed to 12.
+  Same ROM twice gives the same checkpoint hashes (`tools/qa/compare.py`). No `qa*` symbol
+  in `gfx/`, `core/save.c` (`tools/qa/lint.py`). Skill `nds-qa-mode`.
+- **QA log** (`core/qalog.c`, `tools/qa/`): RAM ring of `<frame> <scene> <event> key=val` lines,
+  flushed to `<drive>cleancart/corvane/qa-<date>-<time>.log` only at checkpoints, scene changes,
+  pause and the end (never inside a save transaction; every flush claims the slot-1 bus and
+  closes the file). Ends with `RESULT PASS|FAIL`; the RAM result block reuses `0x0237F000`
+  with id `QARN`. `tools/qa/parse_log.py` validates a log, `tools/qa/lint.py` keeps `qa*`
+  symbols out of `gfx/`, `core/save.c`, `judge/`, `capture.c`. Headless SD:
+  `SDDIR=out/mds/x tools/melonds/mds.sh run …` (melonDS gives an SD card only to homebrew
+  ROMs, so the runner patches the in-memory game code; the ROM on disk is unchanged and the
+  run has no save chip).
+- **Save layout** (`core/save.c`): two copies (seq + BIOS CRC16) at 0x0000/0x0400
+  (FLASH: 0x0000/0x10000), replay area at 0x8000 / 0x20000 / 0x0800 (EEPROM/FLASH/FRAM),
+  max 30000 bytes. On an 8 KB chip (what melonDS emulates for our header game
+  code `CRVN`) the EEPROM/FRAM builds detect the 0x2000 address wrap and keep the
+  replay at 0x0800, max 6140 bytes; the FLASH build there keeps it at 0x0201
+  (folded), max 7675. A longer run is cut to fit (playback ends early), never
+  dropped in favour of an older one. `tools/replay.py dump x.sav` reads all of them.
+- **Replay header** (16 bytes): magic `CVRP`, seed, run count, stage, RTC hour, lives, bombs.
+  Change C (`core/input.c`) and Python (`tools/cvtools/stages.py`) together.
+- **Stage file** format is documented at the top of `tools/cvtools/stages.py`.
+- **Determinism**: gameplay may only use `rng_*` (seeded from a constant or the replay),
+  input via `cv_in`, RTC via `input_rtc_hour()`. Never seed from timers/RTC; the
+  boss beat timer is started inside VBlank; HUD shows stage frames, not wall time.
+  A recorded run and its replay must produce identical `CvStage` memory
+  (only heap pointers and message strings may differ).
+
+## Adding things
+
+- **A demo**: add a `d_xxx()` in `demo/demo.c` that uses only its feature plus the
+  text console, finishes with `finish(v0..v3)` by frame 120, register it in `demos[]`,
+  add the name to `DEMOS` in the `Makefile`, and add an expected-screen row to `docs/QA.md` and `docs/QA-KO.md`.
+- **A texture**: add to `images.textures()`, `CvTex` enum and `tex_desc[]` in `gl3d.c`.
+  Stage 5 loads textures only into banks A/B; keep the total small.
+- **An asset**: generate it in `tools/cvtools/`, emit it from `mkassets.py`, add a row to
+  `ASSETS.md` and `ASSETS-KO.md`.
+- **A model**: build it in `gfx/models.c` with the `mb_*` helpers; faces are emitted
+  counter-clockwise from outside automatically (verified: CCW = front on DS).
+
+## Result block on the SD card
+
+`core/sdcard.c/.h` (identical in all five kits, with `qalog.c` using its FAT mount): when the
+folder `<drive>cleancart/corvane/` already exists on the card, the demo `finish()` writes its result
+block there as `res-<date>-<time>-corvane-<name>.log` (a `# ...` header and a `<rom> RESULT w0 w1 ...`
+line, the format `tools/judge.py` reads; never overwrites an earlier run). The ROM never creates the
+folder: whoever prepares the card does. Without the folder (every emulator CI run, an ordinary card)
+nothing is written and nothing on screen changes. The demo then shows `RESULT SAVED` under the checkpoint. `tools/qa/ingest.py SD` copies the logs to
+`build/qa/` and runs `tools/judge.py --hardware --partial` (hardware values are never compared with an
+emulator profile). `sd_*` symbols stay out of `gfx/`, `judge/`, `capture.c`, `save.c` (`tools/qa/lint.py`).
+
+**QA marker start**: `qa_marker_poll()` (core/qa.c) starts the same run from `cleancart/corvane/autoqa` on the SD card (renamed to `autoqa.used-*` first, once per boot, on the first title frame); the log says `start=marker`. See skill `nds-qa-mode`.

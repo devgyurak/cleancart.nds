@@ -9,7 +9,7 @@ All builds go through the game's `build.sh`, which builds the pinned BlocksDS
 Docker image (plus Python 3) and runs `make` inside it. Never use a host toolchain.
 
 ```sh
-cd <game>                      # e.g. corvane
+cd games/<game>                # e.g. games/corvane
 ./build.sh                     # <game>.nds
 ./build.sh DEMO=sys-ipc        # <game>-sys-ipc.nds (one feature demo)
 ./build.sh demos               # every name in the Makefile DEMOS list (~4 min)

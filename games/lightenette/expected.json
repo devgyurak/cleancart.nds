@@ -1,0 +1,1105 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 2,
+  "area": "display edge cases",
+  "about": "Expected result-block values for the Lightenette rehearsal and judge ROMs, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h and arm9/source/judge/judge.h. An item may name the captures it depends on (\"done\": the value index and bit mask that must be set) and whether it reads pixels (\"pixels\": a value above 0x7FFF is the ROM's 'not captured' marker). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779,
+    "act_ids": {
+      "ACT1": 827605825,
+      "ACT2": 844383041,
+      "ACT3": 861160257,
+      "ACT4": 877937473,
+      "ACT5": 894714689
+    },
+    "act_ids_note": "per-act blocks left while an act's loop runs; seeing one means the rehearsal did not finish"
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "lightenette-rehearsal.nds",
+      "item_id": 1279608914,
+      "item_id_text": "RHEL",
+      "frames": 1800,
+      "note": "act 1 from the embedded touch script, acts 2 to 5 from embedded key scripts, then the judge; no save chip, no NitroFS. Ends at about frame 864 (melonDS) / 954 (DeSmuME); the worst case, every act running to its own limit, is about 1640 frames"
+    },
+    "acc-stage": {
+      "rom": "lightenette-acc-stage.nds",
+      "item_id": 1245988684,
+      "item_id_text": "LGDJ",
+      "frames": 180,
+      "note": "the judge scene alone"
+    },
+    "qa": {
+      "rom": "lightenette.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 4000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the normal flow title, acts 1-5 with the rehearsal's scripts, credits, then the accuracy judge once; the block uses the rehearsal's layout (values[0..44]) and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags). Ends at about frame 2090 after the combo (melonDS)"
+    },
+    "l2-sys-irq": {
+      "rom": "lightenette-l2-sys-irq.nds",
+      "item_id": 1414528060,
+      "item_id_text": "l2-sys-irq",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-irq): IRQ counts over 120 frames (VBlank, HBlank, VCOUNT 96, 10 Hz timer, key IRQ). Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-sys-dma-vblank": {
+      "rom": "lightenette-l2-sys-dma-vblank.nds",
+      "item_id": 619872727,
+      "item_id_text": "l2-sys-dma-vblank",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-dma-vblank): a palette DMA started at VBlank in each of 120 frames. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-sys-math": {
+      "rom": "lightenette-l2-sys-math.nds",
+      "item_id": 404087652,
+      "item_id_text": "l2-sys-math",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo sys-math): hardware divide, 64-bit square root, vector length, atan2. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-3d-limits": {
+      "rom": "lightenette-l2-3d-limits.nds",
+      "item_id": 1911496040,
+      "item_id_text": "l2-3d-limits",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 3d-limits): 600-2980 triangles per frame against the 2048-polygon RAM; values[0] overflow frames, values[1] polygons in RAM. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-acc-dual": {
+      "rom": "lightenette-l2-acc-dual.nds",
+      "item_id": 2329324468,
+      "item_id_text": "l2-acc-dual",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo acc-dual): dual-screen 3D and two-pass rendering through the display capture; values[3] is a flag word (bit 1 one pass overflows, 2 two passes fit, 3 both halves have pixels). Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-affine": {
+      "rom": "lightenette-l2-2d-affine.nds",
+      "item_id": 2673561160,
+      "item_id_text": "l2-2d-affine",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-affine): a rotated affine BG captured and compared with the GBATEK mapping (picture generated at run time); values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-mosaic": {
+      "rom": "lightenette-l2-2d-mosaic.nds",
+      "item_id": 1186310803,
+      "item_id_text": "l2-2d-mosaic",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-mosaic): a 4x4 BG mosaic captured and compared pixel by pixel; values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-2d-obj-bitmap": {
+      "rom": "lightenette-l2-2d-obj-bitmap.nds",
+      "item_id": 590847140,
+      "item_id_text": "l2-2d-obj-bitmap",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo 2d-obj-bitmap): a 16bpp bitmap OBJ captured and compared texel by texel (picture generated at run time); values[4..6] samples / wrong / capture finished. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-snd-capture": {
+      "rom": "lightenette-l2-snd-capture.nds",
+      "item_id": 1426653278,
+      "item_id_text": "l2-snd-capture",
+      "frames": 120,
+      "note": "level 2 demo (Corvane demo snd-capture): the two sound capture units record the mixer output of the song; values[4] capture unit busy bits, values[5] peak of the rings. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    },
+    "l2-snd-wave": {
+      "rom": "lightenette-l2-snd-wave.nds",
+      "item_id": 956807109,
+      "item_id_text": "l2-snd-wave",
+      "frames": 120,
+      "note": "level 2 demo (split from Hushwell's snd-wave): a PSG square wave (duty 3, A4) is recorded from the left mixer through capture unit 0 at pan 0 and at pan 126; values[4] peak-to-peak at pan 126, values[5] peak-to-peak at pan 0 (the audible reference), values[6] bit 0 = reference swing above 16. Result block as Corvane's demos (values from words[3:], 13 words are enough); no save chip, no NitroFS"
+    }
+  },
+  "items": [
+    {
+      "id": "seam-uv",
+      "title": "Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
+      "boots": [
+        "rehearsal",
+        "acc-stage",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "acc-stage": 180,
+        "qa": 1
+      },
+      "values": [
+        0
+      ],
+      "check": "seam_rows",
+      "tolerance": 0,
+      "source": "report:melonDS#2008",
+      "role": "target",
+      "level": 2,
+      "level_basis": "report:melonDS#2008",
+      "model": null,
+      "done": {
+        "value": 3,
+        "mask": 256
+      }
+    },
+    {
+      "id": "edge-marking",
+      "title": "Edge marking draws edge pixels (melonDS #2549)",
+      "boots": [
+        "rehearsal",
+        "acc-stage",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "acc-stage": 180,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "model": null,
+      "done": {
+        "value": 3,
+        "mask": 256
+      }
+    },
+    {
+      "id": "line-polygon",
+      "title": "Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338)",
+      "boots": [
+        "rehearsal",
+        "acc-stage",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "acc-stage": 180,
+        "qa": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "model": null,
+      "done": {
+        "value": 3,
+        "mask": 256
+      }
+    },
+    {
+      "id": "lantern-blend-equal",
+      "title": "Translucent lantern OBJ looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
+      "boots": [
+        "rehearsal",
+        "acc-stage",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "acc-stage": 180,
+        "qa": 1
+      },
+      "values": [
+        4,
+        5,
+        6
+      ],
+      "check": "all_equal",
+      "unlike": 7,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 3,
+        "mask": 1792
+      },
+      "pixels": true
+    },
+    {
+      "id": "darken-works",
+      "title": "Darken lowers the 3D backdrop outside the lantern",
+      "boots": [
+        "rehearsal",
+        "acc-stage",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "acc-stage": 180,
+        "qa": 1
+      },
+      "values": [
+        7,
+        8
+      ],
+      "check": "differ",
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 3,
+        "mask": 1280
+      },
+      "pixels": true
+    },
+    {
+      "id": "act1-cleared",
+      "title": "Act 1 is cleared by the embedded touch script",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        10
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act1-score",
+      "title": "Act 1 silhouette match at the end, 85-100",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        9
+      ],
+      "check": "range",
+      "min": 85,
+      "max": 100,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act2-cleared",
+      "title": "Act 2 is cleared by the embedded key script",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        13
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act2-seam",
+      "title": "Act 2 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        14
+      ],
+      "check": "seam_rows",
+      "tolerance": 0,
+      "source": "report:melonDS#2008",
+      "role": "target",
+      "level": 2,
+      "level_basis": "report:melonDS#2008",
+      "model": null,
+      "done": {
+        "value": 17,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act2-edge-marking",
+      "title": "Act 2 plinths get both edge-marking colours (melonDS #2549)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        15
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "model": null,
+      "done": {
+        "value": 17,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act3-cleared",
+      "title": "Act 3 is cleared by the embedded key script (all three marks found)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        18
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act3-lantern-equal",
+      "title": "Act 3 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        20,
+        21,
+        22
+      ],
+      "check": "all_equal",
+      "unlike": 23,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 25,
+        "mask": 7
+      },
+      "pixels": true
+    },
+    {
+      "id": "act3-darken-works",
+      "title": "Act 3 darken lowers the 3D backdrop outside the lantern",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        23,
+        24
+      ],
+      "check": "differ",
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 25,
+        "mask": 5
+      },
+      "pixels": true
+    },
+    {
+      "id": "act4-cleared",
+      "title": "Act 4 is cleared by the embedded key script (no strings cross)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        27
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act4-hline",
+      "title": "Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        29
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "model": null,
+      "done": {
+        "value": 31,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act4-dline",
+      "title": "Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        30
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "model": null,
+      "done": {
+        "value": 31,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act5-cleared",
+      "title": "Act 5 is cleared by the embedded key script (all dolls lit and turned)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        32
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "act5-seam",
+      "title": "Act 5 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        34
+      ],
+      "check": "seam_rows",
+      "tolerance": 0,
+      "source": "report:melonDS#2008",
+      "role": "target",
+      "level": 2,
+      "level_basis": "report:melonDS#2008",
+      "model": null,
+      "done": {
+        "value": 44,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act5-edge-3-colours",
+      "title": "Act 5 plinths get all three edge-marking colours (melonDS #2549)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        35,
+        36,
+        37
+      ],
+      "check": "all_gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "model": null,
+      "done": {
+        "value": 44,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act5-line-polygon",
+      "title": "Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        38
+      ],
+      "check": "gt",
+      "expect": 0,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "model": null,
+      "done": {
+        "value": 44,
+        "mask": 1
+      }
+    },
+    {
+      "id": "act5-lantern-equal",
+      "title": "Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        39,
+        40,
+        41
+      ],
+      "check": "all_equal",
+      "unlike": 42,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 44,
+        "mask": 7
+      },
+      "pixels": true
+    },
+    {
+      "id": "act5-darken-works",
+      "title": "Act 5 darken lowers the 3D backdrop outside the lantern",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        42,
+        43
+      ],
+      "check": "differ",
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:LCD I/O Color Special Effects",
+      "model": null,
+      "done": {
+        "value": 44,
+        "mask": 5
+      },
+      "pixels": true
+    },
+    {
+      "id": "rehearsal-finished",
+      "title": "The rehearsal ran to the end",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1800,
+        "qa": 1
+      },
+      "values": [
+        12
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The auto QA run ended with RESULT PASS (every act cleared, credits reached, judge run)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "sys-irq-hblank",
+      "title": "HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297)",
+      "boots": [
+        "l2-sys-irq"
+      ],
+      "frame": {
+        "l2-sys-irq": 120
+      },
+      "demo": "l2-sys-irq",
+      "values": [
+        1
+      ],
+      "check": "range",
+      "min": 31297,
+      "max": 31560,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD Dimensions and Timings"
+    },
+    {
+      "id": "sys-dma-vblank-frames",
+      "title": "A DMA started at VBlank has uploaded the palette in every one of 120 frames",
+      "boots": [
+        "l2-sys-dma-vblank"
+      ],
+      "frame": {
+        "l2-sys-dma-vblank": 120
+      },
+      "demo": "l2-sys-dma-vblank",
+      "values": [
+        0
+      ],
+      "check": "eq",
+      "expect": 120,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS DMA Transfers"
+    },
+    {
+      "id": "sys-math-sqrt64",
+      "title": "64-bit hardware square root of 10^12 is 10^6",
+      "boots": [
+        "l2-sys-math"
+      ],
+      "frame": {
+        "l2-sys-math": 120
+      },
+      "demo": "l2-sys-math",
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 1000000,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "3d-limits-ram",
+      "title": "Polygon RAM holds 2048 polygons: it is full at the end of the overload run",
+      "boots": [
+        "l2-3d-limits"
+      ],
+      "frame": {
+        "l2-3d-limits": 120
+      },
+      "demo": "l2-3d-limits",
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 2048,
+      "na_when": [
+        1,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "3d-limits-overflow",
+      "title": "Frames in which 600-2980 submitted triangles overflowed polygon RAM",
+      "boots": [
+        "l2-3d-limits"
+      ],
+      "frame": {
+        "l2-3d-limits": 120
+      },
+      "demo": "l2-3d-limits",
+      "values": [
+        0
+      ],
+      "check": "eq",
+      "expect": 47,
+      "na_when": [
+        1,
+        0
+      ],
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Status"
+    },
+    {
+      "id": "acc-dual-over",
+      "title": "The whole city in one pass overflows polygon RAM",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 2,
+      "mask": 2,
+      "na_when": [
+        4,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control"
+    },
+    {
+      "id": "acc-dual-passes",
+      "title": "Two half passes fit polygon RAM",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 4,
+      "mask": 4,
+      "na_when": [
+        5,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control"
+    },
+    {
+      "id": "acc-dual-halves",
+      "title": "Both halves of the blended two-pass picture have pixels",
+      "boots": [
+        "l2-acc-dual"
+      ],
+      "frame": {
+        "l2-acc-dual": 120
+      },
+      "demo": "l2-acc-dual",
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "expect": 8,
+      "mask": 8,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
+    },
+    {
+      "id": "2d-affine-pixels",
+      "title": "Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples)",
+      "boots": [
+        "l2-2d-affine"
+      ],
+      "frame": {
+        "l2-2d-affine": 120
+      },
+      "demo": "l2-2d-affine",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O BG Rotation/Scaling"
+    },
+    {
+      "id": "2d-mosaic-pixels",
+      "title": "With a 4x4 mosaic every 4x4 block of BG0 shows its top left pixel (all 49152 pixels)",
+      "boots": [
+        "l2-2d-mosaic"
+      ],
+      "frame": {
+        "l2-2d-mosaic": 120
+      },
+      "demo": "l2-2d-mosaic",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:LCD I/O Mosaic Function"
+    },
+    {
+      "id": "2d-obj-bitmap-pixels",
+      "title": "A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out)",
+      "boots": [
+        "l2-2d-obj-bitmap"
+      ],
+      "frame": {
+        "l2-2d-obj-bitmap": 120
+      },
+      "demo": "l2-2d-obj-bitmap",
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 0,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Video OBJs"
+    },
+    {
+      "id": "snd-capture-signal",
+      "title": "The capture rings hold a non-silent signal (the song reached the mixer output)",
+      "boots": [
+        "l2-snd-capture"
+      ],
+      "frame": {
+        "l2-snd-capture": 120
+      },
+      "demo": "l2-snd-capture",
+      "values": [
+        5
+      ],
+      "check": "range",
+      "min": 1,
+      "max": 65535,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Sound Capture"
+    },
+    {
+      "id": "snd-wave-pan-right-exact",
+      "title": "Pan 126 (hard right) mixes the left side with 2/128 (GBATEK rounding): the left mixer swing is at most 2, while the pan 0 reference is audible (swing above 16)",
+      "boots": [
+        "l2-snd-wave"
+      ],
+      "frame": {
+        "l2-snd-wave": 120
+      },
+      "demo": "l2-snd-wave",
+      "values": [
+        4
+      ],
+      "check": "range",
+      "min": 0,
+      "max": 2,
+      "done": {
+        "value": 6,
+        "mask": 1
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Sound Channels"
+    }
+  ],
+  "known": {
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [
+        "snd-wave-pan-right-exact"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [
+        "seam-uv",
+        "edge-marking",
+        "lantern-blend-equal",
+        "act2-seam",
+        "act2-edge-marking",
+        "act3-lantern-equal",
+        "act5-seam",
+        "act5-edge-3-colours",
+        "act5-lantern-equal",
+        "snd-wave-pan-right-exact"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [
+        "lantern-blend-equal",
+        "act3-lantern-equal",
+        "act5-lantern-equal",
+        "snd-wave-pan-right-exact"
+      ],
+      "na": []
+    },
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME through py-desmume 0.0.9 (tools/emu)",
+      "ng": [
+        "lantern-blend-equal",
+        "act3-lantern-equal",
+        "act5-lantern-equal"
+      ],
+      "na": [
+        "3d-limits-ram",
+        "3d-limits-overflow",
+        "acc-dual-over",
+        "acc-dual-passes"
+      ]
+    }
+  },
+  "known_note": "Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the failing gating items equal the list. Measured 2026-11-11 with ./build.sh output, not on hardware. A reviewer reported that melonDS master 4ce2188 already fixed melonDS #2503 (the lantern items would then pass on its GL renderers); we have NOT verified that. When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile (or add one) after checking."
+}

@@ -12,7 +12,7 @@ The Homebrew cask is disabled (fails Gatekeeper). Use the official release:
 ```sh
 curl -sSL -o /tmp/melonDS.zip https://github.com/melonDS-emu/melonDS/releases/download/1.1/melonDS-1.1-macOS-universal.zip
 unzip -q -o /tmp/melonDS.zip -d /tmp/melonDS && cp -R /tmp/melonDS/melonDS.app ~/Applications/
-open -a ~/Applications/melonDS.app <game>/<game>.nds
+open -a ~/Applications/melonDS.app games/<game>/<game>.nds
 ```
 
 It is ad-hoc signed, not notarized; tell the user. No BIOS files are needed
@@ -26,7 +26,7 @@ with every `[Instance0.Keyboard]` entry `= -1` (no keys worked).
 ```sh
 pkill -9 -f melonDS.app/Contents/MacOS   # melonDS rewrites the toml when it quits normally
 python3 tools/melonds/set_keys.py        # writes the mapping in ../../AGENTS.md
-open -a ~/Applications/melonDS.app <game>/<game>.nds
+open -a ~/Applications/melonDS.app games/<game>/<game>.nds
 ```
 
 Facts behind the script: values are Qt key codes; **arrow keys need
@@ -46,10 +46,10 @@ Mesa llvmpipe; screenshots then come from the GL compositor, as in the app.
 demo result blocks matched the app (read over GDB) byte for byte.
 
 ```sh
-tools/melonds/mds.sh demos corvane/build/release/demos      # RESULT + SAVE per demo
-tools/melonds/mds.sh run corvane/corvane.nds 900 out/mds/boot "60:A,200:A" 150,450
+tools/melonds/mds.sh demos games/corvane/build/release/demos      # RESULT + SAVE per demo
+tools/melonds/mds.sh run games/corvane/corvane.nds 900 out/mds/boot "60:A,200:A" 150,450
 SAV=out/mds/x.sav TRACE=<addr>:<len> TRACE_EVERY=60 SHOT_EVERY=600 \
-  tools/melonds/mds.sh run corvane/corvane.nds 20000 out/mds/run @out/mds/events.txt
+  tools/melonds/mds.sh run games/corvane/corvane.nds 20000 out/mds/run @out/mds/events.txt
 ```
 
 - Events and screenshots work like `tools/emu/` (`FRAME:KEY[:HOLD]`, `Tx/y`, plus
@@ -70,7 +70,7 @@ System Events hangs on an Automation prompt; it *does* have Accessibility trust.
 ```sh
 pkill -9 -f melonDS.app/Contents/MacOS
 python3 tools/melonds/set_keys.py --gdb on
-open -a ~/Applications/melonDS.app <game>/<game>.nds; sleep 8
+open -a ~/Applications/melonDS.app games/<game>/<game>.nds; sleep 8
 swiftc tools/melonds/keypid.swift -o /tmp/keypid
 P=$(pgrep -f melonDS.app/Contents/MacOS)
 /tmp/keypid $P 7 down; sleep 1.2

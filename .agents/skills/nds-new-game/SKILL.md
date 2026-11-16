@@ -5,11 +5,12 @@ description: Start a new DS game folder in this repo from the corvane template (
 
 # New game from the corvane template
 
+0. A new game starts from a brief of the `game-planner` agent (target level, area, judged items, concept). Set `target_level`, `area` and every item's `role` in `expected.json` (`docs/LEVELS.md`).
 1. Read the design request; if it names an existing commercial game, build an
    original game in that genre instead (no names, characters, art or levels).
-2. Create `<name>/` (lowercase, no trademarks) and copy the infrastructure:
+2. Create `games/<name>/` (lowercase; no third-party names, see rule 3 in `AGENTS.md`) and copy the infrastructure:
    ```sh
-   mkdir <name> && cd <name>
+   mkdir games/<name> && cd games/<name>
    cp ../corvane/{Dockerfile,build.sh,Makefile,.gitignore,LICENSE} .
    cp -R ../corvane/licenses .
    cp ../corvane/THIRD_PARTY_NOTICES ../corvane/NOTICE .
@@ -48,12 +49,17 @@ description: Start a new DS game folder in this repo from the corvane template (
    `<name>/CLAUDE.md` containing only `@AGENTS.md`.
 6. Build (`nds-build`), smoke test (`nds-emu-test`), audit (`nds-license-audit`).
    Run the demo suite and a boot → save → reload pass in headless melonDS too
-  : `tools/melonds/mds.sh demos <game>/build/release/demos` and check
+  : `tools/melonds/mds.sh demos games/<game>/build/release/demos` and check
    every RESULT and that the `SAVE` type isn't 0; then
    `SAV=out/mds/<game>.sav tools/melonds/mds.sh run …` twice (save, then reload)
    and check the save comes back and the `CPU9 cpsr` mode isn't 0x17 (data abort).
    DeSmuME alone missed the MPU, DMA, header and save bugs.
-7. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.
+7. A new game ships `expected.json` + `tools/judge.py` from the start. Fix its `target_level` and `area` first
+   (a game holds no L4 item: those go to `probes/`) and take them from the `game-planner` brief. Every item in
+   `expected.json` has `level` (1–4) and `level_basis` and `role` (`docs/LEVELS.md`; ask the `level-judge`
+   agent). `python3 scripts/mklevels.py --check` must pass (add the game's `<!-- cell:<game> -->` marker
+   to the Games table of both root READMEs).
+8. The QA mode comes with `core/` (`qa.c/.h`, `qalog.c/.h`) and the Makefile `buildid.h` rule.
    Add `game/qa_tune.h` + `game/qa_game.c` and the hooks from skill `nds-qa-mode` (porting
    checklist) before the first release; a game without a working QA run isn't done.
-8. Add the game to the root `AGENTS.md` layout section.
+9. Add the game to the root `AGENTS.md` layout section.

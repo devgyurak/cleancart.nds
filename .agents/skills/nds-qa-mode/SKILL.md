@@ -6,9 +6,9 @@ description: The hidden auto QA mode every game carries (L+R+X+Y hold on the tit
 # Auto QA mode
 
 Same ROM as the release (SHA-256 identical): no QA build. The mode is hidden; nothing
-on screen shows it. Reference implementation: `corvane/` (`core/qa.c/.h`,
+on screen shows it. Reference implementation: `games/corvane/` (`core/qa.c/.h`,
 `core/qalog.c/.h`, `game/qa_game.c`, `game/qa_tune.h`). `core/` files are copied into each
-game and kept identical (`diff -r corvane/arm9/source/core <game>/arm9/source/core` for
+game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/arm9/source/core` for
 `qa*.c/h`); the game side is the game's own.
 
 ## Rules
@@ -16,6 +16,12 @@ game and kept identical (`diff -r corvane/arm9/source/core <game>/arm9/source/co
 1. **Entry**: title screen, hold **L+R+X+Y for 120 frames** (`qa_title_poll()`, no progress
    shown). Never at boot (DeSmuME hangs on a key held at power-on). Never while a replay
    plays. Does not clash with title+Select or pause+L+R+A.
+   **Marker start** (`qa_marker_poll()`, next to `qa_title_poll()`): the first title frame of a boot
+   checks `<drive>cleancart/<game>/autoqa` once. If it exists it is renamed to
+   `autoqa.used-<date>-<time>` *before* the run starts (a power cut never repeats the run); a failed
+   rename starts nothing and appends `rename failed errno=N` to `autoqa-error.log`. The run is
+   identical to a key start (same seed, RTC, pilot, hashes); the log's `qa start` line carries
+   `start=marker` or `start=keys`, never part of a hash. With no card or no marker nothing changes.
 2. **Autopilot** = the game plays to the ending/credits itself. Input enters in
    `core/input.c` at the replay spot (`qa_autopilot()`); steering code reads game state but
    only produces keys/touch.

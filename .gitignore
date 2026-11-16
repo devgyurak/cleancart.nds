@@ -8,3 +8,7 @@
 __pycache__/
 *.nds
 *.sav
+
+# Patch leftovers
+*.rej
+*.orig

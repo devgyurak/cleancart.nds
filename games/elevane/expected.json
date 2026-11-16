@@ -1,0 +1,416 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+ "schema": 3,
+ "target_level": 3,
+ "area": "display timing and compositing",
+ "about": "Expected result-block values for the Elevane rehearsal ROM and the level 3 demo ROMs (elevane-l3-*.nds; an item with \"demo\" is graded from that demo's block, \"demos\" maps name to block id = FNV-1a 32 of the name), judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. An item may depend on a flag bit (\"requires\"); when it is clear the item is n/a (DeSmuME returns 0 from the polygon RAM counters). \"known\" lists, per emulator version and renderer, the items (gating or informational) expected to fail there; judge.py --profile passes only when the failing set matches exactly. Pixel counts read every 8th line (24 of 192) because the read must end inside the VBlank; hole counts are the worst seen over all frames of a kind. A profile also lists the items that are n/a there (\"na\").",
+ "block": {
+  "address": "0x0237F000",
+  "magic": 1380275779
+ },
+ "boot": {
+  "rom": "elevane-rehearsal.nds",
+  "item_id": 1213355589,
+  "item_id_text": "EVRH",
+  "frame": "the block is published at about frame 2500 (melonDS); run at least 3500, the examples use 4000",
+  "frames_min": 3500,
+  "note": "plays the first puzzle of every chapter (stack piles, layers, several parts) with a fixed script through the live play scene, then the two showcase presets, 120 calls each; no save chip, no NitroFS",
+  "values_shown": 18
+ },
+ "demos": {
+  "l3-sys-dma-hblank": 2761964348,
+  "l3-acc-dual": 1958878513,
+  "l3-acc-split-tex": 4116068937,
+  "l3-acc-split-bg": 642735331,
+  "l3-acc-split-relay": 3720540265,
+  "l3-acc-split-rear": 1323813518,
+  "l3-acc-split-rear-read": 4220084089,
+  "l3-acc-split-rear-write": 2935632224,
+  "l3-acc-split-hdma": 3921094302
+ },
+ "sources": {
+  "GBATEK": "documented hardware behaviour; gating",
+  "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2618); gating",
+  "hw:<model>": "measured by us on real hardware; gating",
+  "rom": "decided by the ROM's own deterministic logic alone, independent of the emulator (puzzle solving, counts); gating",
+  "unconfirmed": "no hardware value yet, or a result that depends on how an emulator handles capture, bank mapping or DMA timing (not documented in GBATEK); informational only, never fails the run (a profile still compares it)"
+ },
+ "items": [
+  {
+   "id": "puzzles-delivered",
+   "title": "Every scripted puzzle (the first of each chapter that has puzzles) is solved and delivered",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 0,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "chapters-played",
+   "title": "The rehearsal played the first puzzle of all five chapters (mask 0x1f)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 31,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "puzzles-count",
+   "title": "Five puzzles were delivered",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 5,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "dual-front",
+   "title": "Top screen: the front view reached bank D (clear-colour pixels, and no plan clear colour in it)",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "dual-plan",
+   "title": "Bottom screen: the plan view reached bank C",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 2,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "dual-cross-zero",
+   "title": "The two captures never carry each other's clear colour (plan clear in D, front clear in C)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "poly-passes",
+   "title": "Showcase: each pass under 2048 polygons while the whole plaza is over it (two passes are needed)",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 3,
+   "requires": {
+    "value": 0,
+    "bit": 8
+   },
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control",
+   "model": null
+  },
+  {
+   "id": "no-overflow",
+   "title": "Showcase: no polygon or vertex overflow flag in either preset",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 4,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS 3D Display Control",
+   "model": null
+  },
+  {
+   "id": "acc-dual-latency",
+   "demo": "l3-acc-dual",
+   "title": "The capture routing written one call late shows in the same frame (latency 1, ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-dual-latency-flag",
+   "demo": "l3-acc-dual",
+   "title": "Routing latency is at most 1 frame",
+   "values": [
+    3
+   ],
+   "check": "mask",
+   "mask": 16,
+   "expect": 16,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-tex-latency",
+   "demo": "l3-acc-split-tex",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-bg-latency",
+   "demo": "l3-acc-split-bg",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-relay-latency",
+   "demo": "l3-acc-split-relay",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-rear-latency",
+   "demo": "l3-acc-split-rear",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-rear-read-latency",
+   "demo": "l3-acc-split-rear-read",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-rear-write-latency",
+   "demo": "l3-acc-split-rear-write",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "acc-split-hdma-latency",
+   "demo": "l3-acc-split-hdma",
+   "title": "Capture routing latency of the same-screen two-pass view is at most 1 frame (ours)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 2,
+   "level_basis": "none",
+   "model": null
+  },
+  {
+   "id": "sys-dma-hblank-pixels",
+   "demo": "l3-sys-dma-hblank",
+   "title": "Captured backdrop of line y equals entry y of the HBlank DMA table (22 lines)",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers",
+   "model": null
+  },
+  {
+   "id": "hdma-holes-zero",
+   "title": "Rehearsal preset 1 (HBlank DMA fills the sub BG bitmap one line per scanline; melonDS#2618): no transparent or black hole in any frame",
+   "values": [
+    0
+   ],
+   "check": "bit",
+   "bit": 5,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers; report:melonDS#2618",
+   "model": null
+  },
+  {
+   "id": "acc-split-hdma-holes",
+   "demo": "l3-acc-split-hdma",
+   "title": "No frame has holes in the HBlank-DMA composite (melonDS#2618; the demo form of hdma-holes-zero)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 3,
+   "level_basis": "gbatek:DS DMA Transfers; report:melonDS#2618",
+   "model": null
+  }
+ ],
+ "known": {
+  "desmume-pydesmume-0.0.9": {
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+   "ng": [],
+   "na": [
+    "poly-passes"
+   ]
+  },
+  "melonds-1.1-software": {
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-classic": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-compute": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "melonds-4ce2188-software": {
+   "emulator": "melonDS master 4ce2188 (MELONDS_COMMIT=4ce2188), software renderer",
+   "ng": [],
+   "na": []
+  },
+  "melonds-4ce2188-gl-classic": {
+   "emulator": "melonDS master 4ce2188, OpenGL (Classic) renderer",
+   "ng": [
+    "acc-split-hdma-holes",
+    "hdma-holes-zero"
+   ],
+   "na": []
+  },
+  "melonds-4ce2188-gl-compute": {
+   "emulator": "melonDS master 4ce2188, OpenGL (Compute) renderer",
+   "ng": [
+    "acc-split-hdma-holes",
+    "hdma-holes-zero"
+   ],
+   "na": []
+  }
+ },
+ "known_note": "Measured 2026-11-12 with ./build.sh output (the rehearsal and all nine l3-* demos, fresh logs on every profile), not on hardware. Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the GATING failing set equals the list (informational items that changed are reported, not compared). melonDS master 4ce2188 GL/Compute fail the two HBlank DMA hole items (melonDS#2618). When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile after checking.",
+ "screens": {
+  "note": "1x screenshots of a renderer against the same emulator's software renderer (tools/compare.py --phase). Measured 2026-11-11: melonDS 1.1 GL/Compute differ by at most 305 (dual) and 1138 (showcase) pixels of 98304 (text edges and antialiasing); master 4ce2188 GL/Compute differ by 9000-17400 in the showcase (the #2618 defect). Frames are consecutive: two in the dual phase, four in the showcase (preset 1 alternates between two picture kinds).",
+  "tolerance": 8,
+  "phases": {
+   "dual": {
+    "frames": 2,
+    "max_diff": 400,
+    "how": "play scene with a solved puzzle: keys 60:START,100:A,160:A,175:RIGHT,185:A,200:RIGHT,210:A,225:RIGHT,235:A, screenshots 250,251",
+    "frame_list": [
+     250,
+     251
+    ]
+   },
+   "showcase": {
+    "frames": 4,
+    "max_diff": 2000,
+    "how": "as above plus 280:X (preset 1), screenshots 380-383",
+    "frame_list": [
+     380,
+     381,
+     382,
+     383
+    ]
+   }
+  }
+ }
+}

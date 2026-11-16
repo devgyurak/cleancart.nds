@@ -9,7 +9,7 @@ paths:
 
 # Build and verification
 
-- The BlocksDS image is pinned by digest in `<game>/Dockerfile`. Changing it
+- The BlocksDS image is pinned by digest in `games/<game>/Dockerfile`. Changing it
   is a deliberate toolchain upgrade: rebuild everything, re-run the demo suite,
   update the version/digest in README and notes.
 - Builds must stay reproducible: `./build.sh clean && ./build.sh` twice →

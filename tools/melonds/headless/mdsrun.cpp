@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// SPDX-FileCopyrightText: 2026 Corvane contributors
+// SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
 // Headless runner on the melonDS 1.1 core (the same core as melonDS.app):
 // software renderer by default, FreeBIOS, generated firmware, no JIT. The

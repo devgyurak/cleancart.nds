@@ -1,0 +1,800 @@
+{
+ "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+ "schema": 3,
+ "target_level": 1,
+ "area": "sound and I/O",
+ "about": "Expected result-block values of the Hushwell feature demos, judged by tools/judge.py. Each demo writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]); see docs/QA.md. Items test what the values say: documented register read-backs, hardware counters, self-checks. The screen demos capture their own output (display capture to bank D) and compare pixels with what GBATEK says, VRAM mappings are read back through their aliases, and the sound demos read the channel and capture state the ARM7 reports in its input packet (values[4..8] of those demos). What stays unjudged (the sub screen's line-start DMA bars, sound output content beyond \"not silent\") is listed in docs/QA.md.",
+ "block": {
+  "address": "0x0237F000",
+  "magic": 1380275779
+ },
+ "sources": {
+  "GBATEK": "documented hardware behaviour; gating",
+  "report:<ref>": "a hardware report by a third party; gating",
+  "hw:<model>": "measured by us on real hardware; gating",
+  "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+  "unconfirmed": "no hardware value yet; informational only, never fails the run (with --profile it is reported when it changes, not counted)"
+ },
+ "checks": {
+  "eq": "values[i] == expect",
+  "range": "min <= values[i] <= max",
+  "mask": "(values[i] & mask) == expect",
+  "same": "all values equal (two or more indexes)",
+  "na_when": "[i, v]: the item is n/a when values[i] == v (the emulator has no such counter; DeSmuME reads 0 for the polygon counters)",
+  "optional": "demos listed in \"optional\" need no RESULT line (qa: the block of the main ROM's auto QA run; grade it with --demo qa)",
+  "nonzero": "(values[i] & mask) != 0",
+  "ne": "values[i] != values[j] (two indexes)",
+  "not_value": "item field: the item fails when any of its values equals it (0xFFFF = capture did not finish)"
+ },
+ "demos": {
+  "sys-ipc": 3150461633,
+  "sys-dma-cart": 2418294358,
+  "sys-keys": 539658817,
+  "snd-mix": 1959406791,
+  "snd-pcm": 1889169133,
+  "snd-adpcm": 1871762358,
+  "snd-psg": 1187068991,
+  "snd-capture": 4174014751,
+  "snd-stream": 1981913095,
+  "io-cart": 2124619194,
+  "io-save-eeprom": 3537099980,
+  "io-save-flash": 2897808550,
+  "io-save-fram": 2035996814,
+  "io-firmware": 2262935645,
+  "io-rtc": 1590775779,
+  "io-touch": 4078676555,
+  "io-power": 2563074333,
+  "qa": 1314013521,
+  "snd-wave": 3607490958
+ },
+ "items": [
+  {
+   "id": "sys-ipc-sync",
+   "demo": "sys-ipc",
+   "title": "The value the ARM7 wrote to IPCSYNC (0xA, ARM7 ready) is what the ARM9 reads",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 10,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Inter Process Communication"
+  },
+  {
+   "id": "sys-ipc-packets",
+   "demo": "sys-ipc",
+   "title": "The ARM7 input packet arrives once per frame: 120 packets in 120 frames (1 off allowed)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 119,
+   "max": 121,
+   "source": "rom",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Inter Process Communication"
+  },
+  {
+   "id": "sys-ipc-keyxy",
+   "demo": "sys-ipc",
+   "title": "EXTKEYIN with nothing pressed: X and Y released, pen up, hinge open (bits 0,1,3,6,7 = 1,1,1,1,0)",
+   "values": [
+    3
+   ],
+   "check": "mask",
+   "mask": 203,
+   "expect": 75,
+   "source": "GBATEK",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad"
+  },
+  {
+   "id": "sys-ipc-ping",
+   "demo": "sys-ipc",
+   "title": "FIFO ping round trip takes one or two frames (our protocol, no hardware value)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 2,
+   "source": "unconfirmed",
+   "role": "prerequisite",
+   "level": 1,
+   "level_basis": "gbatek:DS Inter Process Communication"
+  },
+  {
+   "id": "sys-dma-cart-found",
+   "demo": "sys-dma-cart",
+   "title": "probe.bin is found through FNT/FAT in the cart image",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
+  },
+  {
+   "id": "sys-dma-cart-dma",
+   "demo": "sys-dma-cart",
+   "title": "Raw cart DMA read of probe.bin gives the expected CRC16",
+   "values": [
+    1,
+    3
+   ],
+   "check": "same",
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "sys-dma-cart-nitro",
+   "demo": "sys-dma-cart",
+   "title": "NitroFS read of probe.bin gives the expected CRC16",
+   "values": [
+    2,
+    3
+   ],
+   "check": "same",
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "sys-keys-held",
+   "demo": "sys-keys",
+   "title": "No key is held in a headless run",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad"
+  },
+  {
+   "id": "sys-keys-keyxy",
+   "demo": "sys-keys",
+   "title": "EXTKEYIN with nothing pressed (X, Y, pen released, hinge open)",
+   "values": [
+    2
+   ],
+   "check": "mask",
+   "mask": 203,
+   "expect": 75,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad"
+  },
+  {
+   "id": "sys-keys-irqs",
+   "demo": "sys-keys",
+   "title": "Number of key IRQs during the run (the scripted harness presses a key once; no hardware value)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Keypad"
+  },
+  {
+   "id": "io-cart-ok",
+   "demo": "io-cart",
+   "title": "Chapter 3 loads from NitroFS",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge NitroROM and NitroARC File Systems"
+  },
+  {
+   "id": "io-cart-ready",
+   "demo": "io-cart",
+   "title": "Raw cart DMA is available",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Protocol"
+  },
+  {
+   "id": "io-save-eeprom-write",
+   "demo": "io-save-eeprom",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-eeprom-reload",
+   "demo": "io-save-eeprom",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-eeprom-seq",
+   "demo": "io-save-eeprom",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-write",
+   "demo": "io-save-flash",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-reload",
+   "demo": "io-save-flash",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-flash-seq",
+   "demo": "io-save-flash",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-write",
+   "demo": "io-save-fram",
+   "title": "Save write and verify succeed",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-reload",
+   "demo": "io-save-fram",
+   "title": "Save reload succeeds",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-save-fram-seq",
+   "demo": "io-save-fram",
+   "title": "The save counter advanced by one",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "env": "cart",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Cartridge Backup"
+  },
+  {
+   "id": "io-firmware-colour",
+   "demo": "io-firmware",
+   "title": "Favourite colour from the firmware user settings is 0-15",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 15,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings"
+  },
+  {
+   "id": "io-firmware-name",
+   "demo": "io-firmware",
+   "title": "Name length from the firmware user settings is 0-10",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 10,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Firmware User Settings"
+  },
+  {
+   "id": "io-rtc-month",
+   "demo": "io-rtc",
+   "title": "RTC month is 1-12",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 12,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-rtc-day",
+   "demo": "io-rtc",
+   "title": "RTC day is 1-31",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 31,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-rtc-hour",
+   "demo": "io-rtc",
+   "title": "RTC hour is 0-23",
+   "values": [
+    3
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 23,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Real-Time Clock"
+  },
+  {
+   "id": "io-touch-up",
+   "demo": "io-touch",
+   "title": "The pen is up at the checkpoint (the scripted touch ended)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-touch-x",
+   "demo": "io-touch",
+   "title": "The last pen x is 120 (scripted touch at 120,100; one pixel of calibration error allowed)",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 119,
+   "max": 121,
+   "source": "GBATEK",
+   "env": "harness",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-touch-y",
+   "demo": "io-touch",
+   "title": "The last pen y is 100 (one pixel of calibration error allowed)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 99,
+   "max": 101,
+   "source": "GBATEK",
+   "env": "harness",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Touch Screen Controller"
+  },
+  {
+   "id": "io-power-lid",
+   "demo": "io-power",
+   "title": "The lid is open",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Power Management"
+  },
+  {
+   "id": "qa-verdict",
+   "demo": "qa",
+   "title": "The auto QA run of hushwell.nds (hold L+R+X+Y on the title) reaches the credits with RESULT PASS: the QARN block reports verdict 1",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "rom",
+   "role": "target",
+   "level": 1,
+   "level_basis": "none"
+  },
+  {
+   "id": "snd-mix-voices",
+   "demo": "snd-mix",
+   "title": "Song and effects together use 8 to 16 channels (SOUNDCNT Start/Busy) at the busiest frame",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 8,
+   "max": 16,
+   "source": "rom",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-pcm-oneshot",
+   "demo": "snd-pcm",
+   "title": "A PCM8 one-shot is playing at frame 5 (a channel is busy)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-pcm-loops",
+   "demo": "snd-pcm",
+   "title": "The PCM8 and PCM16 loops started at frames 60 and 80 are still busy at the checkpoint",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 2,
+   "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-adpcm-oneshot",
+   "demo": "snd-adpcm",
+   "title": "The ADPCM jingle is playing at frame 5 (a channel is busy)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-adpcm-loop",
+   "demo": "snd-adpcm",
+   "title": "The ADPCM hum loop started at frame 90 is still busy at the checkpoint",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-psg-noise",
+   "demo": "snd-psg",
+   "title": "The noise channel 14 started at frame 100 is busy at frame 105",
+   "values": [
+    4
+   ],
+   "check": "mask",
+   "mask": 16384,
+   "expect": 16384,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-psg-stop",
+   "demo": "snd-psg",
+   "title": "Stopping channels 8-15 clears their Start/Busy bits",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-capture-busy",
+   "demo": "snd-capture",
+   "title": "Both sound capture units run in repeat mode (Start/Busy of capture 0 and 1)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 3,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Capture"
+  },
+  {
+   "id": "snd-stream-busy",
+   "demo": "snd-stream",
+   "title": "The streaming channel is still busy at the checkpoint",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 1,
+   "max": 16,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-freq",
+   "demo": "snd-wave",
+   "title": "A PSG square wave at 440 Hz (timer-derived) changes level about 220 times in 0.25 s of the left mixer record (+-5 %)",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": 209,
+   "max": 231,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-octave",
+   "demo": "snd-wave",
+   "title": "The wave an octave lower (220 Hz) changes level half as often: the ratio x100 is 190 to 210",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 190,
+   "max": 210,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-volume",
+   "demo": "snd-wave",
+   "title": "Volume 50 gives half the swing of volume 100 in the record (ratio x100 within 170 to 230)",
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 170,
+   "max": 230,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-pan-left",
+   "demo": "snd-wave",
+   "title": "Pan 0 (hard left) puts an audible wave into the left mixer (peak-to-peak 16 to 255)",
+   "values": [
+    6
+   ],
+   "check": "range",
+   "min": 16,
+   "max": 255,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  },
+  {
+   "id": "snd-wave-pan-right",
+   "demo": "snd-wave",
+   "title": "Pan 126 (hard right) leaves the left mixer all but silent: a swing under 5 % of the audible pan-0 swing (about 200), so at most 9 (the exact GBATEK rounding is an L2 item in Lightenette)",
+   "values": [
+    9
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 9,
+   "source": "GBATEK",
+   "role": "target",
+   "level": 1,
+   "level_basis": "gbatek:DS Sound Channels"
+  }
+ ],
+ "known": {
+  "melonds-1.1-software": {
+   "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-classic": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "melonds-1.1-gl-compute": {
+   "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+   "ng": [],
+   "na": []
+  },
+  "desmume-pydesmume-0.0.9": {
+   "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=16",
+   "ng": [
+    "sys-keys-irqs"
+   ],
+   "na": []
+  }
+ },
+ "known_note": "Measured 2026-11-12 on the release demo ROMs (./build.sh -j8 release). NG lists include informational (unconfirmed) items that failed. No real hardware has been measured. Scene-specific values (polygon counts, HUD register values, the logo CRC) are this game's own and differ from Corvane's.",
+ "optional": [
+  "qa"
+ ],
+ "not_judged": {
+  "sys-wram": 45733482,
+  "sys-irq": 3050090109,
+  "sys-timer": 3591142110,
+  "sys-dma-now": 2539675920,
+  "sys-dma-vblank": 2140408880,
+  "sys-dma-hblank": 3748157494,
+  "sys-dma-gfx": 1841165499,
+  "sys-dma-disp": 1223439124,
+  "sys-dma-fill": 2641824089,
+  "sys-bios": 2195310490,
+  "sys-math": 3680079643,
+  "2d-engines": 1970426969,
+  "2d-text": 3307310817,
+  "2d-affine": 2800304157,
+  "2d-bitmap": 881577345,
+  "2d-mosaic": 4232450678,
+  "2d-obj-normal": 1981302557,
+  "2d-obj-affine": 693190689,
+  "2d-obj-bitmap": 3789110325,
+  "2d-obj-map2d": 2120687742,
+  "2d-obj-line": 137571140,
+  "2d-extpal": 2796382190,
+  "2d-window": 749661798,
+  "2d-blend": 421289745,
+  "2d-brightness": 3646205057,
+  "2d-vram": 1480951308,
+  "2d-capture": 1926308232,
+  "2d-display": 500307856,
+  "3d-fifo": 3328708799,
+  "3d-matrix": 2932572708,
+  "3d-light": 1344621335,
+  "3d-clip": 3187887747,
+  "3d-tex-a3i5": 1669782815,
+  "3d-tex-a5i3": 3132503843,
+  "3d-tex-pal4": 452747054,
+  "3d-tex-pal16": 2505474529,
+  "3d-tex-pal256": 656952159,
+  "3d-tex-4x4": 2032986819,
+  "3d-tex-direct": 2220781376,
+  "3d-poly": 2601623615,
+  "3d-toon": 7468005,
+  "3d-edge": 3396859812,
+  "3d-fog": 2783452743,
+  "3d-aa": 467350367,
+  "3d-depth": 1801626962,
+  "3d-test": 1553889453,
+  "3d-compose": 2230188539,
+  "3d-limits": 3569651277
+ }
+}
