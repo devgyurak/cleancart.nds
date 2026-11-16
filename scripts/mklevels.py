@@ -46,16 +46,16 @@ GBATEK_SECTIONS = (
     'DS 3D Texture Coordinates', 'DS 3D Polygon Definitions by Vertices',
     'DS Cartridge Backup', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
     'DS DMA Transfers', 'DS Firmware User Settings', 'DS Inter Process Communication', 'DS Interrupts',
-    'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
+    'DS 3D I/O Map', 'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
     'DS Power Management', 'DS Real-Time Clock', 'DS Sound Capture', 'DS Sound Channels', 'DS Sound Notes', 'DS Timers',
-    'DS Touch Screen Controller', 'DS Video Capture and Main Memory Display Mode', 'DS Video OBJs',
+    'DS Touch Screen Controller', 'DS Video Capture and Main Memory Display Mode', 'DS Video Stuff', 'DS Video OBJs',
     'LCD Dimensions and Timings', 'LCD I/O BG Control', 'LCD I/O BG Rotation/Scaling',
     'LCD I/O Color Special Effects', 'LCD I/O Display Control', 'LCD I/O Mosaic Function',
-    'LCD I/O Window Feature', 'LCD OBJ - OAM Rotation/Scaling Parameters', 'LCD OBJ - Overview',
+    'LCD I/O Interrupts and Status', 'LCD I/O Window Feature', 'LCD OBJ - OAM Rotation/Scaling Parameters', 'LCD OBJ - Overview',
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 
