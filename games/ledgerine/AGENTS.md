@@ -4,7 +4,7 @@ Original machine-room ledger puzzle for the DS: a night clerk in an old counting
 by setting the dials of six machines (the press, the tube, the clock wall, the belt, the vault, the rule
 book), each one a real hardware device of the console. The counting house stands in two towers (the two
 screens) joined by a pneumatic tube. Human docs (English, each with a Korean twin `*-KO.md`): `README.md`,
-`docs/QA.md`, `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. Created from
+`docs/QA.md`, `docs/HW-QA.md`, `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. Created from
 the lightenette folder (which came from the corvane template): `arm7/`, `common/`, and `arm9/source/core`
 and `gfx` are corvane's layers (keep fixes in sync when they apply to all games). The plan is
 `out/WORKPLAN-ledgerine.md` (not committed).

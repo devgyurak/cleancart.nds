@@ -6,6 +6,10 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/room1.png" width="256" alt="Room 1, the press, with a balanced line"> <img src="docs/images/room2.png" width="256" alt="Room 2, the tube"></p>
+
+<sub>Captured from the built ROM in headless melonDS 1.1 (`tools/melonds/mds.sh`), not DeSmuME or real hardware; the room screens come from a keyed run (a line of room 1 balanced; room 2 opened from the test menu). Top screen only at 2x nearest-neighbour (512×384).</sub>
+
 An original machine-room ledger puzzle for the Nintendo DS. You are the night clerk of an old counting
 house that stands in two towers joined by a pneumatic tube (the two screens). Each room holds a machine
 with dials and a lever; pull the lever and a real hardware device of the console runs, and its answer

@@ -118,25 +118,42 @@ static void clock_start(void)
 }
 
 // Starts the big copy on channel 0 (when `dma`), spins `n` times, then waits for the copy to end.
-// The two copies of this function differ only in where they live.
-#define SPIN_FN(name, attr)                                                  \
-    attr __attribute__((noinline)) static void name(u32 n, bool dma)        \
-    {                                                                       \
-        if (dma)                                                            \
-        {                                                                   \
-            SRC(0) = (u32)big_src;                                          \
-            DST(0) = (u32)big_dst;                                          \
-            CNT(0) = CV_DMA_ON | CV_DMA_NOW | CV_DMA_32 | BIG_WORDS;        \
-        }                                                                   \
-        while (n--)                                                         \
-            asm volatile("");                                               \
-        if (dma)                                                            \
-            while (CNT(0) & CV_DMA_ON)                                      \
-                ;                                                           \
-    }
+// The two variants differ in where the code lives (ITCM, or main RAM behind the instruction cache).
+static inline __attribute__((always_inline)) void dma_start(void)
+{
+    SRC(0) = (u32)big_src;
+    DST(0) = (u32)big_dst;
+    CNT(0) = CV_DMA_ON | CV_DMA_NOW | CV_DMA_32 | BIG_WORDS;
+}
 
-SPIN_FN(spin_itcm, ITCM_CODE)
-SPIN_FN(spin_main, )
+// The loop of the main-RAM variant is a function of its own on its own cache line: it has to come over the
+// bus after the DMA started, not ride along in the line that held the code that started it.
+__attribute__((noinline, aligned(32))) static void spin_loop_main(u32 n)
+{
+    while (n--)
+        asm volatile("");
+}
+
+ITCM_CODE __attribute__((noinline)) static void spin_itcm(u32 n, bool dma)
+{
+    if (dma)
+        dma_start();
+    while (n--)
+        asm volatile("");
+    if (dma)
+        while (CNT(0) & CV_DMA_ON)
+            ;
+}
+
+__attribute__((noinline)) static void spin_main(u32 n, bool dma)
+{
+    if (dma)
+        dma_start();
+    spin_loop_main(n);
+    if (dma)
+        while (CNT(0) & CV_DMA_ON)
+            ;
+}
 
 typedef void (*SpinFn)(u32, bool);
 

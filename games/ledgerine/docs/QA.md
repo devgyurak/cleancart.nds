@@ -22,7 +22,7 @@ plays rooms 3 to 6 and the credits after it).
 | `press-min` | `ledgerine-press-min.nds`: only `-2^63 / -1` in divider mode 2 (item `math-overflow-min64`); result block id `0x4D50444C` (`LDPM`), values[0] = 1 when done, values[1] bit 0 = the check. It is a ROM of its own because DeSmuME's divider hangs the whole emulator on this division | melonDS 1.1 soft / GL classic / GL compute: OK; DeSmuME: hangs (not graded) |
 | `rehearsal` | `ledgerine-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): every room's audit; result block id `0x4852444C` (`LDRH`), layout in `game/ledger.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute: profile MATCH, see below |
 
-Hardware: not run yet.
+Hardware: not run yet, see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
@@ -32,7 +32,7 @@ Hardware: not run yet.
 | DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game, rehearsal and QA run never do it (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
 
 The three NG items are results to check against hardware (items stay gating because GBATEK states them); the hardware run
-(`docs/HW-QA.md` when it exists) would tell whether the emulator or the reading of GBATEK is at fault.
+(`docs/HW-QA.md`) would tell whether the emulator or the reading of GBATEK is at fault.
 
 ## Auto QA run
 

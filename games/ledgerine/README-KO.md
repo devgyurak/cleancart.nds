@@ -6,6 +6,10 @@
 
 [English](README.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="타이틀"> <img src="docs/images/room1.png" width="256" alt="1번 방 압착기, 맞춘 줄 하나"> <img src="docs/images/room2.png" width="256" alt="2번 방 기송관"></p>
+
+<sub>빌드한 ROM을 headless melonDS 1.1(`tools/melonds/mds.sh`)에서 캡처했습니다. DeSmuME나 실기가 아닙니다. 방 화면은 키 입력 실행에서 얻었습니다(1번 방은 한 줄을 맞춘 상태, 2번 방은 테스트 메뉴로 열었습니다). 위 화면만 2배 nearest-neighbour(512×384)입니다.</sub>
+
 닌텐도 DS용 오리지널 기계실 장부 퍼즐입니다. 플레이어는 기송관으로 이어진 탑 두 개(위·아래 화면)에 걸친
 오래된 회계소의 야간 서기입니다. 방마다 다이얼과 레버가 달린 기계가 하나씩 있고, 레버를 당기면 콘솔의 실제
 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 경계값이 곧 의도한 풀이입니다. 서기 0명에게 나눈 동전 7개는
