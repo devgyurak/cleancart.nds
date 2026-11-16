@@ -9,6 +9,7 @@
 #include "game/ear.h"
 #include "game/lab.h"
 #include "game/rooms.h"
+#include "game/scope.h"
 
 static u32 q(s32 v)
 {
@@ -72,10 +73,25 @@ static u32 p9_model(int a, int b)
     return q(a == 1 ? 0x2000 : mixer);
 }
 
+static void p7_wave(int a, int b, s16 *out)
+{
+    scope_saw(out, 8 * (33 - loop_v[a]), -12000, 12000);   // the ideal ramp the ADPCM data was made from
+}
+
+static void p8_wave(int a, int b, s16 *out)
+{
+    scope_dc(out, 0);   // a silent mixer: the line counts words, not waveform
+}
+
+static void p9_wave(int a, int b, s16 *out)
+{
+    scope_dc(out, a == 1 ? 0x2000 : 0x2000 + (b == 1 ? 0x2000 : 0));
+}
+
 static const Puzzle echo_puzzles[] = {
-    { "THE ECHO MEMORY", "NO DRIFT", "LOOP AT", loop_l, 3, "-", dash_l, 1, p7_hw, p7_model, 0 },
-    { "THE ONE-WORD TAPE", "ONE WORD WRITTEN", "LENGTH", len_l, 3, "-", dash_l, 1, p8_hw, p8_model, 1 },
-    { "THE CHANNEL TAP", "THE TAP SHOWS 2000", "SOURCE", src_l, 2, "CHAN 1", other_l, 2, p9_hw, p9_model, 32 },
+    { "THE ECHO MEMORY", "NO DRIFT", "LOOP AT", loop_l, 3, "-", dash_l, 1, p7_hw, p7_model, 0, p7_wave },
+    { "THE ONE-WORD TAPE", "ONE WORD WRITTEN", "LENGTH", len_l, 3, "-", dash_l, 1, p8_hw, p8_model, 1, p8_wave },
+    { "THE CHANNEL TAP", "THE TAP SHOWS 2000", "SOURCE", src_l, 2, "CHAN 1", other_l, 2, p9_hw, p9_model, 32, p9_wave },
 };
 
 // ---------------------------------------------------------------------------

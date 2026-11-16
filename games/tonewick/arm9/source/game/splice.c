@@ -10,6 +10,7 @@
 #include "game/ear.h"
 #include "game/lab.h"
 #include "game/rooms.h"
+#include "game/scope.h"
 
 static u32 q(s32 v)
 {
@@ -75,10 +76,25 @@ static u32 p6_model(int a, int b)
     return mask_v[a] == 0x6000 ? 1u : 0u;
 }
 
+static void p4_wave(int a, int b, s16 *out)
+{
+    scope_dc(out, words_v[a] < 4 ? 0 : 0x4000);
+}
+
+static void p5_wave(int a, int b, s16 *out)
+{
+    scope_dc(out, a == 1 ? 0x4000 : 0);
+}
+
+static void p6_wave(int a, int b, s16 *out)
+{
+    scope_noise(out, mask_v[a]);
+}
+
 static const Puzzle splice_puzzles[] = {
-    { "THE SHORT TAPE", "BUSY BUT SILENT", "TAPE", words_l, 4, "-", dash_l, 1, p4_hw, p4_model, 2 },
-    { "THE LATCH", "TAIL HELD AT LEVEL", "LATCH", latch_l, 2, "-", dash_l, 1, p5_hw, p5_model, 64 },
-    { "THE NOISE CIPHER", "SEQUENCE ACCEPTED", "MASK", mask_l, 3, "-", dash_l, 1, p6_hw, p6_model, 1 },
+    { "THE SHORT TAPE", "BUSY BUT SILENT", "TAPE", words_l, 4, "-", dash_l, 1, p4_hw, p4_model, 2, p4_wave },
+    { "THE LATCH", "TAIL HELD AT LEVEL", "LATCH", latch_l, 2, "-", dash_l, 1, p5_hw, p5_model, 64, p5_wave },
+    { "THE NOISE CIPHER", "SEQUENCE ACCEPTED", "MASK", mask_l, 3, "-", dash_l, 1, p6_hw, p6_model, 1, p6_wave },
 };
 
 // ---------------------------------------------------------------------------

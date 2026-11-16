@@ -23,8 +23,8 @@ firmware user-settings copy).
 
 **Status.** The ARM7 sound lab (a register script the ARM9 hands over, with the capture buffer in main RAM), the
 experiments, the twelve signal lines of the four districts, the rehearsal and its judge (17 target items, 10
-prerequisites; the save items count only where a save chip exists) and the hidden auto QA run. The scope, the
-control panel and the morning log scene follow. Nothing has been measured on real hardware. Progress is not saved.
+prerequisites; the save items count only where a save chip exists) and the hidden auto QA run. The scope (the model's waveform against the ear's capture) and the
+touch control panel are in; the morning log scene follows. Nothing has been measured on real hardware. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)

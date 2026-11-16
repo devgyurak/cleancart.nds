@@ -58,6 +58,9 @@ bool ear_sys(EarSys *s);
 // Save chip status around a write (EEPROM build with a chip): false when there is nothing to measure.
 bool ear_save(int *wel_wren, int *wel_write, int *rdsr_raw);
 
+// The last capture (EAR_N samples of PCM16) and whether the experiment that ran last produced one; the scope draws it.
+const s16 *ear_capture(bool *valid);
+
 // The GBATEK shift register: bit i (0 = LOW, 1 = HIGH) of the noise channel's first `n` steps, n <= 32767.
 void ear_lfsr(u8 *bits, int n, u32 mask);
 

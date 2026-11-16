@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
-// TODO(title): the picture is the scaffold placeholder (the towers and tube it was started from); replace it
-// before the release (skill nds-new-game, step 10).
 // Title screen with the generated picture (BG3 bitmap) under a text layer, and
 // the test menu.
 
@@ -46,7 +44,7 @@ TwScene scene_title(void)
     REG_BG3Y = 0;
     REG_DISPCNT = MODE_5_2D | DISPLAY_BG0_ACTIVE | DISPLAY_BG3_ACTIVE;
 
-    text_center(&main_text, 18, TP_GRAY, "A SIGNAL-KEEPER'S LISTENING PUZZLE");
+    text_center(&main_text, 18, TP_GRAY, "A LISTENING PUZZLE ON THE MOOR");
     text_center(&main_text, 21, TP_GRAY, "PRESS START");
     text_center(&main_text, 23, TP_GRAY, "X: CREDITS   SELECT: TEST MENU");
 
