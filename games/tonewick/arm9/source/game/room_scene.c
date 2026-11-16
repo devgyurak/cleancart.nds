@@ -53,7 +53,7 @@ static void draw(const Room *room)
     text_clear(&main_text);
     text_clear(&sub_text);
     text_printf(&main_text, 1, 1, TP_YELLOW, "DISTRICT %d  %s", tw_room + 1, room->name);
-    text_printf(&main_text, 1, 2, TP_GRAY, "%s  /  %s", room->tower, room->gbatek);
+    text_printf(&main_text, 1, 2, TP_GRAY, "%s / %s", room->tower, room->gbatek);
     for (int i = 0; i < n_lines; i++)
         text_printf(&main_text, 1, 4 + i, i == cursor ? TP_YELLOW : lines[i].solved ? TP_GREEN : TP_WHITE,
                     "%c%s %-24s", i == cursor ? '>' : ' ', lines[i].solved ? "[X]" : "[ ]",

@@ -220,7 +220,7 @@ def make_samples():
     vals = [math.sin(TAU * 1500 * (i / rate)) * 0.6 * env(i, n, 0.01, 3.0) for i in range(n)]
     s.append(Sample('click', FMT_PCM8, rate, pcm8(vals), volume=70))
 
-    # 22 stamp: a dull wooden thud with a short noise tail (the ledger stamp)
+    # 22 stamp: a dull wooden thud with a short noise tail (the line-cleared stamp)
     n, rate = 2600, 16384
     vals = []
     for i in range(n):

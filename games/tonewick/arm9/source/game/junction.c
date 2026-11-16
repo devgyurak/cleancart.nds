@@ -145,6 +145,6 @@ static void audit_junction(void)
 }
 
 const Room room_junction = {
-    "THE JUNCTION", "LOWER TOWER", "DS SOUND CAPTURE + I/O", junction_puzzles,
+    "THE JUNCTION", "LOWER TOWER", "DS SOUND CAPTURE", junction_puzzles,
     (int)(sizeof(junction_puzzles) / sizeof(junction_puzzles[0])), audit_junction,
 };

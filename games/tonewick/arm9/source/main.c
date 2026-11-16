@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 //
-// Tonewick - an original machine-room ledger puzzle for the Nintendo DS.
+// Tonewick - an original listening puzzle for the Nintendo DS.
 
 #include <nds.h>
 

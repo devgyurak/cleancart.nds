@@ -6,6 +6,10 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/trestle.png" width="256" alt="District 1, the trestle: a line cleared, the model and the ear on the scope"> <img src="docs/images/echo.png" width="256" alt="District 3, the echo room: the ADPCM loop on the scope"></p>
+
+<sub>Captured from the built ROM in headless melonDS 1.1 (`tools/melonds/mds.sh`), not DeSmuME or real hardware; the district screens come from a keyed run (a line listened to). Top screen only at 2x nearest-neighbour (512×384).</sub>
+
 An original listening puzzle for the Nintendo DS. You are the signal keeper of a listening post on a moor,
 mending twelve broken signal lines in four districts with an oscilloscope. Each line is a register field of the
 console's sound block, and the boundary values are the intended solutions: a square wave whose duty is 7 never
@@ -31,6 +35,35 @@ readings against their rules. Nothing has been measured on real hardware. Progre
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
 - Licence: Apache-2.0 — third-party notices in `THIRD_PARTY_NOTICES`, asset sources in `ASSETS.md`
 
+## Playing
+
+Start on the title. Each district has three signal lines. The top screen lists them and shows the scope: the blue trace is
+what the ROM's own GBATEK model says the line should sound like at the dials' present setting, the yellow trace is what the
+console's sound block actually produced, captured by the capture unit. A line **clears** when the model gives the class the
+line needs; the ear's answer is printed beside the model's and a difference lights the lamp `THE EAR DISAGREES` without
+stopping you (`NO SIGNAL` when nothing could be captured). Clear all three lines and end the shift (Start): the district's
+audit runs and the next one opens.
+
+| DS button | Action (melonDS key) |
+|---|---|
+| D-pad up/down (arrows) | choose a signal line |
+| D-pad left/right | turn dial A |
+| L / R (Q / W) or Y / X (A / S) | turn dial B (lines that have one) |
+| A (X) | listen: run the experiment on the sound block |
+| Touch | left / right half of a dial turns it back / on, the lever listens |
+| Start (Return) | end the shift when all three lines are cleared |
+| B (Z) | back to the title |
+
+| District | Hardware behind it | Lines |
+|---|---|---|
+| 1 The trestle | PSG duty 7, the volume divider, volume register 127 | 3 |
+| 2 The splice | a tape shorter than four words, the hold bit, the noise shift register | 3 |
+| 3 The echo room | the ADPCM loop reload, capture length 0, the channel source | 3 |
+| 4 The junction | the capture add-overflow and both-negative bugs, the morning log (RTC, power management, save chip, firmware) | 3 |
+
+The speaker amplifier is switched off while an experiment runs, so the game is silent during a listen. The test menu (Select
+on the title) opens any district, the morning log (the device readings against their rules) and the rehearsal.
+
 ## Build
 
 ```sh
@@ -41,3 +74,35 @@ readings against their rules. Nothing has been measured on real hardware. Progre
 
 The build runs in a Docker container (BlocksDS pinned by digest); nothing is installed on the host.
 Two clean builds give the same SHA-256.
+
+## Using it as an emulator test
+
+`tonewick-rehearsal.nds` solves every line by script, runs every district's audit and leaves a 64-word result block (id `TWRH`)
+at 0x0237F000 (layout in `arm9/source/game/lab.h`); `tools/judge.py` grades it against `expected.json` (target level 2, area
+"sound and I/O edges"). No save chip and no NitroFS are needed. The ROM listens to itself: the ARM7 core starts a sound
+channel and a capture unit from a register script and the ARM9 reduces the captured samples (1024 samples, two frames after
+the sound started) to numbers. Every item is a measurement compared with a GBATEK range; the judged windows are whole frames
+and ratios, never a cycle count. A value a capture never reached stays 0xFFFF and fails its item.
+
+```sh
+tools/melonds/mds.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+  | python3 games/tonewick/tools/judge.py --profile melonds-1.1-software
+RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehearsal.nds 900 out/tw "" 899 \
+  | python3 games/tonewick/tools/judge.py --profile desmume-pydesmume-0.0.9
+```
+
+Exit code 0: every gating item passed (or the failing set equals the profile's). `known` in `expected.json` holds one profile
+per emulator version and renderer. **Several target items are expected to fail in current emulators** (melonDS 1.1: the hold
+bit, the two capture bugs, the power management mirrors; DeSmuME: more), which is the point of an L2 game; see
+[docs/QA.md](docs/QA.md). The save items need a save chip and are n/a without one. Nothing has been measured on real hardware
+([docs/HW-QA.md](docs/HW-QA.md)); the two capture bugs are documented in GBATEK only.
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `arm9/source/game/` | the districts (`trestle.c`, `splice.c`, `echo.c`, `junction.c`), the ear (`ear.c`), scope and panel (`scope.c`), scenes, rehearsal, QA hooks |
+| `arm9/source/core/sndlab.c`, `arm7/source/lab7.c` | the sound lab: the register script and the ARM7 that runs it |
+| `tools/` | `mkassets.py` and `cvtools/` (asset generators), `judge.py`, `tests/` |
+| `expected.json` | the judged items, levels, roles and emulator profiles |
+| `docs/` | `QA.md`, `HW-QA.md` (and Korean twins), `images/` |
