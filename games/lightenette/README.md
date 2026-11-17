@@ -95,7 +95,7 @@ edge cases above it ships ten small demo ROMs, `lightenette-l2-<name>.nds`, each
 `l2-2d-obj-bitmap`, `l2-snd-capture`, `l2-snd-wave`). Each runs 120 frames and writes the usual result block (id = FNV-1a 32 of the ROM's
 demo name, e.g. `l2-sys-irq`; values from `words[3:]`). They carry 13 level 2 items: HBlank IRQ count, DMA at VBlank, the
 64-bit hardware square root, polygon RAM limits, two-pass rendering through the capture, affine BG / mosaic / bitmap OBJ
-pixels, the sound capture signal and the exact left-mixer swing of a hard-right PSG pan (`snd-wave-pan-right-exact`: GBATEK mixing gives at most 2, melonDS 1.1 reads 3, a known NG on its three profiles). Grade one ROM at a time:
+pixels, the sound capture signal and the exact left-mixer swing of a hard-right PSG pan (`snd-wave-pan-right-exact`: hardware and melonDS 1.1 read 3 (GBATEK rounding +1 / -2), DeSmuME reads 1, a known NG there). Grade one ROM at a time:
 
 ```sh
 tools/melonds/mds.sh demos <folder with the l2 ROMs> > l2.log     # RENDERER=gl|compute

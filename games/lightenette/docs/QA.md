@@ -19,12 +19,12 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | sys-irq demo | `lightenette-l2-sys-irq.nds`; item(s) `sys-irq-hblank`; expected screen: top blue / bottom red backdrop, IRQ counts; HBlank count 31557 (gate 31297..31560) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | sys-dma-vblank demo | `lightenette-l2-sys-dma-vblank.nds`; item(s) `sys-dma-vblank-frames`; expected screen: pink backdrop, `FRAMES VERIFIED: 120/120` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | sys-math demo | `lightenette-l2-sys-math.nds`; item(s) `sys-math-sqrt64`; expected screen: divide lines, `SQRT(1E12) = 1000000`, `LEN(3,4,0) = 20480/4096`, `ATAN2(1,1) = 4096` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
-| 3d-limits demo | `lightenette-l2-3d-limits.nds`; item(s) `3d-limits-ram, 3d-limits-overflow`; expected screen: grid of small triangles, `SUBMITTED 2980  RAM 2048`, `OVERFLOW FRAMES 47` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| 3d-limits demo | `lightenette-l2-3d-limits.nds`; item(s) `3d-limits-ram, 3d-limits-overflow`; expected screen: grid of small triangles, `SUBMITTED 2980  RAM n` (n = 2048 on melonDS, 2979 on the DS Lite: RAM_COUNT is not clamped), `OVERFLOW FRAMES 47` | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | acc-dual demo | `lightenette-l2-acc-dual.nds`; item(s) `acc-dual-over, acc-dual-passes, acc-dual-halves`; expected screen: top: block city with a seam down the middle (two passes); bottom: LATENCY 1, DUAL / ONE PASS / PASSES / HALVES lines with four OK | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | 2d-affine demo | `lightenette-l2-2d-affine.nds`; item(s) `2d-affine-pixels`; expected screen: top: a rotated affine tile picture (pseudo-random colours, black holes), no text (the judge frame shows BG2 alone) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | 2d-mosaic demo | `lightenette-l2-2d-mosaic.nds`; item(s) `2d-mosaic-pixels`; expected screen: top: the console text as 4x4 blocks (mosaic 3), coloured blocks at the bottom | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | 2d-obj-bitmap demo | `lightenette-l2-2d-obj-bitmap.nds`; item(s) `2d-obj-bitmap-pixels`; expected screen: a lit gradient disc (bitmap OBJ) below two text lines | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
-| snd-wave demo | `lightenette-l2-snd-wave.nds`; item(s) `snd-wave-pan-right-exact`; expected screen: text only, `P2P PAN0 199 PAN126 n` (n = 3 on melonDS, 1 on DeSmuME); the pan 126 swing is values[4], the pan 0 reference values[5], the guard values[6] | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
+| snd-wave demo | `lightenette-l2-snd-wave.nds`; item(s) `snd-wave-pan-right-exact`; expected screen: text only, `P2P PAN0 199 PAN126 n` (n = 3 on the DS Lite and melonDS, 1 on DeSmuME); the pan 126 swing is values[4], the pan 0 reference values[5], the guard values[6] | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 | snd-capture demo | `lightenette-l2-snd-capture.nds`; item(s) `snd-capture-signal`; expected screen: text only; the capture peak is in the block (values[5], about 0x3800) | melonDS 1.1 soft/GL/compute and DeSmuME headless, 2026-11-12; see "Level 2 demos" |
 
 ## Auto QA run
@@ -53,7 +53,7 @@ therefore holds every judged item; `tools/qa/ingest.py` grades each file on its 
 
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`, 6 checkpoints). With QA off nothing changed: the rehearsal run through the
 test menu gives the same result block as before. The software run has no save chip (homebrew run for the SD card): the save mirror read back identical, the chip
-write is not verified. Real DS Lite + R4: not run yet.
+write is not verified. Real DS Lite + R4: run once, see `HW-QA.md`.
 
 ## Level 2 demos (2026-11-12)
 
@@ -64,8 +64,8 @@ Corvane's; the 2D pictures are generated at run time, no assets). Each writes it
 
 | Emulator | all 13 items | profile |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute | OK except `snd-wave-pan-right-exact` (swing 3 at pan 126, want 0..2); the informational `3d-limits-overflow` 47 and `acc-dual-halves` also match | MATCH: known NG `snd-wave-pan-right-exact`, no n/a |
-| DeSmuME (py-desmume 0.0.9) | the other 9 OK (`snd-wave-pan-right-exact` reads 1) | MATCH: n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes` (polygon RAM counters read 0) |
+| melonDS 1.1 software / GL classic / GL compute | OK except `3d-limits-ram` (melonDS stops RAM_COUNT at 2048, the console reads 2979; want 2049..2980); `snd-wave-pan-right-exact` (3) and the former unconfirmed items now pass | MATCH: known NG `3d-limits-ram`, no n/a |
+| DeSmuME (py-desmume 0.0.9) | the other 8 OK (`snd-wave-pan-right-exact` reads 1, want 3) | MATCH: known NG `snd-wave-pan-right-exact`, n/a `3d-limits-ram`, `3d-limits-overflow`, `acc-dual-over`, `acc-dual-passes` (polygon RAM counters read 0) |
 
 Values seen: HBlank 31557 (melonDS) / 31374 (DeSmuME), polygons 2048, overflow frames 47, acc-dual flags `0x1f` (DeSmuME `0x19`),
 capture peak about 0x3800 (melonDS) / 0x3cf2 (DeSmuME). Three headless runs of every demo agree between the three melonDS
@@ -74,7 +74,7 @@ gained the sound read-outs the capture demo needs (PASS on soft / GL / compute, 
 software runs, `tools/qa/lint.py` ok). It was repeated once more after the ARM7 gained the PSG pan field and the left-mixer recording
 (`l2-snd-wave`): PASS at frame 2090 on soft / GL / compute, DeSmuME `MATCH`, two software runs identical, lint ok, and the main ROM's `QARN` block (64 words) is
 word for word the same as the previous build's. `l2-snd-wave` reads swing 199 at pan 0 and 3 (melonDS, all three renderers) / 1 (DeSmuME) at pan 126.
-Real DS Lite + R4: not run.
+Real DS Lite + R4: run 2026-11-17 (`HW-QA.md`): 29 OK, 2 NG (`snd-wave-pan-right-exact` 3, `3d-limits-ram` 2979); both expected values were then set from the hardware values and the former unconfirmed items promoted to `hw:dslite-ntr`.
 
 ## Conclusion (2026-11-11)
 
