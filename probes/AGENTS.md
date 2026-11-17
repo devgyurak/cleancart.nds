@@ -23,7 +23,7 @@ The probes are a collection of demo ROMs, so these rules of `../AGENTS.md` do no
 ## Build
 
 ```sh
-./build.sh                    # every probe ROM: probes-l4-<name>.nds (17 of them)
+./build.sh                    # every probe ROM: probes-l4-<name>.nds (18 of them)
 ./build.sh DEMO=l4-3d-fifo    # one probe ROM
 ./build.sh -j8 release        # build/release/{demos,judge} (tag probes-vX.Y.Z runs this in CI)
 ./build.sh clean
@@ -42,7 +42,7 @@ shared layers stay diffable against Corvane's).
 | `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath, rng, input, snd, save (state only), nitro, cart; no `qa*` |
 | `arm9/source/gfx/` | vram, oam, text, fx, gl3d, models, terrain |
 | `arm9/source/game/` | `boss.c`, `hud.c` (the boss radar), `stagedata.c` (stage loader and actor helpers cut out of Corvane's `stage.c`), `game.h` (state the boss touches) |
-| `arm9/source/demo/demo.c` | the 17 probes (`demos[]`), `main.c` runs `demo_main(CV_DEMO)` |
+| `arm9/source/demo/demo.c` | the 18 probes (`demos[]`), `main.c` runs `demo_main(CV_DEMO)` |
 | `tools/mkassets.py`, `tools/cvtools/` | Corvane's asset generators (as copied; the sound bank has 20 slots, 14 with data, and no probe plays any of them) |
 | `tools/judge.py`, `tools/tests/` | recorder/comparer and its unit tests |
 

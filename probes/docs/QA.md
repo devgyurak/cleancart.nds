@@ -7,7 +7,7 @@ measured table) and what each ROM should show on screen.
 
 ## Rules shared by all probe ROMs
 
-- Build: `./build.sh DEMO=l4-<name>` gives `probes-l4-<name>.nds` (`./build.sh` for all 17; `./build.sh -j8 release` for the release folders).
+- Build: `./build.sh DEMO=l4-<name>` gives `probes-l4-<name>.nds` (`./build.sh` for all 18; `./build.sh -j8 release` for the release folders).
 - Screen: the probe name and results appear on a text BG console (3D probes use a BG1 console on the main screen).
 - Checkpoint: 120 frames after start the screen is complete and `CHECKPOINT` lines are printed. The same values are
   written to main RAM at `0x0237F000` (`u32 magic 'CVER'`, `u32 FNV-1a of the demo name`, `u32 frame`, `u32 values[13]`).
@@ -52,6 +52,7 @@ the only ones inspected by eye: the melonDS runs were compared by their result b
 | l4-acc-split-hdma | the same with an HBlank DMA from the capture bank into engine B's bitmap BG | latency, variant, split x, frames with holes | `1 6 56 0` (master GL/Compute `1 6 56 808`: 8 + 8 frames with holes, 2056 hole pixels) |
 | l4-vcount-write | console lines `WRITE <value> AT <line>: <n> LINES, RES <r>/16` (VCOUNT writes at 212, 205, 212 and 100 against a frame without a write, means of 8 frames with a dithered poll delay; the probe finishes as soon as it is done (frame 3), not at frame 120; a write at line 100 may tear the picture of that frame on a console) | lines of the four cases, then the signed residual x16 of each (0xFFFF when no whole line was added) and the frame length in values[4..8] | `11 4 3 51` (residual about 0 cycles) |
 | l4-tex-late | console lines `WRITE AT <line>: <n> NOT NEW` (a full-screen textured quad whose palette entry is rewritten at that line after the swap, interrupts off; one captured column) | lines that do not show the new colour for writes at 200, 213, 214, 216, then 192, 230, 250 in values[4..6] and 215 in values[8] | `0 0 0 192` |
+| l4-3d-fog-dot | console lines `FOG START`, `BORDER`, `AA LINES` (six captures of the 3D layer: fog boundary, FOG_SHIFT 11, screen-border edge marking, a queued 1-dot, anti-aliased lines, depth Equal one step from the base) | fog start, its two colours, FOG_SHIFT 11 bits, its colours | `0 7fe07fe0 7 7fe0001f` (values[4..7]: border `280003ff`... see the measured table) |
 | l4-acc-rear-plane | the same two-pass scheme with the rear plane (stands for Elevane preset 2); the rear plane is set up first, then the opaque samples of the captured pass are counted (4096 = both halves) | latency, variant, split x, 0, opaque samples, left half, right half (values[4..6]) | `1 7 56 0`, `1000 800 800` (soft, DeSmuME); GL: `580 580 0` |
 
 ## Measured table (2026-11-12)
@@ -95,6 +96,12 @@ observation (what the emulators gave when the probe was written, or the value th
 | `tex-late-216` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-230` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-250` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
+| `fog-boundary-start` | l4-3d-fog-dot | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `fog-shift-11` | l4-3d-fog-dot | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 |
+| `edge-screen-border` | l4-3d-fog-dot | 67044351 | 671089663 | 671099210 | 671089663 | 671089663 | 671099210 | 671089663 | 67044351 |
+| `dot-queued-cutoff` | l4-3d-fog-dot | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 1 |
+| `aa-line-pixels` | l4-3d-fog-dot | 12583104 | 12583104 | 0 | 12583104 | 12583104 | 0 | 12583104 | 0 |
+| `zeq-step-boundary` | l4-3d-fog-dot | 0 | 67109888 | 1024 | 67109888 | 67109888 | 1024 | 67109888 | 0 |
 
 What differs between the emulators:
 
