@@ -7,6 +7,8 @@ Nothing in Pendulane has been measured on a console yet. This is the checklist f
 `cleancart/pendulane/` on the card and the rehearsal writes its result block there; `python3 tools/qa/ingest.py /Volumes/<card> --game
 pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are findings, not profiles.
 
+**Order for the first R4 run:** put the empty file `cleancart/pendulane/nocart` on the card first and check that the SD log is written; then run again without the marker to see whether the card kernel takes the cartridge bench. When grading rehearsal and QA logs together, grade each log on its own: `judge.py --partial` with both blocks grades only the last one.
+
 ## What the hardware has to answer
 
 | Question | Where it shows |

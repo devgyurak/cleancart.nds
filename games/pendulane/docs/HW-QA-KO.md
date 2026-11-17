@@ -6,6 +6,8 @@ Pendulane은 아직 콘솔에서 아무것도 재지 않았습니다. 이 문서
 콘솔은 사람이 조작합니다 (스킬 `nds-hw-qa`): 카드에 빈 폴더 `cleancart/pendulane/`를 만들면 리허설이 결과 블록을 거기에 씁니다.
 `python3 tools/qa/ingest.py /Volumes/<card> --game pendulane`가 `judge.py --hardware --partial`로 채점합니다. 실기 NG는 프로파일이 아니라 발견입니다.
 
+**첫 R4 실행 순서:** 먼저 카드에 빈 파일 `cleancart/pendulane/nocart`를 두고 SD 로그가 써지는지 확인한 뒤, 마커 없이 한 번 더 돌려 카드 커널이 카트 벤치를 받는지 봅니다. 리허설과 QA 로그는 따로 채점하세요: 둘을 함께 `judge.py --partial`에 넘기면 마지막 블록만 채점됩니다.
+
 ## 실기가 답해야 할 것
 
 | 질문 | 어디에 나오나 |

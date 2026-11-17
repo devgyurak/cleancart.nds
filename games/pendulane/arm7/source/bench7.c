@@ -121,29 +121,49 @@ static u32 spi_edge(u32 baud)
     return hi;
 }
 
-static u32 time_of(void (*fn)(const void *), const void *addr)
+// u32 pd7_timed(void *fn /*r0*/, const void *arg /*r1*/): reads timer 1, calls fn(arg), reads timer 1, returns the difference
+// (16 bits). All in one routine, so the instructions between the two reads are the same for every pair of runs being subtracted.
+extern u32 pd7_timed(const void *fn, const void *arg);
+asm(".arm\n"
+    ".balign 4\n"
+    ".global pd7_timed\n"
+    ".type pd7_timed, %function\n"
+    "pd7_timed:\n"
+    "    push  {r4, lr}\n"
+    "    mov   r3, r0\n"
+    "    mov   r0, r1\n"
+    "    ldr   r2, =0x04000104\n"
+    "    ldrh  r4, [r2]\n"
+    "    mov   lr, pc\n"
+    "    bx    r3\n"
+    "    ldr   r2, =0x04000104\n"
+    "    ldrh  r0, [r2]\n"
+    "    sub   r0, r0, r4\n"
+    "    mov   r0, r0, lsl #16\n"
+    "    mov   r0, r0, lsr #16\n"
+    "    pop   {r4, lr}\n"
+    "    bx    lr\n"
+    "    .ltorg\n"
+    ".size pd7_timed, .-pd7_timed\n");
+
+static u32 timed(const void *fn, const void *arg)
 {
     TIMER_CR(1) = 0;
     TIMER_DATA(1) = 0;
     TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_1;
-    u32 a = TIMER_DATA(1);
-    fn(addr);
-    u32 b = TIMER_DATA(1);
+    u32 t = pd7_timed(fn, arg);
     TIMER_CR(1) = 0;
-    return (b - a) & 0xFFFF;
+    return t;
+}
+
+static u32 time_of(void (*fn)(const void *), const void *addr)
+{
+    return timed((const void *)fn, addr);
 }
 
 static u32 time_of_nops(u32 *buf, u32 skip)
 {
-    void (*fn)(void) = (void (*)(void))(buf + skip);
-    TIMER_CR(1) = 0;
-    TIMER_DATA(1) = 0;
-    TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_1;
-    u32 a = TIMER_DATA(1);
-    fn();
-    u32 b = TIMER_DATA(1);
-    TIMER_CR(1) = 0;
-    return (b - a) & 0xFFFF;
+    return timed(buf + skip, NULL);
 }
 
 static void bench_mem(u32 *buf, u32 *res)

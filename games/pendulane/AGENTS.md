@@ -45,7 +45,7 @@ seal), credits. Next: the hardware run (`docs/HW-QA.md`) and the release.
   (0xC / 0xD alternating). SPI: the firmware chip is read with RDSR and chip select held, one data write starts a byte, a nop sled
   (`pd7_probe`, ARM7 WRAM) and one read of SPICNT bit 7; binary search for the smallest sled length at which busy is clear (monotone),
   per baud rate. Memory: unrolled `pd7_ldm12` / `pd7_ldm4` / `pd7_ldr` x64 timed with ARM7 timer 1 (bus cycles), the same code for every
-  memory (only the base address changes), reported as a difference of two runs; code in main RAM runs from a 640 byte ARM9 scratch
+  memory (only the base address changes), reported as a difference of two runs (timer read, call and timer read are one routine, `pd7_timed`, so the instructions between the reads are the same for every pair); code in main RAM runs from a 640 byte ARM9 scratch
   buffer the ARM7 fills with nops (the ARM9 invalidates its cache lines first and never touches it again); VRAM bank C is mapped to
   the ARM7 for the run. The ARM7 sound engine uses timers 0 and 3, the bench timer 1.
 - `arm7/source/benchsnd.c` (op `CV_BENCH_SND`, 1 KB buffer layout in `cv_ipc.h`): one sample period P = 16384 bus cycles (timer reload 0x10000 - 8192).
