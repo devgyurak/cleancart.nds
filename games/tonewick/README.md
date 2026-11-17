@@ -29,7 +29,7 @@ firmware user-settings copy).
 experiments, the twelve signal lines of the four districts, the rehearsal and its judge (17 target items, 10
 prerequisites; the save items count only where a save chip exists) and the hidden auto QA run. The scope (the model's waveform against the ear's capture) and the
 touch control panel are in, and a morning log screen (test menu) lists the clock, power, save chip and firmware
-readings against their rules. Nothing has been measured on real hardware. Progress is not saved.
+readings against their rules. On real hardware (run 1 on a DS Lite (2026-11-17), see [docs/HW-QA.md](docs/HW-QA.md)) one gating item differs and is under review. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
@@ -96,7 +96,7 @@ RTC_HOUR=15 RESULT_WORDS=64 tools/emu/emu.sh run games/tonewick/tonewick-rehears
 Exit code 0: every gating item passed (or the failing set equals the profile's). `known` in `expected.json` holds one profile
 per emulator version and renderer. **Several target items are expected to fail in current emulators** (melonDS 1.1: the hold
 bit, the two capture bugs, the power management mirrors; DeSmuME: more), which is the point of an L2 game; see
-[docs/QA.md](docs/QA.md). The save items need a save chip and are n/a without one. Nothing has been measured on real hardware
+[docs/QA.md](docs/QA.md). The save items need a save chip and are n/a without one. Hardware: run 1 on a DS Lite
 ([docs/HW-QA.md](docs/HW-QA.md)); the two capture bugs are documented in GBATEK only.
 
 ## Layout

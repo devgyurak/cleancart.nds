@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-heddlemere-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Heddlemere는 아직 실기에서 잰 값이 없습니다. 이 문서는 실기 점검표입니다. 첫 값을 기록하고, `expected.json`의 `unconfirmed`
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 항목 모두 OK.
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실기 점검표입니다. 첫 값을 기록하고, `expected.json`의 `unconfirmed`
 네 항목을 승격하고, 가장 위험한 gating 수치(ARM9 HBlank 낮은 구간, GBATEK 1606)를 확정하기 위한 것입니다. 콘솔은 사람이
 조작하고, 아래 단계는 할 일과 적을 것입니다. 대상은 DS Lite 한 대이고 DSi·3DS 값은 없습니다.
 
@@ -52,3 +54,25 @@ Heddlemere는 아직 실기에서 잰 값이 없습니다. 이 문서는 실기 
   gating 항목의 실기 값이 GBATEK 수치와 다르면 기대값을 실측값으로 바꾸고 근거를 `hw:`로 달고 PR에 이유를 적습니다. 세 번의
   실행 사이에 반복되지 않는 값은 여기가 아니라 `probes/`(L4)로 보냅니다. `known`에 `hw-ds-lite` 프로필을 추가합니다.
 - `build/qa/` 아래의 것은 절대 커밋하지 않습니다.
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `heddlemere-hw-support.nds` v0.2.1 `034f3b0816abb48ce1d9645231994d4c52d8a5371d260832f32d073536b34b89`(442,732바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 33줄, 체크포인트 7개, build `b3cd2aab29e4`, `start=marker`로 시작. 스위트: QA 블록만(`suite block block=qa saved=1`. 스위트 데모가 없어 `suite end` 줄은 원래 없음). 판정: **게이트 항목 21개 중 21개 OK**(L1 8/8, L2 3/3, L3 10/10) +참고용 5(그중 3개는 unconfirmed 범위 밖, 아래), n/a 없음 |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | 없음. ch1-ch5, judge, credits 해시가 melonDS 1.1 soft와 같음(`compare.py`, 차이 0) |
+| 랙 프레임 | 2 / 2 / 2 / 13 / 11 / 2 / 0 (ch1-ch5, judge, credits). melonDS soft 0 / 0 / 0 / 11 / 9 / 0 / 0 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 3D 체크포인트마다 `uf0,of0 rdl=46`, melonDS와 같음 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `hblank-low-arm9` (unconfirmed, 25664..25728) | 25710 | 25344 | 콘솔에서 범위 안(GBATEK 1606 x16이 맞음) |
+| `hblank-low-arm7` (unconfirmed, 25776..25840) | 25712 | 25342 | 있음. 콘솔의 ARM7 구간은 ARM9와 같고 GBATEK의 1613이 아님 |
+| `gx-trans-cycles` (unconfirmed, 348..356) | 560 (35 x16) | | 콘솔은 MTX_TRANS에 35사이클을 씀(melonDS와 같음). GBATEK의 22는 맞지 않음 |
+| `gx-box-cycles` (unconfirmed, 1640..1656) | 2020 (약 126 x16) | 4112 (257 x16) | GBATEK의 103도 melonDS의 257도 아님 |
+| `swap-tail` (unconfirmed, 6208..6336) | 6256 | 5224 | 콘솔에서 범위 안 |
+| 게이트 기울기(`gx-identity-slope`, `gx-pushpop-slope`, `gx-halfirq-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`) | 305 / 848 / 303 / 480 / -2 | 304 / 847 / 305 / 479 / 0 | 둘 다 허용 범위 안 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |

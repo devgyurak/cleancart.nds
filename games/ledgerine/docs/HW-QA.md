@@ -6,7 +6,9 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block and `press-min` as `res-*-ledgerine-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-Nothing in Ledgerine has been measured on a console yet. This is the checklist for the run, so the first values can
+**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, with gating NG items that are findings about our expected values (re-examined in a separate PR, not here).
+
+Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can
 be recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is
 operated by a person; the steps below are what to do and what to write down.
 
@@ -49,3 +51,28 @@ findings, not profiles. Old `res-*` logs on the card are cleared first.
   hardware disagrees the item is a finding: record the value and decide whether the ROM or the expectation is wrong (a BIOS
   item may only differ with the BIOS; note which BIOS the console runs). Add a profile `hw-ds-lite` (the failing items) to `known`.
 - Never commit anything under `build/qa/`.
+
+## Run 1: QA run and judge suite, 2026-11-17
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, DS Lite (NTR), "R4 Plus" dual core card, Wood R4 kernel (`__rpg/`, `_DS_MENU.DAT`). The console clock is not set, so the files say 2002-01-15 |
+| ROM SHA-256 | `ledgerine-hw-support.nds` v0.2.1 `8e2fbdfad675ebfa14246c44d99eab59aa9eacf88c2d52d6fb9b2ca25c7de2dc` (455,020 bytes, same as the release); melonDS 1.1 soft was run with the same file |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 27 lines, 6 checkpoints, build `8821063cd048`, started with `start=marker`. Suite: QA block and the `press-min` demo `saved=1`; `suite end demos=1 saved=1`, all 12 probes `ok=1`, no `suite done` line (see the note). Judge: QA block L1 11/11, L2 28/29 (**1 gating NG: `ipc-empty-cleared`**); `press-min` L2 1/1. 40 of 41 OK, no n/a |
+| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| First checkpoint that differs from melonDS | room2 (room1 equal): room2-room6 hashes differ from melonDS 1.1 soft |
+| Lag frames | 3 / 11 / 54 / 63 / 13 / 2 (room1-room6); melonDS soft 0 / 10 / 53 / 62 / 11 / 1 |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0` everywhere; `rdl=63` on the console (no 3D in this game), melonDS 46 |
+
+| Item | Hardware | melonDS 1.1 soft | Differs? |
+|---|---|---|---|
+| `ipc-empty-cleared` (L2, GBATEK, mask 0x8) | **0x0** (NG) | 0x8 | yes: a finding about our expectation (under review) |
+| `ipc-empty-last` | 0x3 (OK) | 0x2 (NG, profile) | the melonDS profile NG is a real emulator difference |
+| `bios-arm7-guard` | 0x10 (OK) | 0x0 (NG, profile) | as above |
+| `dma-itcm-runs` | 0x20 (OK) | 0x0 (NG, profile) | as above |
+| QA block values[2], [4], [6], [30], [31] (not judged) | 247, 63, 31, 590170, 590170 | 254, 31, 15, 589864, 884598 | yes, not judged |
+| the other judged items | as melonDS soft | | no |
+
+Note: the suite now writes `suite end` before its final reset (#186) and it is on the card, as are the 12 probe lines after the reset up to `wait60`. Only the closing `suite done` line, the last write of the run, is missing (melonDS writes it). So the reset is not what loses the line: the last line written to the card is lost. This is still open.
+
+The NG items are not edited here: `level-judge` proposes the expected values and levels (basis `hw:games/ledgerine/docs/HW-QA.md`), and they change in a separate PR.

@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록, 리허설, `l3-*` 데모 9개를 `res-*-elevane-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Elevane은 아직 실기에서 측정한 값이 하나도 없습니다. 이 문서는 실행 점검표이며, 첫 값을 기록하고
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 항목 모두 OK.
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실행 점검표이며, 첫 값을 기록하고
 `expected.json`의 `unconfirmed` 항목을 승격하기 위한 것입니다. 콘솔은 사람이 조작하고, 아래는 할 일과
 적어 둘 것입니다.
 
@@ -55,3 +57,24 @@ Elevane은 아직 실기에서 측정한 값이 하나도 없습니다. 이 문�
 - 이음매 세로줄이 보이면: 지시안의 두 해결안(뷰포트를 한 열 겹치기, 블렌드 가중치 바꾸기)을 구현해 콘솔에서 비교하고
   줄이 가려지는 쪽을 기본값으로 정합니다.
 - `build/qa/` 아래는 절대 커밋하지 않습니다.
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `elevane-hw-support.nds` v0.2.1 `15c360c5bf71fd2eeb2a4f1935b93a09ac90cf558730c62fa0fe3f375e9aeea9`(465,260바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 32줄, 체크포인트 6개, build `538d47ce7408`, `start=marker`로 시작. 스위트: QA 블록, 이어서 리허설과 `l3-*` 데모 9개, 10개 중 10개 `saved=1`, timeout 없음. `suite end demos=10 saved=10`, probe 12개 모두 `ok=1`, `suite done` 줄 없음(참고 참조). 판정: **판정 항목 20개 중 20개 OK**(게이트 L1 5/5, L3 3/3. 참고용 L2 12개도 OK), n/a 없음 |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | 없음. ch1-ch5와 credits 해시가 melonDS 1.1 soft와 같음(`compare.py`, 차이 0) |
+| 랙 프레임 | 22 / 22 / 22 / 22 / 22 / 23 (ch1-ch5, credits). melonDS soft 20 / 20 / 20 / 20 / 20 / 21 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0`. `rdl`은 46 / 43 / 37 / 46 / 42 / 46(melonDS는 모두 46). ch2, ch3, ch5에서 렌더 버퍼 여유가 줄었고 언더플로는 없음 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `hdma-holes-zero`, `acc-split-hdma-holes` (L3, melonDS#2618) | OK(구멍 없음) | OK | 없음 |
+| `l3-acc-dual` values[4] (한 패스: 폴리곤 수, 오버플로 플래그. 판정 안 함) | 2310, 1 | 1536, 1 | 있음. 콘솔의 RAM_COUNT는 2048에서 멈추지 않음(Lightenette와 같음). 캡처 해시 values[7..9]도 다름 |
+| 리허설 values[14] (그림 해시, 판정 안 함) | 다름 | | 있음, 판정 안 함 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+참고: 스위트는 이제 마지막 리셋 전에 `suite end`를 쓰고(#186) 그 줄은 카드에 있습니다. 리셋 뒤의 probe 12줄도 `wait60`까지 모두 있습니다. 실행의 마지막 쓰기인 `suite done` 줄만 빠졌습니다(melonDS는 씀). 따라서 줄을 잃게 만드는 것은 리셋이 아니라, 카드에 마지막으로 쓴 줄이 사라지는 것입니다. 아직 열려 있습니다.

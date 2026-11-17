@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록과 `press-min`를 `res-*-ledgerine-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Ledgerine은 아직 실기에서 아무것도 측정하지 않았습니다. 이 문서는 첫 측정을 기록하고, 에뮬레이터나 GBATEK 해석에만 근거를 둔 항목을
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 NG 항목이 있고, 우리 기대값에 대한 발견이라 별도 PR에서 다시 봅니다(여기서는 고치지 않음).
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 첫 측정을 기록하고, 에뮬레이터나 GBATEK 해석에만 근거를 둔 항목을
 확정하기 위한 점검표입니다. 콘솔은 사람이 다루며, 아래는 할 일과 적어 둘 것입니다.
 
 **자동 경로(스킬 `nds-hw-qa`):** 카드에 빈 폴더 `cleancart/ledgerine/`를 만들어 두면 리허설과 `press-min` ROM이 결과 블록을 그곳에 씁니다
@@ -46,3 +48,28 @@ Ledgerine은 아직 실기에서 아무것도 측정하지 않았습니다. 이 
   기대값 중 어느 쪽이 틀렸는지 정합니다(BIOS 항목은 BIOS에 따라서만 다를 수 있으니 콘솔의 BIOS를 적어 둡니다). 실패한 항목으로 프로필
   `hw-ds-lite`를 `known`에 추가합니다.
 - `build/qa/` 아래 것은 커밋하지 않습니다.
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `ledgerine-hw-support.nds` v0.2.1 `8e2fbdfad675ebfa14246c44d99eab59aa9eacf88c2d52d6fb9b2ca25c7de2dc`(455,020바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 27줄, 체크포인트 6개, build `8821063cd048`, `start=marker`로 시작. 스위트: QA 블록과 `press-min` 데모 `saved=1`. `suite end demos=1 saved=1`, probe 12개 모두 `ok=1`, `suite done` 줄 없음(참고 참조). 판정: QA 블록 L1 11/11, L2 28/29(**판정 NG 1: `ipc-empty-cleared`**). `press-min` L2 1/1. 41개 중 40개 OK, n/a 없음 |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | room2(room1은 같음). room2-room6 해시가 melonDS 1.1 soft와 다름 |
+| 랙 프레임 | 3 / 11 / 54 / 63 / 13 / 2 (room1-room6). melonDS soft 0 / 10 / 53 / 62 / 11 / 1 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0`. 콘솔은 `rdl=63`(이 게임은 3D를 쓰지 않음), melonDS는 46 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `ipc-empty-cleared` (L2, GBATEK, mask 0x8) | **0x0** (NG) | 0x8 | 있음. 우리 기대값에 대한 발견(검토 중) |
+| `ipc-empty-last` | 0x3 (OK) | 0x2 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
+| `bios-arm7-guard` | 0x10 (OK) | 0x0 (NG, 프로필) | 위와 같음 |
+| `dma-itcm-runs` | 0x20 (OK) | 0x0 (NG, 프로필) | 위와 같음 |
+| QA 블록 values[2], [4], [6], [30], [31] (판정 안 함) | 247, 63, 31, 590170, 590170 | 254, 31, 15, 589864, 884598 | 있음, 판정 안 함 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+참고: 스위트는 이제 마지막 리셋 전에 `suite end`를 쓰고(#186) 그 줄은 카드에 있습니다. 리셋 뒤의 probe 12줄도 `wait60`까지 모두 있습니다. 실행의 마지막 쓰기인 `suite done` 줄만 빠졌습니다(melonDS는 씀). 따라서 줄을 잃게 만드는 것은 리셋이 아니라, 카드에 마지막으로 쓴 줄이 사라지는 것입니다. 아직 열려 있습니다.
+
+NG 항목은 여기서 고치지 않습니다. `level-judge`가 기대값과 레벨을 제안하고(근거 `hw:games/ledgerine/docs/HW-QA.md`), 변경은 별도 PR로 합니다.

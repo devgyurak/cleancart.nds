@@ -6,7 +6,9 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-heddlemere-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-Nothing in Heddlemere has been measured on a console yet. This is the checklist for the run, so the first values can be
+**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, every judged item OK.
+
+Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be
 recorded, the four `unconfirmed` items in `expected.json` can be promoted and the riskiest gating figure (the ARM9
 HBlank-low span, GBATEK 1606) can be settled. The console is operated by a person; the steps below are what to do and
 what to write down. The target is one DS Lite; DSi and 3DS values do not exist.
@@ -54,3 +56,25 @@ QA run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game
   measured value, set the basis to `hw:` and say why in the PR. A value that does not repeat between the three runs belongs to
   `probes/` (L4), not here. Add a profile `hw-ds-lite` to `known`.
 - Never commit anything under `build/qa/`.
+
+## Run 1: QA run and judge suite, 2026-11-17
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, DS Lite (NTR), "R4 Plus" dual core card, Wood R4 kernel (`__rpg/`, `_DS_MENU.DAT`). The console clock is not set, so the files say 2002-01-15 |
+| ROM SHA-256 | `heddlemere-hw-support.nds` v0.2.1 `034f3b0816abb48ce1d9645231994d4c52d8a5371d260832f32d073536b34b89` (442,732 bytes, same as the release); melonDS 1.1 soft was run with the same file |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 33 lines, 7 checkpoints, build `b3cd2aab29e4`, started with `start=marker`. Suite: QA block only (`suite block block=qa saved=1`; no suite demos, so no `suite end` line by design). Judge: **21 of 21 gating items OK** (L1 8/8, L2 3/3, L3 10/10) +5 informational (3 of them outside their unconfirmed ranges, below), no n/a |
+| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| First checkpoint that differs from melonDS | None: ch1-ch5, judge and credits hashes equal melonDS 1.1 soft (`compare.py`, 0 differences) |
+| Lag frames | 2 / 2 / 2 / 13 / 11 / 2 / 0 (ch1-ch5, judge, credits); melonDS soft 0 / 0 / 0 / 11 / 9 / 0 / 0 |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0 rdl=46` at every 3D checkpoint, as melonDS |
+
+| Item | Hardware | melonDS 1.1 soft | Differs? |
+|---|---|---|---|
+| `hblank-low-arm9` (unconfirmed, 25664..25728) | 25710 | 25344 | inside the range on the console (GBATEK 1606 x16 holds) |
+| `hblank-low-arm7` (unconfirmed, 25776..25840) | 25712 | 25342 | yes: the ARM7 span equals the ARM9 one on the console, not GBATEK's 1613 |
+| `gx-trans-cycles` (unconfirmed, 348..356) | 560 (35 x16) | | the console charges 35 cycles for MTX_TRANS, as melonDS does; GBATEK's 22 does not hold |
+| `gx-box-cycles` (unconfirmed, 1640..1656) | 2020 (about 126 x16) | 4112 (257 x16) | neither GBATEK's 103 nor melonDS's 257 |
+| `swap-tail` (unconfirmed, 6208..6336) | 6256 | 5224 | inside the range on the console |
+| gating slopes (`gx-identity-slope`, `gx-pushpop-slope`, `gx-halfirq-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`) | 305 / 848 / 303 / 480 / -2 | 304 / 847 / 305 / 479 / 0 | within their tolerances on both |
+| the other judged items | as melonDS soft | | no |
