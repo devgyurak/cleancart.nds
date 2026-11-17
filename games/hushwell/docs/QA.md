@@ -41,6 +41,14 @@ block `QARN` at `0x0237F000`. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh ru
 | DeSmuME headless (no SD) | ✅ `QARN` block verdict 1, 6 chapters, tapes `3e`, last state hash `fea01683` = melonDS (lag differs, not compared) |
 | Real DS Lite + R4 | not run yet |
 
+**Judge suite.** With the QA log on an SD card the run continues after `RESULT PASS`: the QA block is saved as `res-<stamp>-hushwell-qa.log`, then 16 judged demos
+(`sys-ipc`, `sys-keys`, the six `snd-*`, `snd-wave`, `io-firmware`, `io-rtc`, `io-touch`, `io-power`, `sys-dma-cart`, `io-cart`, `io-save-eeprom`) run one after another and each writes
+`res-<stamp>-hushwell-<name>.log` (`suite demo=<name> saved=1 frames=<n>` in the log; no SD card: `suite skipped=no-sd`, the DeSmuME case). Decision (2026-11-17):
+`io-save-flash` and `io-save-fram` are builds for another save chip, so they are **not** in the suite; on hardware their items (and every `env: cart` item, `io-save-eeprom-*` included) are n/a
+(`judge.py --hardware`; the R4 verifies no chip save), and in the emulators they are graded from the stand-alone ROMs `hushwell-io-save-flash.nds` / `-fram.nds`. Likewise the harness items (`io-touch-x/y`, a scripted
+touch) stay with the stand-alone ROM for emulator profiles. Values equal the stand-alone ROMs' (`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17) except what needs the harness
+(the injected key and touch of `sys-keys`, `io-touch`, `io-power`) and the capture peak of `snd-capture`, which varies inside its judged range.
+
 ## QA record
 
 melonDS version: ______  Tester: ______  Date: ______

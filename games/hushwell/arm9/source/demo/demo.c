@@ -19,6 +19,7 @@
 #include "core/input.h"
 #include "core/irq.h"
 #include "core/nitro.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sdcard.h"
@@ -130,6 +131,8 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    if (qa_suite_active())
+        qa_suite_done();   // the QA judge suite saves the block itself and goes on
     // Only when the card holds cleancart/hushwell/ (core/sdcard.h): the block goes to the SD card.
     if (sd_result_save("hushwell", demo_name))
     {
@@ -2128,6 +2131,33 @@ static const DemoEntry demos[] = {
     { "io-firmware", d_io_firmware },   { "io-rtc", d_io_rtc },
     { "io-touch", d_io_touch },         { "io-power", d_io_power },
 };
+
+// What the QA run's judge suite runs (core/qasuite.h): the judged demos under their stand-alone ROMs' names.
+// io-save-flash and io-save-fram are builds for another save chip and stay stand-alone; io-save-eeprom is the
+// release ROM's own chip. The demos that touch the cart, the chip or the touch screen come last.
+static void suite_demo(const char *name)
+{
+    for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)
+    {
+        if (strcmp(demos[i].name, name) == 0)
+        {
+            demo_id = hash_name(name);
+            demo_name = name;
+            idle_fn = NULL;
+            demos[i].fn();   // ends in finish() -> qa_suite_done()
+        }
+    }
+}
+
+const QaSuiteDemo demo_suite[] = {
+    { "sys-ipc", suite_demo },     { "sys-keys", suite_demo },     { "snd-mix", suite_demo },
+    { "snd-pcm", suite_demo },     { "snd-adpcm", suite_demo },    { "snd-psg", suite_demo },
+    { "snd-capture", suite_demo }, { "snd-stream", suite_demo },   { "snd-wave", suite_demo },
+    { "io-firmware", suite_demo }, { "io-rtc", suite_demo },       { "io-touch", suite_demo },
+    { "io-power", suite_demo },    { "sys-dma-cart", suite_demo }, { "io-cart", suite_demo },
+    { "io-save-eeprom", suite_demo },
+};
+const int demo_suite_count = (int)(sizeof(demo_suite) / sizeof(demo_suite[0]));
 
 void demo_main(const char *name)
 {
