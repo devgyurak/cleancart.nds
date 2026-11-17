@@ -14,4 +14,6 @@
 | 직조 | melonDS 1.1 소프트웨어의 위 화면: 주문 1-01·2-01 스크린샷(README 그림). Select로 래스터/도면 전환 | 띠마다 줄의 색과 짜임이 보입니다. 래스터와 도면 보기의 천 영역(16~175줄)은 픽셀이 같습니다(스크린샷 비교 차이 0바이트). DeSmuME: 플레이 장면에도 천이 나오지만 픽셀 단위 비교는 하지 않고 눈으로만 봤습니다 |
 | 자동 QA 실행 | 타이틀에서 L+R+X+Y를 120프레임 누르거나 SD 마커 `cleancart/heddlemere/autoqa`. headless: `SDDIR=out/hm/x tools/melonds/mds.sh run games/heddlemere/heddlemere.nds 24000 out/hm/x/o "300:L:140,300:R:140,300:X:140,300:Y:140"`(먼저 `out/hm/x/cleancart/heddlemere/`를 만들어 둠) | melonDS 1.1 소프트웨어: `RESULT PASS`, 주문 40개 중 40개, 장 마스크 `0x1f`, 체크포인트 7개. `tools/qa/parse_log.py`·`tools/qa/lint.py` 통과. 두 번 실행해 `tools/qa/compare.py` 차이 0. DeSmuME도 `QARN` 블록까지 갑니다(키 조합은 프레임 500) |
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(−2, 0..46)이다. 끈적한 플래그는 읽기만 하고 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
 직접 플레이(melonDS): 십자키 위/아래로 칸을 고르고, 왼쪽/오른쪽으로 돌리고, A로 납품, B로 목록.

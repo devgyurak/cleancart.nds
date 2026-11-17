@@ -6,8 +6,8 @@
     compare.py A.log B.log [--info]
 
 Checkpoints are matched by order and name; the state hash must be equal.
-Lag frames are shown but never compared (they depend on the card and the
-emulator). Exit status 0 identical, 1 different, 2 a log is invalid.
+Lag frames and the 3D engine hint (gx=uf,of rdl=) are never compared (they depend on the
+card and the emulator); with --info they are printed per checkpoint, side by side. Exit status 0 identical, 1 different, 2 a log is invalid.
 --info: the comparison is informational (emulator vs real hardware): print
 the differences but exit 0.
 """
@@ -28,6 +28,23 @@ def load(path):
             print('ERROR %s: %s' % (path, e), file=sys.stderr)
         sys.exit(2)
     return doc
+
+
+def gx_text(c):
+    if c is None or 'gx_uf' not in c:
+        return '-'
+    return 'uf%d,of%d rdl=%d' % (c['gx_uf'], c['gx_of'], c.get('rdl', 0))
+
+
+def gx_table(ca, cb):
+    """Per checkpoint: lag and 3D overload figures of A and B (information only)."""
+    print('%-3s %-16s | %-5s %-18s | %-5s %-18s' % ('#', 'checkpoint', 'lagA', 'gx A', 'lagB', 'gx B'))
+    for i in range(max(len(ca), len(cb))):
+        x = ca[i] if i < len(ca) else None
+        y = cb[i] if i < len(cb) else None
+        name = (x or y)['name']
+        print('%-3d %-16s | %-5s %-18s | %-5s %-18s' % (
+            i, name, x['lag'] if x else '-', gx_text(x), y['lag'] if y else '-', gx_text(y)))
 
 
 def main(argv):
@@ -55,6 +72,8 @@ def main(argv):
     if a['result'] and b['result'] and a['result']['verdict'] != b['result']['verdict']:
         print('verdict differs: %s vs %s' % (a['result']['verdict'], b['result']['verdict']))
         diffs += 1
+    if args.info:
+        gx_table(ca, cb)
     print('%d checkpoints compared, %d differences' % (max(len(ca), len(cb)), diffs))
     if diffs and not args.info:
         return 1

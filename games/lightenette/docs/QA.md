@@ -29,6 +29,8 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 
 ## Auto QA run
 
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (-2, 0..46). The sticky flags are only read, never cleared, so a count is "frames the flag was up". The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
+
 Hidden mode of the release ROM (`lightenette.nds`, SHA-256 identical to what ships): on the title screen press L and R, then X and Y, and
 hold all four for 120 frames. The game plays the normal flow by itself: acts 1-5 with the rehearsal's scripts, the credits, then one
 accuracy-judge pass. Log on the SD card (`cleancart/lightenette/qa-<date>-<time>.log`), result block `QARN` in the rehearsal's layout, graded with

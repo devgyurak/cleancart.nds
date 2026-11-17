@@ -18,6 +18,8 @@ melonDS 1.1 점검표입니다 (macOS 키는 저장소 `AGENTS.md`).
 
 ## 자동 QA 실행
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(−2, 0..46)이다. 끈적한 플래그는 읽기만 하고 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
 릴리스 ROM(`pendulane.nds`)의 숨은 모드: 타이틀에서 L, R을 누른 뒤 X, Y를 눌러 네 키를 120프레임 누릅니다. 정상 흐름(타이틀 → 목록 → 장치 20개 전부, 장마다 리듬 곡으로 마무리 → 목록 → 타이틀 → 크레딧 → 타이틀)을
 진행하고 벤치를 한 번 돌린 뒤 `RESULT PASS`로 끝납니다. 로그는 SD 카드(`cleancart/pendulane/qa-<날짜>-<시각>.log`). Headless:
 `SDDIR=out/pd/x tools/melonds/mds.sh run games/pendulane/pendulane.nds 6000 out/pd/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (먼저

@@ -31,6 +31,8 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 
 ## Auto QA run
 
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (-2, 0..46). The sticky flags are only read, never cleared, so a count is "frames the flag was up". The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
+
 Hidden mode (same ROM as the release): on the title screen hold **L+R+X+Y for 120 frames**. The
 game plays all five stages, the ending and the credits by itself (boss HP x0.1, hits cost no
 life, weak numbers only; effects, sound and saves are unchanged) and finishes on the records

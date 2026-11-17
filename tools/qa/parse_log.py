@@ -8,7 +8,7 @@
 Line format: `<frame> <scene> <event> key=val ...` (values may be "quoted").
 A valid log has a header (events `hdr` at the start: game, build, rtc, sd,
 dldi, cart_ready, nitro, save_*), non-decreasing frames, checkpoints (`cp`
-with name, hash, lag) and ends with exactly one `RESULT PASS|FAIL` line.
+with name, hash, lag and the optional 3D hint gx=uf<n>,of<n> rdl=<min>) and ends with exactly one `RESULT PASS|FAIL` line.
 Exit status: 0 valid log with RESULT PASS, 1 valid log with RESULT FAIL,
 2 invalid log. Output is deterministic (sorted keys, no timestamps added).
 """
@@ -19,6 +19,7 @@ import re
 import sys
 
 KV = re.compile(r'([A-Za-z_][\w]*)=("([^"]*)"|\S*)')
+GX = re.compile(r'uf(\d+),of(\d+)')
 HEADER_KEYS = ('game', 'build', 'rtc', 'sd', 'dldi', 'cart_ready', 'nitro',
                'save_build', 'save_detected')
 
@@ -63,9 +64,16 @@ def parse(text):
         if e['event'] == 'cp':
             f = e['fields']
             try:
-                cps.append({'frame': e['frame'], 'scene': e['scene'], 'name': f['name'],
-                            'hash': f['hash'], 'lag': int(f['lag'])})
+                cp = {'frame': e['frame'], 'scene': e['scene'], 'name': f['name'],
+                      'hash': f['hash'], 'lag': int(f['lag'])}
                 int(f['hash'], 16)
+                # 3D engine overload hint (optional; older logs have none): gx=uf<n>,of<n> rdl=<min>
+                m = GX.fullmatch(f.get('gx', ''))
+                if m:
+                    cp['gx_uf'], cp['gx_of'] = int(m.group(1)), int(m.group(2))
+                if 'rdl' in f:
+                    cp['rdl'] = int(f['rdl'])
+                cps.append(cp)
             except (KeyError, ValueError):
                 errors.append('bad checkpoint at frame %d: %r' % (e['frame'], e['raw']))
     results = [e for e in events if e['event'] == 'RESULT']
