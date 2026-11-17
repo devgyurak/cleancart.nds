@@ -74,6 +74,11 @@ u32 qalog_fnv(u32 h, const void *data, u32 len);
 void qalog_append(const char *scene, const char *event, const char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 
+// Diagnostic (QA suite, core/qasuite.c): tries to write `<frame> suite probe step=<step> ok=1` to suite-<stamp>.log.
+// Returns whether the line reached the card. A failure changes nothing (the card is not marked lost), so the next
+// probe can show when the card answers again. Does nothing without a card.
+bool qalog_probe(const char *step);
+
 // Appends the ring to the file (claims the bus, closes the file again).
 void qalog_flush(void);
 // While held, nothing flushes (the ring keeps filling, then drops and counts).
