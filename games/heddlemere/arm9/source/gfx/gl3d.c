@@ -308,11 +308,24 @@ int g3_vert_count(void)
     return GFX_VERTEX_RAM_USAGE;
 }
 
+static u32 overflow_acks;
+
+u32 g3_overflow_acks(void)
+{
+    return overflow_acks;
+}
+
 bool g3_overflowed(void)
 {
-    // DISP3DCNT bit 13: polygon/vertex RAM overflow (write 1 to acknowledge)
+    // DISP3DCNT bit 13: polygon/vertex RAM overflow (write 1 to acknowledge). Bit 12 (RDLINES
+    // underflow) is sticky too and cleared the same way, so it is written as 0 here: a
+    // read-modify-write would acknowledge it as well. The count of acknowledgements is for the
+    // game's QA hook.
     bool o = (GFX_CONTROL & (1 << 13)) != 0;
     if (o)
-        GFX_CONTROL |= 1 << 13;
+    {
+        overflow_acks++;
+        GFX_CONTROL = (GFX_CONTROL & ~(1 << 12)) | (1 << 13);
+    }
     return o;
 }

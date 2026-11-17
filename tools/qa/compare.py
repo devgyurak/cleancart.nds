@@ -33,7 +33,8 @@ def load(path):
 def gx_text(c):
     if c is None or 'gx_uf' not in c:
         return '-'
-    return 'uf%d,of%d rdl=%d' % (c['gx_uf'], c['gx_of'], c.get('rdl', 0))
+    rdl = c.get('rdl')
+    return 'uf%d,of%d rdl=%s' % (c['gx_uf'], c['gx_of'], '-' if rdl is None else rdl)
 
 
 def gx_table(ca, cb):

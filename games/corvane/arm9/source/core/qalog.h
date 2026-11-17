@@ -54,7 +54,9 @@ void qalog_line(const char *scene, const char *event, const char *fmt, ...)
 // Checkpoint: state hash (game state only) and lag frames since the last one. The 3D engine
 // figures are a hint like lag, never hashed or compared: gx_uf / gx_of = frames since the last
 // checkpoint with DISP3DCNT bit 12 (RDLINES underflow) / bit 13 (polygon/vertex RAM overflow)
-// set, rdl = fewest buffered lines (RDLINES_COUNT, -2 or 0..46).
+// set (or, for bit 13, acknowledged by the game), rdl = lowest RDLINES_COUNT (buffered lines
+// minus 2, 0..46), or QALOG_RDL_NONE when no frame was sampled (logged as `rdl=-`).
+#define QALOG_RDL_NONE 127
 void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag,
                       u32 gx_uf, u32 gx_of, int rdl);
 

@@ -20,10 +20,17 @@ static u32 lag_since_cp;
 // 3D engine overload seen since the last checkpoint (read only: the sticky flags are never
 // cleared here, so a frame counts while the flag stays set). Never part of a state hash.
 #define QA_DISP3DCNT   (*(vu16 *)0x04000060)   // bit 12 RDLINES underflow, bit 13 vertex/polygon RAM overflow
-#define QA_RDLINES_CNT (*(vu16 *)0x04000320)   // bits 0-5: fewest buffered lines last frame (-2, 0..46)
-#define QA_RDL_NONE    127
+#define QA_RDLINES_CNT (*(vu16 *)0x04000320)   // bits 0-5: fewest buffered lines last frame, minus 2 (0..46)
 static u32 gx_uf, gx_of;
-static int gx_rdl_min = QA_RDL_NONE;
+static int gx_rdl_min = QALOG_RDL_NONE;
+static u32 gx_acks_seen;       // game acknowledgements of bit 13 already counted
+
+// A game that clears the sticky overflow flag itself (stage 5 of corvane) reports how often through
+// this hook; the default says it never does.
+__attribute__((weak)) u32 qa_game_gx_acks(void)
+{
+    return 0;
+}
 static u32 run_start;
 static CvSave save_backup;   // the cart's own save, put back when the run ends
 // The last run's input log lives in its own area of the chip: a QA run records
@@ -53,7 +60,8 @@ static void start_run(const char *how)
     last_frame = cv_frame;
     lag_since_cp = 0;
     gx_uf = gx_of = 0;
-    gx_rdl_min = QA_RDL_NONE;
+    gx_rdl_min = QALOG_RDL_NONE;
+    gx_acks_seen = qa_game_gx_acks();
     save_backup = cv_save;
     replay_backup_size = save_load_replay(replay_backup, sizeof(replay_backup));
     qa_game_reset();
@@ -104,10 +112,11 @@ bool qa_autopilot(QaInput *out)
     last_frame = now;
     u16 gx = QA_DISP3DCNT;
     gx_uf += (gx >> 12) & 1;
-    gx_of += (gx >> 13) & 1;
+    u32 acks = qa_game_gx_acks();
+    // Bit 13 reads 0 once the game acknowledged it: an acknowledgement counts as a frame with it up.
+    gx_of += ((gx >> 13) & 1) || acks != gx_acks_seen;
+    gx_acks_seen = acks;
     int rdl = QA_RDLINES_CNT & 0x3F;
-    if (rdl >= 62)
-        rdl -= 64;   // the field holds -2 (62) or 0..46: a negative count means the buffer ran dry
     if (rdl < gx_rdl_min)
         gx_rdl_min = rdl;
     if (qa_scene_frames() > QA_SCENE_LIMIT)
@@ -150,10 +159,10 @@ void qa_checkpoint(const char *name, u32 hash)
     if (!active)
         return;
     qalog_checkpoint("qa", name, hash, lag_since_cp, gx_uf, gx_of,
-                     gx_rdl_min == QA_RDL_NONE ? 0 : gx_rdl_min);
+                     gx_rdl_min);
     lag_since_cp = 0;
     gx_uf = gx_of = 0;
-    gx_rdl_min = QA_RDL_NONE;
+    gx_rdl_min = QALOG_RDL_NONE;
 }
 
 static void end_run(bool pass, const char *reason, const u32 *words, int n)
