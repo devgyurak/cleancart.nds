@@ -22,7 +22,7 @@ plays rooms 3 to 6 and the credits after it).
 | `press-min` | `ledgerine-press-min.nds`: only `-2^63 / -1` in divider mode 2 (item `math-overflow-min64`); result block id `0x4D50444C` (`LDPM`), values[0] = 1 when done, values[1] bit 0 = the check. It is a ROM of its own because DeSmuME's divider hangs the whole emulator on this division | melonDS 1.1 soft / GL classic / GL compute: OK; DeSmuME: hangs (not graded) |
 | `rehearsal` | `ledgerine-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): every room's audit; result block id `0x4852444C` (`LDRH`), layout in `game/ledger.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute: profile MATCH, see below |
 
-Hardware: not run yet, see [HW-QA.md](HW-QA.md).
+Hardware: run 1 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
@@ -59,7 +59,7 @@ So one QA run grades every item: the `qa` boot from the block (item `rehearsal-d
 
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`, 6 checkpoints); `tools/qa/lint.py` passes. The
 software run has no save chip (homebrew run for the SD card): the save mirror read back identical, the chip write is not
-verified. Real DS Lite + R4: not run yet.
+verified. Real DS Lite + R4: run 1 on 2026-11-17 (`HW-QA.md`).
 
 ## Starting QA without the keys (SD marker)
 

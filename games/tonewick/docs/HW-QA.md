@@ -6,7 +6,9 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-tonewick-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-Nothing in Tonewick has been measured on a console yet. This is the checklist for the run, so the first values can be
+**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, with gating NG items that are findings about our expected values (re-examined in a separate PR, not here).
+
+Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be
 recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is operated
 by a person; the steps below are what to do and what to write down.
 
@@ -70,3 +72,27 @@ lists the items that fail on the console.
   `hw:` to `level_basis`. If the hardware disagrees the item is a finding: record the value and decide whether the ROM or the
   expectation is wrong. Add a profile `hw-ds-lite` (the failing items) to `known`.
 - Never commit anything under `build/qa/`.
+
+## Run 1: QA run and judge suite, 2026-11-17
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, DS Lite (NTR), "R4 Plus" dual core card, Wood R4 kernel (`__rpg/`, `_DS_MENU.DAT`). The console clock is not set, so the files say 2002-01-15 |
+| ROM SHA-256 | `tonewick-hw-support.nds` v0.2.1 `a2320df3274725c46c47fb125708b207c086d3f6a7034a1284e2f822d5a16c3d` (453,996 bytes, same as the release); melonDS 1.1 soft was run with the same file |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 21 lines, 4 checkpoints, build `91e6e87fe1c6`, started with `start=marker`. Suite: QA block only (`suite block block=qa saved=1`; no suite demos, so no `suite end` line by design). Judge: L1 9/9, L2 13/14 (**1 gating NG: `snd-short-silent`**); n/a 4: `rtc-ampm-24h` (morning, the console clock is unset) and `save-wel-set/-reset`, `save-status-fixed` (env: no chip access on the R4) |
+| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| First checkpoint that differs from melonDS | None: dist1-dist4 hashes equal melonDS 1.1 soft (`compare.py`, 0 differences) |
+| Lag frames | 39 / 78 / 73 / 54 (dist1-dist4); melonDS soft 34 / 67 / 62 / 45 |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0` everywhere; `rdl=63` on the console (no 3D), melonDS 46 |
+
+| Item | Hardware | melonDS 1.1 soft | Differs? |
+|---|---|---|---|
+| `snd-short-silent` (L2, GBATEK, want 0..2) | **16384** (NG) | 0 | yes: the looped short sample is not silent on the console; a finding about our expectation (under review) |
+| `snd-hold-level` | 100 (OK) | 0 (NG, profile) | the melonDS profile NG is a real emulator difference |
+| `cap-add-wrap` / `cap-both-negative` / `cap-src-channel` | 24576 / 0 / 40960 (OK) | 65535 / 16384 / 49152 (NG, profile) | as above |
+| `pm-reg-mirror` | 1 (OK) | 0 (NG, profile) | as above |
+| `snd-duty3-edges` | 128 | 127 | both OK |
+| `rtc-ampm-24h` | n/a (values[19] = 0) | OK 8/8 | needs an afternoon clock |
+| the other judged items | as melonDS soft | | no |
+
+The NG items are not edited here: `level-judge` proposes the expected values and levels (basis `hw:games/tonewick/docs/HW-QA.md`), and they change in a separate PR.

@@ -22,7 +22,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 | `press-min` | `ledgerine-press-min.nds`: 나눗셈기 모드 2의 `-2^63 / -1` 하나만(항목 `math-overflow-min64`). 결과 블록 id `0x4D50444C`(`LDPM`), values[0] = 끝나면 1, values[1] bit 0 = 검사 결과. DeSmuME의 나눗셈기가 이 계산에서 에뮬레이터째 멈추기 때문에 별도 ROM입니다 | melonDS 1.1 soft / GL classic / GL compute: OK. DeSmuME: 멈춤(채점 안 함) |
 | `rehearsal` | `ledgerine-rehearsal.nds`는 곧바로 리허설로 부팅합니다(저장 칩, NitroFS 없음): 모든 방의 감사. 결과 블록 id `0x4852444C`(`LDRH`), 배치는 `game/ledger.h`. `python3 tools/judge.py`(boot `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute: 프로필 MATCH. 아래 참고 |
 
-실기: 아직 돌리지 않았습니다. [HW-QA-KO.md](HW-QA-KO.md)를 참고하세요.
+실기: 2026-11-17 DS Lite + R4 실행 1, [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 판정 프로필 (2026-11-16, 이 커밋의 빌드)
 

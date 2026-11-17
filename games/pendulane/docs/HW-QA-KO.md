@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-pendulane-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Pendulane은 아직 콘솔에서 아무것도 재지 않았습니다. 이 문서는 실행 점검표로, 첫 값을 기록하고 `expected.json`의 `unconfirmed` 항목을 승격할 수 있게 합니다.
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 NG 항목이 있고, 우리 기대값에 대한 발견이라 별도 PR에서 다시 봅니다(여기서는 고치지 않음).
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실행 점검표로, 첫 값을 기록하고 `expected.json`의 `unconfirmed` 항목을 승격할 수 있게 합니다.
 콘솔은 사람이 조작합니다 (스킬 `nds-hw-qa`): 카드에 빈 폴더 `cleancart/pendulane/`를 만들면 리허설이 결과 블록을 거기에 씁니다.
 `python3 tools/qa/ingest.py /Volumes/<card> --game pendulane`가 `judge.py --hardware --partial`로 채점합니다. 실기 NG는 프로파일이 아니라 발견입니다.
 
@@ -30,4 +32,28 @@ Pendulane은 아직 콘솔에서 아무것도 재지 않았습니다. 이 문서
 
 | 날짜 | 콘솔 | 카드 | 결과 |
 |---|---|---|---|
-| — | — | — | 아직 안 돌림 |
+| 2026-11-17 | DS Lite(NTR) | R4 Plus(Wood) | QA 실행 PASS. 판정 NG 2, 아래 실행 1 참조 |
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `pendulane-hw-support.nds` v0.2.1 `3ab56cf90dcd375c0fb8e990b20b2f5a4a3ef1f9a392b1263d062db4bc7e6a70`(439,660바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 53줄, 체크포인트 7개, build `dc770b923005`, `start=marker`로 시작. 스위트: QA 블록만(`suite block block=qa saved=1`. 스위트 데모가 없어 `suite end` 줄은 원래 없음). 판정: L1 7/7, L3 11/13(**판정 NG 2: `mem7-main-nonseq`, `mem7-code-main-seq`**) +참고용 1. n/a 3(env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`) |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=0 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | 없음. ch1-ch5, judge, credits 해시가 melonDS 1.1 soft와 같음(`compare.py`, 차이 0) |
+| 랙 프레임 | 5 / 6 / 6 / 6 / 5 / 2 / 0 (ch1-ch5, judge, credits). melonDS soft 모두 0 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0`. 콘솔은 `rdl=63`(3D 없음), melonDS는 46 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `mem7-main-nonseq` (L3, GBATEK, 기대 574..578) | **383** (NG) | 384 (NG, 프로필) | 콘솔이 GBATEK의 9 x 64가 아니라 melonDS와 같음. 우리 기대값에 대한 발견(검토 중) |
+| `mem7-code-main-seq` (L3, GBATEK, 기대 126..130) | **142** (NG) | 128 | 있음. 콘솔에서는 메인 RAM의 ARM7 순차 코드 읽기가 더 느림(검토 중) |
+| `snd-hold-restart` / `snd-pcm-busy` / `snd-adpcm-busy` | 258 / 18 / 42 (OK) | 7 / 19 / 43 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
+| `snd-rate-slope` (unconfirmed) | 13 | 830 | 콘솔에서 -16..16 안 |
+| `math-div32-vs-sqrt`, `spi-512k-minus-4m` | 10, 448 | 9, 449 | 둘 다 OK |
+| 타이밍 원시값 values[24..31], [36..39] (판정 안 함) | melonDS보다 2-3 큼 | | 있음, 판정 안 함 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+NG 항목은 여기서 고치지 않습니다. `level-judge`가 기대값과 레벨을 제안하고(근거 `hw:games/pendulane/docs/HW-QA.md`), 변경은 별도 PR로 합니다.

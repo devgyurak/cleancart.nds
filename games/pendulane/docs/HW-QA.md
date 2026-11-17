@@ -6,7 +6,9 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-pendulane-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-Nothing in Pendulane has been measured on a console yet. This is the checklist for the run, so the first values can be recorded and the
+**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, with gating NG items that are findings about our expected values (re-examined in a separate PR, not here).
+
+Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be recorded and the
 `unconfirmed` items in `expected.json` can be promoted. The console is operated by a person (skill `nds-hw-qa`): create the empty folder
 `cleancart/pendulane/` on the card and the rehearsal writes its result block there; `python3 tools/qa/ingest.py /Volumes/<card> --game
 pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are findings, not profiles.
@@ -31,4 +33,28 @@ pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are
 
 | Date | Console | Card | Result |
 |---|---|---|---|
-| — | — | — | not run yet |
+| 2026-11-17 | DS Lite (NTR) | R4 Plus (Wood) | QA run PASS; 2 gating NG, see run 1 below |
+
+## Run 1: QA run and judge suite, 2026-11-17
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, DS Lite (NTR), "R4 Plus" dual core card, Wood R4 kernel (`__rpg/`, `_DS_MENU.DAT`). The console clock is not set, so the files say 2002-01-15 |
+| ROM SHA-256 | `pendulane-hw-support.nds` v0.2.1 `3ab56cf90dcd375c0fb8e990b20b2f5a4a3ef1f9a392b1263d062db4bc7e6a70` (439,660 bytes, same as the release); melonDS 1.1 soft was run with the same file |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 53 lines, 7 checkpoints, build `dc770b923005`, started with `start=marker`. Suite: QA block only (`suite block block=qa saved=1`; no suite demos, so no `suite end` line by design). Judge: L1 7/7, L3 11/13 (**2 gating NG: `mem7-main-nonseq`, `mem7-code-main-seq`**) +1 informational; n/a 3 (env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`) |
+| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=0 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| First checkpoint that differs from melonDS | None: ch1-ch5, judge and credits hashes equal melonDS 1.1 soft (`compare.py`, 0 differences) |
+| Lag frames | 5 / 6 / 6 / 6 / 5 / 2 / 0 (ch1-ch5, judge, credits); melonDS soft 0 everywhere |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0` everywhere; `rdl=63` on the console (no 3D), melonDS 46 |
+
+| Item | Hardware | melonDS 1.1 soft | Differs? |
+|---|---|---|---|
+| `mem7-main-nonseq` (L3, GBATEK, want 574..578) | **383** (NG) | 384 (NG, profile) | the console agrees with melonDS, not with GBATEK's 9 x 64: a finding about our expectation (under review) |
+| `mem7-code-main-seq` (L3, GBATEK, want 126..130) | **142** (NG) | 128 | yes: sequential ARM7 code fetch from main RAM is slower on the console (under review) |
+| `snd-hold-restart` / `snd-pcm-busy` / `snd-adpcm-busy` | 258 / 18 / 42 (OK) | 7 / 19 / 43 (NG, profile) | the melonDS profile NGs are real emulator differences |
+| `snd-rate-slope` (unconfirmed) | 13 | 830 | inside -16..16 on the console |
+| `math-div32-vs-sqrt`, `spi-512k-minus-4m` | 10, 448 | 9, 449 | both OK |
+| timing words values[24..31], [36..39] (raw edges, not judged) | 2-3 higher than melonDS | | yes, not judged |
+| the other judged items | as melonDS soft | | no |
+
+The NG items are not edited here: `level-judge` proposes the expected values and levels (basis `hw:games/pendulane/docs/HW-QA.md`), and they change in a separate PR.
