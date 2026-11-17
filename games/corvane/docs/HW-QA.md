@@ -17,7 +17,8 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 1. Game QA: start `corvane.nds`, leave it alone until the credits (the marker file starts QA on the title).
 2. Demos: start each ROM one by one; wait for `RESULT SAVED`, then reset.
-3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game corvane`.
+3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game corvane` (it copies `shot-*.bmp` too).
+4. Compare the shots with melonDS (see `docs/QA.md`, "Auto QA run"): `python3 tools/qa/compare.py --info <melonds qa log> <card qa log>` lists the CRC per shot name, then open the console's `shot-*-st3-600.bmp` and the melonDS BMP of the same name side by side (today only stage 3 is shot).
 
 ## Record (one block per run)
 
@@ -29,6 +30,8 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 | QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | |
 | First checkpoint that differs from melonDS | |
 | Lag frames | |
+| Shot `st3-600`: screen, crc, same as melonDS? | |
+| 3D flags (`gx=` `rdl=`) per checkpoint | |
 
 | Item | Hardware | melonDS 1.1 soft | GL | Compute | DeSmuME | Differs? |
 |---|---|---|---|---|---|---|

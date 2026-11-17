@@ -48,6 +48,16 @@ u32 qalog_fnv(u32 h, const void *data, u32 len)
     return h;
 }
 
+const char *qalog_dir(void)
+{
+    return dir_path;
+}
+
+const char *qalog_stamp(void)
+{
+    return stamp;
+}
+
 int qalog_errno(void)
 {
     return open_errno;

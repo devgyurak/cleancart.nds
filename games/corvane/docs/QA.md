@@ -33,6 +33,19 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 
 Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (buffered lines minus 2, 0..46; `rdl=-` when no frame was sampled in the span, e.g. two checkpoints in one frame). Both flags are sticky and only read, never cleared by QA, so a count is "frames the flag was up". That holds only while the game does not clear them: a game that acknowledges bit 13 itself (`g3_overflowed()` in Corvane, Elevane, Heddlemere, Hushwell, Lightenette, Paneveil) reports its acknowledgements through `qa_game_gx_acks()` and each one counts as a frame with the flag up; it writes bit 12 as 0 so the underflow flag survives. The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
 
+Checkpoint screenshots (`core/qashot.c`): at fixed points the run captures the main engine's picture (BG + OBJ + 3D, 256x192, 15 bit) into a free LCDC bank with display capture and writes it to the card as `cleancart/corvane/shot-<date>-<time>-<name>.bmp` (16-bit BMP, `BI_BITFIELDS` 555, 98,370 bytes) inside `cart_bus_claim()`. The log gets `shot name=<name> file=<file> screen=top|bottom crc=<crc32 of the pixels>` (`screen` is the physical screen, from POWCNT bit 15) or `shot name=<name> skip=no-bank|capture-in-use|no-sd|exists` or `err=timeout|write`. Nothing changes without a QA run, and nothing is written without the SD log. The capture costs a frame or two (lag, never gameplay: the pilot counts calls, not VBlanks) and puts DISPCAPCNT back. Shot points: stage frame 600 of every stage (`st<N>-600`), 6 pilot calls into each result screen (`st<N>-result`) and 90 into the credits (`credits`). A capture needs one of the banks A-D mapped as LCDC and unused (`qa_game_shot_bank()`; the hook never remaps a bank):
+
+| Layout | Scenes | A | B | C | D | Shot |
+|---|---|---|---|---|---|---|
+| MENU | title, briefing, result, credits, records, settings | BG | BG | sub BG | sub OBJ | `skip=no-bank` |
+| TERRAIN / SKY / CORRIDOR | stages 1, 2, 4 | tex | tex | sub BG | sub OBJ | `skip=no-bank` |
+| SPACE | stage 3 | BG | BG | BG | LCDC (boost afterimage buffer) | bank D while the ship is not boosting (the pilot never boosts) |
+| CORE | stage 5 | tex | tex | rear-plane colour | rear-plane depth | `skip=capture-in-use` |
+| DUAL3D | ending | tex | tex | LCDC / sub BG | LCDC / sub OBJ | `skip=capture-in-use` (its own capture) |
+| MMEM | boot, intro | LCDC (framebuffer) | off | sub BG | sub OBJ | not a shot point |
+
+So in a Corvane QA run only `st3-600` produces a file today; the other points log why not. More shots would need a bank to stay free in the other layouts (a change to the game's VRAM plan, not to QA). The same run in melonDS gives the same BMP: `SDDIR=out/mds/x tools/melonds/mds.sh run games/corvane/corvane.nds 40000 out/mds/x/o ""` with an empty `out/mds/x/cleancart/corvane/autoqa` (marker start); two runs give the same `crc=`. Compare a console's shot with melonDS's: `python3 tools/qa/compare.py --info <melonds.log> <hardware.log>` lists the CRC per shot name (information only, the exit code does not depend on it), then look at the two BMPs side by side. `tools/qa/ingest.py` copies `shot-*.bmp` to `build/qa/`.
+
 Hidden mode (same ROM as the release): on the title screen hold **L+R+X+Y for 120 frames**. The
 game plays all five stages, the ending and the credits by itself (boss HP x0.1, hits cost no
 life, weak numbers only; effects, sound and saves are unchanged) and finishes on the records

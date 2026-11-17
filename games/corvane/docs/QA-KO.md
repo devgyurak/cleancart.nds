@@ -32,6 +32,19 @@ melonDS 버전·데모 이름·기대 화면 설명을 남깁니다.
 
 QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
 
+체크포인트 스크린샷(`core/qashot.c`): 정해진 지점에서 실행이 메인 엔진의 화면(BG + OBJ + 3D, 256x192, 15비트)을 디스플레이 캡처로 빈 LCDC 뱅크에 담고, `cart_bus_claim()` 안에서 `cleancart/corvane/shot-<날짜>-<시각>-<이름>.bmp`로 카드에 씁니다(16비트 BMP, `BI_BITFIELDS` 555, 98,370바이트). 로그에는 `shot name=<이름> file=<파일> screen=top|bottom crc=<픽셀의 crc32>`(`screen`은 POWCNT bit 15로 정해지는 물리 화면)가 남고, 못 찍으면 `shot name=<이름> skip=no-bank|capture-in-use|no-sd|exists` 또는 `err=timeout|write`가 남습니다. QA 실행이 아니면 아무 일도 없고, SD 로그가 없으면 아무것도 쓰지 않습니다. 캡처는 1–2프레임을 지연시키지만(lag에 잡힘, 게임 로직은 파일럿 호출 수 기준이라 영향 없음) DISPCAPCNT를 원래대로 돌려 놓습니다. 촬영 지점: 각 스테이지의 stage frame 600(`st<N>-600`), 결과 화면 진입 6 파일럿 호출 뒤(`st<N>-result`), 크레딧 90 호출 뒤(`credits`). 캡처에는 LCDC로 매핑되고 쓰이지 않는 A–D 뱅크가 하나 필요합니다(`qa_game_shot_bank()`, 뱅크 매핑은 바꾸지 않음).
+
+| 레이아웃 | 장면 | A | B | C | D | 촬영 |
+|---|---|---|---|---|---|---|
+| MENU | 타이틀, 브리핑, 결과, 크레딧, 기록, 설정 | BG | BG | 서브 BG | 서브 OBJ | `skip=no-bank` |
+| TERRAIN / SKY / CORRIDOR | 스테이지 1, 2, 4 | 텍스처 | 텍스처 | 서브 BG | 서브 OBJ | `skip=no-bank` |
+| SPACE | 스테이지 3 | BG | BG | BG | LCDC(부스트 잔상 버퍼) | 부스트 중이 아닐 때 D 뱅크(파일럿은 부스트하지 않음) |
+| CORE | 스테이지 5 | 텍스처 | 텍스처 | 리어 플레인 색 | 리어 플레인 깊이 | `skip=capture-in-use` |
+| DUAL3D | 엔딩 | 텍스처 | 텍스처 | LCDC / 서브 BG | LCDC / 서브 OBJ | `skip=capture-in-use`(자체 캡처) |
+| MMEM | 부팅, 인트로 | LCDC(프레임버퍼) | 꺼짐 | 서브 BG | 서브 OBJ | 촬영 지점 아님 |
+
+그래서 지금 Corvane QA 실행에서 파일이 생기는 것은 `st3-600`뿐이고, 나머지 지점은 찍지 못한 이유를 로그에 남깁니다. 더 찍으려면 다른 레이아웃에서 뱅크 하나를 비워 두어야 하는데, 그것은 QA가 아니라 게임의 VRAM 계획을 바꾸는 일입니다. melonDS에서 같은 실행은 같은 BMP를 만듭니다: 비어 있는 `out/mds/x/cleancart/corvane/autoqa`(마커 시작)를 두고 `SDDIR=out/mds/x tools/melonds/mds.sh run games/corvane/corvane.nds 40000 out/mds/x/o ""`. 두 번 실행하면 `crc=`가 같습니다. 실기 shot과 melonDS shot 비교: `python3 tools/qa/compare.py --info <melonds.log> <hardware.log>`가 shot 이름별 CRC를 나란히 보여 주고(참고용, 종료 코드에는 영향 없음), 그다음 두 BMP를 나란히 눈으로 봅니다. `tools/qa/ingest.py`가 `shot-*.bmp`를 `build/qa/`로 복사합니다.
+
 숨김 모드(출시 ROM과 같은 ROM): 타이틀 화면에서 **L+R+X+Y를 120프레임 누르고 있으면** 게임이
 스테이지 1~5, 엔딩, 크레딧을 스스로 플레이하고 기록 화면에서 끝납니다. 끝나면 카트에 있던 원래 세이브(설정 슬롯과 마지막 런 리플레이 영역)를 복원합니다. 보스 HP ×0.1, 피격해도
 잔기가 줄지 않는 정도의 숫자만 바뀌고, 이펙트·사운드·세이브는 그대로입니다. SD 카드가 있는

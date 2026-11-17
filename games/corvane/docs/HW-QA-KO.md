@@ -16,7 +16,8 @@ Corvane(L1, 그래픽·시스템)은 데모와 자동 QA 실행으로 판정합�
 
 1. 게임 QA: `corvane.nds`를 켜고 크레딧까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
 2. 데모: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면 리셋합니다.
-3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game corvane`.
+3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game corvane`. (`shot-*.bmp`도 함께 복사합니다).
+4. shot을 melonDS와 비교합니다(`docs/QA-KO.md`의 "자동 QA 실행" 참고): `python3 tools/qa/compare.py --info <melonDS QA 로그> <카드 QA 로그>`가 shot 이름별 CRC를 나란히 보여 주면, 콘솔의 `shot-*-st3-600.bmp`와 같은 이름의 melonDS BMP를 나란히 열어 봅니다(지금은 스테이지 3만 찍습니다).
 
 ## 기록 (실행마다 한 블록)
 
@@ -28,6 +29,8 @@ Corvane(L1, 그래픽·시스템)은 데모와 자동 QA 실행으로 판정합�
 | QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | |
 | melonDS와 처음 갈리는 체크포인트 | |
 | 랙 프레임 | |
+| shot `st3-600`: 화면, crc, melonDS와 같은가? | |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | |
 
 | 항목 | 실기 | melonDS 1.1 soft | GL | Compute | DeSmuME | 차이? |
 |---|---|---|---|---|---|---|

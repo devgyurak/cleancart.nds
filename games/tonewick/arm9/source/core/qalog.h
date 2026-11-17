@@ -44,6 +44,11 @@ enum {
 // true when the file exists on the SD card.
 bool qalog_open(const char *game, u32 seed);
 
+// Folder (<drive>cleancart/<game>) and run stamp (YYYYMMDD-HHMMSS) of the open log, for files
+// that belong to the run (core/qashot.c).
+const char *qalog_dir(void);
+const char *qalog_stamp(void);
+
 int qalog_errno(void);      // errno of the failed log file open (0: none)
 bool qalog_sd(void);        // log file is on the SD card
 bool qalog_is_open(void);

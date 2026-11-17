@@ -6,7 +6,8 @@
     ingest.py SD_MOUNT [--game NAME ...] [--no-judge]
 
 Looks for <SD_MOUNT>/cleancart/<kit>/ (every kit unless --game is given; the kits are the
-games and `probes`), copies qa-*.log, res-*.log and save-*.bin to
+games and `probes`), copies qa-*.log, res-*.log, save-*.bin and shot-*.bmp (checkpoint screenshots, see
+core/qashot.c) to
 <repo>/games/<kit>/build/qa/ (probes: <repo>/probes/build/qa/; not committed; the file names
 carry the run's date and time, so runs never overwrite each other), runs parse_log on every
 QA log and prints one line per log. The res-*.log files hold the `RESULT` lines of demo,
@@ -52,6 +53,7 @@ def main(argv):
         os.makedirs(dst, exist_ok=True)
         fresh = []
         for path in sorted(glob.glob(os.path.join(src, 'qa-*.log')) + glob.glob(os.path.join(src, 'save-*.bin'))
+                           + glob.glob(os.path.join(src, 'shot-*.bmp'))
                            + glob.glob(os.path.join(src, 'res-*.log'))):
             out = os.path.join(dst, os.path.basename(path))
             shutil.copyfile(path, out)

@@ -8,7 +8,8 @@
 Line format: `<frame> <scene> <event> key=val ...` (values may be "quoted").
 A valid log has a header (events `hdr` at the start: game, build, rtc, sd,
 dldi, cart_ready, nitro, save_*), non-decreasing frames, checkpoints (`cp`
-with name, hash, lag and the optional 3D hint gx=uf<n>,of<n> rdl=<min>|-) and ends with exactly one `RESULT PASS|FAIL` line.
+with name, hash, lag and the optional 3D hint gx=uf<n>,of<n> rdl=<min>|-) and, from games with core/qashot.c, `shot` lines
+(name= file= screen= crc=, or skip=/err=) and ends with exactly one `RESULT PASS|FAIL` line.
 Exit status: 0 valid log with RESULT PASS, 1 valid log with RESULT FAIL,
 2 invalid log. Output is deterministic (sorted keys, no timestamps added).
 """
@@ -76,6 +77,15 @@ def parse(text):
                 cps.append(cp)
             except (KeyError, ValueError):
                 errors.append('bad checkpoint at frame %d: %r' % (e['frame'], e['raw']))
+    # Checkpoint screenshots (core/qashot.c): name, then file/screen/crc, or skip=/err=. Optional.
+    shots = []
+    for e in events:
+        if e['event'] == 'shot':
+            f = e['fields']
+            if 'name' not in f or not ('crc' in f or 'skip' in f or 'err' in f):
+                errors.append('bad shot line at frame %d: %r' % (e['frame'], e['raw']))
+                continue
+            shots.append(dict(f, frame=e['frame']))
     results = [e for e in events if e['event'] == 'RESULT']
     result = None
     if len(results) != 1:
@@ -93,7 +103,7 @@ def parse(text):
         if declared is not None and declared.isdigit() and int(declared) != len(events):
             errors.append('RESULT says %s lines, file has %d' % (declared, len(events)))
     saves = [dict(e['fields'], frame=e['frame']) for e in events if e['scene'] == 'save' and e['event'] == 'write']
-    doc = {'header': header, 'checkpoints': cps, 'result': result, 'saves': saves,
+    doc = {'header': header, 'checkpoints': cps, 'shots': shots, 'result': result, 'saves': saves,
            'lines': len(events), 'errors': errors}
     return doc, errors
 

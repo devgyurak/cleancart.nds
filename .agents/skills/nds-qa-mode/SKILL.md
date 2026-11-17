@@ -52,6 +52,16 @@ game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/ar
    the flag up. Like `lag` it is a hint:
    never in a state hash, never compared (`compare.py --info` prints it side by side); a scene without 3D
    shows `uf0,of0`. Emulators rarely raise these flags, hardware may. `parse_log.py` accepts logs without it.
+   **Checkpoint screenshots** (`core/qashot.c`, Corvane first; the other games follow after the console result):
+   `qa_shot(name)` works only in a QA run with the SD log open. It captures the main engine (BG+OBJ+3D, 256x192,
+   15 bit, DISPCAPCNT source A) into the A-D bank that `qa_game_shot_bank()` reports as LCDC and unused
+   (`QA_SHOT_NO_BANK` -1 / `QA_SHOT_CAPTURE_BUSY` -2 otherwise; a bank is never remapped for it), writes
+   `shot-<date>-<time>-<name>.bmp` (16 bit `BI_BITFIELDS` 555, ~96 KB) inside `cart_bus_claim()` and logs
+   `shot name= file= screen=top|bottom crc=` (screen from POWCNT bit 15) or `shot name= skip=|err=`. Every
+   wait is bounded (`err=timeout`). Shot points are chosen by pilot-call counts, never `cv_frame`; the capture
+   delays a frame or two (lag) and changes no game state, so two runs give the same hashes and the same CRCs.
+   The capture code stays in `core/qashot.c` (no `qa*` symbol in `gfx/`, `judge/`, `capture.c`,
+   `core/save.c`). The per-layout bank table is in the game's `docs/QA.md`.
 7. **RAM result block** at `0x0237F000`, same layout as the demo block, `demo_id` =
    `QARN`; magic written last. Words: verdict (1 PASS/2 FAIL), lines, SD flags
    (bit0 log on SD, bit1 read-back ok, bit2 write failed), last state hash, checkpoints,

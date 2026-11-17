@@ -25,7 +25,7 @@ screens), `ASSETS.md`; plus `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../..
 |---|---|
 | `common/cv_ipc.h` | ARM9↔ARM7 protocol: IPCSYNC values, FIFO channels (user 01–03), sound command words, input packet |
 | `arm7/source/` | own ARM7 core: input/RTC/power via libnds, register-level sound engine (`sound7.c`) |
-| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA), qalog (QA log on the SD card + `QARN` result block) |
+| `arm9/source/core/` | sys/IPC, irq, timer, dma, cvmath (hw div/sqrt), rng, input+replay, snd, save (direct SPI), nitro, cart (raw cart DMA), qalog (QA log on the SD card + `QARN` result block), qashot (QA checkpoint screenshots to the SD card, hook `qa_game_shot_bank()`) |
 | `arm9/source/gfx/` | vram (bank plan table), oam, text, fx, gl3d, models, terrain |
 | `arm9/source/game/` | scenes, stage loop, boss, stagefx (per-stage hardware showcase), hud, ending, qa_game (auto QA: tune, autopilot, run judge) |
 | `arm9/source/demo/demo.c` | feature demos (`make DEMO=…`) |
