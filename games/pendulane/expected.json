@@ -1,0 +1,191 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 3,
+  "area": "CPU, bus and sound timing",
+  "about": "Expected result-block values for the Pendulane rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. Every timing value is the difference of two edges found with the ITCM nop sled (judge/bench.c), so the fixed path cancels; ranges are in ARM9 cycles (half bus cycles) unless the title says otherwise. \"signed\" items are compared as s32. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "pendulane-rehearsal.nds",
+      "item_id": 1213350992,
+      "item_id_text": "PDRH",
+      "frames": 60,
+      "note": "the bench; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "pendulane.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 1500,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the credits, then the bench once; the block uses the rehearsal's layout and adds the QA words at values[48..54]"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "math-div32-vs-sqrt",
+      "title": "DIV mode 0 busy minus SQRT busy, ARM9 cycles = half bus cycles (18 - 13 clocks = 10)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "range",
+      "min": 8,
+      "max": 12,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "math-div64-vs-div32",
+      "title": "DIV mode 1 (64/32) busy minus mode 0 (32/32), half bus cycles (34 - 18 clocks = 32)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "range",
+      "min": 30,
+      "max": 34,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "math-div6464-eq-div6432",
+      "title": "DIV mode 2 (64/64) busy minus mode 1 (64/32), half bus cycles (34 - 34 clocks = 0)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "range",
+      "min": -2,
+      "max": 2,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "pre-div-results",
+      "title": "Quotients, remainders and the square root of the probe operations are right",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "pre-timer-cascade",
+      "title": "Timer 1 counts timer 0's overflows (cascade)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Timers"
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run ended with PASS (QARN verdict 1)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none"
+    }
+  ],
+  "known": {
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    }
+  }
+}
