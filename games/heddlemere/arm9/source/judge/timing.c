@@ -35,6 +35,10 @@ static bool g_timeout;   // a wait gave up
 #define FRAME_COUNT  32
 #define HB_LINES     2048
 #define REPEATS      4
+#define STALL_PAIRS  16
+#define STALL_SHORT  64
+#define STALL_LONG   1024
+#define HALF_PAIRS   16
 
 // The stopwatch: timer 0 counts bus cycles, timer 1 counts its overflows (32 bits). A read retries when
 // the high half moved between the two reads.
@@ -173,12 +177,16 @@ static ITCM_CODE NOINLINE __attribute__((target("arm"))) void drain_write_buffer
 
 // Full FIFO: after SWAP_BUFFERS fill the FIFO to 256 entries, then send k more IDENTITYs; the writes wait
 // until the VBlank lets the engine drain. Returns the time from the VBlank of the previous frame to the
-// last write (the caller subtracts the frame length, the same for every k).
-static ITCM_CODE NOINLINE u32 gx_stall_time(int k)
+// last write (the caller subtracts the frame length, the same for every k). `delay` (0..63 ARM9 cycles) is spent before
+// the swap: the stalled writes are released in bus batches (the emulator runs the engine in steps), so where the last
+// write lands against a batch edge depends on the run's phase; spreading the phase makes the mean over many pairs
+// independent of it.
+static ITCM_CODE NOINLINE u32 gx_stall_time(int k, u32 delay)
 {
     VBLANK_RISE();
     u32 a = NOW();
     SPIN(VCOUNT != 100);
+    delay_sled(delay);
     SWAP_BUF = 0;
     for (u32 n = 0; (GXSTAT >> 16 & 0x1FF) < 256; n++)
     {
@@ -197,9 +205,10 @@ static ITCM_CODE NOINLINE u32 gx_stall_time(int k)
 
 // Half-full IRQ flag: with m IDENTITYs queued behind the swap the FIFO count falls below 128 after
 // m - 127 commands. Returns the time from the VBlank flag rising to IF bit 21 (GXFIFO) being set.
-static ITCM_CODE NOINLINE u32 gx_half_time(int m)
+static ITCM_CODE NOINLINE u32 gx_half_time(int m, u32 delay)
 {
     SPIN(VCOUNT != 100);
+    delay_sled(delay);
     SWAP_BUF = 0;
     for (int i = 0; i < m; i++)
         GXPORT(0x15) = 0;
@@ -502,33 +511,40 @@ bool timing_run(u32 *v)
     v[TM_SWAP_TAIL] = gx_sum(K_SWAP, 0, 1, NULL) * 16 / REPEATS;
 
     // Full FIFO stall rate: the same frame length is subtracted from both runs. A first pair warms the engine up
-    // (the rate settles after the first use of the full FIFO) and is not counted.
+    // (the rate settles after the first use of the full FIFO) and is not counted. The run lengths differ by 960 writes
+    // (so a batch-sized error per run is small per write) and each pair starts at a phase drawn from a fixed LCG.
     wait_gx_idle();
-    u32 s64 = 0, s192 = 0;
-    for (int r = 0; r < 5; r++)
+    u32 lcg = 0x2545F491u;
+    u32 s_short = 0, s_long = 0;
+    for (int r = 0; r < STALL_PAIRS + 1; r++)
     {
-        u32 a = gx_stall_time(64);
+        lcg = lcg * 1664525u + 1013904223u;
+        u32 a = gx_stall_time(STALL_SHORT, lcg >> 24);
         wait_gx_idle();
-        u32 b = gx_stall_time(192);
+        lcg = lcg * 1664525u + 1013904223u;
+        u32 b = gx_stall_time(STALL_LONG, lcg >> 24);
         wait_gx_idle();
         if (r > 0)
         {
-            s64 += a;
-            s192 += b;
+            s_short += a;
+            s_long += b;
         }
     }
-    v[TM_GX_STALL] = (s32)(s192 - s64) > 0 ? (s192 - s64) * 16 / (4 * (192 - 64)) : 0;
+    v[TM_GX_STALL] = (s32)(s_long - s_short) > 0
+                         ? (s_long - s_short) * 16 / (STALL_PAIRS * (STALL_LONG - STALL_SHORT)) : 0;
 
-    // Half-full IRQ flag.
-    u32 h250 = 0, h200 = 0;
-    for (int r = 0; r < REPEATS; r++)
+    // Half-full IRQ flag, the same way (m queued commands: 140 and 250 differ by 110).
+    u32 h_hi = 0, h_lo = 0;
+    for (int r = 0; r < HALF_PAIRS; r++)
     {
-        h250 += gx_half_time(250);
+        lcg = lcg * 1664525u + 1013904223u;
+        h_hi += gx_half_time(250, lcg >> 24);
         wait_gx_idle();
-        h200 += gx_half_time(200);
+        lcg = lcg * 1664525u + 1013904223u;
+        h_lo += gx_half_time(140, lcg >> 24);
         wait_gx_idle();
     }
-    v[TM_GX_HALFIRQ] = (s32)(h250 - h200) > 0 ? (h250 - h200) * 16 / (REPEATS * 50) : 0;
+    v[TM_GX_HALFIRQ] = (s32)(h_hi - h_lo) > 0 ? (h_hi - h_lo) * 16 / (HALF_PAIRS * 110) : 0;
 
     // Polygon RAM counts around the swap.
     ram_stream();
