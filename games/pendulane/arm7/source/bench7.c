@@ -93,17 +93,21 @@ static u32 spi_edge(u32 baud)
     const u32 cnt = SPI_ENABLE | SPI_DEVICE_FIRMWARE | SPI_CONTINUOUS | baud;
     REG_SPICNT = cnt;
     REG_SPIDATA = 0x05;   // RDSR; the chip keeps answering with the status byte while chip select is held
-    if (!wait_spi_idle())
-        return 0xFFFFFFFFu;
+    // A failure anywhere below sets hi to "not found" and still falls through to the release of chip select.
     // Invariant: the byte is busy at lo - 1 (or lo is 0) and clear at hi.
-    if (pd7_probe(&REG_SPIDATA, 0, &REG_SPICNT, hi) & SPI_BUSY_BIT)
+    if (!wait_spi_idle())
+        hi = 0xFFFFFFFFu;
+    else if (pd7_probe(&REG_SPIDATA, 0, &REG_SPICNT, hi) & SPI_BUSY_BIT)
         hi = 0xFFFFFFFFu;   // not even the longest sled saw the end
     else
         while (lo < hi)
         {
             u32 mid = (lo + hi) / 2;
             if (!wait_spi_idle())
-                return 0xFFFFFFFFu;
+            {
+                hi = 0xFFFFFFFFu;
+                break;
+            }
             if (pd7_probe(&REG_SPIDATA, 0, &REG_SPICNT, mid) & SPI_BUSY_BIT)
                 lo = mid + 1;
             else
@@ -151,6 +155,12 @@ static void bench_mem(u32 *buf, u32 *res)
     static u32 wram[16];   // ARM7 WRAM (the .bss of this image)
     const void *vram = (const void *)0x06000000;   // bank C, mapped to the ARM7 by the ARM9
     u32 *dummy_main = buf;   // data read from main RAM: the buffer itself
+
+    // Nothing else may read main RAM while this runs: stop every sound channel and the capture (a channel that streams a sample
+    // from main RAM would load the bus the ARM7 is timing).
+    *(volatile u8 *)0x04000508 = 0;
+    for (int i = 0; i < 16; i++)
+        *(volatile u32 *)(0x04000400u + (i << 4)) = 0;
 
     // Warm-up: the first run of each routine (all in WRAM, no cache on the ARM7: no effect expected, kept for symmetry).
     (void)time_of(pd7_ldr, wram);

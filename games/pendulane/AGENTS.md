@@ -54,11 +54,10 @@ seal), credits. Next: the hardware run (`docs/HW-QA.md`) and the release.
   plays silence at the same reload); the capture starts first and the channel 4.5 samples later, so every capture sample falls in the middle of a channel
   sample; the report is the index of the first non-zero sample, and the ARM9 subtracts two runs (the constant between index and time cancels). Hold
   restart: (old value still there << 8) | zero samples before the new data. Every wait is bounded by 80 sample periods (a stuck flag costs 40 ms).
-  The ADPCM block is the asset `pd_snd_adpcm` (predictor 0, step index 50, nibbles 7). `snd-rate-slope` is informational (DeSmuME reads a different
-  value on every run). The bench takes about 0.2 s with IME off on the ARM9.
+  The ADPCM block is the asset `pd_snd_adpcm` (predictor 0, step index 50, nibbles 7). `snd-rate-slope` is informational (it differs between boot paths on both emulators). The bench takes about 0.2 s with IME off on the ARM9.
 - `arm9/source/judge/benchcart.c`: slot-1 gap1. Command B8 with **no data block** (block size 0: nothing has to be read, so the transfer ends by itself; with a
-  4-byte block melonDS's transfer time stopped being linear in gap1 once the card DMA had to be re-armed between trials), ROMCTRL bit 28 set, the header's own
-  control bits kept. The delay between the start write and the read of ROMCTRL is a countdown loop (`subs` + taken branch, ITCM) plus 0-7 nops: the loop is too
+  4-byte block melonDS's transfer time stopped being linear in gap1 once the card DMA had to be re-armed between trials), ROMCTRL bit 28 clear (no dummy clock pulses during the gap, so the KEY2 stream is not advanced by the gap; the review suggested it and melonDS reads the same 1280 / 2048), the header's own
+  control bits kept (bit 15 cleared). The delay between the start write and the read of ROMCTRL is a countdown loop (`subs` + taken branch, ITCM) plus 0-7 nops: the loop is too
   long for a sled (the transfer is thousands of cycles). Its cycles per iteration are measured with the stopwatch over two long runs and must be within 1/16 of
   a whole number (melonDS 3, DeSmuME 4), else the bench stops. Binary search for the smallest delay at which bit 31 is clear; the report is edge(gap1 + 0x100)
   minus edge(gap1) in bus cycles at CLK/5 and CLK/8. An edge at 0 is a floor and is not reported (DeSmuME ends the transfer at once). Items have `env: "cart"`

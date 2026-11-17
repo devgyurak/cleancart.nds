@@ -17,7 +17,7 @@ const LedgerRow ledger_rows[] = {
     { 3, "GAP1 CLK8", PDV_CART_CLK8, 2048, 8 },
     { 4, "MAIN SEQ", PDV_MEM_MAIN_SEQ, 1024, 2 },
     { 4, "MAIN NONSEQ", PDV_MEM_MAIN_NONSEQ, 576, 2 },
-    { 4, "CODE IN MAIN", PDV_MEM_CODE_MAIN, 128, 4 },
+    { 4, "CODE IN MAIN", PDV_MEM_CODE_MAIN, 128, 2 },
     { 4, "VRAM SEQ", PDV_MEM_VRAM_SEQ, 1024, 2 },
     { 5, "PCM BUSY", PDV_SND_PCM_BUSY, 18, 0 },
     { 5, "ADPCM BUSY", PDV_SND_ADPCM_BUSY, 42, 0 },

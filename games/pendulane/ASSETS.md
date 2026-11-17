@@ -9,7 +9,7 @@ under the same copyright and licence as the source: **Apache-2.0** (Copyright 20
 The generator is `tools/mkassets.py`; the code that draws, synthesises and lays out lives in `tools/cvtools/` (shared with the other
 games). The same source always produces the same bytes.
 
-The PNG files in `docs/images/` (if any) are README screenshots captured from the built ROM. They are documentation, not assets:
+The PNG files in `docs/images/` are README screenshots captured from the built ROM. They are documentation, not assets:
 the build never reads them and they are not in the ROM.
 
 | File (output) | Contents | Generator | Source / licence |

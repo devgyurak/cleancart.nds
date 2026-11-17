@@ -140,28 +140,41 @@ static NOINLINE u32 find_edge(u32 ctrl, u32 k)
     return lo;
 }
 
+static bool skip;
+
+void benchcart_skip(bool on)
+{
+    skip = on;
+}
+
 bool benchcart_run(s32 out[5])
 {
+    for (int i = 0; i < 5; i++)
+        out[i] = -1;
+    if (skip)
+        return false;   // asked to skip (the nocart marker on the card)
+    u16 ime = REG_IME;
+    REG_IME = 0;        // the calibration needs the same quiet as the search
     u32 k16 = calibrate();
     out[4] = (s32)k16;
     u32 k = (k16 + 8) / 16;
     if (k < 1 || k > 7 || (k16 > k * 16 ? k16 - k * 16 : k * 16 - k16) > 1)
+    {
+        REG_IME = ime;
         return false;
+    }
 
     bool prev = cart_bus_claim();
-    u16 ime = REG_IME;
-    REG_IME = 0;
     REG_AUXSPICNTH = CARD_ENABLE >> 8;
     for (int i = 0; i < 8; i++)
         ROMCMD(i) = i == 0 ? 0xB8 : 0;
     bool ok = wait_idle();
     const u32 gap_small = 0x20, gap_big = 0x20 + 0x100;
-    out[0] = out[1] = -1;
     for (int clk = 0; ok && clk < 2; clk++)
     {
         // The header's own control word keeps the KEY2 and timing bits the card is in use with; gap1, rate, block size are ours.
-        u32 base = (__NDSHeader->cardControl13 & ~(0x1FFFu | (7u << 24) | ROM_CLK8 | ROM_GAP_CLK | ROM_START))
-                 | ROM_START | ROM_RESET | ROM_GAP_CLK | (clk ? ROM_CLK8 : 0);
+        u32 base = (__NDSHeader->cardControl13 & ~(0x1FFFu | (1u << 15) | (7u << 24) | ROM_CLK8 | ROM_GAP_CLK | ROM_START))
+                 | ROM_START | ROM_RESET | (clk ? ROM_CLK8 : 0);
         u32 a = find_edge(base | ROM_GAP(gap_small), k);
         u32 b = find_edge(base | ROM_GAP(gap_big), k);
         out[2 + clk] = (s32)a;   // raw edge, ARM9 cycles

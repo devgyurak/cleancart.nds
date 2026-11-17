@@ -10,12 +10,14 @@
 #include "core/nitro.h"
 #include "core/qa.h"
 #include "core/save.h"
+#include "core/sdcard.h"
 #include "core/snd.h"
 #include "core/sys.h"
 #ifdef CV_DEMO
 #include "demo/demo.h"
 #endif
 #include "game/scenes.h"
+#include "judge/benchcart.h"
 
 int main(int argc, char *argv[])
 {
@@ -26,9 +28,12 @@ int main(int argc, char *argv[])
     reduceHeapSize(4096);
 
     sys_init();
+    // argv cannot tell a flash card from an emulator (both give "fat:"), so the cartridge bench is skipped on request: an empty file
+    // cleancart/pendulane/nocart on the card (docs/HW-QA.md) for a card kernel that does not take the bench's slot-1 command.
+    benchcart_skip(sd_up() && (sd_exists("fat:/cleancart/pendulane/nocart") || sd_exists("sd:/cleancart/pendulane/nocart")));
 #ifdef CV_DEMO
-    // Demo builds (the rehearsal) never touch the cart or the save chip, so they run on
-    // any cart kernel.
+    // Demo builds (the rehearsal) do not mount NitroFS or the save chip; the cartridge bench still sends one slot-1 command
+    // unless the ROM came from a flash card (benchcart_skip above).
     save_defaults();
     demo_main(CV_DEMO);
 #else

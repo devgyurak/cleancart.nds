@@ -4,7 +4,7 @@
 """Judge a Pendulane result block against expected.json.
 
     judge.py [--expected expected.json] [--boot NAME] [--profile NAME]
-             [--demo NAME] [--list-profiles] [LOGFILE ...]
+             [--demo NAME] [--hardware] [--partial] [--list-profiles] [LOGFILE ...]
 
 Reads the run logs (stdin if no file) and uses the last result block found.
 Log formats understood:
@@ -374,6 +374,9 @@ def run(args):
                 continue
             ok, got, want = grade(item, vals)
         except IndexError:
+            if args.partial:
+                lines.append('%-7s %-22s value not in the log (graded partially)' % ('SKIP', item['id']))
+                continue
             lines.append('%-5s %-22s value not in the log (use 64 result words)' % ('MISS', item['id']))
             missing += 1
             continue
@@ -436,6 +439,8 @@ def main(argv):
     ap.add_argument('--demo', help='ROM name prefix to keep in logs of several ROMs (mds.sh demos)')
     ap.add_argument('--allow-na', action='store_true', help='without --profile, do not fail on gating items that were n/a')
     ap.add_argument('--list-profiles', action='store_true')
+    ap.add_argument('--partial', action='store_true',
+                    help='grade what the log carries: values it does not contain are skipped, not an error (tools/qa/ingest.py passes this)')
     ap.add_argument('--hardware', action='store_true',
                     help='the log is from a real console: items with an "env" are n/a, no profile comparison')
     ap.add_argument('logs', nargs='*')

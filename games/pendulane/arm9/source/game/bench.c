@@ -30,7 +30,7 @@ PdScene scene_bench(void)
         ledger_measure();
         text_clear(&bot);
     }
-    int y = 5;
+    int y = 4;
     int chapter = 0;
     for (int i = 0; i < ledger_row_count; i++)
     {

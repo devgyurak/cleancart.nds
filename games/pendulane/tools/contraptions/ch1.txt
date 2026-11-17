@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 # Chapter 1, mill. Stations: D GRIND 18, H HEAVY GRIND 34, T TWIN GRIND 34, R ROOT PRESS 13, S SPRING 5.
 # NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
 FLOUR RACK: 52 | DH | DR | DS

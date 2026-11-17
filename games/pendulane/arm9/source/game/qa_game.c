@@ -31,6 +31,7 @@ static bool credits_seen, save_proved, judged;
 static unsigned chapters_done;   // bit n-1: chapter n was left through its rhythm piece
 static int prev_scene = -1;
 static int hits_total;
+static u32 rhythm_calls;   // pilot calls since the rhythm scene began (never cv_frame: the pilot counts its own calls)
 
 const char *qa_game_name(void)
 {
@@ -39,11 +40,14 @@ const char *qa_game_name(void)
 
 void qa_game_reset(void)
 {
-    memset(res, 0, sizeof(res));
+    // Values the epilogue never measured read 0xFFFF (never a passing difference), as in bench_fill().
+    for (int i = 0; i < PD_VALUES; i++)
+        res[i] = 0xFFFF;
     credits_seen = save_proved = judged = false;
     chapters_done = 0;
     prev_scene = -1;
     hits_total = 0;
+    rhythm_calls = 0;
     // A run starts from the same place whatever the player did before.
     dev_solved_clear();
     ledger_forget();
@@ -90,6 +94,8 @@ void qa_game_scene(int id)
         qalog_line("game", "chapter_end", "n=%d solved=%d hits=%d", ch, dev_solved_count(), pd_last_hits);
     }
     prev_scene = id;
+    if (id == SC_RHYTHM)
+        rhythm_calls = 0;
     switch (id)
     {
         case SC_PLAY:
@@ -174,8 +180,9 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
         }
         case SC_RHYTHM:
             for (int i = 0; i < RHYTHM_NOTES; i++)
-                if ((int)f == rhythm_note_frame(i))
+                if ((int)rhythm_calls == rhythm_note_frame(i))
                     out->keys = KEY_A;
+            rhythm_calls++;
             break;
         case SC_CREDITS:
             out->keys = KEY_A;       // holding A scrolls faster

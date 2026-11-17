@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 # Chapter 4, highway. Stations: W WRAM STEP 1, M MAIN STEP 10, R MAIN RUN 2, V VRAM RUN 2.
 # NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
 COUNTRY ROAD: 13 | MW | RW | MV
