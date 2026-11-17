@@ -4,7 +4,7 @@
 
 에뮬레이터 개발자를 위한 연구용 probe 모음입니다. **실기에서 확인된 적 없는 동작**(레벨 L4,
 [../docs/LEVELS-KO.md](../docs/LEVELS-KO.md))을 에뮬레이터가 어떻게 처리하는지 보고하는 작은
-닌텐도 DS 데모 ROM 15개입니다. 게임이 아닙니다. 타이틀도, 크레딧도, QA 모드도 없고, 120프레임 동안
+닌텐도 DS 데모 ROM 17개입니다. 게임이 아닙니다. 타이틀도, 크레딧도, QA 모드도 없고, 120프레임 동안
 돌면서 결과 블록을 쓰고 화면을 그대로 유지하는 ROM뿐입니다.
 
 용도: 각 probe는 GBATEK에 없거나 틀리게 적힌 동작에 대해 에뮬레이터가 내는 값을 기록합니다(폴리곤 RAM 개수,
@@ -59,7 +59,7 @@ Lightenette의 이음선 항목은 그 게임의 막(act)에서 나오는 값이
 ## 빌드와 사용
 
 ```sh
-./build.sh -j8 release          # build/release/demos(ROM 15개)와 build/release/judge(expected.json + judge.py)
+./build.sh -j8 release          # build/release/demos(ROM 17개)와 build/release/judge(expected.json + judge.py)
 tools/melonds/mds.sh demos probes/build/release/demos > probes.log        # 헤드리스 melonDS (RENDERER=soft|gl|compute)
 RESULT_WORDS=16 tools/emu/emu.sh demos probes > probes.log                # 헤드리스 DeSmuME
 python3 probes/tools/judge.py probes.log                                 # 값 출력(참고용, 종료 코드 0)

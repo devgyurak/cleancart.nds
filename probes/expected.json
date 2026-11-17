@@ -3,7 +3,7 @@
  "schema": 3,
  "target_level": 4,
  "area": "research probes",
- "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is demo code run under an l4- name (acc-dual and acc-split-* from the Elevane l3 demos, the others from Corvane, l4-acc-rear-plane written for this collection); it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value of the item (the value the emulators gave when the probe was written, or the value the behaviour is expected to have); they are never a hardware value and the per-emulator record under `known` is what the judge compares.",
+ "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is demo code run under an l4- name (acc-dual and acc-split-* from the Elevane l3 demos, the others from Corvane, l4-acc-rear-plane, l4-vcount-write and l4-tex-late written for this collection); it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value of the item (the value the emulators gave when the probe was written, or the value the behaviour is expected to have); they are never a hardware value and the per-emulator record under `known` is what the judge compares.",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -36,7 +36,9 @@
   "l4-acc-dual": 935984906,
   "l4-acc-split-rear": 1557217977,
   "l4-acc-split-hdma": 2335395293,
-  "l4-acc-rear-plane": 1470346845
+  "l4-acc-rear-plane": 1470346845,
+  "l4-vcount-write": 1005781691,
+  "l4-tex-late": 3160160016
  },
  "items": [
   {
@@ -363,6 +365,205 @@
    "role": "target",
    "level": 4,
    "level_basis": "none"
+  },
+  {
+   "id": "vcw-212-lines",
+   "demo": "l4-vcount-write",
+   "title": "A VCOUNT write of 202 while VCOUNT reads 212 repeats 10 or 11 lines of the frame (the Heddlemere gating item vcount-write-lines asks for the same window; the apply line itself is undocumented)",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 10,
+   "max": 11,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "vcw-212-residual",
+   "demo": "l4-vcount-write",
+   "title": "Cycles left over after those whole lines: signed mean over 8 frames, x16 (the poll delay is dithered like Heddlemere's judge); 0xFFFF when no whole line was added. Heddlemere no longer judges this",
+   "values": [
+    4
+   ],
+   "check": "range",
+   "min": -256,
+   "max": 256,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none",
+   "signed": true,
+   "not_value": 65535
+  },
+  {
+   "id": "vcw-205-lines",
+   "demo": "l4-vcount-write",
+   "title": "The same write of 202 at VCOUNT 205: the lines between the two points, inclusive (model: 4)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 4,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "vcw-212-210-lines",
+   "demo": "l4-vcount-write",
+   "title": "A write of 210 at VCOUNT 212 (model: 3 lines)",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 3,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "vcw-outside-lines",
+   "demo": "l4-vcount-write",
+   "title": "A write of 50 at VCOUNT 100, outside the 202..212 range GBATEK allows: ignored (0 lines) or applied (51 lines, the model without a range)",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-192",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 192 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 0,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-200",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 200 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 0,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-213",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 213 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0)",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 0,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-214",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 214 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded)",
+   "values": [
+    2
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 192,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-215",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 215 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded)",
+   "values": [
+    8
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 192,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-216",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 216 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded)",
+   "values": [
+    3
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 192,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-230",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 230 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded)",
+   "values": [
+    5
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 192,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "tex-late-250",
+   "demo": "l4-tex-late",
+   "title": "A texture palette rewritten at line 250 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded)",
+   "values": [
+    6
+   ],
+   "check": "range",
+   "min": 0,
+   "max": 192,
+   "not_value": 65535,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
   }
  ],
  "known": {
@@ -431,6 +632,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -499,6 +739,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -567,6 +846,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -635,6 +953,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -703,6 +1060,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -771,6 +1167,45 @@
     ],
     "sys-dma-gfx-polys": [
      2
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     192
+    ],
+    "tex-late-230": [
+     192
+    ],
+    "tex-late-250": [
+     192
+    ],
+    "tex-late-215": [
+     0
     ]
    }
   },
@@ -838,6 +1273,45 @@
      736
     ],
     "sys-dma-gfx-polys": [
+     0
+    ],
+    "vcw-212-lines": [
+     0
+    ],
+    "vcw-212-residual": [
+     65535
+    ],
+    "vcw-205-lines": [
+     0
+    ],
+    "vcw-212-210-lines": [
+     0
+    ],
+    "vcw-outside-lines": [
+     0
+    ],
+    "tex-late-192": [
+     0
+    ],
+    "tex-late-200": [
+     0
+    ],
+    "tex-late-213": [
+     0
+    ],
+    "tex-late-214": [
+     0
+    ],
+    "tex-late-216": [
+     0
+    ],
+    "tex-late-230": [
+     0
+    ],
+    "tex-late-250": [
+     0
+    ],
+    "tex-late-215": [
      0
     ]
    }

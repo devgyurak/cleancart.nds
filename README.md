@@ -365,11 +365,11 @@ target 15 · prerequisite 11
 
 </details>
 
-<details><summary><b>L4 Research</b> · Probes (21 target items)</summary>
+<details><summary><b>L4 Research</b> · Probes (34 target items)</summary>
 
 #### Probes · research probes
 
-target 21 · prerequisite 0
+target 34 · prerequisite 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(informational)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(informational)_ · [expected.json](probes/expected.json)
@@ -392,6 +392,19 @@ target 21 · prerequisite 0
 - `rear-plane-latency` · Capture routing latency of the same-screen rear-plane scheme, measured before the rear plane is set up (the Corvane acc-split-rear measurement); the same behaviour is the L2 prerequisite acc-split-rear-latency in Elevane. The rear-plane pixels are rear-plane / rear-plane-full (l4-acc-rear-plane) _(informational)_ · [expected.json](probes/expected.json)
 - `rear-plane` · Same-screen two-pass view with the capture as the 3D rear plane, set up before the first pass: the captured pass holds opaque pixels (stands for Elevane preset 2 `rear-plane`, retired from Elevane) _(informational)_ · [expected.json](probes/expected.json)
 - `rear-plane-full` · The captured pass is fully opaque: 4096 of 4096 samples, both halves, because the previous pass came back as the rear plane (half means one side is missing; stands for Elevane preset 2 `rear-plane-full`, retired from Elevane) _(informational)_ · [expected.json](probes/expected.json)
+- `vcw-212-lines` · A VCOUNT write of 202 while VCOUNT reads 212 repeats 10 or 11 lines of the frame (the Heddlemere gating item vcount-write-lines asks for the same window; the apply line itself is undocumented) _(informational)_ · [expected.json](probes/expected.json)
+- `vcw-212-residual` · Cycles left over after those whole lines: signed mean over 8 frames, x16 (the poll delay is dithered like Heddlemere's judge); 0xFFFF when no whole line was added. Heddlemere no longer judges this _(informational)_ · [expected.json](probes/expected.json)
+- `vcw-205-lines` · The same write of 202 at VCOUNT 205: the lines between the two points, inclusive (model: 4) _(informational)_ · [expected.json](probes/expected.json)
+- `vcw-212-210-lines` · A write of 210 at VCOUNT 212 (model: 3 lines) _(informational)_ · [expected.json](probes/expected.json)
+- `vcw-outside-lines` · A write of 50 at VCOUNT 100, outside the 202..212 range GBATEK allows: ignored (0 lines) or applied (51 lines, the model without a range) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-192` · A texture palette rewritten at line 192 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-200` · A texture palette rewritten at line 200 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-213` · A texture palette rewritten at line 213 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-214` · A texture palette rewritten at line 214 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-215` · A texture palette rewritten at line 215 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-216` · A texture palette rewritten at line 216 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-230` · A texture palette rewritten at line 230 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(informational)_ · [expected.json](probes/expected.json)
+- `tex-late-250` · A texture palette rewritten at line 250 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(informational)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->
