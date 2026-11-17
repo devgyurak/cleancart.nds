@@ -16,8 +16,9 @@
 
 // Result block id LDPM: values[0] = 1 once the divider answered, values[1] bit 0 = -2^63 / -1 is
 // 8000000000000000h with no DIV0. DeSmuME never gets here (its divider hangs the emulator).
-static void press_min_run(void)
+static void press_min_run(const char *name)
 {
+    (void)name;
     ledger_clear();
     lg_res[LV_PRESS] = press_overflow64();
     lg_res[LV_DONE] = 1;
@@ -38,7 +39,7 @@ void demo_main(const char *name)
     }
     if (strcmp(name, "press-min") == 0)
     {
-        press_min_run();
+        press_min_run(name);
         sd_result_save("ledgerine", "press-min");
         for (;;)
             sys_vsync();

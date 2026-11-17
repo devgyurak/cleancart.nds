@@ -8,6 +8,7 @@
 #include "core/qalog.h"
 #include "core/qasuite.h"
 #include "core/sdcard.h"
+#include "core/snd.h"
 #include "core/sys.h"
 
 static bool active;
@@ -23,6 +24,11 @@ bool qa_suite_active(void)
     return active;
 }
 
+void qa_suite_done(void)
+{
+    longjmp(escape, 2);
+}
+
 void qa_suite_watch(void)
 {
     if (active && deadline && cv_frame > deadline)
@@ -34,7 +40,7 @@ void qa_suite_watch(void)
 
 // Back to the state a stand-alone demo starts from, as far as the registers go: nothing of the
 // previous demo keeps running.
-static void reset_hardware(u16 ie)
+static void reset_hardware(u32 ie)
 {
     REG_IME = 0;
     for (int i = 0; i < 4; i++)
@@ -47,6 +53,11 @@ static void reset_hardware(u16 ie)
     REG_IME = 1;
     REG_MASTER_BRIGHT = 0;
     REG_MASTER_BRIGHT_SUB = 0;
+    // Sound: nothing of the game's music, effects or echo keeps playing under a demo's measurement.
+    snd_bgm_stop();
+    snd_stream_stop();
+    snd_echo(false);
+    snd_stop_channels(0xFFFF);
     if (sys_wram_is_arm9())
         sys_wram_to_arm7();
     qa_suite_reset_game();
@@ -71,21 +82,19 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
     active = true;
     for (int i = 0; i < count; i++)
     {
-        reset_hardware((u16)ie);
+        reset_hardware(ie);
         u32 start = cv_frame;
         bool timeout = false;
         // setjmp is called from this frame only; the watchdog jumps back from sys_vsync().
         volatile u32 limit_at = start + frame_limit;
-        if (setjmp(escape) == 0)
+        int how = setjmp(escape);
+        if (how == 0)
         {
             deadline = limit_at;
-            demos[i].run();
-            deadline = 0;
+            demos[i].run(demos[i].name);
         }
-        else
-        {
-            timeout = true;
-        }
+        deadline = 0;
+        timeout = how == 1;
         u32 frames = cv_frame - start;
         bool saved = false;
         if (!timeout)
@@ -98,7 +107,7 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
                      (unsigned long)frames, timeout ? " timeout=1" : "");
     }
     active = false;
-    reset_hardware((u16)ie);
+    reset_hardware(ie);
     memcpy((void *)CV_RESULT_ADDR, &qarn, sizeof(qarn));
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
     qalog_append("suite", "end", "demos=%d saved=%d", count, saved_count);
