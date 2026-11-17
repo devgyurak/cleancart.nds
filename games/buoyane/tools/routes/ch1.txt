@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+
+chapter 1 RANGE
+
+approach "Mooring Reach"
+gate 1 2 2 5 4
+gate 1 3 3 5 4
+gate 2 5 5 1 4
+
+approach "Tin Kettle Channel"
+gate 0 1 5 1 2
+gate 0 5 5 0 1
+gate 0 1 4 2 1
+
+approach "Low Gull Run"
+gate 1 2 5 4 2
+gate 1 4 2 0 4
+gate 1 1 1 5 4
+
+approach "Saltwick Bar"
+gate 2 5 3 5 2
+gate 0 2 2 1 0
+gate 1 0 0 4 5
+
+approach "Harrow Sound"
+gate 1 3 4 5 3
+gate 0 3 3 1 0
+gate 1 5 3 5 2
+
+approach "Lantern Mile"
+gate 0 3 0 1 3
+gate 2 5 4 5 1
+gate 0 5 5 1 0

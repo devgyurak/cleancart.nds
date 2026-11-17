@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+
+chapter 3 FOG BANK
+
+approach "Slow Bell Passage"
+gate 0 3 4 3 0
+gate 1 4 4 1 2
+gate 2 4 5 1 4
+
+approach "Wool Bank"
+gate 0 1 4 1 2
+gate 2 0 3 0 5
+gate 1 1 1 2 5
+
+approach "Muffle Deep"
+gate 0 5 5 2 3
+gate 2 5 5 0 2
+gate 0 5 2 1 5
+
+approach "Greyhorn Fetch"
+gate 0 0 0 5 3
+gate 1 5 5 3 1
+gate 0 0 0 3 4
+
+approach "Bellow Shoal"
+gate 0 4 4 1 0
+gate 0 2 3 0 2
+gate 0 3 2 3 1
+
+approach "Hush Tide"
+gate 1 4 1 4 3
+gate 1 4 4 0 2
+gate 2 3 4 1 3
