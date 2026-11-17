@@ -380,8 +380,8 @@
 - `snd-rate-slope` · Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured; the value differs between boot paths on both emulators) _(참고용)_ · [expected.json](games/pendulane/expected.json)
 - `spi-512k-minus-4m` · Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles) · [expected.json](games/pendulane/expected.json)
 - `mem7-main-seq` · ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024) · [expected.json](games/pendulane/expected.json)
-- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong · [expected.json](games/pendulane/expected.json)
-- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128) · [expected.json](games/pendulane/expected.json)
+- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access: main RAM N32 effective 7 against WRAM 1: 6×64 = 384 (LDR from main RAM minus LDR from WRAM, 64 times; 376..392); GBATEK's table 10 is not the instruction cost · [expected.json](games/pendulane/expected.json)
+- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially: 128 nops minus 64 nops, about 14 cycles over 64 words more than GBATEK's 2 per word (64 x 2 = 128; measured 142, accepted 139..145); cause undocumented · [expected.json](games/pendulane/expected.json)
 - `mem7-vram-seq` · ARM7 VRAM (bank C mapped to the ARM7) sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (1024) · [expected.json](games/pendulane/expected.json)
 
 </details>
