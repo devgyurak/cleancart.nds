@@ -6,7 +6,7 @@ Buoyane의 모든 그래픽, 폰트, 효과음, 음악은 **빌드할 때 이 �
 다른 곳의 이미지, 폰트, 녹음, 악보는 쓰지 않고 CC0 에셋도 쓰지 않습니다. 아래 에셋은 모두 소스와 같은 저작권·라이선스의
 오리지널 작업물입니다: **Apache-2.0**(Copyright 2026 devgyurak, cleancart.nds 유지보수자).
 
-생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`(다른 게임과 공유)에 있습니다.
+생성기는 `tools/mkassets.py`이고, 그리거나 합성하고 배치하는 코드는 `tools/cvtools/`(다른 게임과 공유하고, `byart.py`는 Buoyane 전용)에 있습니다.
 같은 소스는 항상 같은 바이트를 만듭니다. 확인 장면의 텍스처와 팔레트는 `arm9/source/judge/lightcheck.c`가 코드 속 상수(8x8 텍셀)로
 실행 때 쓰므로 파일이 없습니다.
 
@@ -18,5 +18,6 @@ Buoyane의 모든 그래픽, 폰트, 효과음, 음악은 **빌드할 때 이 �
 | `cv_song_*`, `cv_song_names` | 곡 `slackwater`(느린 도리안 너울, 패드와 낮은 베이스, 드럼 없음), 코드가 작곡하며 크레딧에서 재생 | `cvtools/audio.py` `SONGS`, `compose()` | 자체 제작, Apache-2.0 |
 | `cv_routes`, `by_approach_name`, `by_chapter_name` | 항로 30개(5장 × 접근 6개 × 관문 3개)와 접근·장 이름(지어낸 단어). `tools/byroute/routes.py`가 묶고, 연감만으로 관문을 가릴 수 없으면 검사기가 빌드를 멈춥니다 | `tools/byroute/routes.py`가 `tools/routes/ch*.txt`를 읽음(텍스트 파일. 한 번 쓰고 버린 스크립트로 만든 뒤 원본으로 둠) | 자체 제작, Apache-2.0 |
 | `by_look`, `by_range_*`, `by_sect_*`, `by_fog_*`, `by_edge_*`, `by_harbour_gap` | 연감: 불빛 종류 여섯 개가 장마다 보기 세 개에서 어떻게 보이는지, 그리고 3D 불빛을 그리는 숫자 | `tools/byroute/model.py` | 자체 제작, Apache-2.0 |
+| `cv_title_tiles`, `cv_title_map`, `cv_title_pal` | 타이틀 글자 "BUOYANE": 해도 조각가 필체의 22 x 5 타일(4bpp). 옅은 잉크, 짙은 파랑 그림자 획, 수심 표시 점선(다섯 점마다 긴 눈금)과 빈 타일·단색 패널 타일. 16색 팔레트 한 줄(BG 팔레트 8번 줄). 그 뒤의 항구(바다, 곶, 램프, 빛줄기)는 `game/title.c`가 3D 엔진으로 그리므로 파일이 없습니다 | `cvtools/byart.py` `title_lettering()` | 자체 제작, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 점검이 읽는 CRC가 알려진 2 KB 파일 | `tools/mkassets.py` | 자체 제작, Apache-2.0 |
 | 배너 아이콘(`icon.bmp`) | 32x32 4bpp 아이콘, 어두운 물 위의 램프 달린 빨강·흰색 캔 부표 | `tools/mkassets.py` `buoyane_icon()` | 자체 제작, Apache-2.0 |
