@@ -38,11 +38,20 @@ game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/ar
    tune values.
 6. **SD log** (`core/qalog.c`): 64 KB RAM ring, `<frame> <scene> <event> key=val ...`; header
    events `hdr` (game, build, rtc, seed, sd, fat_fail, errno, drive, dldi, cart_ready,
-   nitro, save_build, save_detected, save_available); `cp` lines (`name= hash= lag=`);
+   nitro, save_build, save_detected, save_available); `cp` lines (`name= hash= lag= gx=uf<n>,of<n> rdl=<min>`: the 3D engine hint, see below);
    last line `RESULT PASS|FAIL reason=...`. File `<drive>cleancart/<game>/qa-<date>-<time>.log`,
    saves `save-<date>-<time>-<n>.bin` (runs never overwrite each other). Flush only at scene changes, checkpoints and the end; every flush
    claims the slot-1 bus (`cart_bus_claim()`) and closes the file; never flush inside a save
    transaction (`qalog_hold()` if code could log there). No SD (DeSmuME): RAM only.
+   **3D hint on `cp` lines**: `qa_autopilot()` reads DISP3DCNT (0x04000060) bit 12 (RDLINES underflow)
+   and bit 13 (polygon/vertex RAM overflow) and RDLINES_COUNT (0x04000320, bits 0-5, buffered lines minus 2, 0..46) every
+   frame, read-only (the sticky flags are never cleared by QA, so `uf`/`of` count the frames the flag was up
+   since the last checkpoint, `rdl` is the lowest value or `-` when no frame was sampled; reset at each
+   checkpoint). A game that acknowledges bit 13 itself (`g3_overflowed()`) must write bit 12 as 0 and expose its
+   acknowledgement count through `qa_game_gx_acks()` (weak default 0 in `core/qa.c`), each counted as a frame with
+   the flag up. Like `lag` it is a hint:
+   never in a state hash, never compared (`compare.py --info` prints it side by side); a scene without 3D
+   shows `uf0,of0`. Emulators rarely raise these flags, hardware may. `parse_log.py` accepts logs without it.
 7. **RAM result block** at `0x0237F000`, same layout as the demo block, `demo_id` =
    `QARN`; magic written last. Words: verdict (1 PASS/2 FAIL), lines, SD flags
    (bit0 log on SD, bit1 read-back ok, bit2 write failed), last state hash, checkpoints,

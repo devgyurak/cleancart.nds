@@ -219,15 +219,22 @@ bool qalog_open(const char *game, u32 seed)
     return sd_ok;
 }
 
-void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag)
+void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag,
+                      u32 gx_uf, u32 gx_of, int rdl)
 {
     if (!opened || finished)
         return;
     checkpoints++;
     lag_total += lag;
     last_hash = hash;
-    qalog_line(scene, "cp", "name=%s hash=%08lx lag=%lu", name, (unsigned long)hash,
-               (unsigned long)lag);
+    char rdl_text[8];
+    if (rdl == QALOG_RDL_NONE)
+        snprintf(rdl_text, sizeof(rdl_text), "-");
+    else
+        snprintf(rdl_text, sizeof(rdl_text), "%d", rdl);
+    qalog_line(scene, "cp", "name=%s hash=%08lx lag=%lu gx=uf%lu,of%lu rdl=%s", name,
+               (unsigned long)hash, (unsigned long)lag, (unsigned long)gx_uf,
+               (unsigned long)gx_of, rdl_text);
     qalog_flush();
 }
 

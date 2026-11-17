@@ -1905,7 +1905,7 @@ static void d_io_qalog(void)
     bool chip = save_write();
     bool mirror = qalog_save_mirror(&cv_save, sizeof(cv_save), chip);
     con_printf("SAVE CHIP: %s  SD MIRROR: %s\n", chip ? "OK" : "NONE", mirror ? "OK" : "NO");
-    qalog_checkpoint("demo", "mid", qalog_fnv(QALOG_FNV_INIT, "io-qalog", 8), 0);
+    qalog_checkpoint("demo", "mid", qalog_fnv(QALOG_FNV_INIT, "io-qalog", 8), 0, 0, 0, 0);
     while (cv_frame < CHECKPOINT)
         vsync();
     u32 game[1] = { (u32)chip };

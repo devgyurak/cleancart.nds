@@ -13,6 +13,7 @@
 #include "core/sys.h"
 #include "game/game.h"
 #include "game/qa_tune.h"
+#include "gfx/gl3d.h"
 #include "game/stage.h"
 
 // As shipped: every number at 1x.
@@ -28,6 +29,13 @@ const QaTune qa_tune_on = {
 
 static bool credits_seen;
 static u32 stages_cleared;
+
+// The game acknowledges the polygon/vertex RAM overflow flag itself (g3_overflowed()); core/qa.c
+// counts those acknowledgements as frames with the flag up.
+u32 qa_game_gx_acks(void)
+{
+    return g3_overflow_acks();
+}
 
 void qa_game_publish(bool pass)
 {

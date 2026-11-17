@@ -22,6 +22,7 @@
 #include "core/sys.h"
 #include "game/game.h"
 #include "game/qa_tune.h"
+#include "gfx/gl3d.h"
 #include "game/world.h"
 
 // As shipped.
@@ -40,6 +41,13 @@ static u32 chapters_cleared;
 static bool ending_seen, credits_seen;
 static u32 progress_frame;     // scene frame of the last progress
 static u32 progress_mark;      // what counted as progress then
+
+// The game acknowledges the polygon/vertex RAM overflow flag itself (g3_overflowed()); core/qa.c
+// counts those acknowledgements as frames with the flag up.
+u32 qa_game_gx_acks(void)
+{
+    return g3_overflow_acks();
+}
 
 void qa_game_publish(bool pass)
 {

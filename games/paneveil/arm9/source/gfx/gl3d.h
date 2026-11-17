@@ -119,6 +119,7 @@ int g3_vert_count(void);
 int g3_flushed_poly_count(void);
 int g3_flushed_vert_count(void);
 bool g3_overflowed(void);
+u32 g3_overflow_acks(void);   // how often g3_overflowed() acknowledged bit 13 (read by the game's QA hook)
 
 // --- Textures ---------------------------------------------------------------
 // All textures are 8 bits per texel (indices 0-7) and share one palette block of eight
