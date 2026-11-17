@@ -164,6 +164,9 @@ release:
 		mkdir -p $(RELEASE)/$$d && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/$$d/ || exit 1; done
 	@cp paneveil.nds paneveil-save-flash.nds paneveil-save-fram.nds $(RELEASE)/rom/
+	@# The same ROM with the homebrew game code "####", for flash card kernels that only give homebrew
+	@# their SD card (DLDI): tools/hwsupport.py says why.
+	@python3 tools/hwsupport.py paneveil.nds $(RELEASE)/rom/paneveil-hw-support.nds
 	@for d in $(DEMOS); do cp paneveil-$$d.nds $(RELEASE)/demos/ || exit 1; done
 	@# The emulator-test kit: the rehearsal ROM with the files that grade it.
 	@mkdir -p $(RELEASE)/judge && \

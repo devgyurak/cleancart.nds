@@ -2,6 +2,8 @@
 
 [한국어](HW-QA-KO.md)
 
+**Wood-style R4 kernels:** put `build/release/rom/ledgerine-hw-support.nds` on the card instead of `ledgerine.nds`. It is the same ROM with the homebrew game code `####`; these kernels DLDI-patch only such ROMs, and with the game's own code the ROM sees no SD card (no QA log, no result files). The demo and rehearsal ROMs keep their own code.
+
 Nothing in Ledgerine has been measured on a console yet. This is the checklist for the run, so the first values can
 be recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is
 operated by a person; the steps below are what to do and what to write down.
