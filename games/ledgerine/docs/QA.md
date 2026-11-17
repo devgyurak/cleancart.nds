@@ -22,17 +22,16 @@ plays rooms 3 to 6 and the credits after it).
 | `press-min` | `ledgerine-press-min.nds`: only `-2^63 / -1` in divider mode 2 (item `math-overflow-min64`); result block id `0x4D50444C` (`LDPM`), values[0] = 1 when done, values[1] bit 0 = the check. It is a ROM of its own because DeSmuME's divider hangs the whole emulator on this division | melonDS 1.1 soft / GL classic / GL compute: OK; DeSmuME: hangs (not graded) |
 | `rehearsal` | `ledgerine-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): every room's audit; result block id `0x4852444C` (`LDRH`), layout in `game/ledger.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute: profile MATCH, see below |
 
-Hardware: run 1 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
+Hardware: runs 1 and 2 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
 | Emulator | NG items | Notes |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS) | `ipc-empty-last` (empty read returns the next cell: word 7A000001h, not the last word B), `dma-itcm-runs` (the CPU halts for the whole DMA: 000d7f6b ticks against 00090027 for the DMA alone), `bios-arm7-guard` (the replacement BIOS copies from the BIOS area) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game and rehearsal never do it, and the QA run does it only in its judge suite, which needs an SD card (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
+| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS) | `ipc-empty-last` (empty read returns the next cell: word 7A000001h, not the last word B), `ipc-empty-cleared` (returns 0 after the remote clear; the console returns a non-zero word), `dma-itcm-runs` (the CPU halts for the whole DMA: 000d7f6b ticks against 00090027 for the DMA alone), `bios-arm7-guard` (the replacement BIOS copies from the BIOS area) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-empty-cleared`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game and rehearsal never do it, and the QA run does it only in its judge suite, which needs an SD card (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
 
-The three NG items are results to check against hardware (items stay gating because GBATEK states them); the hardware run
-(`docs/HW-QA.md`) would tell whether the emulator or the reading of GBATEK is at fault.
+The NG items are emulator differences from the console: the hardware runs (`docs/HW-QA.md`) agree with GBATEK on `ipc-empty-last`, `dma-itcm-runs` and `bios-arm7-guard`, and `ipc-empty-cleared` is the one item whose expected value came from the console (GBATEK says 0, the DS Lite returns a non-zero word).
 
 ## Auto QA run
 

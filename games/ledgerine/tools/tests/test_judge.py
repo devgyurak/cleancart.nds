@@ -125,6 +125,30 @@ class Profiles(unittest.TestCase):
             self.assertLessEqual(set(p['ng']) | set(p.get('na', [])), ids, name)
 
 
+class HardwareValues(unittest.TestCase):
+    """Expected values taken from the DS Lite runs (docs/HW-QA.md): the console value passes, the old GBATEK value does not."""
+
+    def grade(self, value):
+        v = good_values('rehearsal')
+        v[2] = (v[2] & ~0xC) | value
+        return run_judge([], block_line(REHEARSAL_ID, v))[1]
+
+    def test_empty_read_after_remote_clear_is_not_zero(self):
+        self.assertIn('OK      ipc-empty-cleared', self.grade(0x4))    # the console: bit 3 clear, acknowledge set
+        self.assertIn('NG      ipc-empty-cleared', self.grade(0xC))    # returns 0 (GBATEK, melonDS, DeSmuME)
+        self.assertIn('NG      ipc-empty-cleared', self.grade(0x0))    # acknowledge broken as well
+
+    def test_every_profile_knows_the_console_difference(self):
+        for name, p in EXP['known'].items():
+            self.assertIn('ipc-empty-cleared', p['ng'], name)
+
+    def test_sources_are_hardware(self):
+        by = {i['id']: i for i in EXP['items']}
+        self.assertEqual(by['ipc-empty-cleared']['source'], 'hw:dslite-ntr')
+        for i in ('ipc-empty-cleared', 'ipc-empty-last', 'dma-itcm-runs', 'bios-arm7-guard'):
+            self.assertIn('hw:games/ledgerine/docs/HW-QA.md', by[i]['level_basis'], i)
+
+
 class ExpectedJson(unittest.TestCase):
     def test_levels_and_roles(self):
         self.assertEqual(EXP['target_level'], 2)
