@@ -10,6 +10,8 @@
 
 typedef enum {
     SC_TITLE,
+    SC_CHART,
+    SC_VOYAGE,
     SC_CREDITS,
 } ByScene;
 
@@ -25,6 +27,8 @@ void display_3d_top(CvText *top, CvText *bot);
 void scene_text_screens(CvText *main_text, CvText *sub_text);
 
 ByScene scene_title(void);
+ByScene scene_chart(void);
+ByScene scene_voyage(void);
 ByScene scene_credits(void);
 
 #endif // BY_SCENES_H

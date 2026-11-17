@@ -16,5 +16,7 @@ The same source always produces the same bytes. The light check's textures and p
 | `cv_ui_tiles`, `cv_ui_pal` | window frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the song `slackwater` (slow dorian swell, pad and low bass, no drums), composed by code; played in the credits | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `cv_routes`, `by_approach_name`, `by_chapter_name` | the 30 routes (5 chapters x 6 approaches x 3 gates) and the approach and chapter names (invented words), packed by `tools/byroute/routes.py`; the checker stops the build when a gate cannot be decided from the almanac | `tools/byroute/routes.py` reading `tools/routes/ch*.txt` (text files, written once by a throw-away script and kept as the source) | original, Apache-2.0 |
+| `by_look`, `by_range_*`, `by_sect_*`, `by_fog_*`, `by_edge_*`, `by_harbour_gap` | the almanac: what each of six light types looks like in each of three views, per chapter, and the numbers the 3D lights are drawn from | `tools/byroute/model.py` | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
 | banner icon (`icon.bmp`) | 32x32 4bpp icon, a red and white can buoy with a lamp on dark water | `tools/mkassets.py` `buoyane_icon()` | original, Apache-2.0 |

@@ -13,15 +13,15 @@
       "rom": "buoyane-rehearsal.nds",
       "item_id": 1213356354,
       "item_id_text": "BYRH",
-      "frames": 600,
-      "note": "the five light-check scenes in one ROM; no save chip, no NitroFS"
+      "frames": 1200,
+      "note": "the first approach of every chapter, scripted through the live voyage scene, then the five light-check scenes; no save chip, no NitroFS"
     },
     "qa": {
       "rom": "buoyane.nds",
       "item_id": 1314013521,
       "item_id_text": "QARN",
-      "frames": 3000,
-      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the normal flow, then the light check once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+      "frames": 9000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): all 30 approaches named from the almanac, the credits, then the light check once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
     },
     "check-dot": {
       "rom": "buoyane-check-dot.nds",
@@ -92,7 +92,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -122,7 +122,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -152,7 +152,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -182,7 +182,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -212,7 +212,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -242,7 +242,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-fog": 150
       }
@@ -272,7 +272,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-fog": 150
       }
@@ -302,7 +302,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-fog": 150
       }
@@ -332,7 +332,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-fog": 150
       }
@@ -362,7 +362,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-edge": 150
       }
@@ -392,7 +392,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-edge": 150
       }
@@ -422,7 +422,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-edge": 150
       }
@@ -452,7 +452,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -482,7 +482,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -512,7 +512,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -542,7 +542,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -572,7 +572,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -602,7 +602,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -632,7 +632,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -662,7 +662,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -692,7 +692,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -722,7 +722,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -752,7 +752,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -782,7 +782,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -806,7 +806,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1
       }
     },
@@ -835,7 +835,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -865,7 +865,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-dot": 150
       }
@@ -895,7 +895,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-fog": 150
       }
@@ -925,7 +925,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-edge": 150
       }
@@ -955,7 +955,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-depth": 150
       }
@@ -985,7 +985,7 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
       }
@@ -1015,9 +1015,33 @@
       "model": null,
       "tolerance": 0,
       "frame": {
-        "rehearsal": 600,
+        "rehearsal": 1200,
         "qa": 1,
         "check-blend": 150
+      }
+    },
+    {
+      "id": "approaches-cleared",
+      "title": "The rehearsal finished the first approach of every chapter (5 approaches); the QA run all 30",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        19
+      ],
+      "check": "range",
+      "min": 5,
+      "max": 30,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1
       }
     },
     {

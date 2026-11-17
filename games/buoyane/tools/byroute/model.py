@@ -9,7 +9,7 @@ these tables (the almanac, and the scripted player), so the game can be finished
 
 Chapters: 1 range (DISP_1DOT_DEPTH), 2 sectors (1-dot polygons with mixed W: the first vertex's
 colour), 3 fog bank (fog density by depth), 4 headlands (edge colour of the front polygon), 5 harbour
-(depth Equal tolerance of one step). Types 0..5, views 0..2.
+(depth test Equal). Types 0..5, views 0..2.
 """
 
 NTYPES = 6
@@ -36,9 +36,10 @@ FOG_DENSITY = ((0, 0, 40, 90, 127, 127), (0, 30, 70, 110, 127, 127), (0, 0, 0, 6
 EDGE_A = (1, 2, 3, 1, 2, 3)
 EDGE_B = (2, 3, 1, 3, 1, 2)
 
-# 5 harbour: depth steps between the light's plane and the base; depth Equal passes within one step
-# (the hardware window is +-200h of the 24-bit depth, one step of the pixel-exact projection)
-HARBOUR_GAP = (0, 1, 2, 3, 4, 5)
+# 5 harbour: the light sits `gap` units from the base plane; view v lays the base 2 * v units away, so the
+# light is drawn (depth test Equal) only where gap == 2 * v. One unit is 3 depth steps of the pixel-exact
+# projection, so a miss is always three steps (beyond the 200h window); the boundary step is never used.
+HARBOUR_GAP = (0, 0, 2, 2, 4, 4)
 
 
 def look(ch, t, s):
@@ -53,7 +54,7 @@ def look(ch, t, s):
     if ch == 4:
         return (EDGE_A[t], EDGE_B[t], 0)[s]
     if ch == 5:
-        return 1 if abs(HARBOUR_GAP[t] - 2 * s) <= 1 else 0
+        return 1 if HARBOUR_GAP[t] == 2 * s else 0
     raise ValueError(ch)
 
 

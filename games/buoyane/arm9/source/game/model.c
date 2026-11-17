@@ -37,3 +37,15 @@ u32 by_plan_hash(void)
         h = (h ^ cv_routes[i]) * 16777619u;
     return h;
 }
+
+const char *by_look_word(int chapter, int look)
+{
+    static const char *const words[BY_CHAPTERS][4] = {
+        { "HIDDEN", "SEEN", "-", "-" },
+        { "RED", "GREEN", "WHITE", "HIDDEN" },
+        { "CLEAR", "THIN FOG", "THICK FOG", "FOG ONLY" },
+        { "NO EDGE", "RED EDGE", "YELLOW EDGE", "CYAN EDGE" },
+        { "GAP", "PATH", "-", "-" },
+    };
+    return words[chapter - 1][look & 3];
+}

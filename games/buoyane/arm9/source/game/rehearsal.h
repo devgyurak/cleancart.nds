@@ -25,7 +25,7 @@
 //   values[15]  blend bits: 0 highlight saturates, 1 decal alpha 0 -> vertex colour, 2 wireframe texture alpha blends,
 //               3 clear alpha 0 bypass, 4 toon red index, 5 3D alpha through the BG0 blend
 //   values[16..18] highlight | decal << 16, wire | bypass << 16, decal holes (raw)
-//   values[19]  approaches cleared;  values[20] route plan hash;  values[48..54] QA words
+//   values[19]  approaches cleared (the first of every chapter, scripted; the QA run: all 30);  values[20] route plan hash (FNV-1a of the routes);  values[48..54] QA words
 // Keep this file, expected.json and tools/judge.py in step.
 
 #ifndef BY_REHEARSAL_H

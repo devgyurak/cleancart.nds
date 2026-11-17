@@ -93,7 +93,7 @@ QA shortcuts in corvane: title + Select = start-stage select; pause + hold L+R +
 Hushwell maps the same keys to its own actions (walk, examine, run, flashlight, map/recorder,
 hush, flare, swap screens); see `games/hushwell/AGENTS.md`. Its QA shortcuts are the same.
 Paneveil uses only the D-pad (setting, turn), A (fire), B (list) and Select (3D / 2D schematic); see `games/paneveil/README.md`.
-Buoyane: D-pad steer, A/B throttle, L/R look left/right, X range knob, Select almanac, Start pause, touch waypoints; see `games/buoyane/README.md` (planned; the scaffold has only the title and credits).
+Buoyane: D-pad choose (chart: up/down chapter, left/right approach; gate: left/right candidate), A sail / name the light, Select almanac, B or Start back; see `games/buoyane/README.md`.
 `tools/melonds/set_keys.py` writes this mapping (see skill `melonds-mac`).
 
 ## Repository layout

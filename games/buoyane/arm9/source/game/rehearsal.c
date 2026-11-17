@@ -9,7 +9,10 @@
 #include "core/qasuite.h"
 #include "core/sys.h"
 #include "game/rehearsal.h"
+#include "core/input.h"
+#include "game/model.h"
 #include "game/scenes.h"
+#include "game/voyage.h"
 #include "gfx/fx.h"
 #include "gfx/text.h"
 #include "judge/lightcheck.h"
@@ -30,11 +33,37 @@ static void publish(u32 id)
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 
+// The scripted player: replaces the input after the real input was read (like the QA pilot).
+static u16 prev_keys;
+static u32 hook_frame;
+static void script_hook(void)
+{
+    u16 keys = by_pilot_keys(hook_frame++);
+    cv_in.held = keys;
+    cv_in.pressed = keys & ~prev_keys;
+    cv_in.repeat = cv_in.pressed;
+    cv_in.released = prev_keys & ~keys;
+    cv_in.touching = false;
+    prev_keys = keys;
+}
+
 void rehearsal_run(void)
 {
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     memset(result, 0, sizeof(result));
+    // The first approach of every chapter, through the live voyage scene.
+    by_play_hook = script_hook;
+    by_cleared_bits = 0;
+    for (int ch = 1; ch <= BY_CHAPTERS; ch++)
+    {
+        by_chapter = ch;
+        by_approach = 0;
+        scene_voyage();
+    }
+    by_play_hook = NULL;
     lightcheck_all(result);
+    result[19] = (u32)by_cleared_count();
+    result[20] = by_plan_hash();
     publish(REHEARSAL_ID);
 }
 
