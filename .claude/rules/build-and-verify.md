@@ -21,6 +21,9 @@ paths:
   split on spaces into ndstool's `-g code maker title`).
   - Never the default code `####`: melonDS treats it as homebrew and attaches no
     save chip, so nothing saves (and boot loses frames to save SPI timeouts).
+    The release also ships `<game>-hw-support.nds` (`tools/hwsupport.py`): the same ROM
+    with the code `####`, because Wood-style R4 kernels DLDI-patch only `####` ROMs
+    (any other code is treated as retail: save emulation, no SD card).
   - The 4-char code must be unique in this repo and absent from melonDS's
     `src/ROMList.cpp` (entries are `{0x<code as little-endian u32>, …}`), so
     melonDS falls back to its 8 KB EEPROM instead of a listed game's chip.

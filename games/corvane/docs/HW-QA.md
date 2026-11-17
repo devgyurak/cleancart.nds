@@ -2,6 +2,8 @@
 
 [한국어](HW-QA-KO.md)
 
+**Wood-style R4 kernels:** put `build/release/rom/corvane-hw-support.nds` on the card instead of `corvane.nds`. It is the same ROM with the homebrew game code `####`; these kernels DLDI-patch only such ROMs, and with the game's own code the ROM sees no SD card (no QA log, no result files). The demo and rehearsal ROMs keep their own code.
+
 Corvane (L1, graphics and system) is judged by its demos and the auto QA run. Nothing here has been run on a console yet. The steps are in the skill `nds-hw-qa`; this page is
 where the result is recorded. Hardware values are never an "emulator profile": a hardware NG means
 our expected value or level has to be re-examined (the proposal comes from `level-judge`, the change goes in a separate PR).

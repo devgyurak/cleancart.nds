@@ -22,7 +22,10 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 
 1. Build the release ROMs: `games/<game>/build.sh -j8 release` (probes: `probes/build.sh -j8 release`).
    Note `shasum -a 256` of every ROM that goes on the card.
-2. Copy to the R4 card: the game ROM and `build/release/demos/*.nds` (the rehearsal and judge ROMs are
+2. Copy to the R4 card: the game ROM (on a Wood-style R4 kernel, e.g. a card with `__rpg/` and
+   `_DS_MENU.DAT` at the root, take `build/release/rom/<game>-hw-support.nds` instead: the kernel
+   DLDI-patches only ROMs with the homebrew code `####`, any other code gets save emulation and no SD
+   card, so nothing is logged; confirmed on a DS Lite + R4 Plus with Wood, 2026-11-17) and `build/release/demos/*.nds` (the rehearsal and judge ROMs are
    in `demos/` too; do not copy `judge/` as well); for probes `build/release/demos/*.nds`. Hushwell: only the
    demos its `expected.json` lists are graded.
 3. Move or delete the old `res-*.log` on the card (they pile up; after a rebuild a ROM that is not run again
