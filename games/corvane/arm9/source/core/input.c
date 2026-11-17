@@ -54,10 +54,15 @@ static void read_live(u16 *keys, bool *touch, int *tx, int *ty, bool *lid)
 {
     u16 k = ~REG_KEYINPUT & 0x03FF;
     u16 xy = cv_arm7.keyxy;
-    if (!(xy & CV_KEYXY_X))
-        k |= KEY_X;
-    if (!(xy & CV_KEYXY_Y))
-        k |= KEY_Y;
+    // X and Y come from the ARM7 and read as pressed (active low, zeroed packet) until its first packet arrives: a title
+    // that is up before that would take it for an X press (DeSmuME: straight to the credits).
+    if (cv_arm7_packets > 0)
+    {
+        if (!(xy & CV_KEYXY_X))
+            k |= KEY_X;
+        if (!(xy & CV_KEYXY_Y))
+            k |= KEY_Y;
+    }
     *touch = !(xy & CV_KEYXY_PEN) && cv_arm7_packets > 0;
     *tx = cv_arm7.px;
     *ty = cv_arm7.py;
