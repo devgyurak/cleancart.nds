@@ -69,6 +69,11 @@ void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag,
 u32 qalog_fnv(u32 h, const void *data, u32 len);
 #define QALOG_FNV_INIT 2166136261u
 
+// A line after qalog_finish() (the QA judge suite, core/qasuite.h): appended to the file at once
+// and flushed; with no SD card it goes to the ring only.
+void qalog_append(const char *scene, const char *event, const char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
+
 // Appends the ring to the file (claims the bus, closes the file again).
 void qalog_flush(void);
 // While held, nothing flushes (the ring keeps filling, then drops and counts).

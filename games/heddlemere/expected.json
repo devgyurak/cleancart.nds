@@ -614,12 +614,13 @@
     },
     {
       "id": "orders-delivered",
-      "title": "The scripted play delivered the first order of every chapter (5 orders)",
+      "title": "The scripted play delivered the first order of every chapter (5 orders; the QA run plays every order)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "values": [
-        21
+        25
       ],
       "check": "eq",
       "expect": 5,
@@ -630,7 +631,8 @@
       "level_basis": "none",
       "model": null,
       "frame": {
-        "rehearsal": 3000
+        "rehearsal": 3000,
+        "qa": 1
       }
     },
     {

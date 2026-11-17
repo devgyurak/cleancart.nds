@@ -163,6 +163,17 @@ void qalog_line(const char *scene, const char *event, const char *fmt, ...)
     va_end(ap);
 }
 
+void qalog_append(const char *scene, const char *event, const char *fmt, ...)
+{
+    if (!opened)
+        return;
+    va_list ap;
+    va_start(ap, fmt);
+    vline(scene, event, fmt, ap, true);
+    va_end(ap);
+    qalog_flush();
+}
+
 bool qalog_open(const char *game, u32 seed)
 {
     if (opened && !finished)

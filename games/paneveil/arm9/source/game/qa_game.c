@@ -12,6 +12,7 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/sys.h"
 #include "game/play.h"
@@ -124,6 +125,7 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                qa_suite_run("paneveil", NULL, 0, 0);   // the QARN block as a res file (no extra demos)
             }
             break;
         default:
