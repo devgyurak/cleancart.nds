@@ -18,5 +18,6 @@ Pendulane의 모든 그래픽, 폰트, 효과음, 음악은 **빌드할 때 이 
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플 (`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 오리지널, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | 곡 `pendulum` (차분한 도리안 곡, 드럼 없음), 코드로 작곡; 타이틀과 크레딧에서 재생 | `cvtools/audio.py` `SONGS`, `compose()` | 오리지널, Apache-2.0 |
 | `pd_snd_adpcm` | 사운드 벤치의 ADPCM 블록: 헤더 워드(예측값 0, 스텝 인덱스 50)와 니블 7 32샘플이라 첫 샘플부터 출력이 0이 아님 | `tools/mkassets.py` | 오리지널, Apache-2.0 |
+| `pd_stations`, `pd_devices`, `pd_chapter_name` | 다섯 장의 역(이름, 틱 비용 = 하드웨어 단계의 책 값), 장치 20개(이름, 목표, 슬롯, par), 장 이름 | `tools/mkassets.py`가 `tools/pdorder/model.py`(역)와 `tools/contraptions/ch*.txt`(손으로 씀, `tools/pdorder/check.py`가 풀리는지 증명)에서 만듦 | 오리지널, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 점검이 읽는 CRC가 알려진 2 KB 파일 | `tools/mkassets.py` | 오리지널, Apache-2.0 |
 | 배너 아이콘 (`icon.bmp`) | 32x32 4bpp 아이콘, 톱니바퀴 앞에서 흔들리는 진자 추 | `tools/mkassets.py` `pendulane_icon()` | 오리지널, Apache-2.0 |

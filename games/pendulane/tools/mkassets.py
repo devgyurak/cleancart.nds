@@ -19,6 +19,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import glob  # noqa: E402
+
+from pdorder import check as pd_check, model as pd_model  # noqa: E402
 from cvtools import audio, codec, images  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
@@ -135,6 +138,47 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    # --- Contraptions -----------------------------------------------------
+    # The build stops when a contraption fails the checker (tools/pdorder/check.py).
+    here = os.path.dirname(os.path.abspath(__file__))
+    cs = pd_check.load(sorted(glob.glob(os.path.join(here, 'contraptions', 'ch*.txt'))))
+    rows, ok = pd_check.check(cs)
+    if not ok:
+        for r in rows:
+            for m in r['problems']:
+                print('contraption %s: %s' % (r['id'], m), file=sys.stderr)
+        sys.exit('contraptions failed the checker')
+    stations = []        # (chapter, letter) -> index
+    index = {}
+    for ch in sorted(pd_model.CHAPTERS):
+        for letter, (name, cost, _) in pd_model.CHAPTERS[ch][1].items():
+            index[(ch, letter)] = len(stations)
+            stations.append((name, cost))
+    w.define('PD_MAXSLOTS', pd_model.MAX_SLOTS)
+    w.define('PD_MAXOPT', pd_model.MAX_OPTS)
+    w.define('PD_NUM_STATIONS', len(stations))
+    w.define('PD_NUM_DEVICES', len(cs))
+    w.define('PD_NUM_CHAPTERS', len(pd_model.CHAPTERS))
+    w.raw_h('typedef struct { const char *name; uint16_t cost; } PdStation;')
+    w.raw_h('typedef struct { const char *name; uint8_t chapter, nslots; uint16_t target; uint8_t par; uint8_t nopt[PD_MAXSLOTS];'
+            ' uint8_t opt[PD_MAXSLOTS][PD_MAXOPT]; } PdDevice;')
+    w.raw_h('extern const PdStation pd_stations[PD_NUM_STATIONS];')
+    w.raw_h('extern const PdDevice pd_devices[PD_NUM_DEVICES];')
+    w.raw_h('extern const char *const pd_chapter_name[PD_NUM_CHAPTERS];')
+    w.raw_c('const PdStation pd_stations[PD_NUM_STATIONS] = {\n%s\n};\n'
+            % '\n'.join('    { "%s", %d },' % st for st in stations))
+    drows = []
+    for c, r in zip(cs, rows):
+        nopt = [len(x) for x in c.slots] + [0] * (pd_model.MAX_SLOTS - len(c.slots))
+        opt = [[index[(c.chapter, ch)] for ch in x] + [0] * (pd_model.MAX_OPTS - len(x)) for x in c.slots]
+        opt += [[0] * pd_model.MAX_OPTS] * (pd_model.MAX_SLOTS - len(c.slots))
+        drows.append('    { "%s", %d, %d, %d, %d, { %s }, { %s } },' % (
+            c.name, c.chapter, len(c.slots), c.target, r['par'], ', '.join(map(str, nopt)),
+            ', '.join('{ %s }' % ', '.join(map(str, o)) for o in opt)))
+    w.raw_c('const PdDevice pd_devices[PD_NUM_DEVICES] = {\n%s\n};\n' % '\n'.join(drows))
+    w.raw_c('const char *const pd_chapter_name[PD_NUM_CHAPTERS] = { %s };\n'
+            % ', '.join('"%s"' % pd_model.CHAPTERS[ch][0] for ch in sorted(pd_model.CHAPTERS)))
 
     # --- Sound ------------------------------------------------------------
     samples = audio.make_samples()

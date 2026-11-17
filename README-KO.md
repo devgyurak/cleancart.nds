@@ -48,7 +48,7 @@
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 30 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick 타이틀 화면"> | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 목표 17 · 전제 조건 10<!-- /cell --> | [README](games/tonewick/README-KO.md) · [QA 점검표](games/tonewick/docs/QA-KO.md) · [실기 QA](games/tonewick/docs/HW-QA-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
-| [Pendulane](games/pendulane/) | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간 (진행 중; SPI, ARM7 메모리, 카트 gap, 사운드 시작 지연이 이어집니다). | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 7<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
+| [Pendulane](games/pendulane/) | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간 (진행 중; SPI, ARM7 메모리, 카트 gap, 사운드 시작 지연이 이어집니다). | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 8<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -365,7 +365,7 @@
 
 #### Pendulane · CPU, bus and sound timing
 
-목표 16 · 전제 조건 7
+목표 16 · 전제 조건 8
 
 - `math-div32-vs-sqrt` · DIV mode 0 busy minus SQRT busy, ARM9 cycles = half bus cycles (18 - 13 clocks = 10) · [expected.json](games/pendulane/expected.json)
 - `math-div64-vs-div32` · DIV mode 1 (64/32) busy minus mode 0 (32/32), half bus cycles (34 - 18 clocks = 32) · [expected.json](games/pendulane/expected.json)

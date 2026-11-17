@@ -4,9 +4,13 @@
 #include <nds.h>
 #include <string.h>
 
+#include "core/input.h"
 #include "core/sdcard.h"
 #include "core/sys.h"
+#include "game/device.h"
+#include "game/play.h"
 #include "game/rehearsal.h"
+#include "game/script.h"
 #include "game/scenes.h"
 #include "gfx/fx.h"
 #include "gfx/text.h"
@@ -126,10 +130,40 @@ static void publish(u32 id, const u32 *v, int n)
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
 }
 
+// The scripted player: replaces the input after the real input was read (like the QA pilot).
+static u16 prev_keys;
+static void script_hook(void)
+{
+    u16 keys;
+    script_step(&keys, false);
+    cv_in.held = keys;
+    cv_in.pressed = keys & ~prev_keys;
+    cv_in.repeat = cv_in.pressed;
+    cv_in.released = prev_keys & ~keys;
+    cv_in.touching = false;
+    prev_keys = keys;
+}
+
 void rehearsal_run(void)
 {
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
+
+    // The first contraption of every chapter, through the live play scene.
+    dev_solved_clear();
+    pd_play_hook = script_hook;
+    u32 played = 0;
+    for (int ch = 1; ch <= PD_CHAPTERS; ch++)
+    {
+        pd_chapter = ch;
+        pd_index = 1;
+        scene_play();
+        played |= 1u << (ch - 1);
+    }
+    pd_play_hook = NULL;
+
     bench_fill(result);
+    result[1] = played;
+    result[2] = (u32)dev_solved_count();
     publish(REHEARSAL_ID, result, PD_VALUES);
 }
 

@@ -1,0 +1,6 @@
+# Chapter 4, highway. Stations: W WRAM STEP 1, M MAIN STEP 10, R MAIN RUN 2, V VRAM RUN 2.
+# NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
+COUNTRY ROAD: 13 | MW | RW | MV
+TOLL GATE: 23 | WR | MV | RM | VW
+RING ROAD: 24 | WM | MR | VM | RV
+FAST LANE: 23 | MW | RM | VM | WR

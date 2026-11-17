@@ -13,15 +13,15 @@
       "rom": "pendulane-rehearsal.nds",
       "item_id": 1213350992,
       "item_id_text": "PDRH",
-      "frames": 60,
-      "note": "the bench; no save chip, no NitroFS"
+      "frames": 3000,
+      "note": "the scripted play of the first contraption of every chapter, then the bench; no save chip, no NitroFS"
     },
     "qa": {
       "rom": "pendulane.nds",
       "item_id": 1314013521,
       "item_id_text": "QARN",
-      "frames": 1800,
-      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the credits, then the bench once; the block uses the rehearsal's layout and adds the QA words at values[48..54]"
+      "frames": 6000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): every contraption of every chapter solved by the scripted player with each chapter's rhythm piece, the credits, then the bench once; the block uses the rehearsal's layout and adds the QA words at values[48..54]"
     }
   },
   "sources": {
@@ -576,6 +576,27 @@
       "level": 1,
       "level_basis": "gbatek:DS Cartridge Protocol",
       "env": "cart"
+    },
+    {
+      "id": "chapters-played",
+      "title": "The scripted play solved the first contraption of every chapter (rehearsal) / every chapter was finished (QA): mask 0x1f",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 31,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none"
     },
     {
       "id": "qa-verdict",

@@ -5,6 +5,8 @@
 // CV_RESULT_ADDR for tools/judge.py. No save chip, no NitroFS.
 //
 // Block (CvResult, 64 words: magic, id, frame, values[0..60]); id "PDRH" = 0x48524450.
+//   values[1]   chapters whose first contraption the scripted play solved (bit n-1 = chapter n, 0x1f); in the QA run, chapters finished
+//   values[2]   contraptions solved (5 in the rehearsal)
 //   values[0]   flags: bit 0 the math bench found every edge, bit 1 the ARM7 answered the SPI request, bit 2 the timer cascade ran,
 //               bit 3 the SPI edges were found, bit 4 the ARM7 memory bench answered, bit 5 the sound bench ran to the end, bit 6 the cartridge bench ran
 //   values[3]   DIV 32/32 edge minus SQRT edge, ARM9 cycles (half bus cycles; signed)
