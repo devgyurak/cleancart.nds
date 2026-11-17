@@ -6,9 +6,9 @@ Human docs (English, each with a Korean twin `*-KO.md`): `README.md`, `docs/QA.m
 `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. The plan is `out/WORKPLAN-pendulane.md` (not committed).
 Created from paneveil (arm7, common, `arm9/source/core` and `gfx` are corvane's layers: keep fixes in sync).
 
-Status (PR 2 of the stack): skeleton, the timing core (ITCM edge finding), the math bench and the ARM7 bench (SPI byte time, ARM7 memory timings); scenes: title (a text
+Status (PR 3 of the stack): skeleton, the timing core (ITCM edge finding), the math bench, the ARM7 bench (SPI byte time, ARM7 memory timings) and the sound bench; scenes: title (a text
 scaffold, `TODO(title)`), the bench ledger, credits; the hidden QA run reaches the credits and runs the bench once.
-Next: the sound bench, the cartridge bench, the device game, the rehearsal and QA
+Next: the cartridge bench, the device game, the rehearsal and QA
 epilogue in full, hardware.
 
 ## Build
@@ -40,6 +40,14 @@ epilogue in full, hardware.
   memory (only the base address changes), reported as a difference of two runs; code in main RAM runs from a 640 byte ARM9 scratch
   buffer the ARM7 fills with nops (the ARM9 invalidates its cache lines first and never touches it again); VRAM bank C is mapped to
   the ARM7 for the run. The ARM7 sound engine uses timers 0 and 3, the bench timer 1.
+- `arm7/source/benchsnd.c` (op `CV_BENCH_SND`, 1 KB buffer layout in `cv_ipc.h`): one sample period P = 16384 bus cycles (timer reload 0x10000 - 8192).
+  Busy: a one-shot channel is started and the time to the clear of SOUNDxCNT bit 31 is measured with a 32-bit stopwatch (ARM7 timers 1 + 2), reported
+  in samples (rounded). Onset: the channel runs alone and capture 0 records the left mixer (capture 0 takes its rate from channel 1's timer, so channel 1
+  plays silence at the same reload); the capture starts first and the channel 4.5 samples later, so every capture sample falls in the middle of a channel
+  sample; the report is the index of the first non-zero sample, and the ARM9 subtracts two runs (the constant between index and time cancels). Hold
+  restart: (old value still there << 8) | zero samples before the new data. Every wait is bounded by 80 sample periods (a stuck flag costs 40 ms).
+  The ADPCM block is the asset `pd_snd_adpcm` (predictor 0, step index 50, nibbles 7). `snd-rate-slope` is informational (DeSmuME reads a different
+  value on every run). The bench takes about 0.2 s with IME off on the ARM9.
 - `expected.json` + `tools/judge.py` (from paneveil, plus `"signed": true` items compared as s32) + `tools/tests/test_judge.py`.
   Boots `rehearsal` (id `PDRH`) and `qa` (`QARN`, rehearsal layout plus the QA words at `values[48..54]`). `known` has the four emulator
   profiles (DeSmuME py-desmume 0.0.9, melonDS 1.1 software / GL Classic / GL Compute); re-measure all four after changing the ROM.

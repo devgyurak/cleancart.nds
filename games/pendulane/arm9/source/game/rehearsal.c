@@ -65,6 +65,34 @@ void bench_fill(u32 *res)
         res[PDV_MEM_CODE_MAIN] = mem[2];
         res[PDV_MEM_VRAM_SEQ] = mem[3];
     }
+
+    res[PDV_SND_PCM_BUSY] = res[PDV_SND_ADPCM_BUSY] = res[PDV_SND_ONSET_PCM_PSG] = res[PDV_SND_ONSET_ADPCM_PCM] = res[PDV_SND_HOLD] = 0xFFFF;
+    res[PDV_SND_SLOPE] = 0xFFFF;
+    u32 snd[CV_BENCH_WORDS];
+    if (bench7_snd(snd))
+    {
+        for (int i = 0; i < CV_BENCH_WORDS; i++)
+            res[PDV_RAW_SND + i] = snd[i];
+        if (snd[7] == 1)
+        {
+            res[0] |= 32;
+            if (snd[3] != BENCH_NOT_MEASURED)
+                res[PDV_PRE] |= 16;   // capture 0 recorded non-zero data
+            if (snd[0] != BENCH_NOT_MEASURED && snd[1] != BENCH_NOT_MEASURED)
+                res[PDV_PRE] |= 32;   // both one-shot channels' Busy cleared
+            if (snd[0] != BENCH_NOT_MEASURED)
+                res[PDV_SND_PCM_BUSY] = snd[0];
+            if (snd[1] != BENCH_NOT_MEASURED)
+                res[PDV_SND_ADPCM_BUSY] = snd[1];
+            if (snd[2] != BENCH_NOT_MEASURED && snd[3] != BENCH_NOT_MEASURED)
+                res[PDV_SND_ONSET_PCM_PSG] = snd[3] - snd[2];
+            if (snd[3] != BENCH_NOT_MEASURED && snd[4] != BENCH_NOT_MEASURED)
+                res[PDV_SND_ONSET_ADPCM_PCM] = snd[4] - snd[3];
+            if (snd[5] != BENCH_NOT_MEASURED)
+                res[PDV_SND_HOLD] = snd[5];
+            res[PDV_SND_SLOPE] = snd[6];
+        }
+    }
 }
 
 static void publish(u32 id, const u32 *v, int n)

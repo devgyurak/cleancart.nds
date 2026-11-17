@@ -48,7 +48,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine title screen"> | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 target 30 · prerequisite 11<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick title screen"> | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [QA checklist](games/tonewick/docs/QA.md) · [Hardware QA](games/tonewick/docs/HW-QA.md) · [Assets](games/tonewick/ASSETS.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
-| [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 8 · prerequisite 4<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
+| [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 14 · prerequisite 6<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -334,7 +334,7 @@ target 17 · prerequisite 10
 
 </details>
 
-<details><summary><b>L3 Timing</b> · Elevane, Heddlemere, Pendulane (26 target items)</summary>
+<details><summary><b>L3 Timing</b> · Elevane, Heddlemere, Pendulane (32 target items)</summary>
 
 #### Elevane · display timing and compositing
 
@@ -366,11 +366,17 @@ target 15 · prerequisite 11
 
 #### Pendulane · CPU, bus and sound timing
 
-target 8 · prerequisite 4
+target 14 · prerequisite 6
 
 - `math-div32-vs-sqrt` · DIV mode 0 busy minus SQRT busy, ARM9 cycles = half bus cycles (18 - 13 clocks = 10) · [expected.json](games/pendulane/expected.json)
 - `math-div64-vs-div32` · DIV mode 1 (64/32) busy minus mode 0 (32/32), half bus cycles (34 - 18 clocks = 32) · [expected.json](games/pendulane/expected.json)
 - `math-div6464-eq-div6432` · DIV mode 2 (64/64) busy minus mode 1 (64/32), half bus cycles (34 - 34 clocks = 0) · [expected.json](games/pendulane/expected.json)
+- `snd-pcm-busy` · A 16-sample PCM16 one-shot: Busy clears 18 samples after the start (3 start delay + 16 - 1; Busy drops at the start of the last sample) · [expected.json](games/pendulane/expected.json)
+- `snd-adpcm-busy` · A 32-sample ADPCM one-shot: Busy clears 42 samples after the start (11 start delay + 32 - 1) · [expected.json](games/pendulane/expected.json)
+- `snd-onset-pcm-psg` · The first sound of PCM16 comes 2 samples after the first sound of PSG (3 - 1), from two captures of the left mixer · [expected.json](games/pendulane/expected.json)
+- `snd-onset-adpcm-pcm` · The first sound of ADPCM comes 8 samples after the first sound of PCM16 (11 - 3: the header word is 8 slots) · [expected.json](games/pendulane/expected.json)
+- `snd-hold-restart` · Restarting a Hold channel: the old value plays one more sample, then 2 zero samples, then the new data ((1 << 8) | 2 = 258) · [expected.json](games/pendulane/expected.json)
+- `snd-rate-slope` · Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured) _(informational)_ · [expected.json](games/pendulane/expected.json)
 - `spi-512k-minus-4m` · Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles) · [expected.json](games/pendulane/expected.json)
 - `mem7-main-seq` · ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024) · [expected.json](games/pendulane/expected.json)
 - `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK itself notes a reported 5 · [expected.json](games/pendulane/expected.json)

@@ -187,6 +187,10 @@ void bench7_request(u32 value, void *userdata)
         for (u32 b = 0; b < 4; b++)
             res[b] = spi_edge(b);
     }
+    else if (op == CV_BENCH_SND)
+    {
+        benchsnd_run((u8 *)addr, res);
+    }
     else if (op == CV_BENCH_MEM)
     {
         bench_mem((u32 *)addr, res);

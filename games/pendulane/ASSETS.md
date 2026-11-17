@@ -18,5 +18,6 @@ the build never reads them and they are not in the ROM.
 | `cv_ui_tiles`, `cv_ui_pal` | frame and gauge tiles | `images.ui_tiles()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the song `pendulum` (steady dorian piece, no drums), composed by code; played on the title and in the credits | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `pd_snd_adpcm` | the sound bench's ADPCM block: header word (predictor 0, step index 50) and 32 samples of nibble 7, so the decoded output is non-zero from the first sample | `tools/mkassets.py` | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
 | banner icon (`icon.bmp`) | 32x32 4bpp icon, a pendulum bob on a rod swinging in front of a gear | `tools/mkassets.py` `pendulane_icon()` | original, Apache-2.0 |
