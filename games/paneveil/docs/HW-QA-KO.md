@@ -4,48 +4,54 @@
 
 **Wood 계열 R4 커널:** 카드에는 `paneveil.nds` 대신 `build/release/rom/paneveil-hw-support.nds`를 넣습니다. 홈브루 게임 코드 `####`만 다른 같은 ROM입니다. 이런 커널은 이 코드의 ROM에만 DLDI를 붙이고, 게임 고유 코드로는 ROM이 SD 카드를 보지 못합니다(QA 로그와 결과 파일이 남지 않음). 데모와 리허설 ROM은 고유 코드 그대로입니다.
 
-**판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-paneveil-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
+Paneveil(L1, 3D 지오메트리와 텍스처)은 리허설과 자동 QA 실행으로 판정합니다. 2026-11-17 DS Lite에서 QA 실행이 통과했습니다(아래 실행 1). **판정 항목 31개 중 31개 OK**이고 모든 체크포인트가 melonDS와 같습니다. 절차는 스킬 `nds-hw-qa`에 있고, 이 문서는 결과를 기록하는 곳입니다.
+실기 값은 "에뮬레이터 프로필"이 아닙니다. 실기에서 NG가 나오면 우리 기대값이나 레벨을 다시 봐야 한다는 발견입니다(제안은 `level-judge`, 변경은 별도 PR).
 
-Paneveil은 아직 실기에서 측정한 값이 없습니다. 이 문서는 실기 실행을 위한 점검표입니다. 첫 값을 기록하고
-`expected.json`의 `unconfirmed` 항목을 승격하기 위한 것입니다. 콘솔은 사람이 조작하며, 아래 순서는
-무엇을 하고 무엇을 적어 둘지입니다.
+## 카드에 넣을 것
 
-**자동 경로(스킬 `nds-hw-qa`):** 카드에 빈 폴더 `cleancart/paneveil/`을 만들면 리허설이 결과 블록을 거기에
-씁니다(`res-*-paneveil-rehearsal.log`). 빈 파일 `cleancart/paneveil/autoqa`는 버튼을 누르지 않고도 QA 실행을
-시작합니다. 이어서 `python3 tools/qa/ingest.py /Volumes/<카드> --game paneveil`이 `judge.py --hardware --partial`로
-모두 채점합니다. 실기 NG 항목은 프로필이 아니라 발견 사항입니다. 기록 표는 다른 키트의 템플릿 문서를 보세요.
-카드에 남은 예전 `res-*` 로그는 먼저 지웁니다.
+- ROM: `paneveil.nds`의 hw-support 빌드 하나만. QA 실행이 모든 것을 판정합니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목인 가마 점검과 라이트박스를 담음)을 `res-*-paneveil-qa.log`로 씁니다. Paneveil에는 판정 데모가 없어서 진행 파일 `suite-<stamp>.log`에는 `suite block` 줄만 있습니다(`suite end` 줄은 원래 없음). 리허설 ROM은 게임 없이 항목만 다시 돌릴 때 씁니다(Wood 커널에서는 SD 카드를 받지 못함).
+- 빈 폴더 `cleancart/paneveil/` (없으면 ROM이 아무것도 쓰지 않음) 및 QA 실행용 빈 파일 `cleancart/paneveil/autoqa`
+- 복사본 확인: 카드의 파일이 릴리스와 크기·SHA-256이 같아야 합니다(실행 1의 복사본은 잘려 있었음, 아래 참조).
 
-## 하드웨어가 답해야 할 것
+## 실행
 
-| 질문 | 어디에 나오는가 |
+1. 게임 QA: `paneveil-hw-support.nds`를 켜고 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작). 30개 창을 모두 플레이하고 크레딧을 거쳐 가마 점검과 라이트박스를 한 번 돌립니다(약 1분).
+2. `suite-<stamp>.log`에 `suite block block=qa saved=1`이 나오면 끝입니다. 그 뒤에 전원을 끕니다.
+3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game paneveil`.
+
+## 하드웨어의 답 (실행 1)
+
+| 질문 | 어디에 나오는가 | 실행 1 |
+|---|---|---|
+| 행렬 스택 레벨(GXSTAT 8-12, 13), N = 2 pop, store와 restore, 투영 스택이 GBATEK대로인가? | 값 3~11 (기대값 3 0 1 0 2 0 1 0 0) | 예, `3 0 1 0 2 0 1 0 0` |
+| load와 multiply 뒤에 CLIPMTX_RESULT와 VECMTX_RESULT가 모델과 같은가(packed GXFIFO와 직접 포트 모두)? | 값 12~15 (모두 0) | 예, 모두 0 |
+| 버텍스 포맷 6종, 컬링, 앞/뒷면 렌더 비트, alpha, 와이어프레임, 깊이 시험, 텍스처 repeat·flip·clamp·색 0·PLTT_BASE·좌표 모드 1이 그림에서 맞는가? | 값 16~30과 flags(캡처 비트 8-12가 켜짐) | 예, 모든 항목 OK, flags `0x1f00` |
+| 와이어프레임(alpha 0)이 실기에서 그려지는가? (DeSmuME와 melonDS GL Classic은 그리지 않음) | 값 21(`poly-wire-edges`) | 예, 4(melonDS soft·Compute와 같음) |
+| 게임이 크레딧까지 끝까지 가고(자동 QA 실행) 세이브 칩이 제대로 동작하는가? | 게임 ROM, 숨은 QA 모드 | 크레딧까지 진행, `RESULT PASS`. 칩 세이브는 R4에서 검증 안 됨(`chip_ok=0`, 세이브는 SD 카드로 미러링) |
+
+## 기록 (실행마다 한 블록)
+
+### 실행 1: QA 실행, 2026-11-17
+
+| 항목 | 값 |
 |---|---|
-| 행렬 스택 레벨(GXSTAT 8-12, 13), N = 2 pop, store와 restore, 투영 스택이 GBATEK대로인가? | 리허설 값 3~11 (기대값 3 0 1 0 2 0 1 0 0) |
-| load와 multiply 뒤에 CLIPMTX_RESULT와 VECMTX_RESULT가 모델과 같은가(packed GXFIFO와 직접 포트 모두)? | 값 12~15 (모두 0) |
-| 버텍스 포맷 6종, 컬링, 앞/뒷면 렌더 비트, alpha, 와이어프레임, 깊이 시험, 텍스처 repeat·flip·clamp·색 0·PLTT_BASE·좌표 모드 1이 그림에서 맞는가? | 값 16~30과 flags(캡처 비트 8-12가 켜짐) |
-| 와이어프레임(alpha 0)이 실기에서 그려지는가? (DeSmuME와 melonDS GL Classic은 그리지 않음) | 값 21(`poly-wire-edges`) |
-| 게임이 크레딧까지 끝까지 가고(자동 QA 실행) 세이브 칩이 제대로 동작하는가? | 게임 ROM, 숨은 QA 모드 |
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | 릴리스 `paneveil-hw-support.nds` v0.2.0 `1905cc7932ea4ef754fd7cc55eeccf71775a2fd25396190cf6f1d573e9e83b84`(450,924바이트, melonDS도 이 파일로 실행). 카드의 복사본은 **393,216바이트에서 잘려** 있었음(`0d9a7957a3f35ca63a15deb7575d1b5d66a06bdd9b2044b9e64c924d418ab487`). 남은 바이트는 릴리스와 같음. 잘린 곳은 마지막 NitroFS 파일 `licenses/picolibc-COPYING.picolibc` 안이고 코드, `probe.bin`, 다른 라이선스 텍스트는 온전하므로 판정 실행에는 영향 없음 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 33줄, 체크포인트 7개, build `5778bba6ff09`, `start=marker`로 시작. 스위트: `block=qa saved=1`. QA 블록 판정: **L1 31/31 OK**(target 30/30, prerequisite 1/1), n/a 없음 |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | 없음. ch1-ch5, judge, credits 해시가 melonDS 1.1 soft, GL Classic, GL Compute와 같음(`compare.py`, 차이 0) |
+| 랙 프레임 | 3 / 2 / 2 / 2 / 2 / 1 / 0 (ch1-ch5, judge, credits). melonDS는 모든 체크포인트에서 0 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 3D 체크포인트마다 `uf0,of0 rdl=46`, melonDS와 같음 |
 
-## 순서
+| 항목 | 실기 | melonDS 1.1 soft | GL | Compute | DeSmuME | 차이? |
+|---|---|---|---|---|---|---|
+| `poly-wire-edges` | 4 | 4 | 0(NG, 프로필) | 4 | NG(프로필, 실행 안 함) | 없음. 콘솔은 GBATEK대로 와이어프레임을 그림 |
+| `poly-alpha-half` | 16 | 16 | 16 | 16 | 실행 안 함 | 없음 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | | | | 없음 |
 
-1. 빌드: `cd games/paneveil && ./build.sh -j8 release`. `build/release/rom/paneveil.nds`와
-   `build/release/judge/paneveil-rehearsal.nds`의 `shasum -a 256`을 적어 둡니다.
-2. 두 ROM을 R4 카드에 복사하고 `cleancart/paneveil/`을 만듭니다.
-3. **리허설**: `paneveil-rehearsal.nds`를 시작하고 아무것도 만지지 않고 20초쯤 기다립니다. 모든 장의 첫 창을
-   플레이하고 라이트박스를 돌린 뒤 `REHEARSAL RESULT`에 값 3~30을 16진수로 보여 줍니다. 카드에 폴더가 있으면
-   블록이 SD 카드에도 기록됩니다.
-4. **게임**: `paneveil.nds`를 시작합니다. 1-01을 플레이하고(GLASS SIDE까지 아래, 오른쪽 한 번, A) Select로 2D 도식을
-   보고 B로 돌아옵니다.
-5. **자동 QA 실행**: 카드에 빈 `cleancart/paneveil/autoqa`를 두거나(또는 타이틀에서 L+R+X+Y를 2초 누름) 합니다. 게임이
-   크레딧까지 스스로 진행하고(에뮬레이터에서 약 70초) `cleancart/paneveil/qa-*.log`를 씁니다. 이어서
-   `python3 tools/qa/ingest.py /Volumes/<카드> --game paneveil`을 돌리고 에뮬레이터 실행과 비교합니다
-   (`python3 tools/qa/compare.py <emu.log> <hw.log> --info`).
+참고:
+- 결과 블록은 QA 랙 합계(values[53]: 12 대 0)를 빼면 melonDS soft와 단어 단위로 같습니다.
 
-## 기록
+## 후속 조치
 
-- `docs/QA.md`와 `docs/QA-KO.md`(쌍): ROM SHA-256, 콘솔과 카드, 리허설 값, QA 로그 머리글(`dldi`, `nitro`,
-  `save_detected`, `cart_ready`), 에뮬레이터와 처음 달라지는 체크포인트.
-- `expected.json`: 실기 값이 ROM의 기대와 같은 `unconfirmed` 항목은 `source`를 `hw:ds-lite`로 바꿉니다. 실기가 다르면
-  발견 사항입니다. 값을 기록하고 ROM과 기대값 중 어느 쪽이 틀렸는지 판단합니다. `known`에 프로필 `hw-ds-lite`(실패 항목)를
-  추가합니다.
-- `build/qa/` 아래의 것은 절대 커밋하지 않습니다.
+실기 NG는 모두 표로 사용자에게 보고하고, 여기서 `expected.json`을 고치지 않습니다. `level-judge`에게 레벨 제안을 받고(근거 `hw:games/paneveil/docs/HW-QA.md`), 기대값·레벨 변경은 별도 PR로 합니다.

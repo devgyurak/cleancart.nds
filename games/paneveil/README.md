@@ -26,8 +26,8 @@ formats), polygon attributes (front/back face, alpha, wireframe, depth test) and
 
 **Status.** All five chapters (30 windows) are playable: the 3D window on the top
 screen, the settings on the bottom screen, a 2D schematic mode (Select), the kiln lamp, the rehearsal and its judge
-(kiln check and light box: 30 items) and the hidden auto QA run. Nothing has been measured on real hardware; items whose
-expected value does not come from GBATEK or the ROM's own logic stay informational until it is. Hands-on feel in a desktop
+(kiln check and light box: 30 items) and the hidden auto QA run. On a DS Lite (R4 card) the QA run reached the credits
+and all 31 judged items were OK, with every checkpoint equal to melonDS ([docs/HW-QA.md](docs/HW-QA.md)). Hands-on feel in a desktop
 emulator has not been reviewed. Progress and stars are not saved yet.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
