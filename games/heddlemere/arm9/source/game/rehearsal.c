@@ -64,6 +64,15 @@ void rehearsal_measure(u32 *r)
     r[TM_LYC] = tv[TM_LYC];
 }
 
+u32 rehearsal_firsts(void)
+{
+    u32 n = 0;
+    for (int ch = 1; ch <= HM_CHAPTERS; ch++)
+        if (order_chapter_size(ch) != 0 && order_was_done(ch, 1))
+            n++;
+    return n;
+}
+
 void rehearsal_run(void)
 {
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
@@ -86,6 +95,7 @@ void rehearsal_run(void)
     result[RH_ORDERS] = (u32)order_done_count();
     result[RH_CHAPTERS] = chapters;
     result[RH_PLAN_HASH] = order_plan_hash();
+    result[RH_FIRSTS] = rehearsal_firsts();
     publish(REHEARSAL_ID, result, RH_VALUES);
 }
 

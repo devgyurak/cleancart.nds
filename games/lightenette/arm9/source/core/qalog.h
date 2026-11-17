@@ -44,6 +44,11 @@ enum {
 // true when the file exists on the SD card.
 bool qalog_open(const char *game, u32 seed);
 
+// Folder (<drive>cleancart/<game>) and run stamp (YYYYMMDD-HHMMSS) of the open log, for files
+// that belong to the run (core/qashot.c).
+const char *qalog_dir(void);
+const char *qalog_stamp(void);
+
 int qalog_errno(void);      // errno of the failed log file open (0: none)
 bool qalog_sd(void);        // log file is on the SD card
 bool qalog_is_open(void);
@@ -51,12 +56,23 @@ bool qalog_is_open(void);
 void qalog_line(const char *scene, const char *event, const char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 
-// Checkpoint: state hash (game state only) and lag frames since the last one.
-void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag);
+// Checkpoint: state hash (game state only) and lag frames since the last one. The 3D engine
+// figures are a hint like lag, never hashed or compared: gx_uf / gx_of = frames since the last
+// checkpoint with DISP3DCNT bit 12 (RDLINES underflow) / bit 13 (polygon/vertex RAM overflow)
+// set (or, for bit 13, acknowledged by the game), rdl = lowest RDLINES_COUNT (buffered lines
+// minus 2, 0..46), or QALOG_RDL_NONE when no frame was sampled (logged as `rdl=-`).
+#define QALOG_RDL_NONE 127
+void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag,
+                      u32 gx_uf, u32 gx_of, int rdl);
 
 // FNV-1a over a byte range, to chain state hashes.
 u32 qalog_fnv(u32 h, const void *data, u32 len);
 #define QALOG_FNV_INIT 2166136261u
+
+// A line after qalog_finish() (the QA judge suite, core/qasuite.h): appended at once to suite-<stamp>.log beside
+// the qa log (which ends with its RESULT line); with no SD card it goes to the ring only.
+void qalog_append(const char *scene, const char *event, const char *fmt, ...)
+    __attribute__((format(printf, 3, 4)));
 
 // Appends the ring to the file (claims the bus, closes the file again).
 void qalog_flush(void);

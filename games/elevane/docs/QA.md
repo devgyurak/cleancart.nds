@@ -25,6 +25,8 @@ Hardware: not run yet, see [HW-QA.md](HW-QA.md) for the checklist.
 
 ## Auto QA run
 
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (buffered lines minus 2, 0..46; `rdl=-` when no frame was sampled in the span, e.g. two checkpoints in one frame). Both flags are sticky and only read, never cleared by QA, so a count is "frames the flag was up". That holds only while the game does not clear them: a game that acknowledges bit 13 itself (`g3_overflowed()` in Corvane, Elevane, Heddlemere, Hushwell, Lightenette, Paneveil) reports its acknowledgements through `qa_game_gx_acks()` and each one counts as a frame with the flag up; it writes bit 12 as 0 so the underflow flag survives. The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
+
 Hidden mode of the release ROM (`elevane.nds`): on the title screen press L and R, then X and Y,
 and hold all four for 120 frames. The game plays the normal flow by itself (title → puzzle list → all 40 puzzles, played by the scripted player `game/script.c` → list → title → credits → title), writes the save once and ends with `RESULT PASS`. Log on the SD card
 (`cleancart/elevane/qa-<date>-<time>.log`). Headless: `SDDIR=out/ev/x tools/melonds/mds.sh run
@@ -33,6 +35,13 @@ games/elevane/elevane.nds 20000 out/ev/x "300:L:140,300:R:140,300:X:140,300:Y:14
 ## Verified so far
 
 See the pull request that introduced the skeleton for what was run where.
+
+**Judge suite.** With the QA log on an SD card the run continues after `RESULT PASS`: the QA block is saved as `res-<stamp>-elevane-qa.log`, then the
+rehearsal (`elevane-rehearsal`: the scripted puzzles and the two showcase presets) and the nine `l3-*` demos run one after another, each writing
+`res-<stamp>-elevane-<name>.log` (`suite demo=<name> saved=1 frames=<n>` in the log; about 4000 frames more than the QA run; no SD card: `suite skipped=no-sd`, the DeSmuME case).
+`tools/qa/ingest.py` grades them with `judge.py --hardware --partial`; all 20 items come from one run on a card. The values equal the stand-alone ROMs' (`tools/qa/suite_compare.py`, melonDS soft,
+2026-11-17). Order matters once: `l3-acc-split-tex` measures a wrong latency (9) when it runs after `l3-acc-dual`, so it runs right after the rehearsal.
+Headless: `SDDIR=out/ev/x tools/melonds/mds.sh run games/elevane/elevane.nds 40000 out/ev/x "500:L:140,500:R:140,500:X:140,500:Y:140"` (create `out/ev/x/cleancart/elevane/` first).
 
 ## Starting QA without the keys (SD marker)
 

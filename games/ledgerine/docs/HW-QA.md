@@ -4,6 +4,8 @@
 
 **Wood-style R4 kernels:** put `build/release/rom/ledgerine-hw-support.nds` on the card instead of `ledgerine.nds`. It is the same ROM with the homebrew game code `####`; these kernels DLDI-patch only such ROMs, and with the game's own code the ROM sees no SD card (no QA log, no result files). The demo and rehearsal ROMs keep their own code.
 
+**Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block and `press-min` as `res-*-ledgerine-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
+
 Nothing in Ledgerine has been measured on a console yet. This is the checklist for the run, so the first values can
 be recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is
 operated by a person; the steps below are what to do and what to write down.

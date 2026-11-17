@@ -24,6 +24,8 @@
 
 ## 자동 QA 실행
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
 숨김 모드(출시 ROM과 같은 ROM): 타이틀 화면에서 **L+R+X+Y를 120프레임 누르고 있으면** 게임이 프롤로그와
 챕터 1~5를 스스로 걷습니다(괴물에게 맞아도 체력이 닳지 않는 것 외에는 출시 그대로). 문을 열고, 챕터 3
 다이얼 코드를 맞추고, 테이프를 전부 모아 우물 엔딩을 보고, 크레딧을 거쳐 기록 화면에서 멈춥니다.
@@ -37,6 +39,14 @@
 | 같은 ROM 두 번째 실행 | ✅ 체크포인트 해시 6개 전부 동일(`tools/qa/compare.py`) |
 | DeSmuME 헤드리스(SD 없음) | ✅ `QARN` 블록 판정 1, 챕터 6개, 테이프 `3e`, 마지막 상태 해시 `fea01683` = melonDS(랙은 다름, 비교 대상 아님) |
 | 실기 DS Lite + R4 | 아직 안 돌림 |
+
+**판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-hushwell-qa.log`로 저장한 다음 채점 데모 16개
+(`sys-ipc`, `sys-keys`, `snd-*` 여섯 개, `snd-wave`, `io-firmware`, `io-rtc`, `io-touch`, `io-power`, `sys-dma-cart`, `io-cart`, `io-save-eeprom`)를 차례로 돌려 각각
+`res-<stamp>-hushwell-<이름>.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=<name> saved=1 frames=<n>`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). 결정(2026-11-17):
+`io-save-flash`와 `io-save-fram`은 다른 세이브 칩용 빌드라서 스위트에 **넣지 않습니다**. 실기에서는 이 항목들(과 `io-save-eeprom-*`을 포함한 모든 `env: cart` 항목)이 n/a이고
+(`judge.py --hardware`, R4는 칩 세이브를 검증하지 못함), 에뮬레이터에서는 단독 ROM `hushwell-io-save-flash.nds` / `-fram.nds`로 채점합니다. 하네스 항목(`io-touch-x/y`, 스크립트 터치)도
+에뮬레이터 프로필에서는 단독 ROM이 맡습니다. 값은 단독 ROM과 같습니다(`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17). 다른 것은 하네스가 필요한 것
+(`sys-keys`, `io-touch`, `io-power`에 주입하는 키·터치)과 판정 범위 안에서 흔들리는 `snd-capture`의 캡처 피크뿐입니다.
 
 ## 검수 기록
 

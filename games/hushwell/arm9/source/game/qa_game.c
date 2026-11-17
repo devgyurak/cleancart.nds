@@ -17,11 +17,14 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/rng.h"
 #include "core/save.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/game.h"
 #include "game/qa_tune.h"
+#include "gfx/gl3d.h"
 #include "game/world.h"
 
 // As shipped.
@@ -40,6 +43,13 @@ static u32 chapters_cleared;
 static bool ending_seen, credits_seen;
 static u32 progress_frame;     // scene frame of the last progress
 static u32 progress_mark;      // what counted as progress then
+
+// The game acknowledges the polygon/vertex RAM overflow flag itself (g3_overflowed()); core/qa.c
+// counts those acknowledgements as frames with the flag up.
+u32 qa_game_gx_acks(void)
+{
+    return g3_overflow_acks();
+}
 
 void qa_game_publish(bool pass)
 {
@@ -125,6 +135,8 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                // The verdict and the QARN block are out: the judged demos (core/qasuite.h).
+                qa_suite_run("hushwell", demo_suite, demo_suite_count, 900);
             }
             else
             {

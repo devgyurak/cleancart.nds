@@ -1127,12 +1127,14 @@
     },
     {
       "id": "rehearsal-done",
-      "title": "The rehearsal ran every room and published its block",
+      "title": "The rehearsal ran every room and published its block (QA run: it closed all six rooms' books)",
       "boots": [
-        "rehearsal"
+        "rehearsal",
+        "qa"
       ],
       "frame": {
-        "rehearsal": 300
+        "rehearsal": 300,
+        "qa": 1
       },
       "values": [
         0

@@ -25,11 +25,19 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 `AGENTS.md` 참고).
 
 ## 자동 QA 실행
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
 릴리스 ROM(`elevane.nds`)의 숨은 모드입니다. 타이틀에서 L과 R을 누른 뒤 X와 Y를 눌러 네 키를 120프레임
 유지합니다. 게임이 정상 흐름(타이틀 → 퍼즐 목록 → 퍼즐 40개 전부(스크립트 플레이어 `game/script.c`) → 목록 → 타이틀 → 크레딧 → 타이틀)을 스스로 진행하고, 세이브를 한 번 쓰고
 `RESULT PASS`로 끝납니다. 로그는 SD 카드의 `cleancart/elevane/qa-<날짜>-<시간>.log`입니다.
 헤드리스: `SDDIR=out/ev/x tools/melonds/mds.sh run games/elevane/elevane.nds 20000 out/ev/x
 "300:L:140,300:R:140,300:X:140,300:Y:140"`. 2026-11-11 melonDS 1.1(소프트웨어 렌더러)에서 확인: 16,689프레임에 `RESULT PASS`(리뷰 수정 반영 후), 퍼즐 40개 중 40개 납품, 장 마스크 `0x1f`.
+
+**판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-elevane-qa.log`로 저장한 다음 리허설(`elevane-rehearsal`: 정해진 퍼즐과
+쇼케이스 프리셋 둘)과 `l3-*` 데모 9개를 차례로 돌려 각각 `res-<stamp>-elevane-<이름>.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=<name> saved=1 frames=<n>`. QA 실행보다 약 4000프레임 더 걸림.
+SD가 없으면 `suite skipped=no-sd`: DeSmuME). `tools/qa/ingest.py`가 `judge.py --hardware --partial`로 채점하고, 항목 20개가 카드에서 한 번 실행하면 모두 나옵니다.
+값은 단독 ROM과 같습니다(`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17). 순서가 한 번 중요합니다: `l3-acc-split-tex`는 `l3-acc-dual` 뒤에서 돌면 지연을 9로 잘못 재서, 리허설 바로 뒤에 둡니다.
+헤드리스: `SDDIR=out/ev/x tools/melonds/mds.sh run games/elevane/elevane.nds 40000 out/ev/x "500:L:140,500:R:140,500:X:140,500:Y:140"` (먼저 `out/ev/x/cleancart/elevane/`를 만들어 둠).
 
 ## 지금까지 확인한 것
 

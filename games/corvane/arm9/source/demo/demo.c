@@ -20,6 +20,7 @@
 #include "core/irq.h"
 #include "core/nitro.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/snd.h"
 #include "core/sdcard.h"
@@ -131,6 +132,8 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    if (qa_suite_active())
+        qa_suite_done();   // the QA judge suite saves the block itself and goes on
     // Only when the card holds cleancart/corvane/ (core/sdcard.h): the block goes to the SD card.
     if (sd_result_save("corvane", demo_name))
     {
@@ -1238,6 +1241,8 @@ static void d_2d_capture(void)
     r->frame = cv_frame;
     r->values[0] = REG_DISPCAPCNT;
     r->magic = CV_RESULT_MAGIC;
+    if (qa_suite_active())
+        qa_suite_done();
     sd_result_save("corvane", demo_name);   // no console here: nothing is shown
     for (int f = 0;; f++)
     {
@@ -1905,7 +1910,7 @@ static void d_io_qalog(void)
     bool chip = save_write();
     bool mirror = qalog_save_mirror(&cv_save, sizeof(cv_save), chip);
     con_printf("SAVE CHIP: %s  SD MIRROR: %s\n", chip ? "OK" : "NONE", mirror ? "OK" : "NO");
-    qalog_checkpoint("demo", "mid", qalog_fnv(QALOG_FNV_INIT, "io-qalog", 8), 0);
+    qalog_checkpoint("demo", "mid", qalog_fnv(QALOG_FNV_INIT, "io-qalog", 8), 0, 0, 0, 0);
     while (cv_frame < CHECKPOINT)
         vsync();
     u32 game[1] = { (u32)chip };
@@ -3073,6 +3078,76 @@ static const DemoEntry demos[] = {
     { "acc-split-rear-write", d_acc_split_rear_write },
     { "acc-split-hdma", d_acc_split_hdma },
 };
+
+// What the QA run's judge suite runs (core/qasuite.h): every judged demo under its stand-alone ROM's name,
+// the ones that change the machine most (WRAM ownership, IRQ handlers) last. acc-stage runs first: after other
+// demos its capture seam reads 0 instead of 18 (not a judged value). io-qalog
+// opens a QA log of its own, so it stays out; its item (block id QARN) is graded from the QA block file.
+static void suite_demo(const char *name)
+{
+    for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)
+    {
+        if (strcmp(demos[i].name, name) == 0)
+        {
+            demo_id = hash_name(name);
+            demo_name = name;
+            idle_fn = NULL;
+            demos[i].fn();   // ends in finish() -> qa_suite_done()
+        }
+    }
+}
+
+const QaSuiteDemo demo_suite[] = {
+    { "acc-stage", suite_demo },
+    { "sys-ipc", suite_demo },
+    { "sys-timer", suite_demo },
+    { "sys-dma-now", suite_demo },
+    { "sys-dma-hblank", suite_demo },
+    { "sys-dma-gfx", suite_demo },
+    { "sys-dma-disp", suite_demo },
+    { "sys-dma-fill", suite_demo },
+    { "sys-bios", suite_demo },
+    { "sys-math", suite_demo },
+    { "2d-engines", suite_demo },
+    { "2d-text", suite_demo },
+    { "2d-affine", suite_demo },
+    { "2d-bitmap", suite_demo },
+    { "2d-mosaic", suite_demo },
+    { "2d-obj-normal", suite_demo },
+    { "2d-obj-affine", suite_demo },
+    { "2d-obj-bitmap", suite_demo },
+    { "2d-obj-map2d", suite_demo },
+    { "2d-obj-line", suite_demo },
+    { "2d-extpal", suite_demo },
+    { "2d-window", suite_demo },
+    { "2d-blend", suite_demo },
+    { "2d-brightness", suite_demo },
+    { "2d-vram", suite_demo },
+    { "2d-capture", suite_demo },
+    { "2d-display", suite_demo },
+    { "3d-fifo", suite_demo },
+    { "3d-matrix", suite_demo },
+    { "3d-light", suite_demo },
+    { "3d-clip", suite_demo },
+    { "3d-tex-a3i5", suite_demo },
+    { "3d-tex-a5i3", suite_demo },
+    { "3d-tex-pal4", suite_demo },
+    { "3d-tex-pal16", suite_demo },
+    { "3d-tex-pal256", suite_demo },
+    { "3d-tex-4x4", suite_demo },
+    { "3d-tex-direct", suite_demo },
+    { "3d-poly", suite_demo },
+    { "3d-toon", suite_demo },
+    { "3d-edge", suite_demo },
+    { "3d-fog", suite_demo },
+    { "3d-aa", suite_demo },
+    { "3d-depth", suite_demo },
+    { "3d-test", suite_demo },
+    { "3d-compose", suite_demo },
+    { "sys-wram", suite_demo },
+    { "sys-irq", suite_demo },
+};
+const int demo_suite_count = (int)(sizeof(demo_suite) / sizeof(demo_suite[0]));
 
 void demo_main(const char *name)
 {

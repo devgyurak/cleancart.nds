@@ -38,11 +38,30 @@ game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/ar
    tune values.
 6. **SD log** (`core/qalog.c`): 64 KB RAM ring, `<frame> <scene> <event> key=val ...`; header
    events `hdr` (game, build, rtc, seed, sd, fat_fail, errno, drive, dldi, cart_ready,
-   nitro, save_build, save_detected, save_available); `cp` lines (`name= hash= lag=`);
+   nitro, save_build, save_detected, save_available); `cp` lines (`name= hash= lag= gx=uf<n>,of<n> rdl=<min>`: the 3D engine hint, see below);
    last line `RESULT PASS|FAIL reason=...`. File `<drive>cleancart/<game>/qa-<date>-<time>.log`,
    saves `save-<date>-<time>-<n>.bin` (runs never overwrite each other). Flush only at scene changes, checkpoints and the end; every flush
    claims the slot-1 bus (`cart_bus_claim()`) and closes the file; never flush inside a save
    transaction (`qalog_hold()` if code could log there). No SD (DeSmuME): RAM only.
+   **3D hint on `cp` lines**: `qa_autopilot()` reads DISP3DCNT (0x04000060) bit 12 (RDLINES underflow)
+   and bit 13 (polygon/vertex RAM overflow) and RDLINES_COUNT (0x04000320, bits 0-5, buffered lines minus 2, 0..46) every
+   frame, read-only (the sticky flags are never cleared by QA, so `uf`/`of` count the frames the flag was up
+   since the last checkpoint, `rdl` is the lowest value or `-` when no frame was sampled; reset at each
+   checkpoint). A game that acknowledges bit 13 itself (`g3_overflowed()`) must write bit 12 as 0 and expose its
+   acknowledgement count through `qa_game_gx_acks()` (weak default 0 in `core/qa.c`), each counted as a frame with
+   the flag up. Like `lag` it is a hint:
+   never in a state hash, never compared (`compare.py --info` prints it side by side); a scene without 3D
+   shows `uf0,of0`. Emulators rarely raise these flags, hardware may. `parse_log.py` accepts logs without it.
+   **Checkpoint screenshots** (`core/qashot.c`, Corvane first; the other games follow after the console result):
+   `qa_shot(name)` works only in a QA run with the SD log open. It captures the main engine (BG+OBJ+3D, 256x192,
+   15 bit, DISPCAPCNT source A) into the A-D bank that `qa_game_shot_bank()` reports as LCDC and unused
+   (`QA_SHOT_NO_BANK` -1 / `QA_SHOT_CAPTURE_BUSY` -2 otherwise; a bank is never remapped for it), writes
+   `shot-<date>-<time>-<name>.bmp` (16 bit `BI_BITFIELDS` 555, ~96 KB) inside `cart_bus_claim()` and logs
+   `shot name= file= screen=top|bottom crc=` (screen from POWCNT bit 15) or `shot name= skip=|err=`. Every
+   wait is bounded (`err=timeout`). Shot points are chosen by pilot-call counts, never `cv_frame`; the capture
+   delays a frame or two (lag) and changes no game state, so two runs give the same hashes and the same CRCs.
+   The capture code stays in `core/qashot.c` (no `qa*` symbol in `gfx/`, `judge/`, `capture.c`,
+   `core/save.c`). The per-layout bank table is in the game's `docs/QA.md`.
 7. **RAM result block** at `0x0237F000`, same layout as the demo block, `demo_id` =
    `QARN`; magic written last. Words: verdict (1 PASS/2 FAIL), lines, SD flags
    (bit0 log on SD, bit1 read-back ok, bit2 write failed), last state hash, checkpoints,
@@ -65,6 +84,25 @@ game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/ar
     which `qa.c` calls after the `QARN` block was written; other games leave it empty.
 12. **Watchdog**: a scene longer than `QA_SCENE_LIMIT` frames ends the run with FAIL
    (`scene-timeout`). The pilot must never be able to loop forever.
+
+## Judge suite (the run also judges)
+
+After the verdict (`RESULT PASS|FAIL` line and the `QARN` block are written) a game may run its judged
+demos in `qa_suite_run(kit, demos, n, frame_limit)` (`core/qasuite.c`, identical in every game):
+
+- A suite demo fills `CV_RESULT` and **returns** (no idle loop, no SD write); the runner calls
+  `sd_result_save(kit, name)`, so the file is the same `res-<stamp>-<kit>-<demo>.log` a stand-alone demo ROM writes
+  and `tools/qa/ingest.py` / `judge.py` grade it unchanged. The stand-alone ROM shares the same function.
+- Before each demo the runner resets the hardware (DMA/timers off, IE restored, brightness, WRAM back to the ARM7) and
+  calls the game's `qa_suite_reset_game()`; a demo past `frame_limit` is left through `qa_suite_watch()` (in
+  `sys_vsync()`) and logged `timeout=1`. Every demo logs `suite demo=<name> saved=<0|1> frames=<n>` and flushes
+  (`qalog_append()`) to `suite-<stamp>.log` beside the qa log (which keeps ending with its `RESULT` line, so `parse_log.py` and `compare.py` stay valid), so a hang names the last demo. Put fragile demos last.
+- The reset also: `REG_DISPCAPCNT = 0`, IF cleared **except the IPC FIFO bits** (edge triggered: a cleared one is never raised again), VBlank list cut back to its length at the suite's start and the other IRQ handlers off (`irq_reset_hooks()`), `save_defaults()` settings (restored at the end), a game hook for the rest (Corvane: `cv_beats`, `g3_init()`).
+  A busy wait without a frame bound in a demo is not caught by the watchdog (it checks in `sys_vsync()`); an SD that stops answering ends the suite (`suite abort reason=sd-lost`). While the suite runs, the RAM block is the running demo's; the QARN block is back at the end.
+- No SD log (DeSmuME): `suite skipped=no-sd`. Suite values never enter a state hash, no checkpoint follows the suite,
+  and the `QARN` block is restored at the end (RAM-peeking emulator runs still grade boot `qa`).
+- A QA-only value that stands for a rehearsal-only item goes into the QARN block (e.g. Ledgerine sets `LV_DONE_REHEARSAL`
+  when all rooms closed) and the item gets `qa` in `boots`.
 
 ## Porting checklist
 

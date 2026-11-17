@@ -25,6 +25,8 @@ in **melonDS**, and record the melonDS version, demo name and expected screen.
 
 ## Auto QA run
 
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (buffered lines minus 2, 0..46; `rdl=-` when no frame was sampled in the span, e.g. two checkpoints in one frame). Both flags are sticky and only read, never cleared by QA, so a count is "frames the flag was up". That holds only while the game does not clear them: a game that acknowledges bit 13 itself (`g3_overflowed()` in Corvane, Elevane, Heddlemere, Hushwell, Lightenette, Paneveil) reports its acknowledgements through `qa_game_gx_acks()` and each one counts as a frame with the flag up; it writes bit 12 as 0 so the underflow flag survives. The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
+
 Hidden mode, same ROM as the release: on the title screen hold **L+R+X+Y for 120 frames**. The game
 walks the prologue and chapters 1-5 by itself (creature hits cost no health; everything else as shipped),
 opens the doors, dials the chapter 3 code, collects every tape, takes the well ending, plays the credits
@@ -38,6 +40,14 @@ block `QARN` at `0x0237F000`. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh ru
 | Same ROM, second run | ✅ all 6 checkpoint hashes identical (`tools/qa/compare.py`) |
 | DeSmuME headless (no SD) | ✅ `QARN` block verdict 1, 6 chapters, tapes `3e`, last state hash `fea01683` = melonDS (lag differs, not compared) |
 | Real DS Lite + R4 | not run yet |
+
+**Judge suite.** With the QA log on an SD card the run continues after `RESULT PASS`: the QA block is saved as `res-<stamp>-hushwell-qa.log`, then 16 judged demos
+(`sys-ipc`, `sys-keys`, the six `snd-*`, `snd-wave`, `io-firmware`, `io-rtc`, `io-touch`, `io-power`, `sys-dma-cart`, `io-cart`, `io-save-eeprom`) run one after another and each writes
+`res-<stamp>-hushwell-<name>.log` (`suite demo=<name> saved=1 frames=<n>` in `suite-<stamp>.log`; no SD card: `suite skipped=no-sd`, the DeSmuME case). Decision (2026-11-17):
+`io-save-flash` and `io-save-fram` are builds for another save chip, so they are **not** in the suite; on hardware their items (and every `env: cart` item, `io-save-eeprom-*` included) are n/a
+(`judge.py --hardware`; the R4 verifies no chip save), and in the emulators they are graded from the stand-alone ROMs `hushwell-io-save-flash.nds` / `-fram.nds`. Likewise the harness items (`io-touch-x/y`, a scripted
+touch) stay with the stand-alone ROM for emulator profiles. Values equal the stand-alone ROMs' (`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17) except what needs the harness
+(the injected key and touch of `sys-keys`, `io-touch`, `io-power`) and the capture peak of `snd-capture`, which varies inside its judged range.
 
 ## QA record
 

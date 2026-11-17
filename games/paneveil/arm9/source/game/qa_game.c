@@ -12,10 +12,12 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/sys.h"
 #include "game/play.h"
 #include "game/qa_tune.h"
+#include "gfx/gl3d.h"
 #include "game/scenes.h"
 #include "game/script.h"
 #include "game/window.h"
@@ -123,6 +125,7 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                qa_suite_run("paneveil", NULL, 0, 0);   // the QARN block as a res file (no extra demos)
             }
             break;
         default:
@@ -131,6 +134,13 @@ void qa_game_scene(int id)
 }
 
 // The rehearsal's block layout (values[0..30]) plus the QA words after it (values[48..54]).
+// The game acknowledges the polygon/vertex RAM overflow flag itself (g3_overflowed()); core/qa.c
+// counts those acknowledgements as frames with the flag up.
+u32 qa_game_gx_acks(void)
+{
+    return g3_overflow_acks();
+}
+
 void qa_game_publish(bool pass)
 {
     volatile CvResult *r = CV_RESULT;

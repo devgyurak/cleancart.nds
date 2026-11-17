@@ -29,12 +29,19 @@ melonDS 1.1용 체크리스트입니다(macOS 키는 저장소 `AGENTS.md` 참�
 
 ## 자동 QA 실행
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
 출시 ROM(`lightenette.nds`, 배포본과 SHA-256 동일)의 숨김 모드: 타이틀 화면에서 L과 R을 먼저 누른 뒤 X와 Y까지 네 키를 120프레임 누르고 있습니다.
 게임이 정상 흐름을 스스로 진행합니다. 리허설 스크립트로 막 1~5, 크레딧, 마지막에 정확도 판정 1회. 로그는 SD 카드의
 `cleancart/lightenette/qa-<날짜>-<시각>.log`, 결과 블록 `QARN`은 리허설 배치 그대로이고
 `python3 games/lightenette/tools/judge.py --profile <렌더러> <로그>`로 채점합니다(boot `qa`, 추가 항목 `qa-verdict`). 헤드리스: `SDDIR=out/lt/x tools/melonds/mds.sh run
 games/lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (GL은 `RENDERER=gl|compute`, DeSmuME는 `RESULT_WORDS=64
 tools/emu/emu.sh run ... 4000 ...`).
+
+**판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-lightenette-qa.log`로 저장하고,
+레벨 2 데모 10개(`l2-*`, 단독 ROM과 같은 함수)를 차례로 돌려 각각 `res-<stamp>-lightenette-<demo>.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=<name> saved=1 frames=<n>`.
+SD가 없으면 `suite skipped=no-sd`: DeSmuME). 그래서 카드에서 한 번 실행하면 판정 항목이 모두 나오고, `tools/qa/ingest.py`가 파일마다 따로 채점합니다.
+값은 단독 ROM과 같습니다(`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17). 판정 범위 안에서 흔들리는 둘만 다릅니다: `l2-sys-irq`의 HBlank 수와 `l2-snd-capture`의 캡처 피크.
 
 | 렌더러 | QA 런 (2026-11-11) | `judge.py --profile` | QA judge 값 = 리허설 데모 값 |
 |---|---|---|---|

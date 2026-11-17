@@ -29,12 +29,14 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 | 에뮬레이터 | NG 항목 | 비고 |
 |---|---|---|
 | melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS) | `ipc-empty-last`(빈 읽기가 마지막 워드 B가 아니라 다음 칸 7A000001h를 돌려줌), `dma-itcm-runs`(DMA 내내 CPU가 멈춤: DMA만 00090027 틱, 루프를 더하면 000d7f6b 틱), `bios-arm7-guard`(대체 BIOS가 BIOS 영역에서 복사함) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 세 렌더러가 같음 |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | 프로필 `desmume-pydesmume-0.0.9` MATCH. 리허설이 예전에 여기서 멈췄던 이유: 모드 2의 `-2^63 / -1` 나눗셈에서 DeSmuME가 통째로 멈춥니다(호스트가 `INT64_MIN`을 -1로 나눔). 그래서 이 검사는 `press-min` ROM으로 옮겼고, 게임·리허설·QA 실행은 이 계산을 하지 않습니다(1번 방 "가장 낮은 빚" 줄은 모드 0만 줍니다). upstream에 보고할 만합니다 |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | 프로필 `desmume-pydesmume-0.0.9` MATCH. 리허설이 예전에 여기서 멈췄던 이유: 모드 2의 `-2^63 / -1` 나눗셈에서 DeSmuME가 통째로 멈춥니다(호스트가 `INT64_MIN`을 -1로 나눔). 그래서 이 검사는 `press-min` ROM으로 옮겼고, 게임과 리허설은 이 계산을 하지 않고, QA 실행은 SD 카드가 있을 때 판정 스위트에서만 합니다(1번 방 "가장 낮은 빚" 줄은 모드 0만 줍니다). upstream에 보고할 만합니다 |
 
 NG 세 항목은 실기로 확인할 결과입니다(GBATEK이 적은 내용이라 gating을 유지합니다). 실기를 돌리면 에뮬레이터 쪽 문제인지 GBATEK을
 읽은 쪽 문제인지 알 수 있습니다.
 
 ## 자동 QA 실행
+
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
 
 릴리스 ROM(`ledgerine.nds`, 배포본과 SHA-256 동일)의 숨은 모드입니다. 타이틀 화면에서 L과 R을 누른 뒤 X와 Y를 눌러 네 키를 120프레임
 동안 누르고 있으면 됩니다. 게임이 정상 흐름을 스스로 진행합니다: 타이틀, 1~6번 방(조종기가 GBATEK 모델로 줄마다 다이얼 값을 찾아
@@ -42,6 +44,10 @@ NG 세 항목은 실기로 확인할 결과입니다(GBATEK이 적은 내용이�
 `cleancart/ledgerine/qa-<날짜>-<시각>.log`가 남고, 리허설 배치의 결과 블록 `QARN`을 `python3 games/ledgerine/tools/judge.py --profile <프로필> <로그>`로
 채점합니다(boot `qa`, 추가 항목 `qa-verdict`). 헤드리스: `SDDIR=out/lg/x tools/melonds/mds.sh run games/ledgerine/ledgerine.nds 3000 out/lg/x "300:L:140,300:R:140,300:X:140,300:Y:140"`
 (먼저 `out/lg/x/cleancart/ledgerine/`를 만들어 둠. GL 렌더러는 `RENDERER=gl|compute`).
+
+**판정 스위트.** QA 로그가 SD 카드에 있으면, 실행은 `RESULT PASS`와 `QARN` 블록을 남긴 뒤 `press-min` 검사를 돌리고 로그 옆에
+`res-<stamp>-ledgerine-press-min.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=press-min saved=1`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). `QARN` 블록은 스위트 뒤에 다시 복원합니다.
+그래서 QA 한 번으로 모든 항목이 채점됩니다: `qa` boot는 블록에서(항목 `rehearsal-done` = 여섯 방 모두 장부 마감), `press-min`은 res 파일에서(카드에서는 `tools/qa/ingest.py`, 헤드리스는 `judge.py --boot press-min`).
 
 | 렌더러 | QA 실행 (2026-11-16) | `judge.py --profile` |
 |---|---|---|

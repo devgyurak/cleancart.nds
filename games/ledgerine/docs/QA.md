@@ -29,12 +29,14 @@ Hardware: not run yet, see [HW-QA.md](HW-QA.md).
 | Emulator | NG items | Notes |
 |---|---|---|
 | melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS) | `ipc-empty-last` (empty read returns the next cell: word 7A000001h, not the last word B), `dma-itcm-runs` (the CPU halts for the whole DMA: 000d7f6b ticks against 00090027 for the DMA alone), `bios-arm7-guard` (the replacement BIOS copies from the BIOS area) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game, rehearsal and QA run never do it (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | profile `desmume-pydesmume-0.0.9` MATCH. The rehearsal used to hang there: DeSmuME stops dead (the host divides `INT64_MIN` by -1) on the mode 2 `-2^63 / -1` division, which is why that check now lives in the `press-min` ROM and the game and rehearsal never do it, and the QA run does it only in its judge suite, which needs an SD card (the lever of room 1 offers mode 0 only for the lowest debt). Worth reporting upstream |
 
 The three NG items are results to check against hardware (items stay gating because GBATEK states them); the hardware run
 (`docs/HW-QA.md`) would tell whether the emulator or the reading of GBATEK is at fault.
 
 ## Auto QA run
+
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (buffered lines minus 2, 0..46; `rdl=-` when no frame was sampled in the span, e.g. two checkpoints in one frame). Both flags are sticky and only read, never cleared by QA, so a count is "frames the flag was up". That holds only while the game does not clear them: a game that acknowledges bit 13 itself (`g3_overflowed()` in Corvane, Elevane, Heddlemere, Hushwell, Lightenette, Paneveil) reports its acknowledgements through `qa_game_gx_acks()` and each one counts as a frame with the flag up; it writes bit 12 as 0 so the underflow flag survives. The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
 
 Hidden mode of the release ROM (`ledgerine.nds`, SHA-256 identical to what ships): on the title screen press L and R, then X and Y, and
 hold all four for 120 frames. The game plays the normal flow by itself: title, rooms 1 to 6 (the pilot finds each line's
@@ -43,6 +45,10 @@ again, then ends with `RESULT PASS`. Log on the SD card (`cleancart/ledgerine/qa
 rehearsal's layout, graded with `python3 games/ledgerine/tools/judge.py --profile <profile> <log>` (boot `qa`, extra item
 `qa-verdict`). Headless: `SDDIR=out/lg/x tools/melonds/mds.sh run games/ledgerine/ledgerine.nds 3000 out/lg/x "300:L:140,300:R:140,300:X:140,300:Y:140"`
 (create `out/lg/x/cleancart/ledgerine/` first; `RENDERER=gl|compute` for the GL renderers).
+
+**Judge suite.** With the QA log on an SD card, the run ends (after `RESULT PASS` and the `QARN` block) with the `press-min` check and writes
+`res-<stamp>-ledgerine-press-min.log` beside the log (`suite demo=press-min saved=1` in `suite-<stamp>.log`; no SD card: `suite skipped=no-sd`, which is the DeSmuME case). The `QARN` block is put back afterwards.
+So one QA run grades every item: the `qa` boot from the block (item `rehearsal-done` = all six rooms closed), `press-min` from the res file (`tools/qa/ingest.py` on a card, `judge.py --boot press-min` headless).
 
 | Renderer | QA run (2026-11-16) | `judge.py --profile` |
 |---|---|---|

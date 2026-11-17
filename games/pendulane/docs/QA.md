@@ -18,6 +18,8 @@ Hardware: not run yet, see [HW-QA.md](HW-QA.md).
 
 ## Auto QA run
 
+Each `cp` line of the QA log ends with `gx=uf<n>,of<n> rdl=<min>`: for the span since the previous checkpoint, the frames that showed DISP3DCNT bit 12 (colour buffer RDLINES underflow) and bit 13 (polygon/vertex RAM overflow) set, and the lowest RDLINES_COUNT (buffered lines minus 2, 0..46; `rdl=-` when no frame was sampled in the span, e.g. two checkpoints in one frame). Both flags are sticky and only read, never cleared by QA, so a count is "frames the flag was up". That holds only while the game does not clear them: a game that acknowledges bit 13 itself (`g3_overflowed()` in Corvane, Elevane, Heddlemere, Hushwell, Lightenette, Paneveil) reports its acknowledgements through `qa_game_gx_acks()` and each one counts as a frame with the flag up; it writes bit 12 as 0 so the underflow flag survives. The figures are a hint like `lag`: never hashed, never compared (`tools/qa/compare.py --info` lists them side by side), and `0,0` is what a scene without 3D shows. Emulators rarely raise these flags; hardware may.
+
 Hidden mode of the release ROM (`pendulane.nds`): on the title screen press L and R, then X and Y, and hold all four for 120 frames. It
 plays the normal flow (title → list → all 20 contraptions, each chapter ended by its rhythm piece → list → title → credits → title), runs the bench once and ends with `RESULT PASS`. Log on the SD card
 (`cleancart/pendulane/qa-<date>-<time>.log`). Headless: `SDDIR=out/pd/x tools/melonds/mds.sh run games/pendulane/pendulane.nds 6000 out/pd/x

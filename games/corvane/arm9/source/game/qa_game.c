@@ -5,14 +5,21 @@
 // and the scene hooks that judge the run.
 
 #include <nds.h>
+#include <stdio.h>
 
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
+#include "core/qashot.h"
 #include "core/rng.h"
 #include "core/save.h"
+#include "core/timer.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/game.h"
 #include "game/qa_tune.h"
+#include "gfx/gl3d.h"
+#include "gfx/vram.h"
 #include "game/stage.h"
 
 // As shipped: every number at 1x.
@@ -28,6 +35,35 @@ const QaTune qa_tune_on = {
 
 static bool credits_seen;
 static u32 stages_cleared;
+static int shot_stage;           // stage whose 10-second shot was taken
+static int pilot_scene = -1;     // scene the pilot call counter belongs to
+static u32 pilot_calls;          // pilot calls since that scene started (not VBlanks)
+
+// Checkpoint screenshots (core/qashot.c) need an A-D bank that is LCDC and unused. Of the
+// layouts in gfx/vram.c only SPACE (stage 3) has one: bank D, which the boost afterimage
+// uses as its capture buffer, so it is free while the ship is not boosting (the pilot never
+// boosts). CORE (stage 5) and DUAL3D run a capture of their own; MENU, TERRAIN, SKY,
+// CORRIDOR and MMEM put every bank A-D to use.
+int qa_game_shot_bank(void)
+{
+    switch (vram_current())
+    {
+        case VL_SPACE:
+            return S.pl.boost > 0 ? QA_SHOT_CAPTURE_BUSY : VB_D;
+        case VL_CORE:
+        case VL_DUAL3D:
+            return QA_SHOT_CAPTURE_BUSY;
+        default:
+            return QA_SHOT_NO_BANK;
+    }
+}
+
+// The game acknowledges the polygon/vertex RAM overflow flag itself (g3_overflowed()); core/qa.c
+// counts those acknowledgements as frames with the flag up.
+u32 qa_game_gx_acks(void)
+{
+    return g3_overflow_acks();
+}
 
 void qa_game_publish(bool pass)
 {
@@ -38,6 +74,8 @@ void qa_game_reset(void)
 {
     credits_seen = false;
     stages_cleared = 0;
+    shot_stage = 0;
+    pilot_scene = -1;
     // Settings that change the run come from the save; the run uses the defaults
     // (the save is restored when it ends).
     cv_save.difficulty = 0;
@@ -83,6 +121,8 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                // The verdict and the QARN block are out: the judged demos (core/qasuite.h).
+                qa_suite_run("corvane", demo_suite, demo_suite_count, 900);
             }
             else if (id == SC_RECORDS)
             {
@@ -168,8 +208,37 @@ static bool target_of(int32_t *tx, int32_t *ty)
     return true;
 }
 
+// Shot points are counted in pilot calls so that a frame that takes two VBlanks (or a capture
+// that delays one) never moves them.
+static void shot_points(int scene)
+{
+    char name[16];
+    if (scene != pilot_scene)
+    {
+        pilot_scene = scene;
+        pilot_calls = 0;
+    }
+    pilot_calls++;
+    if (scene == SC_STAGE && S.frame == 600 && shot_stage != cv_game.stage)
+    {
+        shot_stage = cv_game.stage;
+        snprintf(name, sizeof(name), "st%d-600", cv_game.stage);
+        qa_shot(name);
+    }
+    else if (scene == SC_RESULT && pilot_calls == 6)
+    {
+        snprintf(name, sizeof(name), "st%d-result", cv_game.stage);
+        qa_shot(name);
+    }
+    else if (scene == SC_CREDITS && pilot_calls == 90)
+    {
+        qa_shot("credits");
+    }
+}
+
 void qa_game_pilot(int scene, u32 f, QaInput *out)
 {
+    shot_points(scene);
     switch (scene)
     {
         case SC_STAGE:
@@ -202,4 +271,11 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
                 out->keys = KEY_A;
             break;
     }
+}
+
+// The suite starts every demo from boot's counters: the boss beat of the run counted into cv_beats.
+void qa_suite_reset_game(void)
+{
+    cv_beats = 0;
+    g3_init();   // geometry engine as boot leaves it (texture matrix, state a 3D demo set)
 }

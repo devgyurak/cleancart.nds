@@ -13,8 +13,10 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/ledger.h"
 #include "game/qa_tune.h"
 #include "game/rooms.h"
@@ -85,6 +87,8 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                // The verdict and the QARN block are out: now the judged demos (core/qasuite.h).
+                qa_suite_run("ledgerine", demo_suite, demo_suite_count, 600);
             }
             break;
         case SC_MENU:
@@ -110,6 +114,9 @@ void qa_game_publish(bool pass)
     u32 res[61];
     memcpy(res, lg_res, sizeof(res));
     r->magic = 0;
+    // The rehearsal's "ran every room" flag: the run closed all six rooms' books.
+    if (rooms_done == (1u << LG_ROOMS) - 1)
+        res[LV_DONE] |= LV_DONE_REHEARSAL;
     for (int i = 0; i < 61; i++)
         r->values[i] = i < 48 ? res[i] : 0;
     for (int i = 0; i < 7; i++)

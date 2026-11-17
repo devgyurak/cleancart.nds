@@ -120,3 +120,21 @@ void irq_set_keys(u16 mask, CvIrqFn fn)
         irqDisable(IRQ_KEYS);
     }
 }
+
+// The QA judge suite (core/qasuite.c) puts the handler lists back to what the game had: the VBlank list to
+// `count` entries (a demo's own hooks go), the HBlank, VCount and key handlers off.
+int irq_vblank_count(void)
+{
+    return vblank_count;
+}
+
+void irq_reset_hooks(int vblank_keep)
+{
+    int old = enterCriticalSection();
+    if (vblank_keep >= 0 && vblank_keep < vblank_count)
+        vblank_count = vblank_keep;
+    leaveCriticalSection(old);
+    irq_set_hblank(NULL);
+    irq_set_vcount(0, NULL);
+    irq_set_keys(0, NULL);
+}

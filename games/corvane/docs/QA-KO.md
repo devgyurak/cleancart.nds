@@ -30,6 +30,21 @@ melonDS 버전·데모 이름·기대 화면 설명을 남깁니다.
 
 ## 자동 QA 실행
 
+QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 체크포인트 이후 구간에서 DISP3DCNT bit 12(컬러 버퍼 RDLINES 언더플로)와 bit 13(폴리곤/버텍스 RAM 오버플로)이 켜져 있던 프레임 수, 그리고 RDLINES_COUNT의 최솟값(버퍼된 줄 수 − 2, 0..46. 구간에 표본이 없으면 `rdl=-`, 예: 같은 프레임의 두 체크포인트)이다. 두 플래그는 끈적하고 QA는 읽기만 하며 지우지 않으므로 값은 "플래그가 켜져 있던 프레임 수"다. 다만 게임이 플래그를 지우지 않을 때만 그렇다. bit 13을 스스로 확인(지우기)하는 게임(Corvane·Elevane·Heddlemere·Hushwell·Lightenette·Paneveil의 `g3_overflowed()`)은 확인 횟수를 `qa_game_gx_acks()`로 알리고 한 번을 "플래그가 켜져 있던 프레임"으로 센다. bit 12는 0으로 써서 언더플로 플래그가 남게 한다. `lag`처럼 참고용이라 해시에 넣지 않고 비교하지도 않으며(`tools/qa/compare.py --info`가 나란히 보여 준다), 3D를 쓰지 않는 장면은 `0,0`이다. 에뮬레이터는 이 플래그를 거의 세우지 않고 실기는 세울 수 있다.
+
+체크포인트 스크린샷(`core/qashot.c`): 정해진 지점에서 실행이 메인 엔진의 화면(BG + OBJ + 3D, 256x192, 15비트)을 디스플레이 캡처로 빈 LCDC 뱅크에 담고, `cart_bus_claim()` 안에서 `cleancart/corvane/shot-<날짜>-<시각>-<이름>.bmp`로 카드에 씁니다(16비트 BMP, `BI_BITFIELDS` 555, 98,370바이트). 로그에는 `shot name=<이름> file=<파일> screen=top|bottom crc=<픽셀의 crc32>`(`screen`은 POWCNT bit 15로 정해지는 물리 화면)가 남고, 못 찍으면 `shot name=<이름> skip=no-bank|capture-in-use|no-sd|exists` 또는 `err=timeout|write`가 남습니다. QA 실행이 아니면 아무 일도 없고, SD 로그가 없으면 아무것도 쓰지 않습니다. 캡처는 1–2프레임을 지연시키지만(lag에 잡힘, 게임 로직은 파일럿 호출 수 기준이라 영향 없음) DISPCAPCNT를 원래대로 돌려 놓습니다. 촬영 지점: 각 스테이지의 stage frame 600(`st<N>-600`), 결과 화면 진입 6 파일럿 호출 뒤(`st<N>-result`), 크레딧 90 호출 뒤(`credits`). 캡처에는 LCDC로 매핑되고 쓰이지 않는 A–D 뱅크가 하나 필요합니다(`qa_game_shot_bank()`, 뱅크 매핑은 바꾸지 않음).
+
+| 레이아웃 | 장면 | A | B | C | D | 촬영 |
+|---|---|---|---|---|---|---|
+| MENU | 타이틀, 브리핑, 결과, 크레딧, 기록, 설정 | BG | BG | 서브 BG | 서브 OBJ | `skip=no-bank` |
+| TERRAIN / SKY / CORRIDOR | 스테이지 1, 2, 4 | 텍스처 | 텍스처 | 서브 BG | 서브 OBJ | `skip=no-bank` |
+| SPACE | 스테이지 3 | BG | BG | BG | LCDC(부스트 잔상 버퍼) | 부스트 중이 아닐 때 D 뱅크(파일럿은 부스트하지 않음) |
+| CORE | 스테이지 5 | 텍스처 | 텍스처 | 리어 플레인 색 | 리어 플레인 깊이 | `skip=capture-in-use` |
+| DUAL3D | 엔딩 | 텍스처 | 텍스처 | LCDC / 서브 BG | LCDC / 서브 OBJ | `skip=capture-in-use`(자체 캡처) |
+| MMEM | 부팅, 인트로 | LCDC(프레임버퍼) | 꺼짐 | 서브 BG | 서브 OBJ | 촬영 지점 아님 |
+
+그래서 지금 Corvane QA 실행에서 파일이 생기는 것은 `st3-600`뿐이고, 나머지 지점은 찍지 못한 이유를 로그에 남깁니다. 더 찍으려면 다른 레이아웃에서 뱅크 하나를 비워 두어야 하는데, 그것은 QA가 아니라 게임의 VRAM 계획을 바꾸는 일입니다. melonDS에서 같은 실행은 같은 BMP를 만듭니다: 비어 있는 `out/mds/x/cleancart/corvane/autoqa`(마커 시작)를 두고 `SDDIR=out/mds/x tools/melonds/mds.sh run games/corvane/corvane.nds 40000 out/mds/x/o ""`. 두 번 실행하면 `crc=`가 같습니다. 실기 shot과 melonDS shot 비교: `python3 tools/qa/compare.py --info <melonds.log> <hardware.log>`가 shot 이름별 CRC를 나란히 보여 주고(참고용, 종료 코드에는 영향 없음), 그다음 두 BMP를 나란히 눈으로 봅니다. `tools/qa/ingest.py`가 `shot-*.bmp`를 `build/qa/`로 복사합니다.
+
 숨김 모드(출시 ROM과 같은 ROM): 타이틀 화면에서 **L+R+X+Y를 120프레임 누르고 있으면** 게임이
 스테이지 1~5, 엔딩, 크레딧을 스스로 플레이하고 기록 화면에서 끝납니다. 끝나면 카트에 있던 원래 세이브(설정 슬롯과 마지막 런 리플레이 영역)를 복원합니다. 보스 HP ×0.1, 피격해도
 잔기가 줄지 않는 정도의 숫자만 바뀌고, 이펙트·사운드·세이브는 그대로입니다. SD 카드가 있는
@@ -44,6 +59,13 @@ games/corvane/corvane.nds 20000 out/mds/x "60:A,200:A,500:L:140,500:R:140,500:X:
 | 같은 ROM 두 번째 실행 | ✅ 체크포인트 해시 전부 동일(`tools/qa/compare.py`) |
 | DeSmuME 헤드리스(SD 없음) | ✅ `QARN` 블록 판정 1, 마지막 상태 해시 `37db96a8` = melonDS(랙은 다름, 비교 대상 아님) |
 | 실기 DS Lite + R4 | 아직 안 돌림 |
+
+**판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-corvane-qa.log`로 저장한 다음 채점 데모 48개를 차례로 돌립니다
+(`acc-stage`가 맨 앞, `sys-wram`과 `sys-irq`가 맨 뒤. `suite-<stamp>.log`에 데모마다 `suite demo=<name> saved=1 frames=<n>`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). 각 데모는 단독 ROM처럼
+`res-<stamp>-corvane-<이름>.log`를 씁니다. 그래서 카드에서 한 번 실행하면 판정 항목이 모두 나옵니다. `io-qalog`도 따로 돌릴 필요가 없습니다: 블록 id가 QARN이라서 QA 블록 파일(`res-…-corvane-qa.log`)이 이 항목(`io-qalog-verdict`)의 블록으로 채점됩니다. 단독 ROM은 에뮬레이터 프로필에서만 쓰입니다.
+헤드리스: `SDDIR=out/cv/x tools/melonds/mds.sh run games/corvane/corvane.nds 60000 out/cv/x "700:L:140,700:R:140,700:X:140,700:Y:140"` (먼저 `out/cv/x/cleancart/corvane/`를 만들어 둠. 실행은 약 19800프레임에서 끝나고 그중 6000이 스위트).
+2026-11-17에 `tools/qa/suite_compare.py`로 단독 ROM과 비교했습니다(melonDS soft): 48개 중 46개 동일, `sys-irq`(HBlank 수)와 `sys-timer`(시간 측정값)는 판정 범위 안에서 다릅니다. 스위트는 데모마다 `cv_beats`를 0으로 만들고 VRAM을 모두 지웁니다.
+`acc-stage`는 다른 데모 뒤에서 캡처 이음선(판정 값 아님)이 18 대신 0으로 읽혀서 맨 앞에 둡니다. 모든 res 파일에 `judge.py --profile melonds-1.1-software --partial`: MATCH, 92/92.
 
 ## 검수 기록
 

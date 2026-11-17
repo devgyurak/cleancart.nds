@@ -19,6 +19,7 @@
 #include "core/hw.h"
 #include "core/input.h"
 #include "core/irq.h"
+#include "core/qasuite.h"
 #include "core/sdcard.h"
 #include "core/sys.h"
 #include "demo/demo.h"
@@ -123,6 +124,8 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    if (qa_suite_active())
+        qa_suite_done();   // the QA judge suite saves the block itself and goes on
     // Only when the card holds cleancart/elevane/ (core/sdcard.h): the block goes to the SD card.
     if (sd_result_save("elevane", demo_name))
     {
@@ -959,6 +962,44 @@ static const DemoEntry demos[] = {
     { "l3-acc-split-rear-write", d_acc_split_rear_write },
     { "l3-acc-split-hdma", d_acc_split_hdma },
 };
+
+// What the QA run's judge suite runs (core/qasuite.h): the rehearsal (the scripted puzzles and the two
+// showcase presets, block EVRH) and the level 3 demos, each under its stand-alone ROM's name.
+static void suite_rehearsal(const char *name)
+{
+    (void)name;
+    rehearsal_run();
+}
+
+static void suite_demo(const char *name)
+{
+    for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)
+    {
+        if (strcmp(demos[i].name, name) == 0)
+        {
+            demo_id = hash_name(name);
+            demo_name = name;
+            idle_fn = NULL;
+            demos[i].fn();   // ends in finish() -> qa_suite_done()
+        }
+    }
+}
+
+// l3-acc-split-tex measures a wrong latency (9: no probe colour found) when it runs after l3-acc-dual, whose
+// 3D state is not fully undone by the reset; it stays ahead of it.
+const QaSuiteDemo demo_suite[] = {
+    { "rehearsal", suite_rehearsal },
+    { "l3-acc-split-tex", suite_demo },
+    { "l3-sys-dma-hblank", suite_demo },
+    { "l3-acc-dual", suite_demo },
+    { "l3-acc-split-bg", suite_demo },
+    { "l3-acc-split-relay", suite_demo },
+    { "l3-acc-split-rear", suite_demo },
+    { "l3-acc-split-rear-read", suite_demo },
+    { "l3-acc-split-rear-write", suite_demo },
+    { "l3-acc-split-hdma", suite_demo },
+};
+const int demo_suite_count = (int)(sizeof(demo_suite) / sizeof(demo_suite[0]));
 
 void demo_main(const char *name)
 {

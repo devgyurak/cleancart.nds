@@ -10,6 +10,7 @@
 #include "assets.h"
 #include "core/hw.h"
 #include "core/irq.h"
+#include "core/qasuite.h"
 #include "core/sys.h"
 #include "core/snd.h"
 
@@ -143,6 +144,7 @@ void sys_vsync(void)
 {
     // BIOS IntrWait: halt until a *new* VBlank (discard any pending one).
     swiIntrWait(1, IRQ_VBLANK);
+    qa_suite_watch();
 }
 
 void sys_wram_to_arm9(void)

@@ -76,6 +76,8 @@ void qa_game_reset(void);            // new run: clear the game side's statics
 void qa_game_scene(int id);          // called by qa_scene(); may checkpoint / pass / fail
 u32  qa_game_hash(void);             // game state only, never tuning values
 const char *qa_game_name(void);
+// Optional (weak default 0): how many times the game acknowledged DISP3DCNT bit 13 itself.
+u32  qa_game_gx_acks(void);
 #define QA_GAME_WORDS 6
 void qa_game_words(u32 *words);      // QA_GAME_WORDS values for the result block
 
