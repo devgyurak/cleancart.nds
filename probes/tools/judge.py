@@ -126,6 +126,8 @@ def verdict(item, vals):
             return 'NA'
         c = item['check']
         v = [vals[i] for i in item['values']]
+        if item.get('signed'):    # a difference that can be negative is stored as a 32-bit two's complement word
+            v = [x - (1 << 32) if x >= 1 << 31 else x for x in v]
         if 'not_value' in item and any(x == item['not_value'] for x in v):
             return 'DIFFERS'
         if c == 'eq':

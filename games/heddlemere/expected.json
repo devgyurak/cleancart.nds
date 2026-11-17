@@ -1,0 +1,757 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 3,
+  "area": "3D engine and scanline timing",
+  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware. hblank-low-arm9 (GBATEK 1606, melonDS 1584) is the fifth such item and informational for the same reason; its measurement is unbiased by a dithered delay (arm9/source/judge/timing.c). The cycle residual of a VCOUNT write is measured (values[8]) but not judged: it moves to probes/ with the apply line.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "heddlemere-rehearsal.nds",
+      "item_id": 1213353288,
+      "item_id_text": "HMRH",
+      "frames": 3000,
+      "note": "the timing measurements and a scripted play of the first order of every chapter; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "heddlemere.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 9000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): every order played, the credits, then the timing measurements once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "line-cycles",
+      "title": "A scanline is 355 dots x 6 = 2130 cycles (x16 fixed point, mean over 2000 lines)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        1
+      ],
+      "check": "range",
+      "min": 34064,
+      "max": 34096,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "frame-cycles",
+      "title": "A frame is 263 lines = 560190 cycles (mean over 32 frames)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        2
+      ],
+      "check": "range",
+      "min": 560188,
+      "max": 560192,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "hblank-low-arm9",
+      "title": "The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        3
+      ],
+      "check": "range",
+      "min": 25664,
+      "max": 25728,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "hblank-low-arm7",
+      "title": "The same on the ARM7 core: GBATEK gives 1613 \"for whatever reason\" (x16); informational until measured on hardware",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        4
+      ],
+      "check": "range",
+      "min": 25776,
+      "max": 25840,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 65
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "vblank-flag-lines",
+      "title": "The VBlank flag is set on lines 192..261 only: 70 lines, not on line 262",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 70,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 2,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "vcount-write-lines",
+      "title": "A VCOUNT write at line 212 (value 202) repeats 10 or 11 lines (the exact apply line and the cycle residual are probes/ L4 material)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        7
+      ],
+      "check": "range",
+      "min": 10,
+      "max": 11,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 2,
+      "level_basis": "gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-identity-slope",
+      "title": "MTX_IDENTITY costs 19 cycles (slope of two run lengths, x16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        9
+      ],
+      "check": "range",
+      "min": 300,
+      "max": 308,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-pushpop-slope",
+      "title": "MTX_PUSH 17 + MTX_POP 36 = 53 cycles per pair (x16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        10
+      ],
+      "check": "range",
+      "min": 844,
+      "max": 852,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Stack",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-trans-cycles",
+      "title": "MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        11
+      ],
+      "check": "range",
+      "min": 348,
+      "max": 356,
+      "signed": true,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 65
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-trans-mode2-extra",
+      "title": "MTX_TRANS in matrix mode 2 costs 30 cycles more than in mode 1 (x16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        12
+      ],
+      "check": "range",
+      "min": 472,
+      "max": 488,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-scale-mode2-extra",
+      "title": "MTX_SCALE costs no extra cycles in matrix mode 2 (x16, signed, within 0.5 cycle)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        13
+      ],
+      "check": "range",
+      "min": -8,
+      "max": 8,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map; gbatek:DS 3D Matrix Load/Multiply",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-box-cycles",
+      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        14
+      ],
+      "check": "range",
+      "min": 1640,
+      "max": 1656,
+      "signed": true,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-full-stall-rate",
+      "title": "With the geometry FIFO full a write waits for an entry to leave: one IDENTITY (19 cycles) per write (x16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        15
+      ],
+      "check": "range",
+      "min": 296,
+      "max": 312,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D Geometry Commands; gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-halfirq-slope",
+      "title": "The \"less than half full\" IRQ flag (IF bit 21) rises one IDENTITY (19 cycles) later per entry of fill (x16)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        16
+      ],
+      "check": "range",
+      "min": 296,
+      "max": 312,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D Status; gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "swap-tail",
+      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        17
+      ],
+      "check": "range",
+      "min": 6208,
+      "max": 6336,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D I/O Map",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "swap-ramcount-line",
+      "title": "Polygon RAM holds the 64 polygons at the HBlank of line 191 and 0 at line 192: the swap happens at line 192 (RAM_COUNT)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        18,
+        19
+      ],
+      "check": "eq",
+      "expect": [
+        64,
+        0
+      ],
+      "tolerance": 0,
+      "na_when": [
+        24,
+        0
+      ],
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS 3D Status; gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "tex-quiet-lines",
+      "title": "A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        20
+      ],
+      "check": "eq",
+      "expect": 0,
+      "tolerance": 0,
+      "pixels": false,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Video Stuff; gbatek:DS 3D Status",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "timer-f1",
+      "title": "The 33.51 MHz timer counts a frame as 557389..562991 cycles",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        2
+      ],
+      "check": "range",
+      "min": 557389,
+      "max": 562991,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Timers",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "lyc-9bit-line",
+      "title": "The LYC match uses nine bits: LYC 262 matches at line 262 and not at line 6",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 3,
+      "expect": 3,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 2,
+      "level_basis": "gbatek:LCD I/O Interrupts and Status; gbatek:DS Video Stuff",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "gx-swap-halts",
+      "title": "SWAP_BUFFERS holds the geometry engine until the VBlank (still busy at line 150)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "arm7-ready",
+      "title": "The ARM7 core answered the handshake",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        0
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "orders-delivered",
+      "title": "The scripted play delivered the first order of every chapter (5 orders)",
+      "boots": [
+        "rehearsal"
+      ],
+      "values": [
+        21
+      ],
+      "check": "eq",
+      "expect": 5,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "frame": {
+        "rehearsal": 3000
+      }
+    },
+    {
+      "id": "qa-orders",
+      "title": "The QA run delivered all 40 orders",
+      "boots": [
+        "qa"
+      ],
+      "values": [
+        21
+      ],
+      "check": "eq",
+      "expect": 40,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "frame": {
+        "qa": 1
+      }
+    },
+    {
+      "id": "chapters-played",
+      "title": "The play covered all five chapters (mask 0x1f)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        22
+      ],
+      "check": "eq",
+      "expect": 31,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "plan-ticks",
+      "title": "The ticks the planned heddle programs run equal the order checker's plan hash",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        23
+      ],
+      "check": "eq",
+      "expect": 4233762235,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "frame": {
+        "rehearsal": 3000,
+        "qa": 1
+      }
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run ended with PASS (QARN verdict 1)",
+      "boots": [
+        "qa"
+      ],
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "frame": {
+        "qa": 1
+      }
+    }
+  ],
+  "known": {
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+      "ng": [
+        "gx-full-stall-rate",
+        "gx-halfirq-slope",
+        "gx-identity-slope",
+        "gx-pushpop-slope",
+        "gx-scale-mode2-extra",
+        "gx-trans-mode2-extra",
+        "vcount-write-lines"
+      ],
+      "na": [
+        "swap-ramcount-line"
+      ]
+    },
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [],
+      "na": []
+    }
+  }
+}

@@ -1618,6 +1618,229 @@ static void d_acc_rear_plane(void) { split_demo(SPLIT_REAR_PLANE, "ACC-REAR-PLAN
 
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Scanline timing (written for Heddlemere's review: games/heddlemere/arm9/source/judge/timing.c measures the same
+// things as gating items; what no document settles lives here)
+
+#define PR_DISPSTAT (*(volatile u16 *)0x04000004)
+#define PR_VCOUNT   (*(volatile u16 *)0x04000006)
+#define PR_GXSTAT   (*(volatile u32 *)0x04000600)
+#define PR_SWAP     (*(volatile u32 *)0x04000540)
+#define PR_GXPORT(p) (*(volatile u32 *)(0x04000400 + ((p) << 2)))
+#define PR_T0 (*(volatile u16 *)0x04000100)
+#define PR_T1 (*(volatile u16 *)0x04000104)
+#define PR_NOW() ({ u32 h1_, l_, h2_; do { h1_ = PR_T1; l_ = PR_T0; h2_ = PR_T1; } while (h1_ != h2_); h1_ << 16 | l_; })
+#define PR_NOINLINE __attribute__((noinline))
+
+// Bounded polling waits (not the vsync() calls before them, which wait for the VBlank IRQ): once one gave up (a stuck VBlank) every later wait returns at once and the probe reports 0xFFFF.
+static bool pr_timeout;
+#define PR_SPIN_LIMIT 8000000u
+#define PR_SPIN(cond) do { u32 n_ = 0; while (!pr_timeout && (cond)) { if (++n_ > PR_SPIN_LIMIT) { pr_timeout = true; break; } } } while (0)
+
+// A sled of 65 ARM nops: jumping in at n runs n + 1 of them (one ARM9 cycle each in ITCM). Same as Heddlemere's judge.
+static ITCM_CODE PR_NOINLINE __attribute__((target("arm"))) void pr_sled(u32 n)
+{
+    asm volatile("add pc, pc, %0, lsl #2\n\t"
+                 "nop\n\t"
+                 ".rept 64\n\t"
+                 "nop\n\t"
+                 ".endr" :: "r"(63 - (n & 63)) : "memory");
+}
+
+static u32 pr_lcg = 0x2545F491u;
+
+// One frame from a VBlank rise to the next; `line` != 0: when the VCOUNT register reads `line` it is set to `value`.
+// A random delay after each VBlank fall puts the poll grid at an independent phase for the rise that follows, so the
+// mean over many frames carries no quantisation bias (one frame alone is off by up to a poll period).
+static ITCM_CODE PR_NOINLINE u32 pr_frame(int line, int value)
+{
+    PR_SPIN(PR_DISPSTAT & 1);
+    pr_lcg = pr_lcg * 1664525u + 1013904223u;
+    pr_sled(pr_lcg >> 24);
+    PR_SPIN(!(PR_DISPSTAT & 1));
+    u32 a = PR_NOW();
+    if (line)
+    {
+        PR_SPIN(PR_VCOUNT != line);
+        if (!pr_timeout)
+            PR_VCOUNT = (u16)value;
+    }
+    PR_SPIN(PR_DISPSTAT & 1);
+    pr_lcg = pr_lcg * 1664525u + 1013904223u;
+    pr_sled(pr_lcg >> 24);
+    PR_SPIN(!(PR_DISPSTAT & 1));
+    return PR_NOW() - a;
+}
+
+#define PR_FRAMES 8
+
+static u32 pr_sum(int line, int value)
+{
+    u32 sum = 0;
+    for (int i = 0; i < PR_FRAMES; i++)
+    {
+        pr_frame(0, 0);          // a frame without a write between two with one: the next starts from a normal state
+        sum += pr_frame(line, value);
+    }
+    return sum;
+}
+
+// Mean frame length with a write minus the mean without, x16: in whole 2130-cycle lines (rounded), and the signed
+// cycles left over x16 (only meaningful when the write added whole lines).
+static void pr_vcount_case(int line, int value, u32 normal_sum, s32 *lines, s32 *residual16)
+{
+    u32 w = pr_sum(line, value);
+    s32 d16 = (s32)(w - normal_sum) * 16 / PR_FRAMES;
+    s32 half = 2130 * 8;
+    s32 l = d16 >= 0 ? (d16 + half) / (2130 * 16) : -((-d16 + half) / (2130 * 16));
+    *lines = l;
+    *residual16 = d16 - l * 2130 * 16;
+}
+
+// VCOUNT writes: GBATEK allows them in 202..212 only; how many lines does a write add, where does it apply, and what is
+// ignored? Cases: 202 written at line 212, 202 at 205, 210 at 212, 50 at line 100 (outside the range). A write at line
+// 100 may tear the picture of that frame on a console.
+static void d_vcount_write(void)
+{
+    con_2d();
+    demo_title("VCOUNT-WRITE");
+    con_printf("measuring...\n");
+    vsync();
+    u32 ime = REG_IME;
+    REG_IME = 0;
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
+    CV_TM_DATA(0) = 0;
+    CV_TM_DATA(1) = 0;
+    CV_TM_CNT(1) = CV_TM_ON | CV_TM_CASCADE;
+    CV_TM_CNT(0) = CV_TM_ON | CV_TM_DIV1;
+    pr_timeout = false;
+    u32 normal_sum = 0;
+    for (int i = 0; i < PR_FRAMES; i++)
+    {
+        pr_frame(0, 0);
+        normal_sum += pr_frame(0, 0);
+    }
+    static const int at[4] = { 212, 205, 212, 100 }, val[4] = { 202, 202, 210, 50 };
+    s32 lines[4], res16[4];
+    for (int i = 0; i < 4; i++)
+        pr_vcount_case(at[i], val[i], normal_sum, &lines[i], &res16[i]);
+    CV_TM_CNT(0) = 0;
+    CV_TM_CNT(1) = 0;
+    REG_IME = ime;
+    bool ok = !pr_timeout;
+    for (int i = 0; i < 4; i++)
+        con_printf("WRITE %3d AT %3d: %2ld LINES, RES %ld/16\n", val[i], at[i], ok ? (long)lines[i] : -1L, (long)res16[i]);
+    con_printf("FRAME %lu CYCLES\n", (unsigned long)(normal_sum / PR_FRAMES));
+    volatile CvResult *r = CV_RESULT;
+    // The residual means something only when whole lines were added.
+    for (int i = 0; i < 4; i++)
+        r->values[4 + i] = ok && lines[i] > 0 ? (u32)res16[i] : 0xFFFF;
+    r->values[8] = normal_sum / PR_FRAMES;
+    finish(ok ? (u32)lines[0] : 0xFFFF, ok ? (u32)lines[1] : 0xFFFF, ok ? (u32)lines[2] : 0xFFFF, ok ? (u32)lines[3] : 0xFFFF);
+}
+
+// Texture memory read late: a full-screen quad uses palette entry 1 of the texture palette (bank G); the frame is swapped
+// at the VBlank and the palette is rewritten through the LCDC mapping at the given line. The captured next frame shows
+// how many of its 192 lines (one column) do not show the new colour (the old one, or black while the bank was in LCDC
+// mode): the line from which a write is too late.
+#define TL_A RGB15(31, 0, 0)
+#define TL_B RGB15(0, 0, 31)
+#define TL_TEX_OFS 0x10000      // texture 8x8 inside bank A, clear of what g3_texture_load put at the start
+#define TL_PAL_OFS 0x3000       // palette inside bank G
+
+static void tl_quad(void)
+{
+    PR_GXPORT(0x29) = 31u << 16 | 3u << 6;
+    PR_GXPORT(0x2A) = 4u << 26 | (TL_TEX_OFS >> 3);
+    PR_GXPORT(0x2B) = TL_PAL_OFS >> 4;
+    PR_GXPORT(0x20) = 0x7FFF;
+    PR_GXPORT(0x40) = 1;
+    PR_GXPORT(0x22) = 0;
+    PR_GXPORT(0x23) = 0xF000u | 0x1000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0xF000u | 0xF000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0x1000u | 0xF000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x23) = 0x1000u | 0x1000u << 16, PR_GXPORT(0x23) = 0;
+    PR_GXPORT(0x41) = 0;
+}
+
+static void tl_palette(u16 colour)
+{
+    vram_set(VB_G, 0, 0);
+    ((vu16 *)0x06894000)[TL_PAL_OFS / 2 + 1] = colour;
+    vram_set(VB_G, 3, 0);
+}
+
+static void tl_idle(void)
+{
+    u32 n = 0;
+    while (n++ < 4000000u && (PR_GXSTAT & ((1u << 27) | (1u << 14) | 1u)))
+        ;
+}
+
+// A polling wait that never ends (a stuck VBlank) ends the trial instead of hanging the ROM; the vsync() calls around it still need the VBlank IRQ.
+
+static ITCM_CODE PR_NOINLINE void tl_frame(int line)
+{
+    PR_SPIN(PR_VCOUNT != 100);
+    tl_quad();
+    PR_SWAP = 0;
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)PROBE_CAP)[i] = 0;
+    REG_DISPCAPCNT = (1u << 31) | (3 << 16) | (3 << 20);   // captures the frame after this one
+    u32 ime = REG_IME;
+    REG_IME = 0;                                           // the write lands at the line asked for, not after an interrupt
+    PR_SPIN(!(PR_DISPSTAT & 1));
+    PR_SPIN(PR_VCOUNT != line);
+    tl_palette(TL_B);
+    REG_IME = ime;
+}
+
+static void d_tex_late(void)
+{
+    con_3d(VL_TERRAIN);
+    demo_title("TEX-LATE");
+    vram_set(VB_A, 0, 0);
+    for (int i = 0; i < 32; i++)
+        ((vu16 *)(0x06800000 + TL_TEX_OFS))[i] = 0x0101;
+    vram_set(VB_A, 3, 0);
+    *(volatile u16 *)0x04000060 |= 1;             // DISP3DCNT: texture mapping on
+    PR_GXPORT(0x10) = 0, PR_GXPORT(0x15) = 0;
+    PR_GXPORT(0x10) = 1, PR_GXPORT(0x15) = 0;
+    static const int lines[8] = { 200, 213, 214, 216, 192, 230, 250, 215 };
+    pr_timeout = false;
+    u32 bad[8];
+    u32 done = 0;
+    for (int k = 0; k < 8; k++)
+    {
+        tl_palette(TL_A);
+        tl_quad();
+        PR_SWAP = 0;
+        for (int f = 0; f < 3; f++)
+            vsync();
+        tl_idle();
+        vram_set(VB_D, 0, 0);
+        tl_frame(lines[k]);
+        for (int f = 0; f < 3; f++)
+            vsync();
+        tl_idle();
+        bool ok = !(REG_DISPCAPCNT & (1u << 31)) && !pr_timeout;
+        u32 b = 0;
+        for (int y = 0; y < 192; y++)
+            b += (probe_px(128, y) & 0x7FFF) != TL_B;
+        bad[k] = ok ? b : 0xFFFF;
+        done |= ok ? 1u << k : 0;
+        probe_release();
+        con_printf("WRITE AT %3d: %3lu NOT NEW\n", lines[k], (unsigned long)bad[k]);
+    }
+    volatile CvResult *r = CV_RESULT;
+    for (int k = 4; k < 7; k++)
+        r->values[k] = bad[k];
+    r->values[7] = done;
+    r->values[8] = bad[7];
+    finish(bad[0], bad[1], bad[2], bad[3]);
+}
+
 typedef struct {
     const char *name;
     void (*fn)(void);
@@ -1635,6 +1858,7 @@ static const DemoEntry demos[] = {
     { "l4-acc-stage", d_acc_stage },         { "l4-acc-dual", d_acc_dual },
     { "l4-acc-split-rear", d_acc_split_rear }, { "l4-acc-split-hdma", d_acc_split_hdma },
     { "l4-acc-rear-plane", d_acc_rear_plane },
+    { "l4-vcount-write", d_vcount_write },   { "l4-tex-late", d_tex_late },
 };
 
 void demo_main(const char *name)

@@ -32,7 +32,7 @@
   실패한 항목으로 드러납니다.
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
-  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick, L3 Elevane, L4 [연구용 probe 모음](probes/)(게임이 아님).
+  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick, L3 Elevane·Heddlemere, L4 [연구용 probe 모음](probes/)(게임이 아님).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
@@ -47,6 +47,7 @@
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 30 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick 타이틀 화면"> | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 목표 17 · 전제 조건 10<!-- /cell --> | [README](games/tonewick/README-KO.md) · [QA 점검표](games/tonewick/docs/QA-KO.md) · [실기 QA](games/tonewick/docs/HW-QA-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
+| [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -331,7 +332,7 @@
 
 </details>
 
-<details><summary><b>L3 타이밍</b> · Elevane (3 개)</summary>
+<details><summary><b>L3 타이밍</b> · Elevane, Heddlemere (18 개)</summary>
 
 #### Elevane · display timing and compositing
 
@@ -341,13 +342,33 @@
 - `hdma-holes-zero` · Rehearsal preset 1 (HBlank DMA fills the sub BG bitmap one line per scanline; melonDS#2618): no transparent or black hole in any frame · [expected.json](games/elevane/expected.json)
 - `acc-split-hdma-holes` · No frame has holes in the HBlank-DMA composite (melonDS#2618; the demo form of hdma-holes-zero) · [expected.json](games/elevane/expected.json)
 
+#### Heddlemere · 3D engine and scanline timing
+
+목표 15 · 전제 조건 11
+
+- `line-cycles` · A scanline is 355 dots x 6 = 2130 cycles (x16 fixed point, mean over 2000 lines) · [expected.json](games/heddlemere/expected.json)
+- `frame-cycles` · A frame is 263 lines = 560190 cycles (mean over 32 frames) · [expected.json](games/heddlemere/expected.json)
+- `hblank-low-arm9` · The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584 _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `hblank-low-arm7` · The same on the ARM7 core: GBATEK gives 1613 "for whatever reason" (x16); informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `gx-identity-slope` · MTX_IDENTITY costs 19 cycles (slope of two run lengths, x16) · [expected.json](games/heddlemere/expected.json)
+- `gx-pushpop-slope` · MTX_PUSH 17 + MTX_POP 36 = 53 cycles per pair (x16) · [expected.json](games/heddlemere/expected.json)
+- `gx-trans-cycles` · MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `gx-trans-mode2-extra` · MTX_TRANS in matrix mode 2 costs 30 cycles more than in mode 1 (x16) · [expected.json](games/heddlemere/expected.json)
+- `gx-scale-mode2-extra` · MTX_SCALE costs no extra cycles in matrix mode 2 (x16, signed, within 0.5 cycle) · [expected.json](games/heddlemere/expected.json)
+- `gx-box-cycles` · BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `gx-full-stall-rate` · With the geometry FIFO full a write waits for an entry to leave: one IDENTITY (19 cycles) per write (x16) · [expected.json](games/heddlemere/expected.json)
+- `gx-halfirq-slope` · The "less than half full" IRQ flag (IF bit 21) rises one IDENTITY (19 cycles) later per entry of fill (x16) · [expected.json](games/heddlemere/expected.json)
+- `swap-tail` · From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware _(참고용)_ · [expected.json](games/heddlemere/expected.json)
+- `swap-ramcount-line` · Polygon RAM holds the 64 polygons at the HBlank of line 191 and 0 at line 192: the swap happens at line 192 (RAM_COUNT) · [expected.json](games/heddlemere/expected.json)
+- `tex-quiet-lines` · A texture palette rewritten in lines 192..213 (inside the 3D VBlank, lines 191..213) shows in the render: 0 of 192 captured lines still carry the old colour · [expected.json](games/heddlemere/expected.json)
+
 </details>
 
-<details><summary><b>L4 연구</b> · Probes (21 개)</summary>
+<details><summary><b>L4 연구</b> · Probes (34 개)</summary>
 
 #### Probes · research probes
 
-목표 21 · 전제 조건 0
+목표 34 · 전제 조건 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](probes/expected.json)
@@ -370,6 +391,19 @@
 - `rear-plane-latency` · Capture routing latency of the same-screen rear-plane scheme, measured before the rear plane is set up (the Corvane acc-split-rear measurement); the same behaviour is the L2 prerequisite acc-split-rear-latency in Elevane. The rear-plane pixels are rear-plane / rear-plane-full (l4-acc-rear-plane) _(참고용)_ · [expected.json](probes/expected.json)
 - `rear-plane` · Same-screen two-pass view with the capture as the 3D rear plane, set up before the first pass: the captured pass holds opaque pixels (stands for Elevane preset 2 `rear-plane`, retired from Elevane) _(참고용)_ · [expected.json](probes/expected.json)
 - `rear-plane-full` · The captured pass is fully opaque: 4096 of 4096 samples, both halves, because the previous pass came back as the rear plane (half means one side is missing; stands for Elevane preset 2 `rear-plane-full`, retired from Elevane) _(참고용)_ · [expected.json](probes/expected.json)
+- `vcw-212-lines` · A VCOUNT write of 202 while VCOUNT reads 212 repeats 10 or 11 lines of the frame (the Heddlemere gating item vcount-write-lines asks for the same window; the apply line itself is undocumented) _(참고용)_ · [expected.json](probes/expected.json)
+- `vcw-212-residual` · Cycles left over after those whole lines: signed mean over 8 frames, x16 (the poll delay is dithered like Heddlemere's judge); 0xFFFF when no whole line was added. Heddlemere no longer judges this _(참고용)_ · [expected.json](probes/expected.json)
+- `vcw-205-lines` · The same write of 202 at VCOUNT 205: the lines between the two points, inclusive (model: 4) _(참고용)_ · [expected.json](probes/expected.json)
+- `vcw-212-210-lines` · A write of 210 at VCOUNT 212 (model: 3 lines) _(참고용)_ · [expected.json](probes/expected.json)
+- `vcw-outside-lines` · A write of 50 at VCOUNT 100, outside the 202..212 range GBATEK allows: ignored (0 lines) or applied (51 lines, the model without a range) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-192` · A texture palette rewritten at line 192 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-200` · A texture palette rewritten at line 200 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-213` · A texture palette rewritten at line 213 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (quiet lines 191..213: 0) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-214` · A texture palette rewritten at line 214 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-215` · A texture palette rewritten at line 215 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-216` · A texture palette rewritten at line 216 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-230` · A texture palette rewritten at line 230 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
+- `tex-late-250` · A texture palette rewritten at line 250 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->
@@ -435,6 +469,7 @@ games/elevane/    게임 하나(lightenette에서 시작)
 games/paneveil/   게임 하나(elevane에서 시작)
 games/ledgerine/  게임 하나(lightenette에서 시작)
 games/tonewick/   게임 하나(ledgerine에서 시작)
+games/heddlemere/ 게임 하나(paneveil에서 시작)
 tools/emu/        스모크 테스트용 헤드리스 DeSmuME 하네스 (Docker)
 tools/melonds/    melonDS 키 매핑·입력 확인 도구 (macOS), 헤드리스 melonDS 실행기
 scripts/          유지보수 스크립트 (에이전트 설정 동기화, 로고 생성)

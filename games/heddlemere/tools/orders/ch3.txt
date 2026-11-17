@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+# Chapter 3: orders for the loom model in tools/hmorder/model.py, checked by tools/order_check.py.
+# NAME: budget=<lines> passes=<n> slack=<levers> rows=COLOUR.WEAVE[+],...  (+ = the row wants a dye)
+TREADLE: budget=3 passes=64 slack=0 rows=VIOLET.TWILL,GREEN.PLAIN,RED.PLAIN,RED.PLAIN
+SLOW BEAM: budget=4 passes=64 slack=0 rows=GOLD.TWILL,RED.TWILL,BLUE.HERRING,RED.TWILL
+COUNTERWEIGHT: budget=5 passes=64 slack=0 rows=AMBER.TWILL,BLUE.DIAMOND,GREEN.HERRING,RED.DIAMOND
+FLY SHUTTLE: budget=4 passes=64 slack=0 rows=GOLD.PLAIN,GOLD.HERRING,AMBER.HERRING,GREEN.TWILL
+HEAVY SAIL: budget=3 passes=64 slack=0 rows=BLUE.PLAIN,BLUE.TWILL,VIOLET.PLAIN,GOLD.TWILL
+LIGHT SAIL: budget=4 passes=64 slack=0 rows=RED.PLAIN,GOLD.PLAIN,AMBER.TWILL,GOLD.HERRING
+DRAW CORD: budget=3 passes=64 slack=0 rows=GOLD.TWILL,RED.PLAIN,GOLD.PLAIN,VIOLET.PLAIN
+BELT: budget=5 passes=64 slack=0 rows=VIOLET.DIAMOND,AMBER.PLAIN,VIOLET.TWILL,AMBER.HERRING
