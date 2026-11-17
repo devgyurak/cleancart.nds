@@ -10,6 +10,9 @@
 
 typedef enum {
     SC_TITLE,
+    SC_SELECT,
+    SC_PLAY,
+    SC_RHYTHM,
     SC_BENCH,
     SC_CREDITS,
 } PdScene;
@@ -23,6 +26,9 @@ void scene_frame_end(void);
 void scene_text_screens(CvText *main_text, CvText *sub_text);
 
 PdScene scene_title(void);
+PdScene scene_select(void);
+PdScene scene_play(void);
+PdScene scene_rhythm(void);
 PdScene scene_bench(void);
 PdScene scene_credits(void);
 

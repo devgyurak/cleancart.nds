@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     snd_master(cv_save.volume);
 #endif
 
-    static const char *const scene_names[] = { "title", "bench", "credits" };
+    static const char *const scene_names[] = { "title", "select", "play", "rhythm", "bench", "credits" };
     PdScene scene = SC_TITLE;
     for (;;)
     {
@@ -48,6 +48,9 @@ int main(int argc, char *argv[])
                             ? scene_names[scene] : "?");
         switch (scene)
         {
+            case SC_SELECT:  scene = scene_select(); break;
+            case SC_PLAY:    scene = scene_play(); break;
+            case SC_RHYTHM:  scene = scene_rhythm(); break;
             case SC_BENCH:   scene = scene_bench(); break;
             case SC_CREDITS: scene = scene_credits(); break;
             case SC_TITLE:

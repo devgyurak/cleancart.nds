@@ -15,8 +15,7 @@ the square-root unit ("DS Maths"), the firmware SPI byte time at 4 MHz and 512 k
 main RAM, WRAM-vs-main-RAM and VRAM access timings ("DS Memory Timings"), and sound channel timing ("DS Sound Notes": when Busy clears, how many samples a PCM, PSG and ADPCM channel needs before it is heard, what a Hold restart plays) and the slot-1 cartridge transfer gap ("DS Cartridge I/O Ports": gap1 in clock pulses at two clock rates). Every value is the difference of two measurements, so the
 fixed cost of the measurement cancels.
 
-**Status.** Skeleton, the math bench, the ARM7 bench and the sound bench and the cartridge bench. The device game is not written yet; the title screen is a scaffold. Nothing has been
-measured on real hardware.
+**Status.** The four benches and the game: 20 contraptions in five chapters (mill, bell rope, conveyor, highway, organ), each ended by a rhythm piece, a bench ledger and the hidden auto QA run. The title screen is a scaffold. Progress is not saved yet. Nothing has been measured on real hardware.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
@@ -46,4 +45,4 @@ and difficulty level (see `docs/LEVELS.md` in the repository root).
 
 ## Controls
 
-Title: Start opens the bench ledger (a live look at the measurement), X the credits. See the repository `AGENTS.md` for the melonDS key map.
+Title: Start opens the contraption list, Y the bench ledger (a live look at the measurement), X the credits. List: left/right chapter, up/down contraption, A start, B back. Contraption: up/down slot, left/right station, A rings the bell when the plan's ticks equal the pendulum's, X runs the bench for the chapter's ledger and seal, B back. Finale: A on the beat. See the repository `AGENTS.md` for the melonDS key map.

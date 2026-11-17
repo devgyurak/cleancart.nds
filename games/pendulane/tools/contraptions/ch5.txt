@@ -1,0 +1,6 @@
+# Chapter 5, organ. Stations: P PSG PIPE 1, M PCM PIPE 3, H HOLD PIPE 3, A ADPCM PIPE 11, B BUSY PIPE 18.
+# NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
+REED STOP: 15 | PM | MA | PH
+FLUTE RANK: 35 | PA | MH | AB | PM
+BELLOWS: 33 | PB | MA | HA | PM
+GRAND ORGAN: 36 | PM | BA | MH | AB | PA

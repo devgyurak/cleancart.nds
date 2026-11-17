@@ -6,10 +6,9 @@ Human docs (English, each with a Korean twin `*-KO.md`): `README.md`, `docs/QA.m
 `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. The plan is `out/WORKPLAN-pendulane.md` (not committed).
 Created from paneveil (arm7, common, `arm9/source/core` and `gfx` are corvane's layers: keep fixes in sync).
 
-Status (PR 3 of the stack): skeleton, the timing core (ITCM edge finding), the math bench, the ARM7 bench (SPI byte time, ARM7 memory timings) the sound bench and the cartridge bench; scenes: title (a text
-scaffold, `TODO(title)`), the bench ledger, credits; the hidden QA run reaches the credits and runs the bench once.
-Next (stack plan): the cartridge bench, the device game, the rehearsal and QA
-epilogue in full, hardware.
+Status (PR 5 of the stack): the four benches (math, ARM7 SPI and memory, sound, cartridge) and the game: 20 contraptions in five chapters with a
+rhythm finale each, the bench ledger, the scripted player and the QA run through all of it. Scenes: title (a text scaffold, `TODO(title)`), contraption
+list, play, rhythm, the bench ledger, credits. Next: the title screen of its own, the remaining docs and the licence audit, then the hardware run.
 
 ## Build
 
@@ -23,8 +22,16 @@ epilogue in full, hardware.
 
 ## Code map
 
-- `arm9/source/main.c`: init, scene loop. `game/`: scenes (`scenes.h`), `title.c`, `bench.c` (the bench ledger, a live look), `credits.c`,
-  `display.c`, `qa_game.c` + `qa_tune.h`, `rehearsal.c/.h` (the block layout lives in `rehearsal.h`).
+- `arm9/source/main.c`: init, scene loop. `game/`: scenes (`scenes.h`: title, select, play, rhythm, bench, credits), `title.c`, `select.c` (chapters
+  left/right, contraptions up/down), `play.c` (one contraption: a station per slot, the plan's ticks must equal the pendulum's; X runs the bench for the
+  chapter's ledger and seal; `pd_play_hook` lets the rehearsal replace the input), `rhythm.c` (eight notes per chapter, scored by VBlank frames),
+  `script.c` (the scripted player shared by the rehearsal and the QA pilot), `device.c/.h` (pure logic: plans, the fewest-changes solver, solved set),
+  `ledger.c/.h` (measured next to book per chapter; the rows' windows mirror `expected.json`), `bench.c` (the bench ledger scene, a live look),
+  `credits.c`, `display.c`, `qa_game.c` + `qa_tune.h`, `rehearsal.c/.h` (the block layout lives in `rehearsal.h`).
+- `tools/pdorder/` + `tools/contraptions/ch*.txt`: the contraptions, one line each: `NAME: TARGET | SLOT | SLOT ...`, a slot is the station letters it offers
+  (the first is its starting choice). `python3 tools/pdorder/check.py [--chapter N]` proves every one solvable, that the starting plan does not already solve it,
+  and prints how many plans there are and the par; the build stops when one fails. Station costs are the book values of the hardware steps (`pdorder/model.py`);
+  keep them and `game/ledger.c` in step with `expected.json`. Tests: `tools/tests/test_contraptions.py`.
 - `arm9/source/judge/bench.c/.h`: the measurement core. **Edge finding**: the device is started by one store, the CPU runs a sled of n ARM
   nops in ITCM (one ARM9 cycle = half a bus cycle each) and reads the busy register once; the smallest n at which it reads clear is the
   busy time plus a fixed path (the store, the jump into the sled, the load). `pd_probe` (ITCM, ARM, one routine) does store + sled + load, so

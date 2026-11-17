@@ -23,8 +23,8 @@ PdScene scene_title(void)
     scene_text_screens(&top, &bot);
     text_center(&top, 8, TP_YELLOW, "PENDULANE");
     text_center(&top, 10, TP_GRAY, "AN AUTOMATON WORKSHOP");
-    text_center(&top, 18, TP_WHITE, "START: BENCH");
-    text_center(&top, 20, TP_GRAY, "X: CREDITS");
+    text_center(&top, 18, TP_WHITE, "START: THE WORKSHOP");
+    text_center(&top, 20, TP_GRAY, "Y: BENCH LEDGER   X: CREDITS");
     text_printf(&bot, 1, 21, TP_GRAY, "ARM7 CORE: %s",
                 sys_ipcsync_seen() == CV_SYNC_ARM7_READY ? "MOUNTED" : "WAITING");
     text_printf(&bot, 1, 22, TP_GRAY, "SAVE CHIP: %s", save_type_name());
@@ -38,12 +38,18 @@ PdScene scene_title(void)
         scene_frame_end();
         if (qa_title_poll() || qa_marker_poll())
         {
-            // Hidden auto QA mode (core/qa.h): straight to the credits until the play scenes exist.
+            // Hidden auto QA mode (core/qa.h): the contraption list, like Start.
             snd_sfx(CV_SFX_CHIME, 100, 64);
             snd_bgm_stop();
-            return SC_CREDITS;
+            return SC_SELECT;
         }
         if (cv_in.pressed & KEY_START)
+        {
+            snd_sfx(CV_SFX_CHIME, 100, 64);
+            snd_bgm_stop();
+            return SC_SELECT;
+        }
+        if ((cv_in.pressed & KEY_Y) && !(cv_in.held & (KEY_L | KEY_R)))
         {
             snd_sfx(CV_SFX_CHIME, 100, 64);
             snd_bgm_stop();

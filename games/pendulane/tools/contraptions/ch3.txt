@@ -1,0 +1,6 @@
+# Chapter 3, conveyor. Stations: S SHORT BELT 40, L BELT CLK5 80, W BELT CLK8 128, N NUDGE 8.
+# NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
+CARD FEED: 216 | SN | LN | SW
+SORT RAIL: 128 | NS | WL | NS
+LOAD ARM: 256 | LS | WN | LS | NW
+FREIGHT LINE: 256 | LS | WN | LW | SN
