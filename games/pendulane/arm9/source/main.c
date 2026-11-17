@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     benchcart_skip(sd_up() && (sd_exists("fat:/cleancart/pendulane/nocart") || sd_exists("sd:/cleancart/pendulane/nocart")));
 #ifdef CV_DEMO
     // Demo builds (the rehearsal) do not mount NitroFS or the save chip; the cartridge bench still sends one slot-1 command
-    // unless the ROM came from a flash card (benchcart_skip above).
+    // unless the nocart marker asked to skip it (benchcart_skip above).
     save_defaults();
     demo_main(CV_DEMO);
 #else
