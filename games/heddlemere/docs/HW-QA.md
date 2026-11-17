@@ -26,7 +26,7 @@ QA run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game
 | Does a VCOUNT write at line 212 repeat 10 or 11 lines? (the cycle residual, values[8], is recorded but not judged: probes/ material) | values[7], [8] | 10 or 11 / 0-4 | 11 / 1 |
 | MTX_IDENTITY, PUSH+POP, TRANS in mode 2 (+30), SCALE in mode 2 (+0) | values[9], [10], [12], [13] | 19 / 53 / 30 / 0 | same |
 | MTX_TRANS and BOX_TEST (the two where GBATEK and melonDS disagree) | values[11], [14] | 22 / 103 | 35 / 257 |
-| Full-FIFO stall per write, half-full IRQ per entry | values[15], [16] | 19 / 19 | 18.9 / 18.7 |
+| Full-FIFO stall per write, half-full IRQ per entry | values[15], [16] | 19 / 19 | 18.9 / 19.0 |
 | VBlank to idle after a bare SWAP_BUFFERS | values[17] | 392 | 328 |
 | Polygon RAM count at the HBlank of lines 191 and 192 | values[18], [19] | 64 / 0 | 64 / 0 |
 | Does a texture palette written in lines 192..213 show in the render? | values[20] (0 lines wrong) | 0 | 0 |
