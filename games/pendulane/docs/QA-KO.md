@@ -6,11 +6,11 @@ melonDS 1.1 점검표입니다 (macOS 키는 저장소 `AGENTS.md`).
 
 | 장면 | 확인 | 상태 |
 |---|---|---|
-| 타이틀 | 글자만 있는 임시 타이틀(`TODO(title)`), 아래 화면에 라이선스·ARM7·세이브 줄; Start는 장치 목록, Y는 벤치 장부, X는 크레딧 | headless 실행만 |
+| 타이틀 | 황동 글자 "PENDULANE"(생성한 타일 BG)와 그 앞에서 흔들리는 스프라이트 진자(좌우 약 32도, 한 번 흔들리는 데 150프레임), 부제, 깜박이는 START 줄, 진자 테마 재생(나갈 때 멈춤); 아래 화면에 라이선스·ARM7·세이브 줄; Start는 장치 목록, Y는 벤치 장부, X는 크레딧 | headless 실행만 |
 | 장치 목록 | "THE WORKSHOP", 장 이름과 울린 개수, RUNG 표시가 붙는 장치 넷, 좌우 장, 상하 장치, A 시작, B 뒤로 | headless 실행만 |
 | 장치 | 위: 장, 이름, 진자 틱, 계획 틱과 게이지, 슬롯별 한 줄(고른 역과 비용); 상하 슬롯, 좌우 역, 틱이 맞으면 A로 종을 울림("THE BELL RINGS", 다음 장치) 아니면 TOO MANY / TOO FEW TICKS; X는 벤치를 한 번 돌려 아래 화면의 장부와 봉인을 채움; B 목록 | ✅ melonDS 1.1 software (1-03, 3-03 스크린샷 확인); 손으로 해 본 느낌은 확인 안 함 |
 | 리듬 피날레 | 틱 여덟 개가 선으로 떨어지고 박자에 A(±6프레임), HITS n / 8, 목록으로 | headless 실행만 (QA 파일럿이 정확한 프레임에 누름) |
-| 벤치 장부 | 수학 엣지 네 개(ARM9 사이클)와 책 값 36 / 68 / 68 / 26, 차이 세 개와 10 / 32 / 0, "MATH RESULTS RIGHT", B로 뒤로 | headless 실행만 |
+| 벤치 장부 | 벤치 전체를 한 번 돌리고("RUNNING THE BENCH...", 약 1초) 잰 비용을 책 값 옆에 모두 나열, 판정 창 안이면 초록 밖이면 빨강; 아래 화면에 장별 봉인; B로 뒤로 | ✅ melonDS 1.1 software (스크린샷 확인: 세 장 금색, 큰길과 음관은 아님) |
 | 크레딧 | 스크롤 크레딧, X는 라이선스 뷰어 | 아직 확인 안 함 |
 | rehearsal demo | `pendulane-rehearsal.nds`는 바로 벤치로 부팅; 결과 블록 id `0x48524450` (`PDRH`); README의 방법대로 `judge.py --profile`로 채점 | ✅ 2026-11-17: 프로파일 4개 모두 측정, 각각 `judge.py --profile` MATCH. melonDS 1.1(모든 렌더러): 판정 target 15개 중 11개 OK (카트 gap 둘 다 통과: 1280과 2047). NG: `mem7-main-nonseq`(GBATEK의 N32 10사이클이면 576인데 386), `snd-pcm-busy`·`snd-adpcm-busy`(19와 43: Busy가 마지막 샘플의 끝에서 꺼져 GBATEK보다 1 늦음), `snd-hold-restart`(7: 붙잡힌 옛 값 없이 0 샘플 7개); 시작 차이 두 개는 GBATEK의 2와 8 그대로. DeSmuME py-desmume 0.0.9: 15개 중 5개 OK; NG는 같은 사운드 항목과 `snd-onset-pcm-psg`(6: PSG가 캡처 첫 샘플부터 들림), `spi-512k-minus-4m`, 카트 gap 둘 다(전송이 바로 끝나 엣지 0)(SPI 바이트가 바로 끝나 엣지 0), `mem7-main-seq`·`mem7-vram-seq`(1022..1026 대신 1028), `mem7-main-nonseq`(68). 수학 차이 DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0. melonDS SPI 엣지 59 / 122 / 250 / 508. 실기 값은 아직 없음 |
 
