@@ -18,6 +18,7 @@ pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are
 | Does a one-shot channel's Busy clear 18 samples after the start for 16 PCM16 samples and 42 for 32 ADPCM samples (GBATEK: Busy drops at the start of the last sample)? Both emulators clear one sample later. | rehearsal values 10 and 11 |
 | Do PSG, PCM16 and ADPCM start 1, 3 and 11 samples after the start write, and does a Hold restart play the old value for one sample and then two zero samples? | values 12, 13, 14 (2, 8, 258) |
 | Does Busy clear at a constant rate (the slope of 32 extra samples is 0 cycles within 16)? | value 20 (informational; DeSmuME reads a different value on every run) |
+| Does +0x100 gap1 clock pulses lengthen a slot-1 B8 command by 1280 bus cycles at CLK/5 and 2048 at CLK/8? The items are `env: "cart"`: a flash card kernel cannot be asked, but record what the card reads. Does B8 leave the KEY2 state of the card alone (NitroFS reads afterwards)? | values 8, 9; raw edges 19 and 22 |
 | Does the ARM9 write buffer move the edge (the fixed path is not the same on the console)? | the three differences stay in their windows; the raw edges in values 24 to 27 are information |
 
 ## Record

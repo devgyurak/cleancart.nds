@@ -48,7 +48,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine title screen"> | Machine-room ledger puzzle in six rooms: set the dials of the press, the tube, the clock wall, the belt, the vault and the rule book and pull the lever; the real hardware device runs and its answer is written into the ledger. It judges itself with a rehearsal ROM.<br>Tests (L2, system edges): the exceptions, boundary values and error paths of the maths unit, IPC FIFO, timers, DMA, WRAM and VRAM control and BIOS. | automatic (`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 target 30 · prerequisite 11<!-- /cell --> | [README](games/ledgerine/README.md) · [QA checklist](games/ledgerine/docs/QA.md) · [Assets](games/ledgerine/ASSETS.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick title screen"> | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [QA checklist](games/tonewick/docs/QA.md) · [Hardware QA](games/tonewick/docs/HW-QA.md) · [Assets](games/tonewick/ASSETS.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
-| [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 14 · prerequisite 6<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
+| [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 7<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -334,7 +334,7 @@ target 17 · prerequisite 10
 
 </details>
 
-<details><summary><b>L3 Timing</b> · Elevane, Heddlemere, Pendulane (32 target items)</summary>
+<details><summary><b>L3 Timing</b> · Elevane, Heddlemere, Pendulane (34 target items)</summary>
 
 #### Elevane · display timing and compositing
 
@@ -366,11 +366,13 @@ target 15 · prerequisite 11
 
 #### Pendulane · CPU, bus and sound timing
 
-target 14 · prerequisite 6
+target 16 · prerequisite 7
 
 - `math-div32-vs-sqrt` · DIV mode 0 busy minus SQRT busy, ARM9 cycles = half bus cycles (18 - 13 clocks = 10) · [expected.json](games/pendulane/expected.json)
 - `math-div64-vs-div32` · DIV mode 1 (64/32) busy minus mode 0 (32/32), half bus cycles (34 - 18 clocks = 32) · [expected.json](games/pendulane/expected.json)
 - `math-div6464-eq-div6432` · DIV mode 2 (64/64) busy minus mode 1 (64/32), half bus cycles (34 - 34 clocks = 0) · [expected.json](games/pendulane/expected.json)
+- `cart-gap1-clk5` · Slot-1 command B8 (no data block): +0x100 gap1 clock pulses at CLK = bus / 5 lengthen the transfer by 1280 bus cycles · [expected.json](games/pendulane/expected.json)
+- `cart-gap1-clk8` · The same at CLK = bus / 8: 2048 bus cycles · [expected.json](games/pendulane/expected.json)
 - `snd-pcm-busy` · A 16-sample PCM16 one-shot: Busy clears 18 samples after the start (3 start delay + 16 - 1; Busy drops at the start of the last sample) · [expected.json](games/pendulane/expected.json)
 - `snd-adpcm-busy` · A 32-sample ADPCM one-shot: Busy clears 42 samples after the start (11 start delay + 32 - 1) · [expected.json](games/pendulane/expected.json)
 - `snd-onset-pcm-psg` · The first sound of PCM16 comes 2 samples after the first sound of PSG (3 - 1), from two captures of the left mixer · [expected.json](games/pendulane/expected.json)

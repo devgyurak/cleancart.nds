@@ -6,9 +6,9 @@ Human docs (English, each with a Korean twin `*-KO.md`): `README.md`, `docs/QA.m
 `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. The plan is `out/WORKPLAN-pendulane.md` (not committed).
 Created from paneveil (arm7, common, `arm9/source/core` and `gfx` are corvane's layers: keep fixes in sync).
 
-Status (PR 3 of the stack): skeleton, the timing core (ITCM edge finding), the math bench, the ARM7 bench (SPI byte time, ARM7 memory timings) and the sound bench; scenes: title (a text
+Status (PR 3 of the stack): skeleton, the timing core (ITCM edge finding), the math bench, the ARM7 bench (SPI byte time, ARM7 memory timings) the sound bench and the cartridge bench; scenes: title (a text
 scaffold, `TODO(title)`), the bench ledger, credits; the hidden QA run reaches the credits and runs the bench once.
-Next: the cartridge bench, the device game, the rehearsal and QA
+Next (stack plan): the cartridge bench, the device game, the rehearsal and QA
 epilogue in full, hardware.
 
 ## Build
@@ -48,6 +48,13 @@ epilogue in full, hardware.
   restart: (old value still there << 8) | zero samples before the new data. Every wait is bounded by 80 sample periods (a stuck flag costs 40 ms).
   The ADPCM block is the asset `pd_snd_adpcm` (predictor 0, step index 50, nibbles 7). `snd-rate-slope` is informational (DeSmuME reads a different
   value on every run). The bench takes about 0.2 s with IME off on the ARM9.
+- `arm9/source/judge/benchcart.c`: slot-1 gap1. Command B8 with **no data block** (block size 0: nothing has to be read, so the transfer ends by itself; with a
+  4-byte block melonDS's transfer time stopped being linear in gap1 once the card DMA had to be re-armed between trials), ROMCTRL bit 28 set, the header's own
+  control bits kept. The delay between the start write and the read of ROMCTRL is a countdown loop (`subs` + taken branch, ITCM) plus 0-7 nops: the loop is too
+  long for a sled (the transfer is thousands of cycles). Its cycles per iteration are measured with the stopwatch over two long runs and must be within 1/16 of
+  a whole number (melonDS 3, DeSmuME 4), else the bench stops. Binary search for the smallest delay at which bit 31 is clear; the report is edge(gap1 + 0x100)
+  minus edge(gap1) in bus cycles at CLK/5 and CLK/8. An edge at 0 is a floor and is not reported (DeSmuME ends the transfer at once). Items have `env: "cart"`
+  (`judge.py --hardware` marks them n/a: a flash card cannot be asked); whether B8 leaves the card's KEY2 state alone on hardware is not verified here.
 - `expected.json` + `tools/judge.py` (from paneveil, plus `"signed": true` items compared as s32) + `tools/tests/test_judge.py`.
   Boots `rehearsal` (id `PDRH`) and `qa` (`QARN`, rehearsal layout plus the QA words at `values[48..54]`). `known` has the four emulator
   profiles (DeSmuME py-desmume 0.0.9, melonDS 1.1 software / GL Classic / GL Compute); re-measure all four after changing the ROM.
