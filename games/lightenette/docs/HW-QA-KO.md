@@ -4,7 +4,7 @@
 
 **Wood 계열 R4 커널:** 카드에는 `lightenette.nds` 대신 `build/release/rom/lightenette-hw-support.nds`를 넣습니다. 홈브루 게임 코드 `####`만 다른 같은 ROM입니다. 이런 커널은 이 코드의 ROM에만 DLDI를 붙이고, 게임 고유 코드로는 ROM이 SD 카드를 보지 못합니다(QA 로그와 결과 파일이 남지 않음). 데모와 리허설 ROM은 고유 코드 그대로입니다.
 
-Lightenette(L2)는 리허설, `l2-*` 데모, 자동 QA 실행으로 판정합니다. 2026-11-17 DS Lite에서 판정 스위트를 포함한 QA 실행을 했습니다(아래 실행 1). 판정 항목 37개 중 OK 29, 참고용 6, 판정 NG 2(`snd-wave-pan-right-exact`, `3d-limits-ram`)이고, 두 NG 모두 우리 기대값에 대한 발견입니다. 절차는 스킬 `nds-hw-qa`에 있고, 이 문서는 결과를 기록하는 곳입니다.
+Lightenette(L2)는 리허설, `l2-*` 데모, 자동 QA 실행으로 판정합니다. 2026-11-17 DS Lite에서 판정 스위트를 포함한 QA 실행을 했습니다(아래 실행 1). 판정 항목 37개 중 OK 29, 참고용 6, 판정 NG 2(`snd-wave-pan-right-exact`, `3d-limits-ram`)이고, 두 NG 모두 우리 기대값에 대한 발견입니다. v0.3.1에서 두 값을 정하고 실행 1의 참고용 항목을 승격했으며, v0.3.1로 한 실행 2는 **37개 중 37개 OK**이고 두 값이 그대로 나왔습니다. 절차는 스킬 `nds-hw-qa`에 있고, 이 문서는 결과를 기록하는 곳입니다.
 실기 값은 "에뮬레이터 프로필"이 아닙니다. 실기에서 NG가 나오면 우리 기대값이나 레벨을 다시 봐야 한다는 발견입니다(제안은 `level-judge`, 변경은 별도 PR).
 
 ## 카드에 넣을 것
@@ -19,6 +19,22 @@ Lightenette(L2)는 리허설, `l2-*` 데모, 자동 QA 실행으로 판정합니
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game lightenette`.
 
 ## 기록 (실행마다 한 블록)
+
+### 실행 2: QA 실행과 판정 스위트, 2026-11-17 (v0.3.1)
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, 실행 1과 같은 DS Lite(NTR), 카드, Wood R4 커널(파일 날짜 2002-01-15) |
+| ROM | `lightenette-hw-support.nds` v0.3.1, 로그 헤더의 build `542e848ee9ea`(릴리스 파일: SHA-256 `2498d167a4baf75d85f70775268beeefb126f7ecb558379253e21c68aa5abc8c`, 481,644바이트). ROM 코드는 v0.3.0과 같고 v0.3.1은 기대값(#177)과 주석만 바꿈. 파일은 Finder로 카드에서 복사했으므로 카드의 ROM 복사본 자체는 해시하지 않음 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 31줄, 체크포인트 6개, `start=marker`. 스위트: QA 블록과 데모 10개 중 10개 `saved=1`, timeout 없음. 블록 파일 11개 판정: **판정 항목 37개 중 37개 OK**(QA 블록 L1 14/14, L2 10/10. 데모 L1 3/3, L2 10/10), 참고용 항목 없음, n/a 없음 |
+| QA 로그 헤더 | 실행 1과 같음(`sd=1 fat_fail=0`, R4 DLDI, `cart_ready=0 nitro=1`, `save_detected=1`) |
+| 처음 갈리는 체크포인트 | 없음. act1-act5와 judge 해시가 실행 1 및 melonDS 1.1 soft와 같음 |
+| 랙 프레임 | 90 / 1 / 1 / 1 / 1 / 41 (실행 1: 89 / 1 / 1 / 1 / 1 / 41) |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0 rdl=46` |
+
+실행 2와 실행 1을 단어 단위로 비교하면, 판정하지 않거나 범위로 판정하는 값을 빼고 모든 결과 블록이 같습니다: QA 랙 합계, `snd-capture` 피크(values[5]), `sys-irq-hblank`(31465, 실행 1은 31520, 둘 다 31297..31560 안). 실행 1에서 정한 두 값은 그대로 나왔습니다: `snd-wave-pan-right-exact` 3, `3d-limits-ram` 2979(`l2-acc-dual` values[4]도 다시 폴리곤 2310, 오버플로 플래그 켜짐).
+
+참고: `suite-*.log`가 이번에도 `l2-sys-irq saved=1`(프레임 2999) 뒤에서 `suite end` 줄 없이 끝납니다.
 
 ### 실행 1: QA 실행과 판정 스위트, 2026-11-17
 
