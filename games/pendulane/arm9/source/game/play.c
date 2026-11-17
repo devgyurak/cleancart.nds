@@ -41,9 +41,9 @@ static void draw_ledger(CvText *bot, int chapter)
             continue;
         s32 v = ledger_value(r);
         if (v == INT32_MIN)
-            text_printf(bot, 1, y, TP_RED, "%-17s  ---  BOOK %ld", r->label, (long)r->book);
+            text_printf(bot, 1, y, TP_RED, "%-13s   --- BOOK %ld", r->label, (long)r->book);
         else
-            text_printf(bot, 1, y, ledger_row_ok(r) ? TP_GREEN : TP_RED, "%-17s %5ld  BOOK %ld", r->label, (long)v, (long)r->book);
+            text_printf(bot, 1, y, ledger_row_ok(r) ? TP_GREEN : TP_RED, "%-13s %5ld BOOK %ld", r->label, (long)v, (long)r->book);
         y++;
     }
     text_center(bot, 20, ledger_chapter_gold(chapter) ? TP_YELLOW : TP_GRAY,
@@ -78,7 +78,7 @@ PdScene scene_play(void)
         text_printf(&top, 1, 2, TP_YELLOW, "%s  %d/%d", d->name, pd_index, dev_chapter_size(pd_chapter));
         text_printf(&top, 1, 4, TP_WHITE, "PENDULUM %4d TICKS", d->target);
         text_printf(&top, 1, 5, total == d->target ? TP_GREEN : TP_WHITE, "PLAN     %4d TICKS", total);
-        text_gauge(&top, 1, 6, 30, total > 2 * d->target ? 2 * d->target : total, 2 * d->target, total == d->target ? TP_GREEN : TP_GRAY);
+        text_gauge(&top, 1, 7, 30, total > 2 * d->target ? 2 * d->target : total, 2 * d->target, total == d->target ? TP_GREEN : TP_GRAY);
         for (int s = 0; s < d->nslots; s++)
         {
             const PdStation *st = plan_station(d, &plan, s);

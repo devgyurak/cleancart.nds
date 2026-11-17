@@ -6,16 +6,20 @@
 
 [한국어](README-KO.md)
 
-An original automaton-workshop game for the Nintendo DS (work in progress). It is built to judge itself: a rehearsal ROM measures
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/contraption.png" width="256" alt="A contraption being set"> <img src="docs/images/finale.png" width="256" alt="A chapter's rhythm finale"></p>
+
+<sub>Captured from the built ROM in headless melonDS 1.1 (`tools/melonds/mds.sh`), not DeSmuME or real hardware; the contraption and finale come from the QA run, which plays by script. Top screen only at 2x nearest-neighbour (512×384).</sub>
+
+An original automaton-workshop game for the Nintendo DS. Every contraption is a budget puzzle: pick a station for each slot so the plan's ticks (the book costs of hardware steps) add up to the pendulum's swing. It is built to judge itself: a rehearsal ROM measures
 CPU, bus and sound timings on the console (busy times of the divide and square-root unit, the firmware SPI byte time, ARM7 memory
-timings and sound channel timing and the slot-1 gap now) and reports a result block, so other emulators can use it as a regression test.
+timings, sound channel timing and the slot-1 gap) and reports a result block, so other emulators can use it as a regression test.
 
 **Hardware areas it tests (level 3, "CPU, bus and sound timing"):** so far the busy times of the hardware divider (modes 0, 1, 2) and
 the square-root unit ("DS Maths"), the firmware SPI byte time at 4 MHz and 512 kHz ("DS Serial Peripheral Interface Bus (SPI)") and ARM7
 main RAM, WRAM-vs-main-RAM and VRAM access timings ("DS Memory Timings"), and sound channel timing ("DS Sound Notes": when Busy clears, how many samples a PCM, PSG and ADPCM channel needs before it is heard, what a Hold restart plays) and the slot-1 cartridge transfer gap ("DS Cartridge I/O Ports": gap1 in clock pulses at two clock rates). Every value is the difference of two measurements, so the
 fixed cost of the measurement cancels.
 
-**Status.** The four benches and the game: 20 contraptions in five chapters (mill, bell rope, conveyor, highway, organ), each ended by a rhythm piece, a bench ledger and the hidden auto QA run. The title screen is a scaffold. Progress is not saved yet. Nothing has been measured on real hardware.
+**Status.** The four benches and the game: 20 contraptions in five chapters (mill, bell rope, conveyor, highway, organ), each ended by a rhythm piece, a bench ledger and the hidden auto QA run. Progress is not saved yet. Nothing has been measured on real hardware.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)

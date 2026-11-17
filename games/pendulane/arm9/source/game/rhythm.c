@@ -38,7 +38,7 @@ PdScene scene_rhythm(void)
             fx_bright(FX_BOTH, -(16 * (19 - f) / 20));
         text_clear(&top);
         text_printf(&top, 1, 0, TP_CYAN, "CH %d  %s  FINALE", pd_chapter, pd_chapter_name[pd_chapter - 1]);
-        text_printf(&top, 1, 2, TP_GRAY, "TAP A WHEN A TICK REACHES THE LINE");
+        text_printf(&top, 1, 2, TP_GRAY, "TAP A WHEN A TICK HITS THE LINE");
         for (int i = 0; i < RHYTHM_NOTES; i++)
         {
             int ahead = rhythm_note_frame(i) - f;

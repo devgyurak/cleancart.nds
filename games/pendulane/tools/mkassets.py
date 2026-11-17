@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import glob  # noqa: E402
 
 from pdorder import check as pd_check, model as pd_model  # noqa: E402
-from cvtools import audio, codec, images  # noqa: E402
+from cvtools import audio, codec, images, pdart  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
 
@@ -138,6 +138,21 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    # --- Title ------------------------------------------------------------
+    tiles, entries, pal = pdart.title_lettering()
+    w.blob('cv_title_tiles', tiles, 'title lettering, 4bpp, %d x %d tiles' % (pdart.COLS, pdart.ROWS))
+    w.blob('cv_title_map', u16s(entries), 'title lettering map entries, raster order, palette line %d' % pdart.PAL_LINE)
+    w.blob('cv_title_pal', pal, 'title lettering palette line (16 colours)')
+    w.define('PD_TITLE_COLS', pdart.COLS)
+    w.define('PD_TITLE_ROWS', pdart.ROWS)
+    w.define('PD_TITLE_PAL_LINE', pdart.PAL_LINE)
+    w.define('PD_TITLE_BLANK', pdart.BLANK_TILE)
+    w.define('PD_TITLE_PANEL', pdart.PANEL_TILE)
+    bob, dot, objpal = pdart.sprites()
+    w.blob('pd_bob_tiles', bob, 'pendulum bob sprite 32x32, 4bpp')
+    w.blob('pd_dot_tiles', dot, 'pendulum rod dot sprite 8x8, 4bpp')
+    w.blob('pd_obj_pal', objpal, 'title sprite palette line 0 (16 colours)')
 
     # --- Contraptions -----------------------------------------------------
     # The build stops when a contraption fails the checker (tools/pdorder/check.py).

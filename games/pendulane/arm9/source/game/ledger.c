@@ -11,8 +11,8 @@
 const LedgerRow ledger_rows[] = {
     { 1, "DIV - SQRT", PDV_MATH_DIV_SQRT, 10, 2 },
     { 1, "DIV64 - DIV32", PDV_MATH_64_32, 32, 2 },
-    { 1, "DIV6464 - DIV6432", PDV_MATH_6464_6432, 0, 2 },
-    { 2, "SPI 512K - 4M", PDV_SPI, 448, 8 },
+    { 1, "6464 - 6432", PDV_MATH_6464_6432, 0, 2 },
+    { 2, "SPI 512K-4M", PDV_SPI, 448, 8 },
     { 3, "GAP1 CLK5", PDV_CART_CLK5, 1280, 5 },
     { 3, "GAP1 CLK8", PDV_CART_CLK8, 2048, 8 },
     { 4, "MAIN SEQ", PDV_MEM_MAIN_SEQ, 1024, 2 },
@@ -21,8 +21,8 @@ const LedgerRow ledger_rows[] = {
     { 4, "VRAM SEQ", PDV_MEM_VRAM_SEQ, 1024, 2 },
     { 5, "PCM BUSY", PDV_SND_PCM_BUSY, 18, 0 },
     { 5, "ADPCM BUSY", PDV_SND_ADPCM_BUSY, 42, 0 },
-    { 5, "PCM AFTER PSG", PDV_SND_ONSET_PCM_PSG, 2, 0 },
-    { 5, "ADPCM AFTER PCM", PDV_SND_ONSET_ADPCM_PCM, 8, 0 },
+    { 5, "PCM - PSG", PDV_SND_ONSET_PCM_PSG, 2, 0 },
+    { 5, "ADPCM - PCM", PDV_SND_ONSET_ADPCM_PCM, 8, 0 },
     { 5, "HOLD RESTART", PDV_SND_HOLD, 258, 0 },
 };
 const int ledger_row_count = sizeof(ledger_rows) / sizeof(*ledger_rows);
