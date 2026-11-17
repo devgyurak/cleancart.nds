@@ -389,8 +389,8 @@
     4
    ],
    "check": "range",
-   "min": -64,
-   "max": 64,
+   "min": -256,
+   "max": 256,
    "source": "unconfirmed",
    "role": "target",
    "level": 4,

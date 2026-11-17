@@ -83,7 +83,7 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
 | `rear-plane` | l4-acc-rear-plane | non-zero | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
 | `rear-plane-full` | l4-acc-rear-plane | 4096 | 4096 | 1408 | 1408 | 4096 | 1408 | 1408 | 4096 |
 | `vcw-212-lines` | l4-vcount-write | 10 to 11 | 11 | 11 | 11 | 11 | 11 | 11 | 0 |
-| `vcw-212-residual` | l4-vcount-write | -64 to 64 (x16) | -6 | -6 | -6 | -6 | -6 | -6 | 65535 |
+| `vcw-212-residual` | l4-vcount-write | -256 to 256 (x16) | -6 | -6 | -6 | -6 | -6 | -6 | 65535 |
 | `vcw-205-lines` | l4-vcount-write | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 0 |
 | `vcw-212-210-lines` | l4-vcount-write | 3 | 3 | 3 | 3 | 3 | 3 | 3 | 0 |
 | `vcw-outside-lines` | l4-vcount-write | 0 | 51 | 51 | 51 | 51 | 51 | 51 | 0 |

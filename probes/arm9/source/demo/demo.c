@@ -1632,7 +1632,7 @@ static void d_acc_rear_plane(void) { split_demo(SPLIT_REAR_PLANE, "ACC-REAR-PLAN
 #define PR_NOW() ({ u32 h1_, l_, h2_; do { h1_ = PR_T1; l_ = PR_T0; h2_ = PR_T1; } while (h1_ != h2_); h1_ << 16 | l_; })
 #define PR_NOINLINE __attribute__((noinline))
 
-// Bounded waits: once one gave up (a stuck VBlank) every later wait returns at once and the probe reports 0xFFFF.
+// Bounded polling waits (not the vsync() calls before them, which wait for the VBlank IRQ): once one gave up (a stuck VBlank) every later wait returns at once and the probe reports 0xFFFF.
 static bool pr_timeout;
 #define PR_SPIN_LIMIT 8000000u
 #define PR_SPIN(cond) do { u32 n_ = 0; while (!pr_timeout && (cond)) { if (++n_ > PR_SPIN_LIMIT) { pr_timeout = true; break; } } } while (0)
@@ -1778,7 +1778,7 @@ static void tl_idle(void)
         ;
 }
 
-// A swap that never happens (a stuck VBlank) ends the trial instead of hanging the ROM.
+// A polling wait that never ends (a stuck VBlank) ends the trial instead of hanging the ROM; the vsync() calls around it still need the VBlank IRQ.
 
 static ITCM_CODE PR_NOINLINE void tl_frame(int line)
 {
