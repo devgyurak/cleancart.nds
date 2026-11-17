@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+# Chapter 2, bell rope. Stations: A TOLL 4M 8, B TOLL 2M 16, C TOLL 1M 32, E TOLL 512K 64.
+# NAME: TARGET | slot | slot ...  (the first letter of a slot is its starting choice; the target is a plan's tick sum)
+DOOR BELL: 56 | AB | BC | AE
+CHAPEL PEAL: 104 | BA | CA | EB
+TOWER CHIME: 120 | AC | BE | CB | AB
+HARBOR TOLL: 128 | AB | EC | BA | CE

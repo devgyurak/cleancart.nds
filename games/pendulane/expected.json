@@ -1,0 +1,668 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 3,
+  "area": "CPU, bus and sound timing",
+  "about": "Expected result-block values for the Pendulane rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h. Every timing value is the difference of two edges found with the ITCM nop sled (judge/bench.c), so the fixed path cancels; ranges are in ARM9 cycles (half bus cycles) unless the title says otherwise. \"signed\" items are compared as s32. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly.",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "pendulane-rehearsal.nds",
+      "item_id": 1213350992,
+      "item_id_text": "PDRH",
+      "frames": 3500,
+      "note": "the scripted play of the first contraption of every chapter, then the bench; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "pendulane.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 6000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): every contraption of every chapter solved by the scripted player with each chapter's rhythm piece, the credits, then the bench once; the block uses the rehearsal's layout and adds the QA words at values[48..54]"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "math-div32-vs-sqrt",
+      "title": "DIV mode 0 busy minus SQRT busy, ARM9 cycles = half bus cycles (18 - 13 clocks = 10)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "range",
+      "min": 8,
+      "max": 12,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "math-div64-vs-div32",
+      "title": "DIV mode 1 (64/32) busy minus mode 0 (32/32), half bus cycles (34 - 18 clocks = 32)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "range",
+      "min": 30,
+      "max": 34,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "math-div6464-eq-div6432",
+      "title": "DIV mode 2 (64/64) busy minus mode 1 (64/32), half bus cycles (34 - 34 clocks = 0)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "range",
+      "min": -2,
+      "max": 2,
+      "signed": true,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "cart-gap1-clk5",
+      "title": "Slot-1 command B8 (no data block): +0x100 gap1 clock pulses at CLK = bus / 5 lengthen the transfer by 1280 bus cycles",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        8
+      ],
+      "check": "range",
+      "min": 1275,
+      "max": 1285,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 64
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
+      "env": "cart"
+    },
+    {
+      "id": "cart-gap1-clk8",
+      "title": "The same at CLK = bus / 8: 2048 bus cycles",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        9
+      ],
+      "check": "range",
+      "min": 2040,
+      "max": 2056,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 64
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
+      "env": "cart"
+    },
+    {
+      "id": "snd-pcm-busy",
+      "title": "A 16-sample PCM16 one-shot: Busy clears 18 samples after the start (3 start delay + 16 - 1; Busy drops at the start of the last sample)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        10
+      ],
+      "check": "eq",
+      "expect": 18,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-adpcm-busy",
+      "title": "A 32-sample ADPCM one-shot: Busy clears 42 samples after the start (11 start delay + 32 - 1)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        11
+      ],
+      "check": "eq",
+      "expect": 42,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-onset-pcm-psg",
+      "title": "The first sound of PCM16 comes 2 samples after the first sound of PSG (3 - 1), from two captures of the left mixer",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        12
+      ],
+      "check": "eq",
+      "expect": 2,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-onset-adpcm-pcm",
+      "title": "The first sound of ADPCM comes 8 samples after the first sound of PCM16 (11 - 3: the header word is 8 slots)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        13
+      ],
+      "check": "eq",
+      "expect": 8,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-hold-restart",
+      "title": "Restarting a Hold channel: the old value plays one more sample, then 2 zero samples, then the new data ((1 << 8) | 2 = 258)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        14
+      ],
+      "check": "eq",
+      "expect": 258,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-rate-slope",
+      "title": "Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured; the value differs between boot paths on both emulators)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        20
+      ],
+      "check": "range",
+      "min": -16,
+      "max": 16,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Channels"
+    },
+    {
+      "id": "spi-512k-minus-4m",
+      "title": "Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "range",
+      "min": 440,
+      "max": 456,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+    },
+    {
+      "id": "mem7-main-seq",
+      "title": "ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        15
+      ],
+      "check": "range",
+      "min": 1022,
+      "max": 1026,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-main-nonseq",
+      "title": "ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        16
+      ],
+      "check": "range",
+      "min": 574,
+      "max": 578,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-code-main-seq",
+      "title": "ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        17
+      ],
+      "check": "range",
+      "min": 126,
+      "max": 130,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-vram-seq",
+      "title": "ARM7 VRAM (bank C mapped to the ARM7) sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (1024)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        18
+      ],
+      "check": "range",
+      "min": 1022,
+      "max": 1026,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "pre-div-results",
+      "title": "Quotients, remainders and the square root of the probe operations are right",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "pre-timer-cascade",
+      "title": "Timer 1 counts timer 0's overflows (cascade)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Timers"
+    },
+    {
+      "id": "pre-spi-busy",
+      "title": "The firmware SPI busy flag clears after a byte (the edge search found an end)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+    },
+    {
+      "id": "pre-capture-runs",
+      "title": "Sound capture 0 records non-zero data of a playing channel",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Sound Capture"
+    },
+    {
+      "id": "pre-oneshot-busy",
+      "title": "The Busy flag of a one-shot PCM16 and ADPCM channel clears",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Sound Channels"
+    },
+    {
+      "id": "pre-cart-busy",
+      "title": "The slot-1 busy flag clears after a transfer (the edge search found an end)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
+      "env": "cart"
+    },
+    {
+      "id": "chapters-played",
+      "title": "The scripted play solved the first contraption of every chapter (rehearsal) / every chapter was finished (QA): mask 0x1f",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 31,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none"
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run ended with PASS (QARN verdict 1)",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none"
+    }
+  ],
+  "known": {
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+      "ng": [
+        "cart-gap1-clk5",
+        "cart-gap1-clk8",
+        "mem7-main-nonseq",
+        "snd-adpcm-busy",
+        "snd-hold-restart",
+        "snd-onset-pcm-psg",
+        "snd-pcm-busy",
+        "spi-512k-minus-4m"
+      ],
+      "na": []
+    },
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
+      ],
+      "na": []
+    }
+  }
+}

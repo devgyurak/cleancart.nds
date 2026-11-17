@@ -44,10 +44,10 @@ GBATEK_SECTIONS = (
     'DS 3D Display Control', 'DS 3D Status', 'DS 3D Texture Attributes', 'DS 3D Polygon Attributes',
     'DS 3D Matrix Stack', 'DS 3D Matrix Load/Multiply', 'DS 3D Geometry Commands', 'DS 3D Tests',
     'DS 3D Texture Coordinates', 'DS 3D Polygon Definitions by Vertices',
-    'DS Cartridge Backup', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
+    'DS Cartridge Backup', 'DS Cartridge I/O Ports', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
     'DS DMA Transfers', 'DS Firmware User Settings', 'DS Inter Process Communication', 'DS Interrupts',
-    'DS 3D I/O Map', 'DS Keypad', 'DS Maths', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
-    'DS Power Management', 'DS Real-Time Clock', 'DS Sound Capture', 'DS Sound Channels', 'DS Sound Notes', 'DS Timers',
+    'DS 3D I/O Map', 'DS Keypad', 'DS Maths', 'DS Memory Timings', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
+    'DS Power Management', 'DS Real-Time Clock', 'DS Serial Peripheral Interface Bus (SPI)', 'DS Sound Capture', 'DS Sound Channels', 'DS Sound Notes', 'DS Timers',
     'DS Touch Screen Controller', 'DS Video Capture and Main Memory Display Mode', 'DS Video Stuff', 'DS Video OBJs',
     'LCD Dimensions and Timings', 'LCD I/O BG Control', 'LCD I/O BG Rotation/Scaling',
     'LCD I/O Color Special Effects', 'LCD I/O Display Control', 'LCD I/O Mosaic Function',
@@ -55,7 +55,7 @@ GBATEK_SECTIONS = (
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'pendulane', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 
