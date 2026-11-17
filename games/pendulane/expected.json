@@ -102,6 +102,141 @@
       "level_basis": "gbatek:DS Maths"
     },
     {
+      "id": "spi-512k-minus-4m",
+      "title": "Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "range",
+      "min": 440,
+      "max": 456,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+    },
+    {
+      "id": "mem7-main-seq",
+      "title": "ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        15
+      ],
+      "check": "range",
+      "min": 1022,
+      "max": 1026,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-main-nonseq",
+      "title": "ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK itself notes a reported 5",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        16
+      ],
+      "check": "range",
+      "min": 574,
+      "max": 578,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-code-main-seq",
+      "title": "ARM7 code fetched from main RAM sequentially costs 2 cycles per word: 128 nops minus 64 nops (128, window +-4: the per-word cost is not uniform across the run)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        17
+      ],
+      "check": "range",
+      "min": 124,
+      "max": 132,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
+      "id": "mem7-vram-seq",
+      "title": "ARM7 VRAM (bank C mapped to the ARM7) sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (1024)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        18
+      ],
+      "check": "range",
+      "min": 1022,
+      "max": 1026,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Memory Timings"
+    },
+    {
       "id": "pre-div-results",
       "title": "Quotients, remainders and the square root of the probe operations are right",
       "boots": [
@@ -146,6 +281,28 @@
       "level_basis": "gbatek:DS Timers"
     },
     {
+      "id": "pre-spi-busy",
+      "title": "The firmware SPI busy flag clears after a byte (the edge search found an end)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+    },
+    {
       "id": "qa-verdict",
       "title": "The QA run ended with PASS (QARN verdict 1)",
       "boots": [
@@ -169,22 +326,33 @@
   "known": {
     "desmume-pydesmume-0.0.9": {
       "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
-      "ng": [],
+      "ng": [
+        "spi-512k-minus-4m",
+        "mem7-main-seq",
+        "mem7-main-nonseq",
+        "mem7-vram-seq"
+      ],
       "na": []
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-      "ng": [],
+      "ng": [
+        "mem7-main-nonseq"
+      ],
       "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-      "ng": [],
+      "ng": [
+        "mem7-main-nonseq"
+      ],
       "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-      "ng": [],
+      "ng": [
+        "mem7-main-nonseq"
+      ],
       "na": []
     }
   }

@@ -6,9 +6,9 @@ Human docs (English, each with a Korean twin `*-KO.md`): `README.md`, `docs/QA.m
 `THIRD_PARTY_NOTICES`. Repo-wide rules are in `../../AGENTS.md`. The plan is `out/WORKPLAN-pendulane.md` (not committed).
 Created from paneveil (arm7, common, `arm9/source/core` and `gfx` are corvane's layers: keep fixes in sync).
 
-Status (PR 1 of the stack): skeleton, the timing core (ITCM edge finding) and the math bench; scenes: title (a text
+Status (PR 2 of the stack): skeleton, the timing core (ITCM edge finding), the math bench and the ARM7 bench (SPI byte time, ARM7 memory timings); scenes: title (a text
 scaffold, `TODO(title)`), the bench ledger, credits; the hidden QA run reaches the credits and runs the bench once.
-Next: the ARM7 benches (SPI, memory), the sound bench, the cartridge bench, the device game, the rehearsal and QA
+Next: the sound bench, the cartridge bench, the device game, the rehearsal and QA
 epilogue in full, hardware.
 
 ## Build
@@ -31,6 +31,15 @@ epilogue in full, hardware.
   that path is as short as possible. Every judged value is the difference of two edges, so the path cancels; a value of 0 as an edge is a
   floor, not a measurement, and fails the bench. IME is 0 during a bench. The bench never polls, so there is no poll jitter.
   `bench_math()`: DIV modes 0, 1, 2 and SQRT, plus a check of their results; `bench_timer_cascade()`: timer 1 counts timer 0's overflows.
+- `arm7/source/bench7.c` + `arm9/source/judge/bench7.c`: the ARM7 bench (`common/cv_ipc.h`: `CV_FIFO_BENCH`, ops `CV_BENCH_SPI`, `CV_BENCH_MEM`).
+  The ARM9 sends `op << 24 | scratch address`, parks in ITCM with IME off polling the IPCSYNC nibble (no main RAM access), and the ARM7
+  runs the request inside its FIFO handler (nothing can interrupt it), sends 8 result words as a datamsg and raises the done nibble
+  (0xC / 0xD alternating). SPI: the firmware chip is read with RDSR and chip select held, one data write starts a byte, a nop sled
+  (`pd7_probe`, ARM7 WRAM) and one read of SPICNT bit 7; binary search for the smallest sled length at which busy is clear (monotone),
+  per baud rate. Memory: unrolled `pd7_ldm12` / `pd7_ldm4` / `pd7_ldr` x64 timed with ARM7 timer 1 (bus cycles), the same code for every
+  memory (only the base address changes), reported as a difference of two runs; code in main RAM runs from a 640 byte ARM9 scratch
+  buffer the ARM7 fills with nops (the ARM9 invalidates its cache lines first and never touches it again); VRAM bank C is mapped to
+  the ARM7 for the run. The ARM7 sound engine uses timers 0 and 3, the bench timer 1.
 - `expected.json` + `tools/judge.py` (from paneveil, plus `"signed": true` items compared as s32) + `tools/tests/test_judge.py`.
   Boots `rehearsal` (id `PDRH`) and `qa` (`QARN`, rehearsal layout plus the QA words at `values[48..54]`). `known` has the four emulator
   profiles (DeSmuME py-desmume 0.0.9, melonDS 1.1 software / GL Classic / GL Compute); re-measure all four after changing the ROM.

@@ -8,6 +8,7 @@
 
 #include <nds.h>
 
+#include "bench7.h"
 #include "cv_ipc.h"
 #include "sound7.h"
 
@@ -118,6 +119,7 @@ int main(int argc, char *argv[])
 
     snd7_init();
     fifoSetValue32Handler(CV_FIFO_SYS, sys_value_handler, NULL);
+    fifoSetValue32Handler(CV_FIFO_BENCH, bench7_request, NULL);
 
     read_rtc();
 

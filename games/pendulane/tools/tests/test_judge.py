@@ -115,10 +115,19 @@ class Grading(unittest.TestCase):
 
 
 class Profiles(unittest.TestCase):
-    def test_profile_matches_when_nothing_fails(self):
-        rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, good_values('rehearsal')))
+    def test_profile_matches_when_the_known_items_fail(self):
+        v = good_values('rehearsal')
+        by_id = {i['id']: i for i in EXP['items']}
+        for name in EXP['known']['melonds-1.1-software']['ng']:
+            v[by_id[name]['values'][0]] = 0   # the value melonDS reads for the known NG item is outside its window
+        rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, v))
         self.assertEqual(rc, 0, out)
         self.assertIn('MATCH', out)
+
+    def test_profile_reports_a_newly_passing_item(self):
+        rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, good_values('rehearsal')))
+        self.assertEqual(rc, 1, out)
+        self.assertIn('NEWLY PASSING  mem7-main-nonseq', out)
 
     def test_profile_reports_a_newly_failing_item(self):
         v = good_values('rehearsal')

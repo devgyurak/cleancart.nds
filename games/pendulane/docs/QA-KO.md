@@ -9,7 +9,7 @@ melonDS 1.1 점검표입니다 (macOS 키는 저장소 `AGENTS.md`).
 | 타이틀 | 글자만 있는 임시 타이틀(`TODO(title)`), 아래 화면에 라이선스·ARM7·세이브 줄; Start는 벤치 장부, X는 크레딧 | headless 실행만 |
 | 벤치 장부 | 수학 엣지 네 개(ARM9 사이클)와 책 값 36 / 68 / 68 / 26, 차이 세 개와 10 / 32 / 0, "MATH RESULTS RIGHT", B로 뒤로 | headless 실행만 |
 | 크레딧 | 스크롤 크레딧, X는 라이선스 뷰어 | 아직 확인 안 함 |
-| rehearsal demo | `pendulane-rehearsal.nds`는 바로 벤치로 부팅; 결과 블록 id `0x48524450` (`PDRH`); README의 방법대로 `judge.py --profile`로 채점 | ✅ 2026-11-17: 프로파일 4개(DeSmuME py-desmume 0.0.9, melonDS 1.1 software / GL Classic / GL Compute) 모두 판정 항목 5개 중 5개 OK. 차이: DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0 (책 값은 10 / 32 / 0, 창은 ±2). 실기 값은 아직 없음 |
+| rehearsal demo | `pendulane-rehearsal.nds`는 바로 벤치로 부팅; 결과 블록 id `0x48524450` (`PDRH`); README의 방법대로 `judge.py --profile`로 채점 | ✅ 2026-11-17: 프로파일 4개 모두 측정, 각각 `judge.py --profile` MATCH. melonDS 1.1(모든 렌더러): 판정 target 9개 중 8개 OK, `mem7-main-nonseq`만 NG (GBATEK의 N32 10사이클이면 576인데 386). DeSmuME py-desmume 0.0.9: 9개 중 5개, NG는 `spi-512k-minus-4m`(SPI 바이트가 바로 끝나 엣지 0), `mem7-main-seq`·`mem7-vram-seq`(1022..1026 대신 1028), `mem7-main-nonseq`(68). 수학 차이 DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0. melonDS SPI 엣지 59 / 122 / 250 / 508. 실기 값은 아직 없음 |
 
 실기: 아직 돌리지 않았습니다. [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
@@ -20,7 +20,7 @@ melonDS 1.1 점검표입니다 (macOS 키는 저장소 `AGENTS.md`).
 `SDDIR=out/pd/x tools/melonds/mds.sh run games/pendulane/pendulane.nds 2400 out/pd/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (먼저
 `out/pd/x/cleancart/pendulane/`를 만드세요). 2026-11-17 melonDS 1.1(software)에서 확인: 프레임 1137에서 `RESULT PASS`, 체크포인트 2개,
 두 번 돌린 `tools/qa/compare.py` 차이 0, `CPU9 cpsr` 모드 0x1f; `QARN` 블록을 melonDS 1.1 software / GL Classic / GL Compute / DeSmuME에서
-`judge.py`로 채점해 모두 OK.
+`judge.py --profile`로 채점해 모두 MATCH.
 
 ## 키 없이 QA 시작 (SD 마커)
 
