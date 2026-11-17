@@ -15,8 +15,10 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/play.h"
 #include "game/puzzle.h"
 #include "game/qa_tune.h"
@@ -109,6 +111,8 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                // The verdict and the QARN block are out: the rehearsal and the level 3 demos (core/qasuite.h).
+                qa_suite_run("elevane", demo_suite, demo_suite_count, 4000);
             }
             break;
         case SC_SHOWCASE:
@@ -178,4 +182,12 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
         default:
             break;
     }
+}
+
+// The suite starts every demo from the state a stand-alone ROM boots into: nothing delivered, 3D view.
+void qa_suite_reset_game(void)
+{
+    ev_delivered_bits = 0;
+    ev_view3d = true;
+    g3_init();   // the geometry engine as boot leaves it (a previous demo's texture and matrix state must not leak)
 }
