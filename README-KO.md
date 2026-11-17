@@ -307,7 +307,7 @@
 - `acc-dual-halves` · Both halves of the blended two-pass picture have pixels · [expected.json](games/lightenette/expected.json)
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
-- `snd-wave-pan-right-exact` · Pan 126 (hard right) leaves the left mixer a swing of exactly 3: the 2/128 left share rounds by the fraction MSB rule (GBATEK) to +1 / -2, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
+- `snd-wave-pan-right-exact` · Pan 126 (hard right) leaves the left mixer a swing of exactly 3: GBATEK reads two ways (fraction MSB as two's complement gives +1 / -2, as magnitude +1 / -1), the console reads the first, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
 
 #### Tonewick · sound and I/O edges
 
