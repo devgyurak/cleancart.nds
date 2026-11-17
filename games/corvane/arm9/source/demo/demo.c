@@ -3082,7 +3082,7 @@ static const DemoEntry demos[] = {
 // What the QA run's judge suite runs (core/qasuite.h): every judged demo under its stand-alone ROM's name,
 // the ones that change the machine most (WRAM ownership, IRQ handlers) last. acc-stage runs first: after other
 // demos its capture seam reads 0 instead of 18 (not a judged value). io-qalog
-// opens a QA log of its own and stays a stand-alone ROM.
+// opens a QA log of its own, so it stays out; its item (block id QARN) is graded from the QA block file.
 static void suite_demo(const char *name)
 {
     for (unsigned i = 0; i < sizeof(demos) / sizeof(demos[0]); i++)

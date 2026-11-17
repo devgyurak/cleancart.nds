@@ -167,11 +167,48 @@ void qalog_append(const char *scene, const char *event, const char *fmt, ...)
 {
     if (!opened)
         return;
+    char buf[LINE_MAX];
+    int n = snprintf(buf, sizeof(buf), "%lu %s %s ", (unsigned long)cv_frame, scene, event);
+    if (n < 0 || n >= (int)sizeof(buf) - 2)
+        return;
     va_list ap;
     va_start(ap, fmt);
-    vline(scene, event, fmt, ap, true);
+    int m = vsnprintf(buf + n, sizeof(buf) - n - 1, fmt, ap);
     va_end(ap);
-    qalog_flush();
+    if (m < 0)
+        m = 0;
+    n += m < (int)(sizeof(buf) - n - 1) ? m : (int)(sizeof(buf) - n - 2);
+    while (n > 0 && buf[n - 1] == ' ')
+        n--;
+    buf[n++] = '\n';
+    if (!sd_ok)
+    {
+        put(buf, (u32)n, true);   // no card: RAM only, like the rest of the log
+        return;
+    }
+    // The finished qa-*.log ends with its RESULT line (tools/qa/parse_log.py): the suite's lines go to a file
+    // of their own, suite-<stamp>.log beside it.
+    char path[136];
+    snprintf(path, sizeof(path), "%s", log_path);
+    char *tail = strstr(path, "/qa-");
+    if (!tail)
+        return;
+    memmove(tail + 1 + 5, tail + 1 + 2, strlen(tail + 1 + 2) + 1);   // "qa-" -> "suite-"
+    memcpy(tail + 1, "suite", 5);
+    bool owner = cart_bus_claim();
+    FILE *f = fopen(path, "ab");
+    bool ok = false;
+    if (f)
+    {
+        ok = fwrite(buf, 1, (size_t)n, f) == (size_t)n;
+        ok = fclose(f) == 0 && ok;
+    }
+    cart_bus_release(owner);
+    if (!ok)
+    {
+        sd_ok = false;   // a dead card: no more tries
+        sd_lost = true;
+    }
 }
 
 bool qalog_open(const char *game, u32 seed)

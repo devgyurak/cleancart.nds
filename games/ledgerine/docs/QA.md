@@ -47,7 +47,7 @@ rehearsal's layout, graded with `python3 games/ledgerine/tools/judge.py --profil
 (create `out/lg/x/cleancart/ledgerine/` first; `RENDERER=gl|compute` for the GL renderers).
 
 **Judge suite.** With the QA log on an SD card, the run ends (after `RESULT PASS` and the `QARN` block) with the `press-min` check and writes
-`res-<stamp>-ledgerine-press-min.log` beside the log (`suite demo=press-min saved=1` in the log; no SD card: `suite skipped=no-sd`, which is the DeSmuME case). The `QARN` block is put back afterwards.
+`res-<stamp>-ledgerine-press-min.log` beside the log (`suite demo=press-min saved=1` in `suite-<stamp>.log`; no SD card: `suite skipped=no-sd`, which is the DeSmuME case). The `QARN` block is put back afterwards.
 So one QA run grades every item: the `qa` boot from the block (item `rehearsal-done` = all six rooms closed), `press-min` from the res file (`tools/qa/ingest.py` on a card, `judge.py --boot press-min` headless).
 
 | Renderer | QA run (2026-11-16) | `judge.py --profile` |

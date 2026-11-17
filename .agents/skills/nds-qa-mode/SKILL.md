@@ -96,7 +96,9 @@ demos in `qa_suite_run(kit, demos, n, frame_limit)` (`core/qasuite.c`, identical
 - Before each demo the runner resets the hardware (DMA/timers off, IE restored, brightness, WRAM back to the ARM7) and
   calls the game's `qa_suite_reset_game()`; a demo past `frame_limit` is left through `qa_suite_watch()` (in
   `sys_vsync()`) and logged `timeout=1`. Every demo logs `suite demo=<name> saved=<0|1> frames=<n>` and flushes
-  (`qalog_append()`), so a hang names the last demo. Put fragile demos last.
+  (`qalog_append()`) to `suite-<stamp>.log` beside the qa log (which keeps ending with its `RESULT` line, so `parse_log.py` and `compare.py` stay valid), so a hang names the last demo. Put fragile demos last.
+- The reset also: `REG_DISPCAPCNT = 0`, IF cleared **except the IPC FIFO bits** (edge triggered: a cleared one is never raised again), VBlank list cut back to its length at the suite's start and the other IRQ handlers off (`irq_reset_hooks()`), `save_defaults()` settings (restored at the end), a game hook for the rest (Corvane: `cv_beats`, `g3_init()`).
+  A busy wait without a frame bound in a demo is not caught by the watchdog (it checks in `sys_vsync()`); an SD that stops answering ends the suite (`suite abort reason=sd-lost`). While the suite runs, the RAM block is the running demo's; the QARN block is back at the end.
 - No SD log (DeSmuME): `suite skipped=no-sd`. Suite values never enter a state hash, no checkpoint follows the suite,
   and the `QARN` block is restored at the end (RAM-peeking emulator runs still grade boot `qa`).
 - A QA-only value that stands for a rehearsal-only item goes into the QARN block (e.g. Ledgerine sets `LV_DONE_REHEARSAL`

@@ -39,7 +39,7 @@ games/lightenette/lightenette.nds 7000 out/lt/x "300:L:140,300:R:140,300:X:140,3
 tools/emu/emu.sh run ... 4000 ...`).
 
 **판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-lightenette-qa.log`로 저장하고,
-레벨 2 데모 10개(`l2-*`, 단독 ROM과 같은 함수)를 차례로 돌려 각각 `res-<stamp>-lightenette-<demo>.log`를 씁니다(로그에 `suite demo=<name> saved=1 frames=<n>`.
+레벨 2 데모 10개(`l2-*`, 단독 ROM과 같은 함수)를 차례로 돌려 각각 `res-<stamp>-lightenette-<demo>.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=<name> saved=1 frames=<n>`.
 SD가 없으면 `suite skipped=no-sd`: DeSmuME). 그래서 카드에서 한 번 실행하면 판정 항목이 모두 나오고, `tools/qa/ingest.py`가 파일마다 따로 채점합니다.
 값은 단독 ROM과 같습니다(`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17). 판정 범위 안에서 흔들리는 둘만 다릅니다: `l2-sys-irq`의 HBlank 수와 `l2-snd-capture`의 캡처 피크.
 

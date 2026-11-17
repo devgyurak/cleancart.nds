@@ -52,7 +52,7 @@ def main(argv):
         dst = os.path.join(kit, 'build', 'qa')
         os.makedirs(dst, exist_ok=True)
         fresh = []
-        for path in sorted(glob.glob(os.path.join(src, 'qa-*.log')) + glob.glob(os.path.join(src, 'save-*.bin'))
+        for path in sorted(glob.glob(os.path.join(src, 'qa-*.log')) + glob.glob(os.path.join(src, 'suite-*.log')) + glob.glob(os.path.join(src, 'save-*.bin'))
                            + glob.glob(os.path.join(src, 'shot-*.bmp'))
                            + glob.glob(os.path.join(src, 'res-*.log'))):
             out = os.path.join(dst, os.path.basename(path))
@@ -114,22 +114,27 @@ def judge_results(kit, name, logs):
     if not logs:
         return 0
     judge = os.path.join(kit, 'tools', 'judge.py')
-    # Judges that grade a block by its id (boots: lightenette, ledgerine, heddlemere, paneveil, tonewick) read one
-    # block per run, so each file (the QA run's QARN block and every suite demo's block) goes in on its own; the
-    # demo judges (--partial) take every block in one call.
+    # Judges that read one block per run (the ones with boots: lightenette, ledgerine, heddlemere, paneveil, tonewick,
+    # and any whose docstring says "uses the last result block", pendulane) get each file (the QA run's QARN block
+    # and every suite demo's block) on its own; the demo judges take every block in one call.
     with open(judge) as f:
-        by_demo = "'--partial'" in f.read()
-    # The QA run's own block (res-...-<kit>-qa.log) is graded only by a game whose expected.json has a "qa" boot;
-    # the verdict of the others comes from parse_log on the qa-*.log.
+        src = f.read()
+    has_partial = "'--partial'" in src
+    by_demo = has_partial and 'uses the last result block' not in src
+    # The QA run's own block (res-...-<kit>-qa.log, block id QARN) is graded only by a game whose expected.json
+    # knows that id (a "qa" boot, or an item of a demo that writes QARN such as corvane's io-qalog); a demo judge
+    # without it would reject the block as unknown.
     expected = os.path.join(kit, 'expected.json')
-    if os.path.exists(expected) and '"qa"' not in open(expected).read():
-        logs = [l for l in logs if not os.path.basename(l).endswith('-qa.log')]
-        if not logs:
-            return 0
+    if os.path.exists(expected):
+        text = open(expected).read()
+        if '"qa"' not in text and '1314013521' not in text and 'QARN' not in text:
+            logs = [l for l in logs if not os.path.basename(l).endswith('-qa.log')]
+            if not logs:
+                return 0
     runs = [logs] if by_demo else [[l] for l in logs]
     worst = 0
     for group in runs:
-        extra = ['--partial'] if by_demo else []
+        extra = ['--partial'] if has_partial else []
         print('judge %s: %s' % (name, ' '.join(os.path.basename(g) for g in group)), flush=True)
         rc = subprocess.call([sys.executable, '-I', judge, '--hardware'] + extra + group)
         worst = max(worst, rc)

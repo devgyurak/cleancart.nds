@@ -14,7 +14,7 @@ Hushwell(L1, 사운드·I/O)은 데모와 자동 QA 실행으로 판정합니다
 
 ## 실행
 
-1. 게임 QA: `hushwell.nds`를 켜고 크레딧까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
+1. 게임 QA: `hushwell-hw-support.nds`를 켜고 스위트가 끝날 때까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
 2. 스위트가 끝날 때까지 기다립니다(로그 끝이 `suite end demos=16 saved=16`). 데모를 따로 돌릴 필요는 없습니다.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game hushwell`.
 

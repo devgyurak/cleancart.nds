@@ -23,6 +23,10 @@ void irq_set_vcount(int line, CvIrqFn fn);
 // Key interrupt: wakes IntrWait when any key in `mask` is pressed.
 void irq_set_keys(u16 mask, CvIrqFn fn);
 
+// For the QA judge suite: the VBlank list length now, and a reset to that length with every other handler off.
+int irq_vblank_count(void);
+void irq_reset_hooks(int vblank_keep);
+
 extern volatile u32 cv_hblank_count;
 extern volatile u32 cv_vcount_hits;
 extern volatile u32 cv_key_irqs;

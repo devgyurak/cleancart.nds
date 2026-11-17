@@ -46,7 +46,7 @@ QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 
 (먼저 `out/lg/x/cleancart/ledgerine/`를 만들어 둠. GL 렌더러는 `RENDERER=gl|compute`).
 
 **판정 스위트.** QA 로그가 SD 카드에 있으면, 실행은 `RESULT PASS`와 `QARN` 블록을 남긴 뒤 `press-min` 검사를 돌리고 로그 옆에
-`res-<stamp>-ledgerine-press-min.log`를 씁니다(로그에 `suite demo=press-min saved=1`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). `QARN` 블록은 스위트 뒤에 다시 복원합니다.
+`res-<stamp>-ledgerine-press-min.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=press-min saved=1`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). `QARN` 블록은 스위트 뒤에 다시 복원합니다.
 그래서 QA 한 번으로 모든 항목이 채점됩니다: `qa` boot는 블록에서(항목 `rehearsal-done` = 여섯 방 모두 장부 마감), `press-min`은 res 파일에서(카드에서는 `tools/qa/ingest.py`, 헤드리스는 `judge.py --boot press-min`).
 
 | 렌더러 | QA 실행 (2026-11-16) | `judge.py --profile` |

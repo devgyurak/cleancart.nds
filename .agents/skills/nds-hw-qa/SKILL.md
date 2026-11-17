@@ -25,9 +25,9 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 2. Copy to the R4 card: the game ROM (on a Wood-style R4 kernel, e.g. a card with `__rpg/` and
    `_DS_MENU.DAT` at the root, take `build/release/rom/<game>-hw-support.nds` instead: the kernel
    DLDI-patches only ROMs with the homebrew code `####`, any other code gets save emulation and no SD
-   card, so nothing is logged; confirmed on a DS Lite + R4 Plus with Wood, 2026-11-17) and `build/release/demos/*.nds` (the rehearsal and judge ROMs are
-   in `demos/` too; do not copy `judge/` as well); for probes `build/release/demos/*.nds`. Hushwell: only the
-   demos its `expected.json` lists are graded.
+   card, so nothing is logged; confirmed on a DS Lite + R4 Plus with Wood, 2026-11-17). **Games need nothing else:** the QA run ends with the judge suite
+   (every judged demo, one res file each; see skill `nds-qa-mode`), so no demo ROM is copied. Only `probes/` has no QA run: copy its `build/release/demos/*.nds`.
+   Stand-alone demo ROMs are for re-running one whose suite line says `saved=0` (a Wood kernel gives them no SD, so such a re-run needs a card with a real DLDI).
 3. Move or delete the old `res-*.log` on the card (they pile up; after a rebuild a ROM that is not run again
    would be graded with its old result, and `ingest.py` only warns when the builds differ).
    Create the **empty folder** `cleancart/<kit>/` for every kit that will run (this is what turns on
@@ -37,8 +37,8 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 ## 2. Run (the user, on the console)
 
 - **Game QA:** start the game ROM and leave it alone. It starts QA at the title and plays itself to the
-  credits (Corvane about 4 minutes, the others longer). Nothing is drawn for it. Then power off.
-- **Demos, probes:** start each ROM from the R4 menu one after another. When `RESULT SAVED` shows,
+  credits and then the judge suite (Corvane: about 4 minutes plus about 2 more for its 48 demos; the others longer). Nothing is drawn for the QA part. **Wait for the end of the suite** (the `suite-<stamp>.log` ends with `suite end demos=<n> saved=<n>`; the demos show on screen), then power off. Powering off earlier loses the demos not yet run.
+- **Probes only:** start each ROM from the R4 menu one after another. When `RESULT SAVED` shows,
   that ROM is done; reset to the menu and start the next one. A ROM that never shows it either did not
   reach its checkpoint or has no folder: say which ROM. Exceptions that write silently: the rehearsals
   and Lightenette `acc-stage` (their screens are full); look for the file instead.

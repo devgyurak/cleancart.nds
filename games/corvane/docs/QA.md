@@ -62,9 +62,8 @@ result block. Headless: `SDDIR=out/mds/x tools/melonds/mds.sh run games/corvane/
 | Real DS Lite + R4 | not run yet |
 
 **Judge suite.** With the QA log on an SD card the run continues after `RESULT PASS`: the QA block is saved as `res-<stamp>-corvane-qa.log`, then 48 judged demos run one after another
-(`acc-stage` first, `sys-wram` and `sys-irq` last; `suite demo=<name> saved=1 frames=<n>` per demo in the log; no SD card: `suite skipped=no-sd`, the DeSmuME case) and each writes
-`res-<stamp>-corvane-<name>.log`, as the stand-alone ROM does. One run on a card therefore holds every judged item; `io-qalog` is the exception (it opens a QA log of its own, and the QA run itself proves that path) and stays a
-stand-alone ROM. Headless: `SDDIR=out/cv/x tools/melonds/mds.sh run games/corvane/corvane.nds 60000 out/cv/x "700:L:140,700:R:140,700:X:140,700:Y:140"` (create `out/cv/x/cleancart/corvane/` first; the run ends at about frame 19800, 6000 of them the suite).
+(`acc-stage` first, `sys-wram` and `sys-irq` last; `suite demo=<name> saved=1 frames=<n>` per demo in `suite-<stamp>.log`; no SD card: `suite skipped=no-sd`, the DeSmuME case) and each writes
+`res-<stamp>-corvane-<name>.log`, as the stand-alone ROM does. One run on a card therefore holds every judged item; `io-qalog` needs no run of its own: its block id is QARN, so the QA block file (`res-…-corvane-qa.log`) is graded for it (`io-qalog-verdict`); the stand-alone ROM only matters for emulator profiles. Headless: `SDDIR=out/cv/x tools/melonds/mds.sh run games/corvane/corvane.nds 60000 out/cv/x "700:L:140,700:R:140,700:X:140,700:Y:140"` (create `out/cv/x/cleancart/corvane/` first; the run ends at about frame 19800, 6000 of them the suite).
 Checked 2026-11-17 with `tools/qa/suite_compare.py` against the stand-alone ROMs (melonDS soft): 46 of 48 identical; `sys-irq` (HBlank count) and `sys-timer` (a timing reading) differ inside their judged ranges. The suite sets `cv_beats` to 0 before every demo and clears all VRAM;
 `acc-stage` runs first because its capture seam (not a judged value) reads 0 instead of 18 after other demos. `judge.py --profile melonds-1.1-software --partial` over all res files: MATCH, 92/92.
 

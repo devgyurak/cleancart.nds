@@ -277,4 +277,5 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
 void qa_suite_reset_game(void)
 {
     cv_beats = 0;
+    g3_init();   // geometry engine as boot leaves it (texture matrix, state a 3D demo set)
 }

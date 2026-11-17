@@ -4,6 +4,8 @@
 
 **Wood 계열 R4 커널:** 카드에는 `heddlemere.nds` 대신 `build/release/rom/heddlemere-hw-support.nds`를 넣습니다. 홈브루 게임 코드 `####`만 다른 같은 ROM입니다. 이런 커널은 이 코드의 ROM에만 DLDI를 붙이고, 게임 고유 코드로는 ROM이 SD 카드를 보지 못합니다(QA 로그와 결과 파일이 남지 않음). 데모와 리허설 ROM은 고유 코드 그대로입니다.
 
+**판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-heddlemere-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
+
 Heddlemere는 아직 실기에서 잰 값이 없습니다. 이 문서는 실기 점검표입니다. 첫 값을 기록하고, `expected.json`의 `unconfirmed`
 네 항목을 승격하고, 가장 위험한 gating 수치(ARM9 HBlank 낮은 구간, GBATEK 1606)를 확정하기 위한 것입니다. 콘솔은 사람이
 조작하고, 아래 단계는 할 일과 적을 것입니다. 대상은 DS Lite 한 대이고 DSi·3DS 값은 없습니다.
