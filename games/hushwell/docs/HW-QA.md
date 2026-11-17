@@ -10,13 +10,13 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 ## What to put on the card
 
-- ROMs: `build/release/rom/hushwell.nds`, the judged demos from `build/release/demos/` (the other demos are not graded; run them by hand if wanted): `hushwell-sys-ipc.nds`, `hushwell-sys-dma-cart.nds`, `hushwell-sys-keys.nds`, `hushwell-snd-mix.nds`, `hushwell-snd-pcm.nds`, `hushwell-snd-adpcm.nds`, `hushwell-snd-psg.nds`, `hushwell-snd-capture.nds`, `hushwell-snd-stream.nds`, `hushwell-io-cart.nds`, `hushwell-io-save-eeprom.nds`, `hushwell-io-save-flash.nds`, `hushwell-io-save-fram.nds`, `hushwell-io-firmware.nds`, `hushwell-io-rtc.nds`, `hushwell-io-touch.nds`, `hushwell-io-power.nds`, `hushwell-snd-wave.nds`
+- ROM: the hw-support build of `hushwell.nds` only. The QA run judges everything: after the credits it runs the 16 judged demos and writes one result file each. `io-save-flash` / `io-save-fram` are not run (other save chips): their items, and every `env: cart` item, are n/a on hardware (decision 2026-11-17; the R4 verifies no chip save). Stand-alone demo ROMs are only for re-running one demo whose file shows `saved=0`.
 - The empty folder `cleancart/hushwell/` (without it the ROMs write nothing) and the empty file `cleancart/hushwell/autoqa` for the QA run
 
 ## Run
 
 1. Game QA: start `hushwell.nds`, leave it alone until the credits (the marker file starts QA on the title).
-2. Demos: start each ROM one by one; wait for `RESULT SAVED`, then reset.
+2. Wait for the end of the suite (the log ends with `suite end demos=16 saved=16`); no demo needs a run of its own.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game hushwell`.
 
 ## Record (one block per run)
