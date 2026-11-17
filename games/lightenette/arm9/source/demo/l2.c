@@ -17,6 +17,7 @@
 #include "core/hw.h"
 #include "core/input.h"
 #include "core/irq.h"
+#include "core/qasuite.h"
 #include "core/snd.h"
 #include "core/sdcard.h"
 #include "core/sys.h"
@@ -120,6 +121,8 @@ static void __attribute__((noreturn)) finish(u32 a, u32 b, u32 c, u32 d)
     con_printf("CHECKPOINT %08lX %08lX\n", (unsigned long)a, (unsigned long)b);
     con_printf("           %08lX %08lX\n", (unsigned long)c, (unsigned long)d);
     con_color(TP_WHITE);
+    if (qa_suite_active())
+        qa_suite_done();   // the QA judge suite saves the block itself and goes on
     // Only when the card holds cleancart/lightenette/ (core/sdcard.h): the block goes to the SD card.
     if (sd_result_save("lightenette", demo_name))
     {
@@ -943,6 +946,32 @@ static const L2Entry l2_demos[] = {
     { "l2-snd-capture", d_snd_capture },
     { "l2-snd-wave", d_snd_wave },
 };
+
+// What the QA run's judge suite runs (core/qasuite.h): the same functions, in the same state a stand-alone
+// ROM starts a demo in as far as qa_suite_reset_game() and the demo's own setup get it. The ones that change
+// the machine most (the DMA, IRQ and capture demos) come last.
+static void suite_run(const char *name)
+{
+    for (unsigned i = 0; i < sizeof(l2_demos) / sizeof(l2_demos[0]); i++)
+    {
+        if (strcmp(l2_demos[i].name, name) == 0)
+        {
+            demo_id = hash_name(name);
+            demo_name = name;
+            idle_fn = NULL;
+            l2_demos[i].fn();   // ends in finish() -> qa_suite_done()
+        }
+    }
+}
+
+const QaSuiteDemo l2_suite[] = {
+    { "l2-2d-affine", suite_run },    { "l2-2d-mosaic", suite_run },
+    { "l2-2d-obj-bitmap", suite_run }, { "l2-3d-limits", suite_run },
+    { "l2-acc-dual", suite_run },     { "l2-snd-capture", suite_run },
+    { "l2-snd-wave", suite_run },     { "l2-sys-math", suite_run },
+    { "l2-sys-dma-vblank", suite_run }, { "l2-sys-irq", suite_run },
+};
+const int l2_suite_count = (int)(sizeof(l2_suite) / sizeof(l2_suite[0]));
 
 bool l2_demo_run(const char *name)
 {

@@ -6,7 +6,8 @@
 // res-<stamp>-<kit>-<demo>.log, exactly as a stand-alone demo ROM does (core/sdcard.h), so
 // tools/qa/ingest.py and tools/judge.py grade them unchanged.
 //
-// A suite demo fills the CvResult block and RETURNS (no idle loop, no SD write of its own). The
+// A suite demo fills the CvResult block and RETURNS, or ends through qa_suite_done() (a demo's noreturn
+// finish() calls it instead of idling); it never writes the SD file itself. The
 // runner resets the hardware before each demo, stops one that runs past its frame limit (the
 // watchdog is checked in sys_vsync()), writes the block, logs
 //   suite demo=<name> saved=<0|1> frames=<n> [timeout=1]
@@ -21,7 +22,7 @@
 
 typedef struct {
     const char *name;     // the stand-alone demo's name (the res file is named after it)
-    void (*run)(void);    // measures, fills CV_RESULT, returns
+    void (*run)(const char *name);   // measures and fills CV_RESULT; returns, or ends in qa_suite_done()
 } QaSuiteDemo;
 
 // First writes the QA run's own block (QARN) as res-<stamp>-<kit>-qa.log, then runs the demos in order (none: count 0, demos may be NULL). Skipped (one `suite skipped=no-sd` line) when the QA log is not on an SD card.
@@ -29,6 +30,9 @@ typedef struct {
 int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned frame_limit);
 
 bool qa_suite_active(void);
+
+// For demo code: the block is filled, back to the runner. Only while a suite runs.
+void qa_suite_done(void) __attribute__((noreturn));
 
 // Called by sys_vsync(): leaves the running demo when it has used up its frames.
 void qa_suite_watch(void);
