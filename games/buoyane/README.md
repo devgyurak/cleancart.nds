@@ -6,6 +6,10 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/chart.png" width="256" alt="The chart"> <img src="docs/images/chapter3.png" width="256" alt="Chapter 3, a light in the fog"> <img src="docs/images/chapter4.png" width="256" alt="Chapter 4, two headlands with edge marking"></p>
+
+<sub>Captured from the built ROM in headless melonDS 1.1 (`tools/melonds/mds.sh`, software renderer), not DeSmuME or real hardware; chapters 3 and 4 come from the rehearsal ROM, which plays by script. Top screen only at 2x nearest-neighbour (512×384).</sub>
+
 An original night-harbour approach game for the Nintendo DS (work in progress: the chart, the voyage with 30
 approaches, the almanac and the judge are in; the title art and the QA notes follow). You steer a small boat into a made-up harbour and
 name each light by how it looks. It also judges itself: a rehearsal ROM and five check ROMs draw
@@ -14,6 +18,10 @@ pixel-exact 3D scenes, capture them and report a result block that other emulato
 **Hardware areas it tests (level 2, "3D rendering edges"):** polygon rules (1-dot polygons and DISP_1DOT_DEPTH, depth test Equal,
 the far-plane bit, POLYGON_ATTR latching, the alpha test), texture blending (highlight, decal, wireframe) and the
 fog, edge-marking and anti-aliasing post-pass. Prerequisites (level 1) guard the basic behaviour first.
+
+## How it plays
+
+Five chapters of six approaches. At each of three gates the top screen shows one light, drawn with the 3D rule the chapter is about (range cut-off for 1-dot polygons, mixed-W dots, fog density, edge marking, depth Equal); the chart offers three candidate lights and you name the one that looks like that. Select opens the almanac, which lists what each candidate looks like in this view, so every approach can be finished on any emulator even when the 3D picture is wrong. QA: [docs/QA.md](docs/QA.md), hardware: [docs/HW-QA.md](docs/HW-QA.md).
 
 ## Build
 
@@ -26,7 +34,7 @@ Needs Docker (BlocksDS v1.25.0 in a pinned image). Two clean builds give the sam
 
 ## Using it as an emulator test
 
-Run `buoyane-rehearsal.nds` (about 200 frames) or one of `buoyane-check-{dot,fog,edge,depth,blend}.nds` (about 150 frames), read the
+Run `buoyane-rehearsal.nds` (about 500 frames) or one of `buoyane-check-{dot,fog,edge,depth,blend}.nds` (about 150 frames), read the
 64-word result block at `0x0237F000`, and grade it:
 
 ```sh
