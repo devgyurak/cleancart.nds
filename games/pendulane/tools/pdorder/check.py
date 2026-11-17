@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Parser and checker of the contraption files.
 
-    python3 tools/pdorder/check.py [--chapter N] [--json] [files...]
+    python3 tools/pdorder/check.py [--chapter N] [files...]
 
 For every contraption: the format is valid, every letter belongs to the chapter, no slot offers a letter twice, and the plan
 that starts every slot at its first letter does not already hit the target. The checker finds every plan that adds up to the
@@ -98,7 +98,11 @@ def main(argv):
     paths = [a for a in argv if not a.startswith('-')]
     chapter = None
     if '--chapter' in argv:
-        chapter = int(argv[argv.index('--chapter') + 1])
+        i = argv.index('--chapter')
+        if i + 1 >= len(argv) or not argv[i + 1].isdigit():
+            print('--chapter needs a number', file=sys.stderr)
+            return 2
+        chapter = int(argv[i + 1])
         paths = [p for p in paths if p != str(chapter)]
     if not paths:
         d = os.path.join(here, '..', 'contraptions')

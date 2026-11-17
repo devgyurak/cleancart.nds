@@ -6,10 +6,11 @@
 
 #include "assets.h"
 #include "core/hw.h"
+#include "gfx/vram.h"
 #include "judge/bench7.h"
 
 #define NOINLINE __attribute__((noinline))
-#define WAIT_LIMIT 60000000u
+#define WAIT_LIMIT 20000000u   // about a second of the ITCM poll loop; the ARM7 needs under half of that
 
 static volatile bool got;
 static u32 reply[CV_BENCH_WORDS];
@@ -18,7 +19,7 @@ static u32 seq;
 
 // The scratch buffer the ARM7 fills with nops and executes. The ARM9 never touches it after invalidating it, so no dirty
 // line of the ARM9 data cache can overwrite the ARM7's code.
-static u8 scratch[640] __attribute__((aligned(32)));
+static u8 scratch[1024] __attribute__((aligned(1024)));   // a fixed 1 KB boundary: the code timing must not depend on where the linker put it
 
 static void reply_handler(int bytes, void *userdata)
 {
@@ -89,9 +90,8 @@ bool bench7_snd(u32 out[CV_BENCH_WORDS])
 bool bench7_mem(u32 out[CV_BENCH_WORDS])
 {
     DC_InvalidateRange(scratch, sizeof(scratch));
-    u8 prev = CV_VRAMCNT(2);
     CV_VRAMCNT(2) = CV_VRAM_ON | 2;   // bank C to the ARM7 at 0x06000000
     bool ok = run(CV_BENCH_MEM, (u32)scratch, out);
-    CV_VRAMCNT(2) = prev;
+    vram_layout(vram_current());      // VRAMCNT is write-only: put the layout back from the known mapping
     return ok;
 }

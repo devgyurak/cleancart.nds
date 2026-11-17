@@ -13,7 +13,7 @@
       "rom": "pendulane-rehearsal.nds",
       "item_id": 1213350992,
       "item_id_text": "PDRH",
-      "frames": 3000,
+      "frames": 3500,
       "note": "the scripted play of the first contraption of every chapter, then the bench; no save chip, no NitroFS"
     },
     "qa": {
@@ -284,7 +284,7 @@
     },
     {
       "id": "snd-rate-slope",
-      "title": "Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured)",
+      "title": "Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured; the value differs between boot paths on both emulators)",
       "boots": [
         "rehearsal",
         "qa"
@@ -365,7 +365,7 @@
     },
     {
       "id": "mem7-main-nonseq",
-      "title": "ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK itself notes a reported 5",
+      "title": "ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong",
       "boots": [
         "rehearsal",
         "qa"
@@ -392,7 +392,7 @@
     },
     {
       "id": "mem7-code-main-seq",
-      "title": "ARM7 code fetched from main RAM sequentially costs 2 cycles per word: 128 nops minus 64 nops (128, window +-4: the per-word cost is not uniform across the run)",
+      "title": "ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128)",
       "boots": [
         "rehearsal",
         "qa"
@@ -405,8 +405,8 @@
         17
       ],
       "check": "range",
-      "min": 124,
-      "max": 132,
+      "min": 126,
+      "max": 130,
       "signed": true,
       "done": {
         "value": 0,
@@ -574,7 +574,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Cartridge Protocol",
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
       "env": "cart"
     },
     {
@@ -626,8 +626,6 @@
         "cart-gap1-clk5",
         "cart-gap1-clk8",
         "mem7-main-nonseq",
-        "mem7-main-seq",
-        "mem7-vram-seq",
         "snd-adpcm-busy",
         "snd-hold-restart",
         "snd-onset-pcm-psg",

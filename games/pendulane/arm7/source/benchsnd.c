@@ -183,6 +183,7 @@ void benchsnd_run(u8 *buf, u32 *res)
     // The clock channel plays the second half of the area (silent: volume 0).
     u32 clock_sad = pcm_addr;
 
+    u16 saved_master = SND_MASTER;   // the bench sets its own; the game's volume is put back at the end
     silence_all();
     stopwatch_start();
 
@@ -241,5 +242,6 @@ void benchsnd_run(u8 *buf, u32 *res)
     else
         res[5] = NOT_FOUND;
     silence_all();
+    SND_MASTER = saved_master;
     res[7] = 1;
 }

@@ -6,8 +6,8 @@
 //
 // Layers on the top screen (engine A): BG0 = text (char base 0, map block 31, priority 0), BG1 = lettering (char base 2 =
 // 0x06008000, map block 30 = 0x0600F000, palette line 8, priority 2), sprites in front of BG1 (priority 1): the rod's dots
-// (tile 16) and the bob (tile 0), OBJ palette line 0. The font is 82 tiles at 0x06000000, so the lettering tiles (116 x 32
-// bytes) end at 0x06008E80, well below map block 30.
+// (tile 16) and the bob (tile 0), OBJ palette line 0. The font is 82 tiles at 0x06000000, so the lettering tiles (114 x 32
+// bytes) end at 0x06008E40, well below map block 30.
 
 #include <nds.h>
 
@@ -68,7 +68,7 @@ static void load_art(void)
 // The pendulum at frame f: the swing angle follows a sine (about +-32 degrees), so it slows at the ends.
 static void draw_pendulum(int f)
 {
-    int angle = (f * 32768 / SWING_FRAMES) & 0x7FFF;     // one turn = 32768
+    int angle = ((f % SWING_FRAMES) * 32768 / SWING_FRAMES) & 0x7FFF;     // one turn = 32768
     int theta = sinLerp(angle) * 2950 / 4096;             // in 1/32768 turns: 2950 = 0.09 turn = 32 degrees
     int sx = sinLerp(theta), cx = cosLerp(theta);         // 4.12
     int bx = PIVOT_X + ROD * sx / 4096;
