@@ -4,6 +4,8 @@
 
 **Wood-style R4 kernels:** put `build/release/rom/paneveil-hw-support.nds` on the card instead of `paneveil.nds`. It is the same ROM with the homebrew game code `####`; these kernels DLDI-patch only such ROMs, and with the game's own code the ROM sees no SD card (no QA log, no result files). The demo and rehearsal ROMs keep their own code.
 
+**Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-paneveil-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
+
 Nothing in Paneveil has been measured on a console yet. This is the checklist for the run, so the first values can
 be recorded and the `unconfirmed` items in `expected.json` can be promoted. The console is operated by a person; the
 steps below are what to do and what to write down.

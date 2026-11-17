@@ -69,8 +69,8 @@ void qalog_checkpoint(const char *scene, const char *name, u32 hash, u32 lag,
 u32 qalog_fnv(u32 h, const void *data, u32 len);
 #define QALOG_FNV_INIT 2166136261u
 
-// A line after qalog_finish() (the QA judge suite, core/qasuite.h): appended to the file at once
-// and flushed; with no SD card it goes to the ring only.
+// A line after qalog_finish() (the QA judge suite, core/qasuite.h): appended at once to suite-<stamp>.log beside
+// the qa log (which ends with its RESULT line); with no SD card it goes to the ring only.
 void qalog_append(const char *scene, const char *event, const char *fmt, ...)
     __attribute__((format(printf, 3, 4)));
 

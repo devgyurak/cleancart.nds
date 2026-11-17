@@ -47,7 +47,7 @@ each build when `tools/` changes.
   `room_scene.c` (the room scene; `room_pilot_key()` is what the QA pilot presses next), `ledger.h/.c` (the result
   words `lg_res` and the block publisher; layout in `ledger.h`), `rehearsal.c/.h` (every room's audit in order, one
   block with id `LDRH`), `qa_game.c` + `qa_tune.h` (the QA run; its state hash covers the flag words `lg_res[0..7]` only: raw timer readings differ from run to run on a console). One file per room, each with its puzzles and its
-  `audit_*()` (the judged experiments, bit meanings in the file header): `press.c` (maths unit; `press_overflow64()` is the `-2^63 / -1` check, run only by the `press-min` demo because it hangs DeSmuME), `tube.c` (IPC FIFO,
+  `audit_*()` (the judged experiments, bit meanings in the file header): `press.c` (maths unit; `press_overflow64()` is the `-2^63 / -1` check, run only by the `press-min` demo (stand-alone ROM and the QA run's judge suite, which needs an SD card) because it hangs DeSmuME), `tube.c` (IPC FIFO,
   the ARM9 half of the barrier script), `clock.c` (timers 0-3), `belt.c` (DMA channels 0, 1, 3; ITCM spin
   function), `vault.c` (WRAMCNT, VRAMCNT, STRB; takes over the VRAM map while it runs and ends with
   `vram_layout(VL_MENU)`), `rules.c` (BIOS calls with sentinel buffers).

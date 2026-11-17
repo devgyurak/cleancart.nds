@@ -948,8 +948,8 @@ static const L2Entry l2_demos[] = {
 };
 
 // What the QA run's judge suite runs (core/qasuite.h): the same functions, in the same state a stand-alone
-// ROM starts a demo in as far as qa_suite_reset_game() and the demo's own setup get it. The ones that change
-// the machine most (the DMA, IRQ and capture demos) come last.
+// ROM starts a demo in as far as the suite's reset and the demo's own setup get it. The 2D, 3D and sound demos
+// come first, the maths, DMA and IRQ demos last.
 static void suite_run(const char *name)
 {
     for (unsigned i = 0; i < sizeof(l2_demos) / sizeof(l2_demos[0]); i++)

@@ -15,7 +15,7 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 
 ## Run
 
-1. Game QA: start `hushwell.nds`, leave it alone until the credits (the marker file starts QA on the title).
+1. Game QA: start `hushwell-hw-support.nds` and leave it alone until the suite ends (the marker file starts QA on the title).
 2. Wait for the end of the suite (the log ends with `suite end demos=16 saved=16`); no demo needs a run of its own.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game hushwell`.
 

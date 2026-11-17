@@ -34,7 +34,7 @@ QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 
 "300:L:140,300:R:140,300:X:140,300:Y:140"`. 2026-11-11 melonDS 1.1(소프트웨어 렌더러)에서 확인: 16,689프레임에 `RESULT PASS`(리뷰 수정 반영 후), 퍼즐 40개 중 40개 납품, 장 마스크 `0x1f`.
 
 **판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-elevane-qa.log`로 저장한 다음 리허설(`elevane-rehearsal`: 정해진 퍼즐과
-쇼케이스 프리셋 둘)과 `l3-*` 데모 9개를 차례로 돌려 각각 `res-<stamp>-elevane-<이름>.log`를 씁니다(로그에 `suite demo=<name> saved=1 frames=<n>`. QA 실행보다 약 4000프레임 더 걸림.
+쇼케이스 프리셋 둘)과 `l3-*` 데모 9개를 차례로 돌려 각각 `res-<stamp>-elevane-<이름>.log`를 씁니다(`suite-<stamp>.log`에 `suite demo=<name> saved=1 frames=<n>`. QA 실행보다 약 4000프레임 더 걸림.
 SD가 없으면 `suite skipped=no-sd`: DeSmuME). `tools/qa/ingest.py`가 `judge.py --hardware --partial`로 채점하고, 항목 20개가 카드에서 한 번 실행하면 모두 나옵니다.
 값은 단독 ROM과 같습니다(`tools/qa/suite_compare.py`, melonDS soft, 2026-11-17). 순서가 한 번 중요합니다: `l3-acc-split-tex`는 `l3-acc-dual` 뒤에서 돌면 지연을 9로 잘못 재서, 리허설 바로 뒤에 둡니다.
 헤드리스: `SDDIR=out/ev/x tools/melonds/mds.sh run games/elevane/elevane.nds 40000 out/ev/x "500:L:140,500:R:140,500:X:140,500:Y:140"` (먼저 `out/ev/x/cleancart/elevane/`를 만들어 둠).

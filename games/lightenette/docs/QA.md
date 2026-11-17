@@ -40,7 +40,7 @@ tools/emu/emu.sh run ... 4000 ...`).
 
 **Judge suite.** With the QA log on an SD card the run continues after `RESULT PASS`: the QA block is saved as `res-<stamp>-lightenette-qa.log`,
 then the ten level 2 demos (`l2-*`, same functions as the stand-alone ROMs) run one after another and each writes
-`res-<stamp>-lightenette-<demo>.log` (`suite demo=<name> saved=1 frames=<n>` in the log; no SD card: `suite skipped=no-sd`, the DeSmuME case). One run on a card
+`res-<stamp>-lightenette-<demo>.log` (`suite demo=<name> saved=1 frames=<n>` in `suite-<stamp>.log`; no SD card: `suite skipped=no-sd`, the DeSmuME case). One run on a card
 therefore holds every judged item; `tools/qa/ingest.py` grades each file on its own. The values equal the stand-alone ROMs' (checked with
 `tools/qa/suite_compare.py`, melonDS soft, 2026-11-17) except two that vary inside their judged range: the HBlank count of `l2-sys-irq` and the capture peak of `l2-snd-capture`.
 

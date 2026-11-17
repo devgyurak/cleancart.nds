@@ -5,8 +5,10 @@
 #include <setjmp.h>
 #include <string.h>
 
+#include "core/irq.h"
 #include "core/qalog.h"
 #include "core/qasuite.h"
+#include "core/save.h"
 #include "core/sdcard.h"
 #include "core/snd.h"
 #include "core/sys.h"
@@ -14,6 +16,9 @@
 static bool active;
 static jmp_buf escape;
 static u32 deadline;   // cv_frame after which the running demo is stopped
+static int vblank_keep;   // length of the VBlank handler list when the suite started
+static CvSave save_keep;  // the game's settings, put back at the end
+static int sfx_keep;
 
 __attribute__((weak)) void qa_suite_reset_game(void)
 {
@@ -26,6 +31,9 @@ bool qa_suite_active(void)
 
 void qa_suite_done(void)
 {
+    if (!active)
+        for (;;)
+            sys_vsync();   // never called outside a suite run (no jump target): stay put
     longjmp(escape, 2);
 }
 
@@ -59,6 +67,8 @@ static void clear_vram(void)
 // previous demo keeps running.
 static void reset_hardware(u32 ie)
 {
+    // A display capture armed by the last frame of the previous demo would write into the banks cleared below.
+    REG_DISPCAPCNT = 0;
     REG_IME = 0;
     for (int i = 0; i < 4; i++)
     {
@@ -66,8 +76,11 @@ static void reset_hardware(u32 ie)
         TIMER_CR(i) = 0;
     }
     REG_IE = ie;
-    REG_IF = 0xFFFFFFFFu;
+    // The IPC FIFO interrupts are edge triggered (GBATEK, IPC FIFO notes): acknowledging a pending one while the
+    // FIFO is not empty would never raise it again, so those flags stay.
+    REG_IF = ~(u32)(IRQ_IPC_SYNC | IRQ_FIFO_EMPTY | IRQ_FIFO_NOT_EMPTY);
     REG_IME = 1;
+    irq_reset_hooks(vblank_keep);
     REG_MASTER_BRIGHT = 0;
     REG_MASTER_BRIGHT_SUB = 0;
     // Sound: nothing of the game's music, effects or echo keeps playing under a demo's measurement.
@@ -75,6 +88,10 @@ static void reset_hardware(u32 ie)
     snd_stream_stop();
     snd_echo(false);
     snd_stop_channels(0xFFFF);
+    // The settings a stand-alone demo build boots with (the player's volume must not colour a sound demo).
+    save_defaults();
+    cv_sfx_volume = cv_save.sfx_volume;
+    snd_master(cv_save.volume);
     if (sys_wram_is_arm9())
         sys_wram_to_arm7();
     clear_vram();
@@ -95,24 +112,40 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
     // The QA run's own block (verdict, the game's judged values) as a res file too, so a card needs nothing else.
     bool qa_saved = sd_result_save(kit, "qa");
     qalog_append("suite", "block", "block=qa saved=%d", qa_saved);
+    if (count <= 0)
+        return 0;   // only the QA block: nothing to reset
     u32 ie = REG_IE;
     int saved_count = 0;
+    vblank_keep = irq_vblank_count();
+    save_keep = cv_save;
+    sfx_keep = cv_sfx_volume;
     active = true;
     for (int i = 0; i < count; i++)
     {
+        if (!qalog_sd())
+        {
+            // The card stopped answering: every further access can take long. The demos left stay unsaved.
+            qalog_append("suite", "abort", "reason=sd-lost left=%d", count - i);
+            break;
+        }
         reset_hardware(ie);
         u32 start = cv_frame;
         bool timeout = false;
         // setjmp is called from this frame only; the watchdog jumps back from sys_vsync().
         volatile u32 limit_at = start + frame_limit;
-        int how = setjmp(escape);
-        if (how == 0)
+        switch (setjmp(escape))
         {
-            deadline = limit_at;
-            demos[i].run(demos[i].name);
+            case 0:
+                deadline = limit_at;
+                demos[i].run(demos[i].name);   // returns, or leaves through qa_suite_done()
+                break;
+            case 1:
+                timeout = true;
+                break;
+            default:
+                break;
         }
         deadline = 0;
-        timeout = how == 1;
         u32 frames = cv_frame - start;
         bool saved = false;
         if (!timeout)
@@ -126,6 +159,9 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
     }
     active = false;
     reset_hardware(ie);
+    cv_save = save_keep;
+    cv_sfx_volume = sfx_keep;
+    snd_master(cv_save.volume);
     memcpy((void *)CV_RESULT_ADDR, &qarn, sizeof(qarn));
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
     qalog_append("suite", "end", "demos=%d saved=%d", count, saved_count);
