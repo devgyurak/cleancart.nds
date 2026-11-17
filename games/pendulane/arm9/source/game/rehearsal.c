@@ -11,6 +11,7 @@
 #include "gfx/fx.h"
 #include "gfx/text.h"
 #include "judge/bench.h"
+#include "judge/bench7.h"
 
 static u32 result[PD_VALUES];
 
@@ -34,6 +35,35 @@ void bench_fill(u32 *res)
     else
     {
         res[PDV_MATH_DIV_SQRT] = res[PDV_MATH_64_32] = res[PDV_MATH_6464_6432] = 0xFFFF;
+    }
+
+    // The ARM7 benches. A measurement that did not finish stays 0xFFFF (NG).
+    res[PDV_SPI] = res[PDV_MEM_MAIN_SEQ] = res[PDV_MEM_MAIN_NONSEQ] = res[PDV_MEM_CODE_MAIN] = res[PDV_MEM_VRAM_SEQ] = 0xFFFF;
+    u32 spi[4];
+    if (bench7_spi(spi))
+    {
+        res[0] |= 2;
+        for (int i = 0; i < 4; i++)
+            res[PDV_RAW_SPI + i] = spi[i];
+        if (spi[0] != BENCH_NOT_MEASURED && spi[1] != BENCH_NOT_MEASURED && spi[2] != BENCH_NOT_MEASURED && spi[3] != BENCH_NOT_MEASURED)
+            res[PDV_PRE] |= 8;
+        // An edge at 0 is a floor (the byte ended before the sled could look), not a measurement.
+        if (spi[0] != 0 && spi[0] != BENCH_NOT_MEASURED && spi[3] != BENCH_NOT_MEASURED)
+        {
+            res[0] |= 8;
+            res[PDV_SPI] = (u32)((s32)spi[3] - (s32)spi[0]);
+        }
+    }
+    u32 mem[CV_BENCH_WORDS];
+    if (bench7_mem(mem))
+    {
+        res[0] |= 16;
+        for (int i = 0; i < CV_BENCH_WORDS; i++)
+            res[PDV_RAW_MEM + i] = mem[i];
+        res[PDV_MEM_MAIN_SEQ] = mem[0];
+        res[PDV_MEM_MAIN_NONSEQ] = mem[1];
+        res[PDV_MEM_CODE_MAIN] = mem[2];
+        res[PDV_MEM_VRAM_SEQ] = mem[3];
     }
 }
 
