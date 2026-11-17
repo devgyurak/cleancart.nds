@@ -53,7 +53,7 @@ user has to pick every ROM by hand, say how long the whole card takes.
 ## 3. Collect and grade (you)
 
 1. User powers off, puts the card in the Mac. `python3 tools/qa/ingest.py /Volumes/<card>` (one kit:
-   `--game <kit>`; probes are `--game probes`). It copies `qa-*.log`, `res-*.log` and `save-*.bin` to
+   `--game <kit>`; probes are `--game probes`). It copies `qa-*.log`, `res-*.log` and `save-*.bin` (and `shot-*.bmp`, see below) to
    `games/<kit>/build/qa/` (probes: `probes/build/qa/`), parses the QA logs and runs the kit's
    `tools/judge.py --hardware --partial` on the result files. Hardware values are never compared with an
    emulator profile.
@@ -61,6 +61,15 @@ user has to pick every ROM by hand, say how long the whole card takes.
    `RENDERER=soft|gl|compute`) judged with `--profile`, and for QA
    `python3 tools/qa/compare.py <emu.log> <hw.log> --info`. Make a table per item: hardware value,
    each profile's value, which differ.
+   **Shots** (games with `core/qashot.c`, today Corvane): the QA log has `shot name= file= screen= crc=`
+   lines and the card holds `shot-<date>-<time>-<name>.bmp`. Run the same game in headless melonDS with an SD
+   image (`SDDIR=… tools/melonds/mds.sh run …`, marker start) and let `compare.py --info` list the CRC per
+   shot name, then open the console's BMP and melonDS's BMP of the same name side by side (the QA run is
+   deterministic: the same point is the same scene). Equal CRCs are not expected on every renderer; a
+   different picture is a finding (what differs, which register). `skip=` lines say why a point has no
+   picture (`no-bank`: no free A-D bank in that layout). The `gx=uf,of rdl=` figures on the `cp` lines are
+   the 3D overload flags of the span: a non-zero `uf`/`of` on the console with `0` in melonDS is a finding
+   (3D engine overload).
 3. First-run checks (card): QA log header `sd=1 fat_fail=0`, `dldi`, `save_detected` (R4 usually -1: write
    "chip save not verified on R4"), `cart_ready`, `nitro`. Four games: does `RESULT PASS` come, and where
    does the first checkpoint differ from melonDS? Values that matter most: Elevane `hdma-holes-zero` and

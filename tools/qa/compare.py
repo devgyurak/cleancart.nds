@@ -7,7 +7,7 @@
 
 Checkpoints are matched by order and name; the state hash must be equal.
 Lag frames and the 3D engine hint (gx=uf,of rdl=) are never compared (they depend on the
-card and the emulator); with --info they are printed per checkpoint, side by side. Exit status 0 identical, 1 different, 2 a log is invalid.
+card and the emulator); with --info they are printed per checkpoint, side by side, and the\nshot lines (pixel CRC per shot name) are listed the same way. With two runs of one emulator the\nshot CRCs must be equal; the exit status never depends on them. Exit status 0 identical, 1 different, 2 a log is invalid.
 --info: the comparison is informational (emulator vs real hardware): print
 the differences but exit 0.
 """
@@ -48,6 +48,29 @@ def gx_table(ca, cb):
             i, name, x['lag'] if x else '-', gx_text(x), y['lag'] if y else '-', gx_text(y)))
 
 
+def shot_text(x):
+    if x is None:
+        return '-'
+    if 'crc' in x:
+        return '%s %s' % (x['screen'], x['crc'])
+    return x.get('skip') and 'skip=' + x['skip'] or 'err=' + x['err']
+
+
+def shot_table(a, b):
+    """Shots matched by name: the pixel CRC of A and B (information only; a real console's
+    picture is never expected to match bit for bit, look at the BMPs side by side)."""
+    sa = {x['name']: x for x in a.get('shots', [])}
+    sb = {x['name']: x for x in b.get('shots', [])}
+    names = [x['name'] for x in a.get('shots', [])] + [n for n in (x['name'] for x in b.get('shots', [])) if n not in sa]
+    if not names:
+        return
+    print('%-14s | %-22s | %-22s | %s' % ('shot', 'A', 'B', 'crc'))
+    for n in names:
+        x, y = sa.get(n), sb.get(n)
+        same = 'same' if x and y and 'crc' in x and x.get('crc') == y.get('crc') else ''
+        print('%-14s | %-22s | %-22s | %s' % (n, shot_text(x), shot_text(y), same))
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('a')
@@ -75,6 +98,7 @@ def main(argv):
         diffs += 1
     if args.info:
         gx_table(ca, cb)
+        shot_table(a, b)
     print('%d checkpoints compared, %d differences' % (max(len(ca), len(cb)), diffs))
     if diffs and not args.info:
         return 1
