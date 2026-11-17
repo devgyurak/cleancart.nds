@@ -290,24 +290,24 @@
 목표 19 · 전제 조건 18
 
 - `seam-uv` · Reversed-UV cut line: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
-- `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `line-polygon` · Line polygons draw pixels (melonDS #2549); the count differs per emulator (705/710/834/338) · [expected.json](games/lightenette/expected.json)
 - `lantern-blend-equal` · Translucent lantern OBJ looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
 - `act2-seam` · Act 2 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
 - `act3-lantern-equal` · Act 3 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
-- `act4-hline` · Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
-- `act4-dline` · Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act4-hline` · Act 4 horizontal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator · [expected.json](games/lightenette/expected.json)
+- `act4-dline` · Act 4 diagonal line-polygon thread draws pixels (melonDS #2549); the count differs per emulator · [expected.json](games/lightenette/expected.json)
 - `act5-seam` · Act 5 doll cut lines: rows 0 and 1 show no cut line, row 2 (the uncompensated reverse) shows one (qualitative reading of the hardware report in melonDS #2008; the exact count is not a hardware value) · [expected.json](games/lightenette/expected.json)
-- `act5-line-polygon` · Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `act5-line-polygon` · Act 5 strings (line polygons) draw pixels (melonDS #2549); the count differs per emulator · [expected.json](games/lightenette/expected.json)
 - `act5-lantern-equal` · Act 5 translucent lantern OBJ over the darkened 3D stage looks the same with BLDCNT none / alpha / darken (melonDS #2503) · [expected.json](games/lightenette/expected.json)
 - `sys-irq-hblank` · HBlank IRQs in 120 frames: at most one per line, 263 lines per frame (31560); the demo starts mid-frame, so 119 frames of lines at least (31297) · [expected.json](games/lightenette/expected.json)
 - `sys-math-sqrt64` · 64-bit hardware square root of 10^12 is 10^6 · [expected.json](games/lightenette/expected.json)
-- `3d-limits-ram` · Polygon RAM holds 2048 polygons: it is full at the end of the overload run · [expected.json](games/lightenette/expected.json)
-- `3d-limits-overflow` · Frames in which 600-2980 submitted triangles overflowed polygon RAM _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `3d-limits-ram` · RAM_COUNT is not clamped at 2048 when polygon RAM overflows: it keeps counting the submitted polygons (2049..2980) · [expected.json](games/lightenette/expected.json)
+- `3d-limits-overflow` · Frames in which 600-2980 submitted triangles overflowed polygon RAM · [expected.json](games/lightenette/expected.json)
 - `acc-dual-over` · The whole city in one pass overflows polygon RAM · [expected.json](games/lightenette/expected.json)
-- `acc-dual-halves` · Both halves of the blended two-pass picture have pixels _(참고용)_ · [expected.json](games/lightenette/expected.json)
+- `acc-dual-halves` · Both halves of the blended two-pass picture have pixels · [expected.json](games/lightenette/expected.json)
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
-- `snd-wave-pan-right-exact` · Pan 126 (hard right) mixes the left side with 2/128 (GBATEK rounding): the left mixer swing is at most 2, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
+- `snd-wave-pan-right-exact` · Pan 126 (hard right) leaves the left mixer a swing of exactly 3: GBATEK reads two ways (fraction MSB as two's complement gives +1 / -2, as magnitude +1 / -1), the console reads the first, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
 
 #### Tonewick · sound and I/O edges
 

@@ -193,10 +193,10 @@
       "check": "gt",
       "expect": 0,
       "tolerance": 0,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices; hw:games/lightenette/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 3,
@@ -509,10 +509,10 @@
       "check": "gt",
       "expect": 0,
       "tolerance": 0,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices; hw:games/lightenette/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 31,
@@ -536,10 +536,10 @@
       "check": "gt",
       "expect": 0,
       "tolerance": 0,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices; hw:games/lightenette/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 31,
@@ -641,10 +641,10 @@
       "check": "gt",
       "expect": 0,
       "tolerance": 0,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices",
+      "level_basis": "gbatek:DS 3D Polygon Definitions by Vertices; hw:games/lightenette/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 44,
@@ -816,7 +816,7 @@
     },
     {
       "id": "3d-limits-ram",
-      "title": "Polygon RAM holds 2048 polygons: it is full at the end of the overload run",
+      "title": "RAM_COUNT is not clamped at 2048 when polygon RAM overflows: it keeps counting the submitted polygons (2049..2980)",
       "boots": [
         "l2-3d-limits"
       ],
@@ -827,16 +827,17 @@
       "values": [
         1
       ],
-      "check": "eq",
-      "expect": 2048,
+      "check": "range",
+      "min": 2049,
+      "max": 2980,
       "na_when": [
         1,
         0
       ],
-      "source": "GBATEK",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Status"
+      "level_basis": "gbatek:DS 3D Status; hw:games/lightenette/docs/HW-QA.md"
     },
     {
       "id": "3d-limits-overflow",
@@ -857,10 +858,10 @@
         1,
         0
       ],
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Status"
+      "level_basis": "gbatek:DS 3D Status; hw:games/lightenette/docs/HW-QA.md"
     },
     {
       "id": "acc-dual-over",
@@ -928,10 +929,10 @@
       "check": "mask",
       "expect": 8,
       "mask": 8,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode"
+      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode; hw:games/lightenette/docs/HW-QA.md"
     },
     {
       "id": "2d-affine-pixels",
@@ -1028,7 +1029,7 @@
     },
     {
       "id": "snd-wave-pan-right-exact",
-      "title": "Pan 126 (hard right) mixes the left side with 2/128 (GBATEK rounding): the left mixer swing is at most 2, while the pan 0 reference is audible (swing above 16)",
+      "title": "Pan 126 (hard right) leaves the left mixer a swing of exactly 3: GBATEK reads two ways (fraction MSB as two's complement gives +1 / -2, as magnitude +1 / -1), the console reads the first, while the pan 0 reference is audible (swing above 16)",
       "boots": [
         "l2-snd-wave"
       ],
@@ -1039,24 +1040,23 @@
       "values": [
         4
       ],
-      "check": "range",
-      "min": 0,
-      "max": 2,
+      "check": "eq",
+      "expect": 3,
       "done": {
         "value": 6,
         "mask": 1
       },
-      "source": "GBATEK",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS Sound Channels"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/lightenette/docs/HW-QA.md"
     }
   ],
   "known": {
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
       "ng": [
-        "snd-wave-pan-right-exact"
+        "3d-limits-ram"
       ],
       "na": []
     },
@@ -1072,7 +1072,7 @@
         "act5-seam",
         "act5-edge-3-colours",
         "act5-lantern-equal",
-        "snd-wave-pan-right-exact"
+        "3d-limits-ram"
       ],
       "na": []
     },
@@ -1082,7 +1082,7 @@
         "lantern-blend-equal",
         "act3-lantern-equal",
         "act5-lantern-equal",
-        "snd-wave-pan-right-exact"
+        "3d-limits-ram"
       ],
       "na": []
     },
@@ -1091,7 +1091,8 @@
       "ng": [
         "lantern-blend-equal",
         "act3-lantern-equal",
-        "act5-lantern-equal"
+        "act5-lantern-equal",
+        "snd-wave-pan-right-exact"
       ],
       "na": [
         "3d-limits-ram",
@@ -1101,5 +1102,5 @@
       ]
     }
   },
-  "known_note": "Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the failing gating items equal the list. Measured 2026-11-11 with ./build.sh output, not on hardware. A reviewer reported that melonDS master 4ce2188 already fixed melonDS #2503 (the lantern items would then pass on its GL renderers); we have NOT verified that. When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile (or add one) after checking."
+  "known_note": "Items listed under \"ng\" are expected to fail on that emulator version; judge.py --profile NAME exits 0 only when the failing gating items equal the list. Measured 2026-11-11 with ./build.sh output; the hardware run of 2026-11-17 (games/lightenette/docs/HW-QA.md) set the expected values of snd-wave-pan-right-exact and 3d-limits-ram and promoted the former unconfirmed items. DeSmuME reads 1 at pan 126, so snd-wave-pan-right-exact is NG there. A reviewer reported that melonDS master 4ce2188 already fixed melonDS #2503 (the lantern items would then pass on its GL renderers); we have NOT verified that. When a newer emulator passes an item listed here, --profile reports NEWLY PASSING and exits 1: update the profile (or add one) after checking."
 }
