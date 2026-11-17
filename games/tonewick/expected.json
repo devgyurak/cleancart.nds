@@ -201,7 +201,7 @@
   },
   {
    "id": "snd-short-silent",
-   "title": "... and, looped, makes no sound (the captured peak is at most 2)",
+   "title": "... and, looped, a 3-word sample keeps the tape level on the console (GBATEK's \"no sound\" is not a zero level; the captured peak is 16384, accepted 16320..16448)",
    "boots": [
     "rehearsal",
     "qa"
@@ -214,13 +214,13 @@
     10
    ],
    "check": "range",
-   "min": 0,
-   "max": 2,
+   "min": 16320,
+   "max": 16448,
    "tolerance": 0,
-   "source": "GBATEK",
+   "source": "hw:dslite-ntr",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Channels",
+   "level_basis": "gbatek:DS Sound Channels; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -276,7 +276,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Channels; gbatek:DS Sound Notes",
+   "level_basis": "gbatek:DS Sound Channels; gbatek:DS Sound Notes; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -414,7 +414,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Capture",
+   "level_basis": "gbatek:DS Sound Capture; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -442,7 +442,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Capture",
+   "level_basis": "gbatek:DS Sound Capture; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -469,7 +469,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Sound Capture",
+   "level_basis": "gbatek:DS Sound Capture; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -501,7 +501,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Real-Time Clock",
+   "level_basis": "gbatek:DS Real-Time Clock; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -532,7 +532,7 @@
    "source": "GBATEK",
    "role": "target",
    "level": 2,
-   "level_basis": "gbatek:DS Power Management",
+   "level_basis": "gbatek:DS Power Management; hw:games/tonewick/docs/HW-QA.md",
    "model": null,
    "done": {
     "value": 0,
@@ -785,7 +785,8 @@
     "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
-    "pm-reg-mirror"
+    "pm-reg-mirror",
+    "snd-short-silent"
    ],
    "na": [
     "save-wel-set",
@@ -800,7 +801,8 @@
     "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
-    "pm-reg-mirror"
+    "pm-reg-mirror",
+    "snd-short-silent"
    ],
    "na": [
     "save-wel-set",
@@ -815,7 +817,8 @@
     "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
-    "pm-reg-mirror"
+    "pm-reg-mirror",
+    "snd-short-silent"
    ],
    "na": [
     "save-wel-set",
@@ -830,7 +833,8 @@
     "cap-src-channel",
     "cap-add-wrap",
     "cap-both-negative",
-    "pm-reg-mirror"
+    "pm-reg-mirror",
+    "snd-short-silent"
    ],
    "na": []
   },
@@ -838,7 +842,6 @@
    "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS, EEPROM save chip, local hour 15 (RTC_HOUR=15)",
    "ng": [
     "snd-short-busy",
-    "snd-short-silent",
     "snd-hold-level",
     "snd-noise-lfsr",
     "snd-adpcm-loop-reload",
