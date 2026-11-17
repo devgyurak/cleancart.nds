@@ -560,9 +560,10 @@ static void d_snd_wave(void)
     u32 s_left = wave_swing(69, 100, 0);      // A4, pan 0 (hard left): the audible reference
     u32 s_right = wave_swing(69, 100, 126);   // pan 126 (hard right): the left mixer stays all but silent
     con_printf("P2P PAN0 %lu PAN126 %lu\n", (unsigned long)s_left, (unsigned long)s_right);
-    // Judge (GBATEK, DS Sound Channels): pan 126 mixes the left side with 2/128, a swing of at
-    // most 2. values[6] bit 0 is the guard: the pan 0 reference was audible (swing above 16),
-    // so a silent or unfinished record cannot pass.
+    // Judge (GBATEK, DS Sound Notes; DS Lite run 2026-11-17): pan 126 mixes the left side with
+    // 2/128. The mixer rounds by the fraction MSB, which gives +1 / -2 around zero, a swing of
+    // exactly 3 (hardware and melonDS read 3, DeSmuME 1). values[6] bit 0 is the guard: the
+    // pan 0 reference was audible (swing above 16), so a silent or unfinished record cannot pass.
     while (cv_frame < CHECKPOINT)
         vsync();
     CV_RESULT->values[4] = s_right;

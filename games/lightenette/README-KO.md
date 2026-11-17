@@ -92,7 +92,7 @@ Lightenette는 레벨 2(경계 사례) 게임입니다([docs/LEVELS-KO.md](../..
 `l2-sys-math`, `l2-3d-limits`, `l2-acc-dual`, `l2-2d-affine`, `l2-2d-mosaic`, `l2-2d-obj-bitmap`, `l2-snd-capture`, `l2-snd-wave`).
 120프레임을 돌고 평소의 결과 블록을 씁니다(ID = ROM의 데모 이름(예: `l2-sys-irq`)의 FNV-1a 32, 값은 `words[3:]`부터).
 레벨 2 항목 13개를 담습니다: HBlank IRQ 횟수, VBlank DMA, 64비트 하드웨어 제곱근, 폴리곤 RAM 한계, 캡처를 통한 2패스 렌더링,
-아핀 BG / 모자이크 / 비트맵 OBJ 픽셀, 사운드 캡처 신호, 하드 라이트 PSG 팬의 왼쪽 믹서 진폭 정확값(`snd-wave-pan-right-exact`: GBATEK 혼합은 최대 2, melonDS 1.1은 3을 읽어 세 melonDS 프로필에서 알려진 NG). ROM 하나씩 판정합니다:
+아핀 BG / 모자이크 / 비트맵 OBJ 픽셀, 사운드 캡처 신호, 하드 라이트 PSG 팬의 왼쪽 믹서 진폭 정확값(`snd-wave-pan-right-exact`: 실기와 melonDS 1.1은 3(GBATEK 반올림 +1 / −2), DeSmuME는 1을 읽어 DeSmuME 프로필에서 알려진 NG). ROM 하나씩 판정합니다:
 
 ```sh
 tools/melonds/mds.sh demos <l2 ROM 폴더> > l2.log     # RENDERER=gl|compute
