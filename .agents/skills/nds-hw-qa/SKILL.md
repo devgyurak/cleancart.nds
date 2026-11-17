@@ -73,8 +73,9 @@ user has to pick every ROM by hand, say how long the whole card takes.
 3. First-run checks (card): QA log header `sd=1 fat_fail=0`, `dldi`, `save_detected` (R4 usually -1: write
    "chip save not verified on R4"), `cart_ready`, `nitro`. Four games: does `RESULT PASS` come, and where
    does the first checkpoint differ from melonDS? Values that matter most: Elevane `hdma-holes-zero` and
-   `acc-split-hdma-holes` (melonDS#2618, L3), Lightenette `snd-wave-pan-right-exact` (GBATEK rounding 2
-   vs melonDS 3), every probe (FIFO capture `sys-dma-disp-pixels`, `2d-display-pixels`, `rear-plane*`,
+   `acc-split-hdma-holes` (melonDS#2618, L3), Lightenette `snd-wave-pan-right-exact` (exact 3:
+   GBATEK's rounding reads two ways, run 1 read 3) and `3d-limits-ram` (RAM_COUNT not clamped at 2048,
+   2049..2980; both set from run 1 alone, so run 2 confirms them), every probe (FIFO capture `sys-dma-disp-pixels`, `2d-display-pixels`, `rear-plane*`,
    `2d-obj-line-budget`, alpha-15 bitmap OBJ).
 
 ## 4. Record and follow up (you)
