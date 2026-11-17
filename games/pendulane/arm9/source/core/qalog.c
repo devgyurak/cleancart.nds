@@ -163,6 +163,30 @@ void qalog_line(const char *scene, const char *event, const char *fmt, ...)
     va_end(ap);
 }
 
+// The finished qa-*.log ends with its RESULT line (tools/qa/parse_log.py): the suite's lines go to a file
+// of their own, suite-<stamp>.log beside it. Returns false when the path cannot be built; *ok is the write result.
+static bool suite_write(const char *buf, u32 n, bool *ok)
+{
+    char path[136];
+    snprintf(path, sizeof(path), "%s", log_path);
+    char *tail = strstr(path, "/qa-");
+    if (!tail)
+        return false;
+    memmove(tail + 1 + 5, tail + 1 + 2, strlen(tail + 1 + 2) + 1);   // "qa-" -> "suite-"
+    memcpy(tail + 1, "suite", 5);
+    bool owner = cart_bus_claim();
+    FILE *f = fopen(path, "ab");
+    bool w = false;
+    if (f)
+    {
+        w = fwrite(buf, 1, (size_t)n, f) == (size_t)n;
+        w = fclose(f) == 0 && w;
+    }
+    cart_bus_release(owner);
+    *ok = w;
+    return true;
+}
+
 void qalog_append(const char *scene, const char *event, const char *fmt, ...)
 {
     if (!opened)
@@ -186,29 +210,27 @@ void qalog_append(const char *scene, const char *event, const char *fmt, ...)
         put(buf, (u32)n, true);   // no card: RAM only, like the rest of the log
         return;
     }
-    // The finished qa-*.log ends with its RESULT line (tools/qa/parse_log.py): the suite's lines go to a file
-    // of their own, suite-<stamp>.log beside it.
-    char path[136];
-    snprintf(path, sizeof(path), "%s", log_path);
-    char *tail = strstr(path, "/qa-");
-    if (!tail)
-        return;
-    memmove(tail + 1 + 5, tail + 1 + 2, strlen(tail + 1 + 2) + 1);   // "qa-" -> "suite-"
-    memcpy(tail + 1, "suite", 5);
-    bool owner = cart_bus_claim();
-    FILE *f = fopen(path, "ab");
     bool ok = false;
-    if (f)
-    {
-        ok = fwrite(buf, 1, (size_t)n, f) == (size_t)n;
-        ok = fclose(f) == 0 && ok;
-    }
-    cart_bus_release(owner);
+    if (!suite_write(buf, (u32)n, &ok))
+        return;
     if (!ok)
     {
         sd_ok = false;   // a dead card: no more tries
         sd_lost = true;
     }
+}
+
+bool qalog_probe(const char *step)
+{
+    if (!opened || !sd_ok)
+        return false;   // no card: nothing to probe
+    char buf[LINE_MAX];
+    int n = snprintf(buf, sizeof(buf), "%lu suite probe step=%s ok=1\n", (unsigned long)cv_frame, step);
+    if (n < 0 || n >= (int)sizeof(buf))
+        return false;
+    bool ok = false;
+    // A failed write leaves sd_ok and sd_lost alone: the next probe may well succeed.
+    return suite_write(buf, (u32)n, &ok) && ok;
 }
 
 bool qalog_open(const char *game, u32 seed)

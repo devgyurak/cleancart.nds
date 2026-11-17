@@ -37,7 +37,7 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
 ## 2. Run (the user, on the console)
 
 - **Game QA:** start the game ROM and leave it alone. It starts QA at the title and plays itself to the
-  credits and then the judge suite (Corvane: about 4 minutes plus about 2 more for its 48 demos; the others longer). Nothing is drawn for the QA part. **Wait for the end of the suite** (the `suite-<stamp>.log` ends with `suite end demos=<n> saved=<n>`; the demos show on screen), then power off. Powering off earlier loses the demos not yet run.
+  credits and then the judge suite (Corvane: about 4 minutes plus about 2 more for its 48 demos; the others longer). Nothing is drawn for the QA part. **Wait for the end of the suite** (the `suite-<stamp>.log` has `suite end demos=<n> saved=<n>` right after the last `suite demo` line, then `suite probe step=<step> ok=1` lines of the final reset and a closing `suite done`; the first missing probe step is where the card stops answering, `wait60`/`done` present = it recovers; the demos show on screen), then power off. Powering off earlier loses the demos not yet run.
 - **Probes only:** start each ROM from the R4 menu one after another. When `RESULT SAVED` shows,
   that ROM is done; reset to the menu and start the next one. A ROM that never shows it either did not
   reach its checkpoint or has no folder: say which ROM. Exceptions that write silently: the rehearsals

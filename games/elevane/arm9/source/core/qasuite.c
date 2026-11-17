@@ -64,9 +64,17 @@ static void clear_vram(void)
 }
 
 // Back to the state a stand-alone demo starts from, as far as the registers go: nothing of the
-// previous demo keeps running.
-static void reset_hardware(u32 ie)
+// previous demo keeps running. `probe`: log a suite probe line after each step (the final reset only: a card that
+// stops answering right after it is what the probes locate).
+static void reset_hardware(u32 ie, bool probe)
 {
+#define PROBE(step) \
+    do \
+    { \
+        if (probe) \
+            qalog_probe(step); \
+    } while (0)
+    PROBE("begin");
     // A display capture armed by the last frame of the previous demo would write into the banks cleared below.
     REG_DISPCAPCNT = 0;
     REG_IME = 0;
@@ -75,29 +83,39 @@ static void reset_hardware(u32 ie)
         DMA_CR(i) = 0;
         TIMER_CR(i) = 0;
     }
+    PROBE("dma-timer");
     REG_IE = ie;
     // The IPC FIFO interrupts are edge triggered (GBATEK, IPC FIFO notes): acknowledging a pending one while the
     // FIFO is not empty would never raise it again, so those flags stay.
     REG_IF = ~(u32)(IRQ_IPC_SYNC | IRQ_FIFO_EMPTY | IRQ_FIFO_NOT_EMPTY);
     REG_IME = 1;
+    PROBE("irq-dma-timer");
     irq_reset_hooks(vblank_keep);
     REG_MASTER_BRIGHT = 0;
     REG_MASTER_BRIGHT_SUB = 0;
+    PROBE("hooks-bright");
     // Sound: nothing of the game's music, effects or echo keeps playing under a demo's measurement.
     snd_bgm_stop();
     snd_stream_stop();
     snd_echo(false);
     snd_stop_channels(0xFFFF);
+    PROBE("sound");
     // The settings a stand-alone demo build boots with (the player's volume must not colour a sound demo).
     save_defaults();
     cv_sfx_volume = cv_save.sfx_volume;
     snd_master(cv_save.volume);
+    PROBE("save-defaults");
     if (sys_wram_is_arm9())
         sys_wram_to_arm7();
+    PROBE("wram-arm7");
     clear_vram();
+    PROBE("vram");
     qa_suite_reset_game();
+    PROBE("reset-game");
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    PROBE("result-clear");
+#undef PROBE
 }
 
 int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned frame_limit)
@@ -128,7 +146,7 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
             qalog_append("suite", "abort", "reason=sd-lost left=%d", count - i);
             break;
         }
-        reset_hardware(ie);
+        reset_hardware(ie, false);
         u32 start = cv_frame;
         bool timeout = false;
         // setjmp is called from this frame only; the watchdog jumps back from sys_vsync().
@@ -158,12 +176,19 @@ int qa_suite_run(const char *kit, const QaSuiteDemo *demos, int count, unsigned 
                      (unsigned long)frames, timeout ? " timeout=1" : "");
     }
     active = false;
-    reset_hardware(ie);
+    // Logged before the final reset: on a DS Lite + R4 the first card write after it failed and took the line with it.
+    qalog_append("suite", "end", "demos=%d saved=%d", count, saved_count);
+    reset_hardware(ie, true);
     cv_save = save_keep;
     cv_sfx_volume = sfx_keep;
     snd_master(cv_save.volume);
     memcpy((void *)CV_RESULT_ADDR, &qarn, sizeof(qarn));
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
-    qalog_append("suite", "end", "demos=%d saved=%d", count, saved_count);
+    // Does the card answer right after the reset, and when does it start to? (diagnostic, removed once the cause is known)
+    qalog_probe("wait1");
+    for (int i = 0; i < 60; i++)
+        sys_vsync();
+    qalog_probe("wait60");
+    qalog_append("suite", "done", "demos=%d", count);
     return saved_count;
 }
