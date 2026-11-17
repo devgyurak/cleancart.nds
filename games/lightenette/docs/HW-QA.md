@@ -4,7 +4,7 @@
 
 **Wood-style R4 kernels:** put `build/release/rom/lightenette-hw-support.nds` on the card instead of `lightenette.nds`. It is the same ROM with the homebrew game code `####`; these kernels DLDI-patch only such ROMs, and with the game's own code the ROM sees no SD card (no QA log, no result files). The demo and rehearsal ROMs keep their own code.
 
-Lightenette (L2) is judged by the rehearsal, the `l2-*` demos and the auto QA run. The QA run with its judge suite ran on a DS Lite on 2026-11-17 (run 1 below): of 37 judged items 29 OK, 6 informational and 2 gating items NG (`snd-wave-pan-right-exact`, `3d-limits-ram`), both findings about our expected values. The steps are in the skill `nds-hw-qa`; this page is
+Lightenette (L2) is judged by the rehearsal, the `l2-*` demos and the auto QA run. The QA run with its judge suite ran on a DS Lite on 2026-11-17 (run 1 below): of 37 judged items 29 OK, 6 informational and 2 gating items NG (`snd-wave-pan-right-exact`, `3d-limits-ram`), both findings about our expected values. v0.3.1 set those two values and promoted the informational items from run 1; run 2 with v0.3.1 judged **37 of 37 OK** and repeated both values. The steps are in the skill `nds-hw-qa`; this page is
 where the result is recorded. Hardware values are never an "emulator profile": a hardware NG means
 our expected value or level has to be re-examined (the proposal comes from `level-judge`, the change goes in a separate PR).
 
@@ -20,6 +20,22 @@ our expected value or level has to be re-examined (the proposal comes from `leve
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game lightenette`.
 
 ## Record (one block per run)
+
+### Run 2: QA run and judge suite, 2026-11-17 (v0.3.1)
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, the same DS Lite (NTR), card and Wood R4 kernel as run 1 (files say 2002-01-15) |
+| ROM | `lightenette-hw-support.nds` v0.3.1, build `542e848ee9ea` in the log header (the release file: SHA-256 `2498d167a4baf75d85f70775268beeefb126f7ecb558379253e21c68aa5abc8c`, 481,644 bytes). The ROM code equals v0.3.0; v0.3.1 changed the expected values (#177) and a comment. The files were copied off the card with Finder, so the card's ROM copy itself was not hashed |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 31 lines, 6 checkpoints, `start=marker`. Suite: QA block and 10 of 10 demos `saved=1`, no timeout. Judge over the 11 block files: **37 of 37 judged items OK** (QA block L1 14/14, L2 10/10; demos L1 3/3, L2 10/10), no informational item left, no n/a |
+| QA log header | as run 1 (`sd=1 fat_fail=0`, R4 DLDI, `cart_ready=0 nitro=1`, `save_detected=1`) |
+| First checkpoint that differs | None: act1-act5 and judge hashes equal run 1 and melonDS 1.1 soft |
+| Lag frames | 90 / 1 / 1 / 1 / 1 / 41 (run 1: 89 / 1 / 1 / 1 / 1 / 41) |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0 rdl=46` everywhere |
+
+Run 2 against run 1, word by word: every result block is the same except values that are not judged or judged by a range: the QA lag total, the `snd-capture` peak (values[5]) and `sys-irq-hblank` (31465, run 1 31520, both inside 31297..31560). The two values set from run 1 came back the same: `snd-wave-pan-right-exact` 3 and `3d-limits-ram` 2979 (`l2-acc-dual` values[4] again 2310 polygons with the overflow flag).
+
+Note: the `suite-*.log` again ends after `l2-sys-irq saved=1` (frame 2999) without the `suite end` line.
 
 ### Run 1: QA run and judge suite, 2026-11-17
 
