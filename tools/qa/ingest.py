@@ -12,7 +12,7 @@ core/qashot.c) to
 carry the run's date and time, so runs never overwrite each other), runs parse_log on every
 QA log and prints one line per log. The res-*.log files hold the `RESULT` lines of demo,
 rehearsal and probe ROMs (core/sdcard.c); they are graded with the kit's
-`tools/judge.py --hardware --partial` (Lightenette: one run per file, it grades one block at a time).
+`tools/judge.py --hardware --partial` (block judges: one run per file; see judge_results).
 Only the res-*.log files copied from the card in this call are graded, one per ROM: the newest
 (file name stamp, then the -2..-9 suffix as a number). Older runs of the same ROM are listed
 as superseded, with a warning when their values or build differ.
@@ -114,11 +114,15 @@ def judge_results(kit, name, logs):
     if not logs:
         return 0
     judge = os.path.join(kit, 'tools', 'judge.py')
-    # Lightenette grades one block per run; the others take every block in one call.
-    runs = [[l] for l in logs] if name == 'lightenette' else [logs]
+    # Judges that grade a block by its id (boots: lightenette, ledgerine, heddlemere, paneveil, tonewick) read one
+    # block per run, so each file (the QA run's QARN block and every suite demo's block) goes in on its own; the
+    # demo judges (--partial) take every block in one call.
+    with open(judge) as f:
+        by_demo = "'--partial'" in f.read()
+    runs = [logs] if by_demo else [[l] for l in logs]
     worst = 0
     for group in runs:
-        extra = [] if name == 'lightenette' else ['--partial']
+        extra = ['--partial'] if by_demo else []
         print('judge %s: %s' % (name, ' '.join(os.path.basename(g) for g in group)), flush=True)
         rc = subprocess.call([sys.executable, '-I', judge, '--hardware'] + extra + group)
         worst = max(worst, rc)

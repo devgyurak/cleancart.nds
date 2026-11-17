@@ -14,6 +14,7 @@
 //   values[21]  orders delivered by the scripted play (5), in the QA run all orders (40)
 //   values[22]  mask of the chapters whose first order was delivered (0x1f), in the QA run chapters finished
 //   values[23]  plan hash: FNV-1a of the ticks the planned programs of each chapter's first order run
+//   values[25]  first orders delivered (one per chapter that has orders; 5), rehearsal and QA run alike
 //   values[48..54]  QA words (QA boot only, like Paneveil; 48 = verdict)
 // Keep this file, expected.json and tools/judge.py in step.
 
@@ -29,6 +30,7 @@ enum {
     RH_ORDERS = 21,
     RH_CHAPTERS = 22,
     RH_PLAN_HASH = 23,
+    RH_FIRSTS = 25,
     RH_VALUES = 32,
 };
 
@@ -39,6 +41,7 @@ enum {
 u32 rehearsal_flags(void);   // the flags every boot reports (ARM7 answered)
 // Runs the ARM7 and ARM9 timing measurements into r[0..20] (flags in r[0]); draws nothing.
 void rehearsal_measure(u32 *r);
+u32 rehearsal_firsts(void);  // chapters whose first order was delivered
 void rehearsal_run(void);    // plays, measures, publishes
 void rehearsal_idle(void);   // never returns: keeps the block in RAM
 

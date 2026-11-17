@@ -85,6 +85,23 @@ game and kept identical (`diff -r games/corvane/arm9/source/core games/<game>/ar
 12. **Watchdog**: a scene longer than `QA_SCENE_LIMIT` frames ends the run with FAIL
    (`scene-timeout`). The pilot must never be able to loop forever.
 
+## Judge suite (the run also judges)
+
+After the verdict (`RESULT PASS|FAIL` line and the `QARN` block are written) a game may run its judged
+demos in `qa_suite_run(kit, demos, n, frame_limit)` (`core/qasuite.c`, identical in every game):
+
+- A suite demo fills `CV_RESULT` and **returns** (no idle loop, no SD write); the runner calls
+  `sd_result_save(kit, name)`, so the file is the same `res-<stamp>-<kit>-<demo>.log` a stand-alone demo ROM writes
+  and `tools/qa/ingest.py` / `judge.py` grade it unchanged. The stand-alone ROM shares the same function.
+- Before each demo the runner resets the hardware (DMA/timers off, IE restored, brightness, WRAM back to the ARM7) and
+  calls the game's `qa_suite_reset_game()`; a demo past `frame_limit` is left through `qa_suite_watch()` (in
+  `sys_vsync()`) and logged `timeout=1`. Every demo logs `suite demo=<name> saved=<0|1> frames=<n>` and flushes
+  (`qalog_append()`), so a hang names the last demo. Put fragile demos last.
+- No SD log (DeSmuME): `suite skipped=no-sd`. Suite values never enter a state hash, no checkpoint follows the suite,
+  and the `QARN` block is restored at the end (RAM-peeking emulator runs still grade boot `qa`).
+- A QA-only value that stands for a rehearsal-only item goes into the QARN block (e.g. Ledgerine sets `LV_DONE_REHEARSAL`
+  when all rooms closed) and the item gets `qa` in `boots`.
+
 ## Porting checklist
 
 1. Copy `core/qa.c/.h`, `core/qalog.c/.h`; add `buildid.h` generation to the Makefile and a

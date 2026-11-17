@@ -12,6 +12,7 @@
 #include "core/input.h"
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/save.h"
 #include "core/sys.h"
 #include "game/play.h"
@@ -76,6 +77,7 @@ static void judge_epilogue(void)
 {
     rehearsal_measure(res);
     res[RH_ORDERS] = (u32)order_done_count();
+    res[RH_FIRSTS] = rehearsal_firsts();
     res[RH_CHAPTERS] = chapters_done;
     res[RH_PLAN_HASH] = order_plan_hash();
     judged = true;
@@ -115,6 +117,7 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                qa_suite_run("heddlemere", NULL, 0, 0);   // the QARN block as a res file (no extra demos)
             }
             break;
         default:
