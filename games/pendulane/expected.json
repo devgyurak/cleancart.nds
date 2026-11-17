@@ -102,6 +102,62 @@
       "level_basis": "gbatek:DS Maths"
     },
     {
+      "id": "cart-gap1-clk5",
+      "title": "Slot-1 command B8 (no data block): +0x100 gap1 clock pulses at CLK = bus / 5 lengthen the transfer by 1280 bus cycles",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        8
+      ],
+      "check": "range",
+      "min": 1275,
+      "max": 1285,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 64
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
+      "env": "cart"
+    },
+    {
+      "id": "cart-gap1-clk8",
+      "title": "The same at CLK = bus / 8: 2048 bus cycles",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        9
+      ],
+      "check": "range",
+      "min": 2040,
+      "max": 2056,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 64
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Cartridge I/O Ports",
+      "env": "cart"
+    },
+    {
       "id": "snd-pcm-busy",
       "title": "A 16-sample PCM16 one-shot: Busy clears 18 samples after the start (3 start delay + 16 - 1; Busy drops at the start of the last sample)",
       "boots": [
@@ -499,6 +555,29 @@
       "level_basis": "gbatek:DS Sound Channels"
     },
     {
+      "id": "pre-cart-busy",
+      "title": "The slot-1 busy flag clears after a transfer (the edge search found an end)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Cartridge Protocol",
+      "env": "cart"
+    },
+    {
       "id": "qa-verdict",
       "title": "The QA run ended with PASS (QARN verdict 1)",
       "boots": [
@@ -523,14 +602,16 @@
     "desmume-pydesmume-0.0.9": {
       "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
       "ng": [
-        "spi-512k-minus-4m",
-        "mem7-main-seq",
+        "cart-gap1-clk5",
+        "cart-gap1-clk8",
         "mem7-main-nonseq",
+        "mem7-main-seq",
         "mem7-vram-seq",
-        "snd-pcm-busy",
         "snd-adpcm-busy",
+        "snd-hold-restart",
         "snd-onset-pcm-psg",
-        "snd-hold-restart"
+        "snd-pcm-busy",
+        "spi-512k-minus-4m"
       ],
       "na": []
     },

@@ -12,6 +12,7 @@
 #include "gfx/text.h"
 #include "judge/bench.h"
 #include "judge/bench7.h"
+#include "judge/benchcart.h"
 
 static u32 result[PD_VALUES];
 
@@ -65,6 +66,23 @@ void bench_fill(u32 *res)
         res[PDV_MEM_CODE_MAIN] = mem[2];
         res[PDV_MEM_VRAM_SEQ] = mem[3];
     }
+
+    // The cartridge bench (slot 1). env "cart" in expected.json: a console with a flash card cannot be asked.
+    res[PDV_CART_CLK5] = res[PDV_CART_CLK8] = 0xFFFF;
+    s32 cart[5] = { 0, 0, 0, 0, 0 };
+    if (benchcart_run(cart))
+    {
+        res[PDV_PRE] |= 64;
+        if (cart[0] != -1 && cart[1] != -1)
+        {
+            res[0] |= 64;
+            res[PDV_CART_CLK5] = (u32)cart[0];
+            res[PDV_CART_CLK8] = (u32)cart[1];
+        }
+    }
+    res[PDV_CART_RAW5] = (u32)cart[2];
+    res[PDV_CART_RAW8] = (u32)cart[3];
+    res[PDV_CART_LOOP] = (u32)cart[4];
 
     res[PDV_SND_PCM_BUSY] = res[PDV_SND_ADPCM_BUSY] = res[PDV_SND_ONSET_PCM_PSG] = res[PDV_SND_ONSET_ADPCM_PCM] = res[PDV_SND_HOLD] = 0xFFFF;
     res[PDV_SND_SLOPE] = 0xFFFF;

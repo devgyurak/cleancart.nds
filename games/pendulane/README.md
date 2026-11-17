@@ -8,14 +8,14 @@
 
 An original automaton-workshop game for the Nintendo DS (work in progress). It is built to judge itself: a rehearsal ROM measures
 CPU, bus and sound timings on the console (busy times of the divide and square-root unit, the firmware SPI byte time, ARM7 memory
-timings and sound channel timing now; the cartridge gap follows) and reports a result block, so other emulators can use it as a regression test.
+timings and sound channel timing and the slot-1 gap now) and reports a result block, so other emulators can use it as a regression test.
 
 **Hardware areas it tests (level 3, "CPU, bus and sound timing"):** so far the busy times of the hardware divider (modes 0, 1, 2) and
 the square-root unit ("DS Maths"), the firmware SPI byte time at 4 MHz and 512 kHz ("DS Serial Peripheral Interface Bus (SPI)") and ARM7
-main RAM, WRAM-vs-main-RAM and VRAM access timings ("DS Memory Timings"), and sound channel timing ("DS Sound Notes": when Busy clears, how many samples a PCM, PSG and ADPCM channel needs before it is heard, what a Hold restart plays). Every value is the difference of two measurements, so the
+main RAM, WRAM-vs-main-RAM and VRAM access timings ("DS Memory Timings"), and sound channel timing ("DS Sound Notes": when Busy clears, how many samples a PCM, PSG and ADPCM channel needs before it is heard, what a Hold restart plays) and the slot-1 cartridge transfer gap ("DS Cartridge I/O Ports": gap1 in clock pulses at two clock rates). Every value is the difference of two measurements, so the
 fixed cost of the measurement cancels.
 
-**Status.** Skeleton, the math bench, the ARM7 bench and the sound bench. The device game is not written yet; the title screen is a scaffold. Nothing has been
+**Status.** Skeleton, the math bench, the ARM7 bench and the sound bench and the cartridge bench. The device game is not written yet; the title screen is a scaffold. Nothing has been
 measured on real hardware.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
