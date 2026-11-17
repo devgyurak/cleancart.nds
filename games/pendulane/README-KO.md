@@ -18,7 +18,7 @@
 4 MHz와 512 kHz의 펌웨어 SPI 바이트 시간("DS Serial Peripheral Interface Bus (SPI)"), ARM7의 메인 RAM·WRAM·VRAM 접근 타이밍("DS Memory Timings"), 사운드 채널 타이밍("DS Sound Notes": Busy가 꺼지는 시점, PCM·PSG·ADPCM이 들리기까지 몇 샘플이 걸리는지, Hold 재시작이 무엇을 내는지), 슬롯 1 카트 전송의 gap("DS Cartridge I/O Ports": 두 클럭 속도에서 gap1의 클럭 펄스 수)입니다.
 모든 값은 두 측정의 차이라서 측정 자체의 고정 비용이 상쇄됩니다.
 
-**상태.** 벤치 넷과 게임: 다섯 장(방아, 종 줄, 컨베이어, 큰길, 음관)에 장치 20개, 장마다 리듬 곡으로 마무리, 벤치 장부, 숨은 자동 QA 실행. 진행은 아직 저장되지 않습니다. 실기에서는 아무것도 재지 않았습니다.
+**상태.** 벤치 넷과 게임: 다섯 장(방아, 종 줄, 컨베이어, 큰길, 음관)에 장치 20개, 장마다 리듬 곡으로 마무리, 벤치 장부, 숨은 자동 QA 실행. 진행은 아직 저장되지 않습니다. 실기(2026-11-17 DS Lite 실행 1, [docs/HW-QA-KO.md](docs/HW-QA-KO.md))에서는 판정 타이밍 항목 두 개가 달라 검토 중입니다.
 
 - 언어: C (게임, ARM9 + 자체 ARM7 코어), Python 3 (빌드 도구)
 - 툴체인: BlocksDS v1.25.0 (digest로 고정한 Docker 이미지)

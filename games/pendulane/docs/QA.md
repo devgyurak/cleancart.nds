@@ -14,7 +14,7 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`).
 | Credits | scrolling credits, X opens the licence viewer | not yet checked |
 | rehearsal demo | `pendulane-rehearsal.nds` boots straight into the bench; result block id `0x48524450` (`PDRH`); grade with `judge.py --profile` as in the README | ✅ 2026-11-17 (re-measured after the review fixes): all four profiles measured, `judge.py --profile` MATCH on each. melonDS 1.1 (all renderers): 11 of 15 gating targets OK (both cartridge gaps pass: 1280 and 2047). NG: `mem7-main-nonseq` (384 where GBATEK's 10-cycle N32 gives 576), `snd-pcm-busy` and `snd-adpcm-busy` (19 and 43: Busy clears at the end of the last sample, one later than GBATEK), `snd-hold-restart` (7: no held old value, 7 zero samples); the two onset differences are exactly GBATEK's 2 and 8. DeSmuME py-desmume 0.0.9: 7 of 15 OK; NG: the same sound items plus `snd-onset-pcm-psg` (6: PSG is heard from the first captured sample), `spi-512k-minus-4m` and both cartridge gaps (the transfer ends at once, edge 0), and `mem7-main-nonseq` (64); `mem7-main-seq` and `mem7-vram-seq` read 1024. Math differences DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0. SPI edges melonDS 59 / 122 / 250 / 508. No hardware values yet |
 
-Hardware: not run yet, see [HW-QA.md](HW-QA.md).
+Hardware: run 1 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
 
 ## Auto QA run
 

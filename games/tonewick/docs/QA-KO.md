@@ -22,7 +22,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 |---|---|---|
 | `rehearsal` | `tonewick-rehearsal.nds`는 곧장 리허설로 부팅합니다(세이브 칩·NitroFS 없음). 스크립트로 신호선 12개를 풀고 모든 지역을 감사합니다. 결과 블록 id `0x48525754`(`TWRH`), 배치는 `game/lab.h`. `python3 tools/judge.py`(부트 `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute와 DeSmuME: 프로필 MATCH, 아래 참고 |
 
-실기: 아직 돌리지 않았습니다. [HW-QA-KO.md](HW-QA-KO.md) 참고.
+실기: 2026-11-17 DS Lite + R4 실행 1, [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 판정 프로필 (2026-11-16, 이 커밋의 빌드)
 

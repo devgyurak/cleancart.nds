@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-tonewick-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Tonewick은 아직 콘솔에서 측정하지 않았습니다. 이 문서는 그 실행의 점검표입니다. 첫 값을 기록하고, 에뮬레이터나 GBATEK 읽기만
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 NG 항목이 있고, 우리 기대값에 대한 발견이라 별도 PR에서 다시 봅니다(여기서는 고치지 않음).
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 그 실행의 점검표입니다. 첫 값을 기록하고, 에뮬레이터나 GBATEK 읽기만
 뒷받침하는 항목을 확정하기 위한 것입니다. 콘솔은 사람이 조작하며, 아래 단계는 할 일과 적어 둘 것입니다.
 
 **자동 경로(스킬 `nds-hw-qa`):** 카드에 빈 폴더 `cleancart/tonewick/`를 만들면 리허설이 결과 블록을 그곳에 씁니다
@@ -67,3 +69,27 @@ Tonewick은 아직 콘솔에서 측정하지 않았습니다. 이 문서는 그 
   실기가 다르면 그 항목은 발견입니다. 값을 기록하고 ROM과 기대 중 어느 쪽이 틀렸는지 정합니다. `known`에 프로필 `hw-ds-lite`
   (실패한 항목)를 더합니다.
 - `build/qa/` 아래는 절대 커밋하지 않습니다.
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `tonewick-hw-support.nds` v0.2.1 `a2320df3274725c46c47fb125708b207c086d3f6a7034a1284e2f822d5a16c3d`(453,996바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 21줄, 체크포인트 4개, build `91e6e87fe1c6`, `start=marker`로 시작. 스위트: QA 블록만(`suite block block=qa saved=1`. 스위트 데모가 없어 `suite end` 줄은 원래 없음). 판정: L1 9/9, L2 13/14(**판정 NG 1: `snd-short-silent`**). n/a 4: `rtc-ampm-24h`(오전, 본체 시계 미설정), `save-wel-set/-reset`, `save-status-fixed`(env: R4에서는 칩 접근 불가) |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | 없음. dist1-dist4 해시가 melonDS 1.1 soft와 같음(`compare.py`, 차이 0) |
+| 랙 프레임 | 39 / 78 / 73 / 54 (dist1-dist4). melonDS soft 34 / 67 / 62 / 45 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0`. 콘솔은 `rdl=63`(3D 없음), melonDS는 46 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `snd-short-silent` (L2, GBATEK, 기대 0..2) | **16384** (NG) | 0 | 있음. 콘솔에서는 반복하는 짧은 샘플이 무음이 아님. 우리 기대값에 대한 발견(검토 중) |
+| `snd-hold-level` | 100 (OK) | 0 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
+| `cap-add-wrap` / `cap-both-negative` / `cap-src-channel` | 24576 / 0 / 40960 (OK) | 65535 / 16384 / 49152 (NG, 프로필) | 위와 같음 |
+| `pm-reg-mirror` | 1 (OK) | 0 (NG, 프로필) | 위와 같음 |
+| `snd-duty3-edges` | 128 | 127 | 둘 다 OK |
+| `rtc-ampm-24h` | n/a (values[19] = 0) | OK 8/8 | 오후 시계가 필요 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+NG 항목은 여기서 고치지 않습니다. `level-judge`가 기대값과 레벨을 제안하고(근거 `hw:games/tonewick/docs/HW-QA.md`), 변경은 별도 PR로 합니다.
