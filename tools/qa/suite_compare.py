@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
 """Compare a QA judge suite run with the stand-alone demo ROMs (the "same values" criterion).
 
-    suite_compare.py STANDALONE.txt SD_DIR [--words N] [--ignore I ...]
+    suite_compare.py STANDALONE.txt SD_DIR [--words N] [--ignore I ...] [--tolerate DEMO:W,W ...]
 
 STANDALONE.txt: `tools/melonds/mds.sh demos DIR` output (`<rom> RESULT w0 w1 ...` lines, one per ROM).
 SD_DIR: the headless SD directory (or a copy of the card's cleancart/<kit>/) holding the QA run's
@@ -74,7 +74,13 @@ def main(argv):
     ap.add_argument('sd')
     ap.add_argument('--words', type=int, default=64, help='block words compared (default 64: the whole block; the stand-alone run may carry fewer)')
     ap.add_argument('--ignore', type=int, nargs='*', default=[], help='block word indexes that may differ (word 2 always)')
+    ap.add_argument('--tolerate', action='append', default=[], metavar='DEMO:W,W',
+                    help='block word indexes of one demo that may differ (a timing value inside its judged range), e.g. corvane-sys-irq:4,5; repeatable')
     args = ap.parse_args(argv)
+    tol = {}
+    for t in args.tolerate:
+        name, _, ws = t.partition(':')
+        tol.setdefault(name, set()).update(int(w) for w in ws.split(',') if w)
     solo = read_standalone(args.standalone)
     suite = read_res(args.sd)
     skip = set(args.ignore) | {2}
@@ -87,7 +93,8 @@ def main(argv):
             print('NO-REF  %s (no stand-alone result named that)' % name)
             bad += 1
             continue
-        diff = [i for i in range(min(args.words, len(words), len(ref))) if i not in skip and words[i] != ref[i]]
+        diff = [i for i in range(min(args.words, len(words), len(ref)))
+                if i not in skip and i not in tol.get(name, ()) and words[i] != ref[i]]
         if diff:
             bad += 1
             print('DIFF    %s: %s' % (name, ', '.join('w%d %s vs %s' % (i, words[i], ref[i]) for i in diff)))
