@@ -119,6 +119,13 @@ def judge_results(kit, name, logs):
     # demo judges (--partial) take every block in one call.
     with open(judge) as f:
         by_demo = "'--partial'" in f.read()
+    # The QA run's own block (res-...-<kit>-qa.log) is graded only by a game whose expected.json has a "qa" boot;
+    # the verdict of the others comes from parse_log on the qa-*.log.
+    expected = os.path.join(kit, 'expected.json')
+    if os.path.exists(expected) and '"qa"' not in open(expected).read():
+        logs = [l for l in logs if not os.path.basename(l).endswith('-qa.log')]
+        if not logs:
+            return 0
     runs = [logs] if by_demo else [[l] for l in logs]
     worst = 0
     for group in runs:

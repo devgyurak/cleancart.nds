@@ -38,6 +38,23 @@ void qa_suite_watch(void)
     }
 }
 
+// Every VRAM bank zeroed (a stand-alone demo starts on cleared banks; a picture left by the previous demo
+// would otherwise be read as "last frame's capture"). Maps all of them to LCDC for that; the demos map their own.
+static void clear_vram(void)
+{
+    VRAM_A_CR = VRAM_ENABLE | VRAM_A_LCD;
+    VRAM_B_CR = VRAM_ENABLE | VRAM_B_LCD;
+    VRAM_C_CR = VRAM_ENABLE | VRAM_C_LCD;
+    VRAM_D_CR = VRAM_ENABLE | VRAM_D_LCD;
+    VRAM_E_CR = VRAM_ENABLE | VRAM_E_LCD;
+    VRAM_F_CR = VRAM_ENABLE | VRAM_F_LCD;
+    VRAM_G_CR = VRAM_ENABLE | VRAM_G_LCD;
+    VRAM_H_CR = VRAM_ENABLE | VRAM_H_LCD;
+    VRAM_I_CR = VRAM_ENABLE | VRAM_I_LCD;
+    for (vu32 *p = (vu32 *)0x06800000; p < (vu32 *)0x068A4000; p++)
+        *p = 0;
+}
+
 // Back to the state a stand-alone demo starts from, as far as the registers go: nothing of the
 // previous demo keeps running.
 static void reset_hardware(u32 ie)
@@ -60,6 +77,7 @@ static void reset_hardware(u32 ie)
     snd_stop_channels(0xFFFF);
     if (sys_wram_is_arm9())
         sys_wram_to_arm7();
+    clear_vram();
     qa_suite_reset_game();
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
