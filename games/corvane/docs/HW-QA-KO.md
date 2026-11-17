@@ -9,13 +9,13 @@ Corvane(L1, 그래픽·시스템)은 데모와 자동 QA 실행으로 판정합�
 
 ## 카드에 넣을 것
 
-- ROM: `build/release/rom/corvane.nds`, `build/release/demos/*.nds`
+- ROM: `build/release/rom/corvane-hw-support.nds` 하나만. QA 실행이 모든 것을 판정합니다(크레딧 뒤 데모 48개). 단독 데모 ROM은 파일에 `saved=0`이 보인 데모 하나를 다시 돌릴 때와 `io-qalog`(스위트에 없음)에만 씁니다.
 - 빈 폴더 `cleancart/corvane/` (없으면 ROM이 아무것도 쓰지 않음) 및 QA 실행용 빈 파일 `cleancart/corvane/autoqa`
 
 ## 실행
 
 1. 게임 QA: `corvane.nds`를 켜고 크레딧까지 그냥 둡니다(표시 파일이 타이틀에서 QA를 시작).
-2. 데모: ROM을 하나씩 켜고 `RESULT SAVED`가 보이면 리셋합니다.
+2. 스위트가 끝날 때까지 기다립니다(로그 끝이 `suite end demos=48 saved=48`). 데모를 따로 돌릴 필요는 없습니다.
 3. Mac: `python3 tools/qa/ingest.py /Volumes/<카드> --game corvane`. (`shot-*.bmp`도 함께 복사합니다).
 4. shot을 melonDS와 비교합니다(`docs/QA-KO.md`의 "자동 QA 실행" 참고): `python3 tools/qa/compare.py --info <melonDS QA 로그> <카드 QA 로그>`가 shot 이름별 CRC를 나란히 보여 주면, 콘솔의 `shot-*-st3-600.bmp`와 같은 이름의 melonDS BMP를 나란히 열어 봅니다(지금은 스테이지 3만 찍습니다).
 

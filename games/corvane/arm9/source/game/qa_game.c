@@ -9,10 +9,13 @@
 
 #include "core/qa.h"
 #include "core/qalog.h"
+#include "core/qasuite.h"
 #include "core/qashot.h"
 #include "core/rng.h"
 #include "core/save.h"
+#include "core/timer.h"
 #include "core/sys.h"
+#include "demo/demo.h"
 #include "game/game.h"
 #include "game/qa_tune.h"
 #include "gfx/gl3d.h"
@@ -118,6 +121,8 @@ void qa_game_scene(int id)
                 u32 w[QA_GAME_WORDS];
                 qa_game_words(w);
                 qa_pass("credits", w, QA_GAME_WORDS);
+                // The verdict and the QARN block are out: the judged demos (core/qasuite.h).
+                qa_suite_run("corvane", demo_suite, demo_suite_count, 900);
             }
             else if (id == SC_RECORDS)
             {
@@ -266,4 +271,10 @@ void qa_game_pilot(int scene, u32 f, QaInput *out)
                 out->keys = KEY_A;
             break;
     }
+}
+
+// The suite starts every demo from boot's counters: the boss beat of the run counted into cv_beats.
+void qa_suite_reset_game(void)
+{
+    cv_beats = 0;
 }

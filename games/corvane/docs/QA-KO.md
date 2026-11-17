@@ -60,6 +60,13 @@ games/corvane/corvane.nds 20000 out/mds/x "60:A,200:A,500:L:140,500:R:140,500:X:
 | DeSmuME 헤드리스(SD 없음) | ✅ `QARN` 블록 판정 1, 마지막 상태 해시 `37db96a8` = melonDS(랙은 다름, 비교 대상 아님) |
 | 실기 DS Lite + R4 | 아직 안 돌림 |
 
+**판정 스위트.** QA 로그가 SD 카드에 있으면 실행은 `RESULT PASS` 뒤에 이어집니다. QA 블록을 `res-<stamp>-corvane-qa.log`로 저장한 다음 채점 데모 48개를 차례로 돌립니다
+(`acc-stage`가 맨 앞, `sys-wram`과 `sys-irq`가 맨 뒤. 로그에 데모마다 `suite demo=<name> saved=1 frames=<n>`. SD가 없으면 `suite skipped=no-sd`: DeSmuME). 각 데모는 단독 ROM처럼
+`res-<stamp>-corvane-<이름>.log`를 씁니다. 그래서 카드에서 한 번 실행하면 판정 항목이 모두 나옵니다. 예외는 `io-qalog`입니다(자체 QA 로그를 열기 때문이고 그 경로는 QA 실행이 직접 증명하므로 단독 ROM으로 남깁니다).
+헤드리스: `SDDIR=out/cv/x tools/melonds/mds.sh run games/corvane/corvane.nds 60000 out/cv/x "700:L:140,700:R:140,700:X:140,700:Y:140"` (먼저 `out/cv/x/cleancart/corvane/`를 만들어 둠. 실행은 약 19800프레임에서 끝나고 그중 6000이 스위트).
+2026-11-17에 `tools/qa/suite_compare.py`로 단독 ROM과 비교했습니다(melonDS soft): 48개 중 46개 동일, `sys-irq`(HBlank 수)와 `sys-timer`(시간 측정값)는 판정 범위 안에서 다릅니다. 스위트는 데모마다 `cv_beats`를 0으로 만들고 VRAM을 모두 지웁니다.
+`acc-stage`는 다른 데모 뒤에서 캡처 이음선(판정 값 아님)이 18 대신 0으로 읽혀서 맨 앞에 둡니다. 모든 res 파일에 `judge.py --profile melonds-1.1-software --partial`: MATCH, 92/92.
+
 ## 검수 기록
 
 melonDS 버전: 1.1 (macOS 앱과 같은 코어의 헤드리스)  검수자: Claude Code, 자동 (아래 [melonDS 검수 기록](#melonds-검수-기록-2026-11-11) 참고)  날짜: 2026-11-10/11
