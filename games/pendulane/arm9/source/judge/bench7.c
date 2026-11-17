@@ -4,11 +4,12 @@
 #include <nds.h>
 #include <string.h>
 
+#include "assets.h"
 #include "core/hw.h"
 #include "judge/bench7.h"
 
 #define NOINLINE __attribute__((noinline))
-#define WAIT_LIMIT 6000000u
+#define WAIT_LIMIT 60000000u
 
 static volatile bool got;
 static u32 reply[CV_BENCH_WORDS];
@@ -73,6 +74,16 @@ bool bench7_spi(u32 edge[4])
     for (int i = 0; i < 4; i++)
         edge[i] = r[i];
     return true;
+}
+
+static u8 snd_buf[CV_SNDB_SIZE] __attribute__((aligned(32)));
+
+bool bench7_snd(u32 out[CV_BENCH_WORDS])
+{
+    memset(snd_buf, 0, sizeof(snd_buf));
+    memcpy(snd_buf + CV_SNDB_ADPCM, pd_snd_adpcm, PD_SND_ADPCM_SIZE);
+    DC_FlushRange(snd_buf, sizeof(snd_buf));
+    return run(CV_BENCH_SND, (u32)snd_buf, out);
 }
 
 bool bench7_mem(u32 out[CV_BENCH_WORDS])

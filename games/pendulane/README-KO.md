@@ -7,14 +7,14 @@
 [English](README.md)
 
 닌텐도 DS용 오리지널 자동인형 공방 게임입니다 (제작 중). 스스로를 판정하도록 만들어졌습니다: 리허설 ROM이 콘솔에서 CPU·버스·사운드
-타이밍을 재고 (지금은 나눗셈·제곱근 장치의 busy 시간, 펌웨어 SPI 바이트 시간, ARM7 메모리 타이밍; 이어서 카트 gap, 사운드 시작 지연) 결과 블록을 내놓으므로,
+타이밍을 재고 (지금은 나눗셈·제곱근 장치의 busy 시간, 펌웨어 SPI 바이트 시간, ARM7 메모리 타이밍, 사운드 채널 타이밍; 이어서 카트 gap) 결과 블록을 내놓으므로,
 다른 에뮬레이터가 회귀 테스트로 쓸 수 있습니다.
 
 **검사하는 하드웨어 영역 (레벨 3, "CPU, bus and sound timing"):** 지금은 하드웨어 나눗셈(모드 0, 1, 2)과 제곱근 장치의 busy 시간("DS Maths"),
-4 MHz와 512 kHz의 펌웨어 SPI 바이트 시간("DS Serial Peripheral Interface Bus (SPI)"), ARM7의 메인 RAM·WRAM·VRAM 접근 타이밍("DS Memory Timings")입니다.
+4 MHz와 512 kHz의 펌웨어 SPI 바이트 시간("DS Serial Peripheral Interface Bus (SPI)"), ARM7의 메인 RAM·WRAM·VRAM 접근 타이밍("DS Memory Timings"), 사운드 채널 타이밍("DS Sound Notes": Busy가 꺼지는 시점, PCM·PSG·ADPCM이 들리기까지 몇 샘플이 걸리는지, Hold 재시작이 무엇을 내는지)입니다.
 모든 값은 두 측정의 차이라서 측정 자체의 고정 비용이 상쇄됩니다.
 
-**상태.** 뼈대, 수학 벤치, ARM7 벤치입니다. 장치 게임은 아직 없고 타이틀 화면은 임시입니다. 실기에서는 아무것도 재지 않았습니다.
+**상태.** 뼈대, 수학 벤치, ARM7 벤치, 사운드 벤치입니다. 장치 게임은 아직 없고 타이틀 화면은 임시입니다. 실기에서는 아무것도 재지 않았습니다.
 
 - 언어: C (게임, ARM9 + 자체 ARM7 코어), Python 3 (빌드 도구)
 - 툴체인: BlocksDS v1.25.0 (digest로 고정한 Docker 이미지)

@@ -29,9 +29,17 @@
 // The ARM9 waits in ITCM with IME off, touching no main RAM.
 #define CV_BENCH_SPI      1   // firmware SPI byte time at the four baud rates (edge finding)
 #define CV_BENCH_MEM      2   // ARM7 memory timings; the address is a 640 byte main RAM scratch buffer
+#define CV_BENCH_SND      3   // sound: busy periods, onset indices by capture, hold restart; the address is the 1 KB CvSndBench buffer
 #define CV_BENCH_WORDS    8
 #define CV_SYNC_BENCH_A   0xC
 #define CV_SYNC_BENCH_B   0xD
+
+// Layout of the 1 KB buffer of CV_BENCH_SND (main RAM, 32-byte aligned; the ARM9 flushes it before the request and never
+// touches it again): the ARM7 fills the PCM16 samples and the capture area, the ARM9 copies the ADPCM block in.
+#define CV_SNDB_PCM      0x000   // 128 bytes: 64 PCM16 samples, written by the ARM7
+#define CV_SNDB_ADPCM    0x100   // header word + 4 data words (32 samples), written by the ARM9
+#define CV_SNDB_CAP      0x200   // 128 bytes: the capture of 64 PCM16 samples, written by the sound hardware
+#define CV_SNDB_SIZE     0x400
 
 // ---------------------------------------------------------------------------
 // Sound command words: [31:27] opcode, rest operands.

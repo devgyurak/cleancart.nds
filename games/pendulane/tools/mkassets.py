@@ -179,6 +179,10 @@ def main():
     # --- Cartridge files (NitroFS) ----------------------------------------
     # Licence texts are copied in by the Makefile. cart_init() checks the
     # probe file's CRC to find out whether NitroFS works on the cart in use.
+    # The sound bench's ADPCM block: header (predictor 0, step index 50) and 32 samples of nibble 7 (the largest step up), so the
+    # decoded output is non-zero from the first sample. Built here, not by an encoder: the bench needs a block of known timing.
+    w.blob('pd_snd_adpcm', struct.pack('<hBB', 0, 50, 0) + b'\x77' * 16,
+           'sound bench ADPCM block: header word + 32 samples (4 words)')
     w.define('CV_STREAM_RATE', 0)
     probe = bytes((i * 7 + 3) & 0xFF for i in range(2048))
     write(os.path.join(nitro, 'probe.bin'), probe)

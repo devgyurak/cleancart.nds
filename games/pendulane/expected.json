@@ -20,7 +20,7 @@
       "rom": "pendulane.nds",
       "item_id": 1314013521,
       "item_id_text": "QARN",
-      "frames": 1500,
+      "frames": 1800,
       "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the credits, then the bench once; the block uses the rehearsal's layout and adds the QA words at values[48..54]"
     }
   },
@@ -100,6 +100,158 @@
       "role": "target",
       "level": 3,
       "level_basis": "gbatek:DS Maths"
+    },
+    {
+      "id": "snd-pcm-busy",
+      "title": "A 16-sample PCM16 one-shot: Busy clears 18 samples after the start (3 start delay + 16 - 1; Busy drops at the start of the last sample)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        10
+      ],
+      "check": "eq",
+      "expect": 18,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-adpcm-busy",
+      "title": "A 32-sample ADPCM one-shot: Busy clears 42 samples after the start (11 start delay + 32 - 1)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        11
+      ],
+      "check": "eq",
+      "expect": 42,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-onset-pcm-psg",
+      "title": "The first sound of PCM16 comes 2 samples after the first sound of PSG (3 - 1), from two captures of the left mixer",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        12
+      ],
+      "check": "eq",
+      "expect": 2,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-onset-adpcm-pcm",
+      "title": "The first sound of ADPCM comes 8 samples after the first sound of PCM16 (11 - 3: the header word is 8 slots)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        13
+      ],
+      "check": "eq",
+      "expect": 8,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-hold-restart",
+      "title": "Restarting a Hold channel: the old value plays one more sample, then 2 zero samples, then the new data ((1 << 8) | 2 = 258)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        14
+      ],
+      "check": "eq",
+      "expect": 258,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "GBATEK",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Notes"
+    },
+    {
+      "id": "snd-rate-slope",
+      "title": "Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        20
+      ],
+      "check": "range",
+      "min": -16,
+      "max": 16,
+      "signed": true,
+      "done": {
+        "value": 0,
+        "mask": 32
+      },
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 3,
+      "level_basis": "gbatek:DS Sound Channels"
     },
     {
       "id": "spi-512k-minus-4m",
@@ -303,6 +455,50 @@
       "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
     },
     {
+      "id": "pre-capture-runs",
+      "title": "Sound capture 0 records non-zero data of a playing channel",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Sound Capture"
+    },
+    {
+      "id": "pre-oneshot-busy",
+      "title": "The Busy flag of a one-shot PCM16 and ADPCM channel clears",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Sound Channels"
+    },
+    {
       "id": "qa-verdict",
       "title": "The QA run ended with PASS (QARN verdict 1)",
       "boots": [
@@ -330,28 +526,41 @@
         "spi-512k-minus-4m",
         "mem7-main-seq",
         "mem7-main-nonseq",
-        "mem7-vram-seq"
+        "mem7-vram-seq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-onset-pcm-psg",
+        "snd-hold-restart"
       ],
       "na": []
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
       "ng": [
-        "mem7-main-nonseq"
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
       ],
       "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
       "ng": [
-        "mem7-main-nonseq"
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
       ],
       "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
       "ng": [
-        "mem7-main-nonseq"
+        "mem7-main-nonseq",
+        "snd-pcm-busy",
+        "snd-adpcm-busy",
+        "snd-hold-restart"
       ],
       "na": []
     }
