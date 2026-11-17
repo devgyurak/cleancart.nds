@@ -178,9 +178,9 @@ static ITCM_CODE NOINLINE __attribute__((target("arm"))) void drain_write_buffer
 // Full FIFO: after SWAP_BUFFERS fill the FIFO to 256 entries, then send k more IDENTITYs; the writes wait
 // until the VBlank lets the engine drain. Returns the time from the VBlank of the previous frame to the
 // last write (the caller subtracts the frame length, the same for every k). `delay` (0..63 ARM9 cycles) is spent before
-// the swap: the stalled writes are released in bus batches (the emulator runs the engine in steps), so where the last
-// write lands against a batch edge depends on the run's phase; spreading the phase makes the mean over many pairs
-// independent of it.
+// the swap. The engine halts after the swap until the VBlank, so this delay hardly moves when the stalled writes are
+// released; it only varies where the fill loop starts. The stability comes from the long run difference and the mean
+// over many pairs; the delay is a cheap extra against a phase-locked pair.
 static ITCM_CODE NOINLINE u32 gx_stall_time(int k, u32 delay)
 {
     VBLANK_RISE();
@@ -512,7 +512,8 @@ bool timing_run(u32 *v)
 
     // Full FIFO stall rate: the same frame length is subtracted from both runs. A first pair warms the engine up
     // (the rate settles after the first use of the full FIFO) and is not counted. The run lengths differ by 960 writes
-    // (so a batch-sized error per run is small per write) and each pair starts at a phase drawn from a fixed LCG.
+    // (so a batch-sized error per run is small per write); each pair also starts after an LCG-drawn delay, which helps little
+    // since the engine is halted until the VBlank.
     wait_gx_idle();
     u32 lcg = 0x2545F491u;
     u32 s_short = 0, s_long = 0;
