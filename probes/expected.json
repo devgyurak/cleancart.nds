@@ -569,7 +569,7 @@
   {
    "id": "fog-boundary-start",
    "demo": "l4-3d-fog-dot",
-   "title": "Fog density table: of two quads at OFFSET + 0.25 and + 0.75 steps, how many are unfogged (GBATEK puts the first boundary at OFFSET + STEP: 2; melonDS starts raising the density at OFFSET)",
+   "title": "Fog density table: of two quads at OFFSET + 0.25 and + 0.75 steps, how many are unfogged (GBATEK puts the first boundary at OFFSET + STEP: 2; melonDS shifts its table by one entry and agrees)",
    "values": [
     0
    ],

@@ -1855,7 +1855,7 @@ typedef struct {
 // emulator gives. Every number is read from a capture of the 3D layer alone (DISPCAPCNT bit 24).
 //
 //   values[0]  fog boundary: how many of the two quads at OFFSET + 0.25 / + 0.75 steps are unfogged
-//              (GBATEK: the first boundary lies at OFFSET + STEP, so 2; melonDS raises the density from OFFSET)
+//              (GBATEK: the first boundary lies at OFFSET + STEP, so 2; melonDS shifts the table by one entry, so it agrees)
 //   values[1]  the quad at OFFSET + 0.25 step | + 0.75 step << 16 (raw RGB555)
 //   values[2]  FOG_SHIFT 11: bit 0 quad before the offset unfogged, bit 1 / bit 2 quads after it fully fogged
 //   values[3]  the quad before the offset | the first quad after it << 16 (raw)
@@ -1863,6 +1863,7 @@ typedef struct {
 //   values[5]  a 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn
 //   values[6]  anti-aliased 1-pixel lines, pixels found: opaque | translucent (alpha 30) << 16, x 32..224
 //   values[7]  depth Equal, one step from the base: pixels drawn at -1 step | +1 step << 16 (of 1024 each)
+//   values[8]  the screen-border polygon without edge marking: 1 when it covers the pixel at (255, 96) (GBATEK "Polygon Size")
 
 #define FD_CLEAR RGB15(0, 0, 10)
 #define FD_RED   RGB15(31, 0, 0)
@@ -2026,7 +2027,8 @@ static void d_3d_fog_dot(void)
     u32 pend = 0;
 
     // 0: fog boundary. FOG_SHIFT 0 (step 400h): entry 0 is 0, entries 1.. are 127, so the first boundary decides:
-    // GBATEK starts the rise at OFFSET + STEP (both quads in entry 0, unfogged), melonDS at OFFSET.
+    // GBATEK starts the rise at OFFSET + STEP (both quads in entry 0, unfogged); melonDS shifts its density table by one entry
+    // (RenderFogDensityTable[0] = table[0]), which gives the same result, so all profiles are expected to agree.
     fd_pass = 0;
     fd_setup(1u << 7, FD_CLEAR);
     glFogShift(0);
