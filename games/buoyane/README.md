@@ -41,9 +41,9 @@ Run `buoyane-rehearsal.nds` (about 500 frames) or one of `buoyane-check-{dot,fog
 tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 300 out/x "" 299 | python3 games/buoyane/tools/judge.py --profile melonds-1.1-software
 ```
 
-`expected.json` lists the items (level, basis, role) and, under `known`, what each emulator currently gets wrong (measured 2026-11-17):
-melonDS 1.1 software: none; GL Compute: `edge-aa-translucent`; GL Classic: 15 items; DeSmuME py-desmume 0.0.9: 13 items. Expected values
-are from GBATEK; four items without a hardware value are informational. Layout: `arm9/source/game/rehearsal.h`.
+`expected.json` lists the items (level, basis, role) and, under `known`, what each emulator currently gets wrong (measured 2026-11-20):
+melonDS 1.1 software: `aa-opaque-dot-hidden`, `wire-texture-alpha`; GL Compute: those two and `edge-aa-translucent`; GL Classic: 17 items; DeSmuME py-desmume 0.0.9: 15 items. Expected values
+are from GBATEK; the two items without a hardware value (`fog-alpha-glitch`, `aa-marked-line-complete`) are informational. Layout: `arm9/source/game/rehearsal.h`.
 
 ## Credits
 

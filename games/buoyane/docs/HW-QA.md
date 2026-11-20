@@ -3,9 +3,9 @@
 [한국어](HW-QA-KO.md)
 
 Not run yet. Buoyane has not been on a real console: every verdict in `expected.json` comes from GBATEK and the emulators.
-The point of the run is the four `unconfirmed` items (`aa-opaque-dot-hidden`, `fog-alpha-glitch`, `aa-marked-line-complete`,
-`wire-texture-alpha`) and `edge-aa-translucent`, `attr-latch-begin`: one run on a DS Lite decides whether each becomes a gating `hw:` item
-or moves to `probes/` (level 4).
+The point of the run is the two `unconfirmed` items (`fog-alpha-glitch`, `aa-marked-line-complete`) and the GBATEK items the emulators disagree on
+(`aa-opaque-dot-hidden`, `wire-texture-alpha`, `edge-aa-translucent`) plus `attr-latch-begin`: one run on a DS Lite shows what the console does
+(a `hw:` item, or a move to `probes/` at level 4).
 
 Steps (skill `nds-hw-qa`; DS Lite + R4 Plus): put `buoyane-hw-support.nds` (the release ROM with game code `####`, built by `tools/hwsupport.py`, so the
 card gets the SD card) on the card with the folder `cleancart/buoyane/` and an empty file `autoqa` in it, start it, leave the title alone. The QA run plays
@@ -14,9 +14,9 @@ the 30 approaches, writes `qa-*.log`, and the judge suite writes `res-*-check-<s
 
 | Item | Emulator result (software / GL Classic / GL Compute / DeSmuME) | Hardware |
 |---|---|---|
-| `aa-opaque-dot-hidden` | NG everywhere | open |
+| `aa-opaque-dot-hidden` | NG everywhere (GBATEK item, gates) | open |
 | `fog-alpha-glitch` | NG everywhere | open |
-| `wire-texture-alpha` | NG on melonDS (opaque wireframe, `a = 31`); NG on the others | open |
-| `aa-marked-line-complete` | informational | open |
+| `wire-texture-alpha` | NG everywhere (GBATEK item, gates) | open |
+| `aa-marked-line-complete` | informational: OK software and GL Compute; NG GL Classic, DeSmuME | open |
 | `edge-aa-translucent` | OK software; NG GL Compute, GL Classic, DeSmuME | open |
 | `attr-latch-begin` | OK on all four | open |

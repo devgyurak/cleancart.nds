@@ -37,8 +37,8 @@ tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 300 out/x "" 299 | 
 ```
 
 `expected.json`에 항목(레벨, 근거, 역할)과, `known`에 각 에뮬레이터가 지금 틀리는 항목(2026-11-17 측정)이 있습니다:
-melonDS 1.1 소프트웨어: 없음, GL Compute: `edge-aa-translucent`, GL Classic: 15개, DeSmuME py-desmume 0.0.9: 13개. 기대값은 GBATEK 기준이고,
-실기 값이 없는 네 항목은 정보용입니다. 배치: `arm9/source/game/rehearsal.h`.
+melonDS 1.1 소프트웨어: `aa-opaque-dot-hidden`, `wire-texture-alpha`, GL Compute: 이 둘과 `edge-aa-translucent`, GL Classic: 17개, DeSmuME py-desmume 0.0.9: 15개. 기대값은 GBATEK 기준이고,
+실기 값이 없는 두 항목(`fog-alpha-glitch`, `aa-marked-line-complete`)은 정보용입니다. 배치: `arm9/source/game/rehearsal.h`.
 
 ## 크레딧
 
