@@ -27,9 +27,9 @@
 | Tonewick `snd-short-silent` (L2) | 3워드(최소 4워드 미만) 반복 샘플은 소리가 나지 않음 | 캡처 피크 **16384**(세 실행): 테이프 레벨을 유지하고 무음이 아님 | 0 | 16384 | v0.2.2부터 범위 16320..16448, `hw:dslite-ntr` |
 | Pendulane `mem7-main-nonseq` (L3) | ARM7이 메인 RAM을 비순차로 64번 읽기: GBATEK 표대로면 9사이클씩 576 | **383**(세 실행): 읽기당 약 6(메인 RAM N32 실효 7, WRAM 1) | 384 | 64 | v0.2.2부터 범위 376..392, `hw:dslite-ntr` |
 | Pendulane `mem7-code-main-seq` (L3) | 메인 RAM에서 도는 ARM7 코드, 순차 64워드: 워드당 2사이클, 128 | **142**(세 실행): 약 14사이클 더 걸림. 원인은 문서에 없음 | 128 | 128 | v0.2.2부터 범위 139..145, `hw:dslite-ntr` |
-| Heddlemere `gx-trans-cycles` (L3, 참고용) | MTX_TRANS는 22사이클 | **35**(560 = 35 x16) | 35 | 실행 안 함 | 아직 `expected.json`에 반영 안 함(GBATEK 범위의 `unconfirmed` 그대로) |
-| Heddlemere `gx-box-cycles` (L3, 참고용) | BOX_TEST는 103사이클 | **약 126**(2020 = 126.25 x16) | 257 | 실행 안 함 | 아직 반영 안 함 |
-| Heddlemere `hblank-low-arm7` (L3, 참고용) | 한 줄의 HBlank가 아닌 구간은 ARM7에서 1613사이클("for whatever reason"), ARM9에서 1606 | **25712**(x16): ARM9(25710)와 같음. 두 CPU 모두 GBATEK의 1606이 맞음 | 25342(ARM9 25344) | 실행 안 함 | 아직 반영 안 함 |
+| Heddlemere `gx-trans-cycles` (L3) | MTX_TRANS는 22사이클 | **35**(560 = 35 x16) | 35(559) | 0 | Heddlemere v1.0.1부터 범위 556..564, `hw:dslite-ntr` |
+| Heddlemere `gx-box-cycles` (L3) | BOX_TEST는 103사이클 | **약 126**(2020 = 126.25 x16) | 257(4114) | 2 | v1.0.1부터 범위 2012..2028, `hw:dslite-ntr`(지금까지 한 실행) |
+| Heddlemere `hblank-low-arm7` (L3) | 한 줄의 HBlank가 아닌 구간은 ARM7에서 1613사이클("for whatever reason"), ARM9에서 1606 | **25712**(x16): ARM9(25710)와 같음. 두 CPU 모두 GBATEK의 1606이 맞음 | 25343(ARM9 25343) | 25634(ARM9 25632) | v1.0.1부터 범위 25680..25744, `hw:dslite-ntr` |
 
 ARM7 HBlank 구간은 우리 ARM7 코어가 폴링해서 재므로 폴링 루프가 값에 섞였을 수 있습니다. 같은 방법으로 잰 ARM9 값이
 GBATEK과 맞기 때문에 ARM7 값을 여기에 올렸습니다.
@@ -64,6 +64,7 @@ GBATEK과 맞기 때문에 ARM7 값을 여기에 올렸습니다.
 | Pendulane `snd-onset-pcm-psg`, `spi-512k-minus-4m` (L3) | PCM16은 PSG보다 2샘플 늦게 소리 남. 512 kHz 펌웨어 SPI 바이트는 4 MHz보다 ARM7 448사이클 더 걸림 | DeSmuME |
 | Heddlemere `gx-identity-slope`, `gx-pushpop-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`, `gx-full-stall-rate`, `gx-halfirq-slope` (L3) | 지오메트리 명령의 사이클 비용과 FIFO 정지가 GBATEK대로 | DeSmuME |
 | Heddlemere `vcount-write-lines` (L2) | 212줄에서 VCOUNT를 쓰면 10~11줄이 반복됨 | DeSmuME |
+| Heddlemere `hblank-low-arm9`, `swap-tail` (L3) | ARM9에서 한 줄의 HBlank 플래그가 1606사이클 동안 낮음(25710 x16). 맨 SWAP_BUFFERS 뒤 VBlank부터 392사이클 뒤에 엔진이 쉼(6256 = 391) | melonDS(25343, 5224), DeSmuME(25632, 528) |
 
 `env` 항목(세이브 칩 접근이나 카트리지 gap처럼 테스트 하네스가 필요)은 R4에서 n/a라 넣지 않았습니다: Tonewick
 `save-wel-reset`, Pendulane `cart-gap1-clk5`, `cart-gap1-clk8`.

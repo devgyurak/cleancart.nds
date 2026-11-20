@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-heddlemere-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, every judged item OK.
+**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, every judged item OK. The five items that waited for hardware gate since then (see "Expected values from the runs").
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be
 recorded, the four `unconfirmed` items in `expected.json` can be promoted and the riskiest gating figure (the ARM9
@@ -42,7 +42,7 @@ QA run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game
    It measures (the screen stays as the last order for a while), plays the first order of every chapter and prints
    `REHEARSAL RESULT` with the values in hex; with the folder on the card the block is also written to the SD card.
 4. **Game**: start `heddlemere.nds`. Play 1-01 (A, A on the list, set the cells, A), Select for the blueprint view, B back.
-   Watch the motor lamp after a delivery: on the hardware it should read OK if the GBATEK costs hold.
+   Watch the motor lamp after a delivery: it compares with the GBATEK costs (MTX_TRANS 22), so on the console, which charges 35, it reads `MOTOR CHECK` as in melonDS (information only).
 5. **Auto QA run**: leave an empty `cleancart/heddlemere/autoqa` on the card (or hold L+R+X+Y for two seconds on the title). The game
    plays itself to the credits and writes `cleancart/heddlemere/qa-*.log`. Then
    `python3 tools/qa/ingest.py /Volumes/<card> --game heddlemere` and compare with an emulator run
@@ -78,3 +78,18 @@ QA run without a button hold. `python3 tools/qa/ingest.py /Volumes/<card> --game
 | `swap-tail` (unconfirmed, 6208..6336) | 6256 | 5224 | inside the range on the console |
 | gating slopes (`gx-identity-slope`, `gx-pushpop-slope`, `gx-halfirq-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`) | 305 / 848 / 303 / 480 / -2 | 304 / 847 / 305 / 479 / 0 | within their tolerances on both |
 | the other judged items | as melonDS soft | | no |
+
+## Expected values from the runs
+
+Set from run 1 (one run; level proposal from `level-judge`). The five items were `unconfirmed` and informational; they gate now.
+
+| Item | Change | Why |
+|---|---|---|
+| `hblank-low-arm9` | source stays `GBATEK`, range 25664..25728 kept; `level_basis` gets `hw:games/heddlemere/docs/HW-QA.md` | the console reads 25710: GBATEK's 1606 cycles hold. melonDS 25343, DeSmuME 25632: both NG |
+| `hblank-low-arm7` | range `25680..25744` (+-2 cycles around the console), source `hw:dslite-ntr` | the console reads 25712, the same span as the ARM9, not GBATEK's 1613 (25808). Measured by our own ARM7 core's poll loop. melonDS 25343, DeSmuME 25634: NG |
+| `gx-trans-cycles` | range `556..564` (35 cycles +-0.25), source `hw:dslite-ntr`; `done` mask 65 -> 1 (bit 6, the ARM7 span, has nothing to do with MTX_TRANS) | the console reads 560 = 35 cycles exactly, as melonDS (559, OK), not GBATEK's 22. DeSmuME 0: NG |
+| `gx-box-cycles` | range `2012..2028` (126 cycles +-0.5), source `hw:dslite-ntr` | the console reads 2020 (126.25): neither GBATEK's 103 nor melonDS's 257 (4114: NG). DeSmuME 2: NG. Cause undocumented. If a later run falls outside the range, the item goes to `probes/` |
+| `swap-tail` | source stays `GBATEK`, range kept; hw basis added | the console reads 6256 (391 cycles). melonDS 5224 and DeSmuME 528: NG |
+| Profiles | melonDS (three renderers) `ng` += the HBlank pair, `gx-box-cycles`, `swap-tail`; DeSmuME `ng` += all five | re-checked 2026-11-20 with the v1.0.0 rehearsal ROM and QA run |
+
+The in-game motor lamp still compares with the GBATEK costs (MTX_TRANS 22) and shows `MOTOR CHECK` on the console; it is information only and is left as it is (changing the costs changes the `plan-ticks` hash).
