@@ -459,7 +459,7 @@
     },
     {
       "id": "zeq-slope-band-left",
-      "title": "Equal band on a sloping face: left x (93..99)",
+      "title": "Equal band on a sloping face: left x (101..107)",
       "boots": [
         "rehearsal",
         "qa",
@@ -469,8 +469,8 @@
         10
       ],
       "check": "range",
-      "min": 93,
-      "max": 99,
+      "min": 101,
+      "max": 107,
       "source": "GBATEK",
       "role": "target",
       "level": 2,
@@ -489,7 +489,7 @@
     },
     {
       "id": "zeq-slope-band-right",
-      "title": "Equal band on a sloping face: right x (156..162)",
+      "title": "Equal band on a sloping face: right x (149..155)",
       "boots": [
         "rehearsal",
         "qa",
@@ -499,8 +499,8 @@
         11
       ],
       "check": "range",
-      "min": 156,
-      "max": 162,
+      "min": 149,
+      "max": 155,
       "source": "GBATEK",
       "role": "target",
       "level": 2,

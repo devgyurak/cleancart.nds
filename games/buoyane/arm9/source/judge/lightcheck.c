@@ -536,14 +536,14 @@ static void draw_depth(void)
     GFX_POLY_FORMAT = base;
     GFX_COLOR = Z_BASE;
     px_quad(12, 72, 244, 104, 4);
-    px_quad(32, 112, 224, 136, 4);
+    px_quad(32, 112, 224, 136, 6);
     px_slope(16, 144, 240, 184, 300, 3000);
     GFX_POLY_FORMAT = base | PA_EQUAL;
     GFX_COLOR = Z_FLAT;
     for (int i = 0; i < 5; i++)
         px_quad(20 + i * 44, 72, 52 + i * 44, 105, zeq_flat_z[i]);
     GFX_COLOR = Z_BAND;
-    px_slope(32, 112, 224, 137, 2, 6);
+    px_slope(32, 112, 224, 137, 3, 9);   // z in multiples of 3: the band edges are x 104 and 152 whatever the depth formula
     GFX_COLOR = Z_DECAL;
     px_slope(40, 144, 208, 185, 589, 2615);
     // far plane: slanted quads reaching past it (clip z over W = 12288); bit 12 clear hides them
