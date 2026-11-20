@@ -26,8 +26,8 @@ state after a transfer, ITCM code during DMA), WRAM and VRAM control (half swaps
 bank offsets) and BIOS (CpuFastSet, LZ77, BitUnPack, RLUnComp, the ARM7 CpuSet guard).
 
 **Status.** All six rooms (31 ledger lines) are playable: the press, the tube, the clock wall, the belt, the vault and the
-rule book, the rehearsal and its judge (29 target items, 4 prerequisites) and the hidden auto QA run. On real hardware
-(runs 1 to 3 on a DS Lite, see [docs/HW-QA.md](docs/HW-QA.md)) every judged item is OK since v0.2.2; one expected value, `ipc-empty-cleared`, comes from the console; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
+rule book, the rehearsal and its judge (30 target items, 10 prerequisites) and the hidden auto QA run. On real hardware
+(runs 1 to 3 on a DS Lite, see [docs/HW-QA.md](docs/HW-QA.md)) every judged item is OK since v0.2.2; two expected values, `ipc-empty-cleared` and `ipc-empty-cleared-word`, come from the console; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
 not been reviewed. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
