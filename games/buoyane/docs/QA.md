@@ -10,7 +10,7 @@ Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`). "Headles
 | Chart | five chapters with `n/6` finished, up/down chapter, left/right approach, A sails, B back to the title | headless screenshot |
 | Voyage | top: the light of the true type in the chapter's view; bottom: three candidate lights. Left/right choose, A names it (chime when right, click when wrong), Select shows the almanac's look for each candidate, B or Start back. Three gates finish an approach | headless: all 30 played by the QA pilot |
 | Credits and licence viewer | scrolling credits (libnds, BlocksDS crts MPL-2.0 with source URL, picolibc, libgcc); X opens the licence viewer | not yet checked |
-| rehearsal demo | `buoyane-rehearsal.nds`: the first approach of every chapter (scripted), then the five light-check scenes; block id `0x48525942` (`BYRH`), published at about frame 500; run 1500. Grade: `tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 1500 out/x "" 1499 \| python3 games/buoyane/tools/judge.py --profile melonds-1.1-software` (`RENDERER=gl`, `compute`; DeSmuME: `RESULT_WORDS=64 tools/emu/emu.sh run …` with `--profile desmume-pydesmume-0.0.9`) | ✅ all four profiles MATCH, 2026-11-17 |
+| rehearsal demo | `buoyane-rehearsal.nds`: the first approach of every chapter (scripted), then the five light-check scenes; block id `0x48525942` (`BYRH`), published at about frame 500; run 1500. Grade: `tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 1500 out/x "" 1499 \| python3 games/buoyane/tools/judge.py --profile melonds-1.1-software` (`RENDERER=gl`, `compute`; DeSmuME: `RESULT_WORDS=64 tools/emu/emu.sh run …` with `--profile desmume-pydesmume-0.0.9`) | ✅ all four profiles MATCH, 2026-11-17; again after the hardware run 1 changes, 2026-11-20 |
 | check ROMs | `buoyane-check-dot|fog|edge|depth|blend.nds`: one scene each (about 150 frames), ids `ckdo`, `ckfo`, `cked`, `ckde`, `ckbl`; every profile MATCH | ✅ 2026-11-17 |
 
 ## Auto QA run
@@ -25,7 +25,7 @@ Headless: `SDDIR=out/by/x tools/melonds/mds.sh run games/buoyane/buoyane.nds 120
 `out/by/x/cleancart/buoyane/` first). Verified 2026-11-17 in melonDS 1.1 (software): `RESULT PASS` at about frame 3140, 30 of 30 approaches, chapters
 mask `0x1f`, 7 checkpoints, `tools/qa/compare.py` on two runs: 0 differences, `tools/qa/lint.py` ok, the `QARN` block graded with `judge.py --profile` MATCH on melonDS 1.1
 software and DeSmuME, `tools/qa/suite_compare.py`: the five suite blocks equal the stand-alone ROMs' (SAME). Save: the game saves after every finished approach (the run mirrors each write to the log); a normal boot on a save with progress shows it on the chart, and after the QA run ends the chart shows the progress from before it (not the run's 30/30).
-Hardware run 1 (DS Lite + R4, 2026-11-20): QA run PASS, checkpoint hashes equal melonDS soft, 4 gating NG judged items under review (see [HW-QA.md](HW-QA.md)).
+Hardware run 1 (DS Lite + R4, 2026-11-20): QA run PASS, checkpoint hashes equal melonDS soft, 4 gating NG items; the expected values were changed afterwards (see [HW-QA.md](HW-QA.md), "Expected values from the run"). The rehearsal block of every renderer was graded again with the new `expected.json`: all four profiles MATCH (2026-11-20; the `QARN` block and the check ROMs not re-run).
 Not yet: GL Classic and Compute QA runs, melonDS application.
 
 ## Reproducibility

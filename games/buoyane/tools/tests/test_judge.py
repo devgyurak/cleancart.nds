@@ -39,6 +39,9 @@ def good_values(boot):
             v[i] |= it['expect']
         elif it['check'] == 'range':
             v[i] = it['min']
+        elif it['check'] == 'span':
+            v[i] = 100
+            v[it['values'][1]] = 100 + it['min']
         else:
             raise AssertionError('test helper does not know check %s' % it['check'])
         if 'done' in it:
@@ -79,17 +82,40 @@ class Grading(unittest.TestCase):
 
     def test_a_band_outside_the_window_fails_the_item(self):
         v = good_values('rehearsal')
-        v[10] = 80   # zeq-slope-band-left
+        v[10] = 80   # zeq-slope-band-width: 80..140 is 60 wide, outside 42..54
+        v[11] = 140
         rc, out = run_judge([], block_line(REHEARSAL_ID, v))
         self.assertEqual(rc, 1, out)
-        self.assertIn('NG      zeq-slope-band-left', out)
+        self.assertIn('NG      zeq-slope-band-width', out)
 
-    def test_an_unconfirmed_item_never_fails_the_run(self):
+    def test_the_band_position_is_not_judged_only_its_width(self):
         v = good_values('rehearsal')
-        v[3] &= ~1   # fog-alpha-glitch is informational
+        v[10], v[11] = 109, 159   # the DS Lite's edges: 50 wide
         rc, out = run_judge([], block_line(REHEARSAL_ID, v))
         self.assertEqual(rc, 0, out)
-        self.assertIn('INFO-NG fog-alpha-glitch', out)
+        self.assertIn('OK      zeq-slope-band-width', out)
+
+    def test_a_wireframe_that_blends_fails_the_item(self):
+        v = good_values('rehearsal')
+        v[15] |= 4   # wire-texture-alpha: the console draws no blended wire pixel
+        rc, out = run_judge([], block_line(REHEARSAL_ID, v))
+        self.assertEqual(rc, 1, out)
+        self.assertIn('NG      wire-texture-alpha', out)
+
+    def test_an_unconfirmed_item_never_fails_the_run(self):
+        exp = json.loads(json.dumps(EXP))
+        item = next(i for i in exp['items'] if i['id'] == 'fog-translucent-and')
+        item['source'] = 'unconfirmed'   # no item of the game is unconfirmed now: make one
+        v = good_values('rehearsal')
+        v[item['values'][0]] &= ~item['mask']
+        with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False) as f:
+            json.dump(exp, f)
+        try:
+            rc, out = run_judge(['--expected', f.name], block_line(REHEARSAL_ID, v))
+        finally:
+            os.unlink(f.name)
+        self.assertEqual(rc, 0, out)
+        self.assertIn('INFO-NG fog-translucent-and', out)
 
     def test_an_unfinished_capture_is_not_graded_ok(self):
         v = good_values('rehearsal')
