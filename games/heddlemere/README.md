@@ -19,10 +19,10 @@ writes and the cycle costs of geometry commands, and `tools/judge.py` grades the
 ## Status
 
 All five chapters (40 orders), the play scene, the raster-woven cloth with its blueprint view, the 3D heddle frame with the motor
-lamp, the title, the rehearsal ROM with 18 measured timing items and the QA run are done; v0.1.0 is next. `tools/judge.py` grades the
-rehearsal block and the QA run's block against `expected.json` (L3, 10 gating targets and 5 informational ones waiting for hardware, plus prerequisites);
-the four emulator profiles (DeSmuME, melonDS 1.1 software / GL Classic / GL Compute) match. No console has measured anything yet:
-[docs/HW-QA.md](docs/HW-QA.md) is the checklist, and the figure to settle first is the ARM9 HBlank-low span (GBATEK 1606 cycles, melonDS 1584; informational until measured).
+lamp, the title, the rehearsal ROM with 18 measured timing items and the QA run are done. `tools/judge.py` grades the
+rehearsal block and the QA run's block against `expected.json` (L3, 15 gating targets, plus prerequisites);
+the four emulator profiles (DeSmuME, melonDS 1.1 software / GL Classic / GL Compute) match. On a DS Lite ([docs/HW-QA.md](docs/HW-QA.md)) every item is OK;
+three expected values (`hblank-low-arm7`, `gx-trans-cycles`, `gx-box-cycles`) come from the console, where GBATEK's figure does not hold.
 The cloth is woven by an HBlank interrupt that writes the scroll (weave) and a palette entry (thread colour) of every line; Select switches
 to the blueprint view, the same pixels computed by the CPU without any raster effect. Delivering an order runs the programs through the
 geometry engine and a lamp compares the measured cycles with the GBATEK costs (information only).

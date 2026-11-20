@@ -27,9 +27,9 @@ The sections:
 | Tonewick `snd-short-silent` (L2) | A looped sample of 3 words (below the 4-word minimum) gives no sound | **16384** captured peak (three runs): it keeps the tape level, it is not silent | 0 | 16384 | range 16320..16448, `hw:dslite-ntr`, since v0.2.2 |
 | Pendulane `mem7-main-nonseq` (L3) | 64 non-sequential ARM7 reads from main RAM: 9 cycles each from GBATEK's table, 576 | **383** (three runs): about 6 per read (main RAM N32 effective 7 against WRAM 1) | 384 | 64 | range 376..392, `hw:dslite-ntr`, since v0.2.2 |
 | Pendulane `mem7-code-main-seq` (L3) | ARM7 code running from main RAM, 64 sequential words: 2 cycles per word, 128 | **142** (three runs): about 14 cycles more; cause not documented | 128 | 128 | range 139..145, `hw:dslite-ntr`, since v0.2.2 |
-| Heddlemere `gx-trans-cycles` (L3, informational) | MTX_TRANS costs 22 cycles | **35** (560 = 35 x16) | 35 | not run | not in `expected.json` yet (still `unconfirmed` with the GBATEK range) |
-| Heddlemere `gx-box-cycles` (L3, informational) | BOX_TEST costs 103 cycles | **about 126** (2020 = 126.25 x16) | 257 | not run | not in `expected.json` yet |
-| Heddlemere `hblank-low-arm7` (L3, informational) | The non-HBlank span of a line is 1613 cycles on the ARM7 ("for whatever reason"), 1606 on the ARM9 | **25712** (x16): the same as the ARM9 (25710); GBATEK's 1606 holds for both CPUs | 25342 (ARM9 25344) | not run | not in `expected.json` yet |
+| Heddlemere `gx-trans-cycles` (L3) | MTX_TRANS costs 22 cycles | **35** (560 = 35 x16) | 35 (559) | 0 | range 556..564, `hw:dslite-ntr`, since Heddlemere v1.0.1 |
+| Heddlemere `gx-box-cycles` (L3) | BOX_TEST costs 103 cycles | **about 126** (2020 = 126.25 x16) | 257 (4114) | 2 | range 2012..2028, `hw:dslite-ntr`, since v1.0.1 (one run so far) |
+| Heddlemere `hblank-low-arm7` (L3) | The non-HBlank span of a line is 1613 cycles on the ARM7 ("for whatever reason"), 1606 on the ARM9 | **25712** (x16): the same as the ARM9 (25710); GBATEK's 1606 holds for both CPUs | 25343 (ARM9 25343) | 25634 (ARM9 25632) | range 25680..25744, `hw:dslite-ntr`, since v1.0.1 |
 
 The ARM7 HBlank span is polled by our own ARM7 core, so the poll loop may be part of the figure; the ARM9 figure with the
 same method matches GBATEK, which is why the ARM7 one is listed.
@@ -64,6 +64,7 @@ issue). "Fails on" lists the known profiles that have the item in `ng`.
 | Pendulane `snd-onset-pcm-psg`, `spi-512k-minus-4m` (L3) | PCM16 sounds 2 samples after PSG; a firmware SPI byte at 512 kHz takes 448 ARM7 cycles more than at 4 MHz | DeSmuME |
 | Heddlemere `gx-identity-slope`, `gx-pushpop-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`, `gx-full-stall-rate`, `gx-halfirq-slope` (L3) | Geometry command cycle costs and FIFO stall as GBATEK gives them | DeSmuME |
 | Heddlemere `vcount-write-lines` (L2) | A VCOUNT write at line 212 repeats 10 or 11 lines | DeSmuME |
+| Heddlemere `hblank-low-arm9`, `swap-tail` (L3) | The HBlank flag is low for 1606 cycles of a line on the ARM9 (25710 x16); the engine is idle 392 cycles after the VBlank that follows a bare SWAP_BUFFERS (6256 = 391) | melonDS (25343, 5224), DeSmuME (25632, 528) |
 
 Items with `env` (they need the test harness, such as save chip access or the cartridge gap) are n/a on the R4 and are
 not listed: Tonewick `save-wel-reset`, Pendulane `cart-gap1-clk5` and `cart-gap1-clk8`.
