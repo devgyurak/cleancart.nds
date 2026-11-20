@@ -165,7 +165,8 @@ ByScene scene_chart(void)
             text_printf(&t, 2, 4 + ch * 2 - 1, cur ? TP_YELLOW : TP_WHITE, "%c %d %-10s %d/%d", cur ? '>' : ' ', ch,
                         by_chapter_name[ch - 1], by_chapter_cleared(ch), BY_APPROACHES);
         }
-        text_printf(&t, 2, 19, TP_GRAY, "UP DOWN: CHAPTER  LEFT RIGHT: APPROACH");
+        text_printf(&t, 2, 18, TP_GRAY, "UP DOWN: CHAPTER");
+        text_printf(&t, 2, 19, TP_GRAY, "LEFT RIGHT: APPROACH");
         text_printf(&t, 2, 21, TP_GRAY, "A: SAIL  B: TITLE");
         text_clear(&b);
         text_printf(&b, 1, 1, TP_YELLOW, "%s", by_chapter_name[by_chapter - 1]);
