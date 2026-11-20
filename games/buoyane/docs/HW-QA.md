@@ -64,5 +64,6 @@ One run only; this record changed no expected value. The next section says what 
 | `fog-alpha-glitch` | removed from the game | one negative result in one scene does not confirm "no glitch", and an `unconfirmed` item is L4, which games do not hold. The console value 0 is recorded here and in `docs/HW-FINDINGS.md` section 3 |
 | Profiles | `ng`: software 1 (`aa-opaque-dot-hidden`), Compute 2 (that and `edge-aa-translucent`), GL Classic 15, DeSmuME 13 | the rehearsal block of each renderer was graded again: all four MATCH |
 
-Follow-ups (not in this change): the probe items for the band position (109 and 159 on the console), the decal holes (960) and the fog alpha glitch (0) go to `probes/`, with these values as the hardware observation (source "Buoyane v0.1.0 hw run 1");
-a ROM change adds the white wire pixel count and fixes the stale step wording of `zeq-tolerance-flat` and the band comment in `lightcheck.c`; then Buoyane v0.1.1 and hardware run 2.
+Follow-ups: the ROM change (diagnostics, no judged bit or state hash changed) adds `values[21]` (white | blended pixels over the wire quad) and fixes the stale step wording of `zeq-tolerance-flat` (steps -2 and +2) and the band comment in `lightcheck.c`; then Buoyane v0.1.1 and hardware run 2.
+Run 2 is to read `values[21]` (white 0 = "not drawn", above 0 with `values[15]` bit 2 clear = "drawn opaque"; melonDS software and Compute read 170 white, GL Classic and DeSmuME 0), and to see whether 109 / 159 (`values[10]`, `[11]`), the decal holes 960 (`values[18]`) and the +-1 step planes 0 (`values[13]`) repeat.
+Only after that do the probe items for the band position, the decal holes and the fog alpha glitch go to `probes/`, with the repeated values as the hardware observation (source "Buoyane hw run").

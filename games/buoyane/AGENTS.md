@@ -47,7 +47,7 @@ fog/edge/anti-aliasing post-pass".
 - `expected.json`: 20 target items (level 2), 11 prerequisites. No item is `unconfirmed` (that source would be informational): the games hold no L4
   item, so the Equal band position, the decal holes and the fog alpha glitch live in `probes/` (hardware run 1 values in `docs/HW-QA.md`). Every item is a GBATEK
   statement or a console value (`hw:dslite-ntr`: `wire-texture-alpha`, where GBATEK says otherwise) and gates; an emulator that gets one wrong is recorded in `known`.
-  `values[10]`, `[11]`, `[13]`, `[18]` stay in the result block but are not judged (the band edges are graded only as a width, check `span`).
+  `values[10]`, `[11]`, `[13]`, `[18]` and `[21]` (wire quad pixels: white | blended << 16) stay in the result block but are not judged (the band edges are graded only as a width, check `span`).
 - `known` holds the measured failing set per emulator profile (DeSmuME, melonDS software, GL Classic, GL Compute). Re-measure after every scene change.
 - The 5-bit capture cannot tell fog density 126 from 127, nor 127 from 128 (a difference of less than one level), so `fog-density-127-full` (a level 1 prerequisite) only checks that a high density reaches the fog colour and 120 does not.
 - Texture/palette setup is in `textures_load()`: VRAM A (textures) and G (palette) are mapped as LCDC while written.

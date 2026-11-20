@@ -534,7 +534,7 @@ static void check_edge(u32 *v)
 #define Z_FAR   RGB15(31, 16, 0)
 #define Z_LATCH RGB15(0, 31, 31)
 
-static const int zeq_flat_z[5] = { 2, 3, 4, 5, 6 };   // steps 2 4 5 6 8 against the base at 5
+static const int zeq_flat_z[5] = { 2, 3, 4, 5, 6 };   // raw z against the base at 4: steps -2 -1 0 +1 +2
 
 static void draw_depth(void)
 {
@@ -550,7 +550,8 @@ static void draw_depth(void)
     for (int i = 0; i < 5; i++)
         px_quad(20 + i * 44, 72, 52 + i * 44, 105, zeq_flat_z[i]);
     GFX_COLOR = Z_BAND;
-    px_slope(32, 112, 224, 137, 3, 9);   // z in multiples of 3: the band edges are x 104 and 152 whatever the depth formula
+    px_slope(32, 112, 224, 137, 3, 9);   // z 3..9 over x 32..224 against the base at 6: the +-200h window makes the band about 48 pixels wide;
+                                         // where it sits depends on the depth formula (read: x 109..159 on a DS Lite, 105..152 in melonDS software)
     GFX_COLOR = Z_DECAL;
     px_slope(40, 144, 208, 185, 589, 2615);
     // far plane: slanted quads reaching past it (clip z over W = 12288); bit 12 clear hides them
@@ -614,7 +615,7 @@ static void check_depth(u32 *v)
     v[W_DEPTH] |= bits;
     v[W_BAND_L] = left < 0 ? 0 : (u32)left;
     v[W_BAND_R] = right < 0 ? 0 : (u32)right;
-    v[W_ZEQ_3] = flat[0] | flat[4] << 16;
+    v[W_ZEQ_2] = flat[0] | flat[4] << 16;
     v[W_ZEQ_1] = flat[1] | flat[3] << 16;
     v[W_HOLES] = holes;
     v[W_CAPS] |= 1u << LC_DEPTH;
@@ -701,6 +702,16 @@ static void check_blend(u32 *v)
         }
     }
     bits |= (hi == WHITE) << 0 | (dec == RED) << 1 | (other > 0) << 2;
+    // Record, not judged: over the whole wire quad (x 144..192, y 21..60) the pixels that are the opaque texel colour (white) and
+    // the ones that are neither it nor the quad behind (a blended line). Bit 2 above cannot tell "drawn opaque" from "not drawn".
+    u32 wire_white = 0, wire_blended = 0;
+    for (int y = 19; y <= 62; y++)
+        for (int x = 142; x <= 194; x++)
+        {
+            u16 p = cap_pixel(x, y);
+            wire_white += p == WHITE;
+            wire_blended += p != WHITE && p != BLUE && p != CAP_SENTINEL;
+        }
 
     // 1: toon
     blend_pass = 1;
@@ -741,6 +752,7 @@ static void check_blend(u32 *v)
     {
         v[W_CAPS] |= 1u << LC_BLEND;
         v[W_BLEND] = bits;
+        v[W_WIRE_PIXELS] = wire_white | wire_blended << 16;
         v[W_DEPTH] |= atest << 8;
     }
 }

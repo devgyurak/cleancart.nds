@@ -18,14 +18,14 @@
 //   values[4]   near fog | reference << 16;  values[5] density 127 | 120 << 16 (raw)
 //   values[6]   edge bits: 0-3 front-only edges, 4 translucent edge+AA, 5 edge marks something, 6 AA marked line unbroken
 //   values[7,8] edge pixels (raw)
-//   values[9]   depth bits: 0 flat equal draws, 1 -3 steps hidden, 2 +3 steps hidden, 3 decal whole, 4 no base -> empty,
+//   values[9]   depth bits: 0 flat equal draws, 1 -2 steps hidden, 2 +2 steps hidden, 3 decal whole, 4 no base -> empty,
 //               5 bit 12 clear hides, 6 bit 12 set draws, 7 POLYGON_ATTR in Begin/End latched, 8 alpha test ref 1F hides
-//   values[10,11] equal band left and right x;  values[12] -3 | +3 step pixel counts << 16;  values[13] -1 | +1 step
+//   values[10,11] equal band left and right x;  values[12] -2 | +2 step pixel counts << 16;  values[13] -1 | +1 step
 //   values[14]  AA line pixels: opaque | translucent << 16 (record)
 //   values[15]  blend bits: 0 highlight saturates, 1 decal alpha 0 -> vertex colour, 2 wireframe texture alpha blends,
 //               3 clear alpha 0 bypass, 4 toon red index, 5 3D alpha through the BG0 blend
 //   values[16..18] highlight | decal << 16, wire | bypass << 16, decal holes (raw)
-//   values[19]  approaches cleared (the first of every chapter, scripted; the QA run: all 30);  values[20] route plan hash (FNV-1a of the routes);  values[48..54] QA words
+//   values[19]  approaches cleared (the first of every chapter, scripted; the QA run: all 30);  values[20] route plan hash (FNV-1a of the routes); values[21] wire quad pixels: opaque white | blended << 16 (record);  values[48..54] QA words
 // Keep this file, expected.json and tools/judge.py in step.
 
 #ifndef BY_REHEARSAL_H

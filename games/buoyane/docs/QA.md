@@ -26,7 +26,8 @@ Headless: `SDDIR=out/by/x tools/melonds/mds.sh run games/buoyane/buoyane.nds 120
 mask `0x1f`, 7 checkpoints, `tools/qa/compare.py` on two runs: 0 differences, `tools/qa/lint.py` ok, the `QARN` block graded with `judge.py --profile` MATCH on melonDS 1.1
 software and DeSmuME, `tools/qa/suite_compare.py`: the five suite blocks equal the stand-alone ROMs' (SAME). Save: the game saves after every finished approach (the run mirrors each write to the log); a normal boot on a save with progress shows it on the chart, and after the QA run ends the chart shows the progress from before it (not the run's 30/30).
 Hardware run 1 (DS Lite + R4, 2026-11-20): QA run PASS, checkpoint hashes equal melonDS soft, 4 gating NG items; the expected values were changed afterwards (see [HW-QA.md](HW-QA.md), "Expected values from the run"). Graded again with the new `expected.json` (2026-11-20): the rehearsal block, the `QARN` block of a QA run with an SD image (`RESULT PASS`, 12000 frames) and the five suite blocks of that run (`--demo buoyane-check-<scene>`) on melonDS soft, GL Classic and GL Compute, and the rehearsal, `QARN` (no SD) and check-depth / check-blend blocks on DeSmuME: every profile MATCH.
-Not yet: GL Classic and Compute QA runs, melonDS application.
+Diagnostics ROM (`values[21]`, build `3dd5ac721c8a`, 2026-11-20): zero warnings, two clean builds give the same SHA-256, checkpoint hashes equal the previous ROM's (`compare.py`, 0 differences), every profile MATCH on the rehearsal, QA (SD image, `RESULT PASS`) and check blocks of melonDS soft, GL Classic and GL Compute, and on DeSmuME's rehearsal, check-blend and QA blocks; `suite_compare.py`: SAME x5. `values[21]` reads 170 white pixels on melonDS soft and Compute, 0 on GL Classic and DeSmuME.
+Not yet: melonDS application.
 
 ## Reproducibility
 
