@@ -42,8 +42,11 @@ tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 300 out/x "" 299 | 
 ```
 
 `expected.json` lists the items (level, basis, role) and, under `known`, what each emulator currently gets wrong (measured 2026-11-20):
-melonDS 1.1 software: `aa-opaque-dot-hidden`, `wire-texture-alpha`; GL Compute: those two and `edge-aa-translucent`; GL Classic: 17 items; DeSmuME py-desmume 0.0.9: 15 items. Expected values
-are from GBATEK; the two items without a hardware value (`fog-alpha-glitch`, `aa-marked-line-complete`) are informational. Layout: `arm9/source/game/rehearsal.h`.
+melonDS 1.1 software: `aa-opaque-dot-hidden`, `wire-texture-alpha`; GL Compute: those two and `edge-aa-translucent`; GL Classic: 18 items; DeSmuME py-desmume 0.0.9: 16 items. Expected values
+are from GBATEK; the one item without a hardware value (`fog-alpha-glitch`) is informational.
+
+Progress is saved: every finished approach is written to the cart save (the continue fields of the shared save block) and read back at boot.
+The QA run restores the cart's own save when it ends. Layout: `arm9/source/game/rehearsal.h`.
 
 ## Credits
 
