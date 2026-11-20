@@ -119,9 +119,13 @@ class Grading(unittest.TestCase):
 
 
 class Profiles(unittest.TestCase):
-    def test_profile_matches_when_nothing_fails(self):
-        rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, good_values('rehearsal')))
-        self.assertEqual(rc, 0, out)
+    def test_profile_matches_the_recorded_failing_set(self):
+        v = good_values('rehearsal')
+        for it in EXP['items']:
+            if it['id'] in EXP['known']['melonds-1.1-software']['ng']:
+                v[it['values'][0]] &= ~it.get('mask', 0xFFFFFFFF)
+        rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, v))
+        self.assertEqual(rc, 0, out)   # the gating items fail, exactly as recorded
         self.assertIn('MATCH', out)
 
     def test_profile_reports_a_newly_failing_item(self):

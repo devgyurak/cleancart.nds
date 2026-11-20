@@ -484,6 +484,11 @@ static void draw_edge(void)
     GFX_POLY_FORMAT = PA_ALPHA(31) | PA_CULL_NONE | PA_ID(16);
     GFX_COLOR = EDGE_B;
     px_quad(120, 72, 200, 120, 1024);
+    // a real one-pixel line (degenerate triangle) with its own polygon ID (the rear plane has ID 0): edge marking
+    // plus anti-aliasing must leave no gap along it
+    cutoff(16);
+    load_proj(&dot_proj);
+    line(32, 224, 168, PA_ALPHA(31) | PA_CULL_NONE | PA_ID(8));
 }
 
 static void check_edge(u32 *v)
@@ -504,9 +509,11 @@ static void check_edge(u32 *v)
     ok &= capture(draw_edge, true);
     u16 a_top_aa = cap_pixel(80, 48);
     u32 row = 0;
-    for (int x = 48; x < 112; x++)
-        row += cap_pixel(x, 48) != EDGE_CLEAR;
-    bits |= (a_top_aa != EDGE_RED && a_top_aa != EDGE_A) << 4 | (row == 64) << 6;
+    for (int x = 32; x < 224; x++)
+        row += cap_pixel(x, 168) != EDGE_CLEAR;
+    // the AA edge is the red edge colour mixed with the clear colour (0,0,12): no green, some but not full red
+    u32 r = a_top_aa & 31, g = (a_top_aa >> 5) & 31;
+    bits |= (g == 0 && r > 0 && r < 31) << 4 | (row == 192) << 6;
 
     v[W_EDGE_A] = a_right | (u32)b_left << 16;
     v[W_EDGE_B] = b_top | (u32)a_top_aa << 16;
