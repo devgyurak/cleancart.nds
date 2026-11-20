@@ -2,7 +2,7 @@
 
 [한국어](QA-KO.md)
 
-Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`). "Headless" means the melonDS 1.1 core runner `tools/melonds/mds.sh` (software renderer) unless said otherwise; nothing here has been checked by hand in the melonDS application or on hardware yet.
+Checklist for melonDS 1.1 (macOS keys: see the repository `AGENTS.md`). "Headless" means the melonDS 1.1 core runner `tools/melonds/mds.sh` (software renderer) unless said otherwise; nothing here has been checked by hand in the melonDS application yet. Hardware: run 1 on a DS Lite + R4 (2026-11-20), see [HW-QA.md](HW-QA.md).
 
 | Scene | Check | Status |
 |---|---|---|
@@ -25,7 +25,8 @@ Headless: `SDDIR=out/by/x tools/melonds/mds.sh run games/buoyane/buoyane.nds 120
 `out/by/x/cleancart/buoyane/` first). Verified 2026-11-17 in melonDS 1.1 (software): `RESULT PASS` at about frame 3140, 30 of 30 approaches, chapters
 mask `0x1f`, 7 checkpoints, `tools/qa/compare.py` on two runs: 0 differences, `tools/qa/lint.py` ok, the `QARN` block graded with `judge.py --profile` MATCH on melonDS 1.1
 software and DeSmuME, `tools/qa/suite_compare.py`: the five suite blocks equal the stand-alone ROMs' (SAME). Save: the game saves after every finished approach (the run mirrors each write to the log); a normal boot on a save with progress shows it on the chart, and after the QA run ends the chart shows the progress from before it (not the run's 30/30).
-Not yet: GL Classic and Compute QA runs, melonDS application, hardware.
+Hardware run 1 (DS Lite + R4, 2026-11-20): QA run PASS, checkpoint hashes equal melonDS soft, 4 gating NG judged items under review (see [HW-QA.md](HW-QA.md)).
+Not yet: GL Classic and Compute QA runs, melonDS application.
 
 ## Reproducibility
 
