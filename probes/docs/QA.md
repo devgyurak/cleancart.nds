@@ -96,7 +96,7 @@ observation (what the emulators gave when the probe was written, or the value th
 | `tex-late-216` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-230` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
 | `tex-late-250` | l4-tex-late | 0 to 192 | 192 | 192 | 192 | 192 | 192 | 192 | 0 |
-| `fog-boundary-start` | l4-3d-fog-dot | 2 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `fog-boundary-start` | l4-3d-fog-dot | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 2 |
 | `fog-shift-11` | l4-3d-fog-dot | 7 | 7 | 7 | 7 | 7 | 7 | 7 | 7 |
 | `edge-screen-border` | l4-3d-fog-dot | 67044351 | 671089663 | 671099210 | 671089663 | 671089663 | 671099210 | 671089663 | 67044351 |
 | `dot-queued-cutoff` | l4-3d-fog-dot | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 1 |

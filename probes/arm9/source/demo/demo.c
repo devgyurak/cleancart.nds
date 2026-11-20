@@ -2024,12 +2024,13 @@ static void d_3d_fog_dot(void)
     REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while capturing
     u32 v[8] = { 0 };
 
-    // 0: fog boundary. FOG_SHIFT 0 (step 400h), density 127 from entry 0 on: full fog where it applies.
+    // 0: fog boundary. FOG_SHIFT 0 (step 400h): entry 0 is 0, entries 1.. are 127, so the first boundary decides:
+    // GBATEK starts the rise at OFFSET + STEP (both quads in entry 0, unfogged), melonDS at OFFSET.
     fd_pass = 0;
     fd_setup(1u << 7, FD_CLEAR);
     glFogShift(0);
     for (int i = 0; i < 32; i++)
-        GFX_FOG_TABLE[i] = 127;
+        GFX_FOG_TABLE[i] = i < 1 ? 0 : 127;
     fd_capture();
     u16 q0 = fd_at(56, 70), q1 = fd_at(200, 70);
     v[0] = (q0 == FD_RED) + (q1 == FD_RED);
