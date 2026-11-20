@@ -57,6 +57,13 @@
       "item_id_text": "QYTC",
       "frames": 120,
       "note": "only the items of one pier"
+    },
+    "l2-cache": {
+      "rom": "quayholt-l2-cache.nds",
+      "item_id": 1094932817,
+      "item_id_text": "QYCA",
+      "frames": 120,
+      "note": "only the items of one pier"
     }
   },
   "sources": {
@@ -822,6 +829,122 @@
       }
     },
     {
+      "id": "dcache-dma-stale",
+      "title": "A DMA write behind a cached line leaves the cached (old) word visible to the CPU",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-cache"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-cache": 1
+      },
+      "values": [
+        27
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Cache Control; report:melonDS#776",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "dcache-wb-dirty",
+      "title": "A write to a cached line stays in the cache (write-back): a DMA read of the memory sees the old word",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-cache"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-cache": 1
+      },
+      "values": [
+        28
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Cache Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "dcache-inval-drop",
+      "title": "Invalidating a dirty line without cleaning it drops the written word",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-cache"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-cache": 1
+      },
+      "values": [
+        29
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Cache Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
+      "id": "icache-stale",
+      "title": "Rewritten code keeps running in its old form until the instruction cache is invalidated",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-cache"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-cache": 1
+      },
+      "values": [
+        30
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Cache Control",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
+      }
+    },
+    {
       "id": "pre-ldr-str-word",
       "title": "Aligned LDR/STR words round-trip (ARM9 and ARM7)",
       "boots": [
@@ -831,7 +954,8 @@
         "l2-blocks",
         "l2-alu",
         "l2-pu",
-        "l2-tcm"
+        "l2-tcm",
+        "l2-cache"
       ],
       "frame": {
         "rehearsal": 1,
@@ -840,7 +964,8 @@
         "l2-blocks": 1,
         "l2-alu": 1,
         "l2-pu": 1,
-        "l2-tcm": 1
+        "l2-tcm": 1,
+        "l2-cache": 1
       },
       "values": [
         31
@@ -865,7 +990,8 @@
         "l2-blocks",
         "l2-alu",
         "l2-pu",
-        "l2-tcm"
+        "l2-tcm",
+        "l2-cache"
       ],
       "frame": {
         "rehearsal": 1,
@@ -874,7 +1000,8 @@
         "l2-blocks": 1,
         "l2-alu": 1,
         "l2-pu": 1,
-        "l2-tcm": 1
+        "l2-tcm": 1,
+        "l2-cache": 1
       },
       "values": [
         31
@@ -899,7 +1026,8 @@
         "l2-blocks",
         "l2-alu",
         "l2-pu",
-        "l2-tcm"
+        "l2-tcm",
+        "l2-cache"
       ],
       "frame": {
         "rehearsal": 1,
@@ -908,7 +1036,8 @@
         "l2-blocks": 1,
         "l2-alu": 1,
         "l2-pu": 1,
-        "l2-tcm": 1
+        "l2-tcm": 1,
+        "l2-cache": 1
       },
       "values": [
         31
@@ -1041,6 +1170,36 @@
       "done": {
         "value": 0,
         "mask": 16
+      }
+    },
+    {
+      "id": "pre-cache-enable",
+      "title": "Control bits 2 and 12 (data and instruction cache) can be cleared and set and read back",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-cache"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-cache": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 128,
+      "expect": 128,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM CP15 Control Register",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 32
       }
     },
     {

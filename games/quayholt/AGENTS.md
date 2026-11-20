@@ -9,9 +9,9 @@ are in `../../AGENTS.md`. Created from the ledgerine folder (which came from the
 games). The plan is `out/WORKPLAN-quayholt.md` (not committed).
 
 Status: the measurement harness (piers A loads, B blocks, C tally, D customs = protection unit, E locker =
-TCM), the rehearsal, the per-pier demos and their judge (`expected.json`, `tools/judge.py`) and a QA run
-through the rehearsal and the credits. The cache pier (F), the harbour game (30 jobs) and the title polish
-come in later changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and the ARM9 CP15.
+TCM, F ledger board = caches), the rehearsal, the per-pier demos and their judge (`expected.json`, `tools/judge.py`) and a QA run
+through the rehearsal and the credits. The harbour game (30 jobs) and the title polish come in later
+changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and the ARM9 CP15.
 
 ## Design principles
 
@@ -33,11 +33,12 @@ come in later changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruct
 |---|---|
 | `arm9/source/judge/stubs9.s`, `stubs9.h` | hand-written ARM9 stubs (`.word` encodings for what the assembler would refuse) |
 | `arm9/source/judge/cp15.s`, `cp15.h`, `measure_pu.c` | piers D and E: CP15 access, the exception harness, the TCM stubs |
+| `arm9/source/judge/measure_cache.c` | pier F: a 32-byte line of its own per test (data cache write-back, DMA staleness, invalidate; instruction cache coherence) |
 | `arm9/source/judge/measure.c` | runs the stubs and the ARM7 steps, writes the codes into `qy_res` |
 | `arm7/source/stubs7.s`, `step7.c` | the ARM7 stubs and the step dispatcher; steps are `CV_QY_*` in `common/cv_ipc.h`; raw words go to the raw page `CV_QY_RAW` (0x0237F800) |
 | `arm9/source/game/ledger.[ch]` | the result block layout (`QYRH`, values[0..33], QA words at 48..54) |
 | `arm9/source/game/rehearsal.c` | rehearsal scene and `rehearsal_measure(mask)` |
-| `arm9/source/demo/demo.c` | demo ROMs: `rehearsal` and one per pier (`l2-loads`, `l2-blocks`, `l2-alu`, `l2-pu`, `l2-tcm`; block ids `QYLO`, `QYBL`, `QYAL`, `QYPU`, `QYTC`) |
+| `arm9/source/demo/demo.c` | demo ROMs: `rehearsal` and one per pier (`l2-loads`, `l2-blocks`, `l2-alu`, `l2-pu`, `l2-tcm`, `l2-cache`; block ids `QYLO`, `QYBL`, `QYAL`, `QYPU`, `QYTC`, `QYCA`) |
 | `tools/judge.py`, `expected.json` | the judge and its items, boots and per-emulator profiles |
 | `tools/cvtools/qyart.py` | title picture and icon |
 
