@@ -33,6 +33,8 @@
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
   ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick, L3 Elevane·Heddlemere·Pendulane, L4 [연구용 probe 모음](probes/)(게임이 아님).
+- **콘솔에서 확인함.** 모든 게임을 DS Lite에서 돌렸습니다. 콘솔이 GBATEK과 달랐던 것, GBATEK이 맞고 에뮬레이터가
+  달랐던 것은 [docs/HW-FINDINGS-KO.md](docs/HW-FINDINGS-KO.md)에 모았습니다.
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
 
