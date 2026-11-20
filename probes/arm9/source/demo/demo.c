@@ -1938,7 +1938,7 @@ static void fd_draw(void)
         case 2:   // a polygon on the screen border with edge marking
             glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(8));
             GFX_COLOR = RGB15(10, 10, 10);
-            fd_idquad(0, 40, 255, 150, 0);
+            fd_idquad(0, 40, 256, 150, 0);
             break;
         case 3:   // a far 1-dot queued behind a backlog of matrix work while the cut-off is raised
             glCutoffDepth(16);
@@ -2022,7 +2022,8 @@ static void d_3d_fog_dot(void)
     vram_set(VB_D, 0, 0);
     demo_title("3D-FOG-DOT");
     REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while capturing
-    u32 v[8] = { 0 };
+    u32 v[9] = { 0 };
+    u32 pend = 0;
 
     // 0: fog boundary. FOG_SHIFT 0 (step 400h): entry 0 is 0, entries 1.. are 127, so the first boundary decides:
     // GBATEK starts the rise at OFFSET + STEP (both quads in entry 0, unfogged), melonDS at OFFSET.
@@ -2052,6 +2053,12 @@ static void d_3d_fog_dot(void)
     fd_setup(1u << 5, FD_CLEAR);
     fd_capture();
     v[4] = fd_at(0, 96) | (u32)fd_at(255, 96) << 16;
+
+    // 2b: the same polygon without edge marking: does it cover x 255 at all (GBATEK "Polygon Size": the right edge may drop)
+    fd_pass = 2;
+    fd_setup(0, FD_CLEAR);
+    fd_capture();
+    pend = fd_at(255, 96) == RGB15(10, 10, 10);
 
     // 3: queued dot
     fd_pass = 3;
@@ -2083,15 +2090,17 @@ static void d_3d_fog_dot(void)
             p1 += fd_at(60 + x, y) == RGB15(31, 31, 0);
         }
     v[7] = m1 | p1 << 16;
+    v[8] = pend;
 
     REG_DISPCAPCNT = 0;
     REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
     volatile CvResult *r = CV_RESULT;
-    for (int i = 4; i < 8; i++)
+    for (int i = 4; i < 9; i++)
         r->values[i] = v[i];
     con_printf("FOG START %lu (2)  SHIFT11 %lu\n", (unsigned long)v[0], (unsigned long)v[2]);
     con_printf("BORDER %08lX  QUEUED %lu\n", (unsigned long)v[4], (unsigned long)v[5]);
     con_printf("AA LINES %08lX  EQ+-1 %08lX\n", (unsigned long)v[6], (unsigned long)v[7]);
+    con_printf("RIGHT PIXEL %lu\n", (unsigned long)v[8]);
     finish(v[0], v[1], v[2], v[3]);
 }
 

@@ -30,7 +30,7 @@
 | `probes-l4-acc-split-hdma` | `acc-split-hdma-holes` | HBlank DMA 합성의 구멍(melonDS#2618. Elevane에서는 L3 목표로 판정하고, 여기서는 master까지 기록) |
 | `probes-l4-acc-split-rear` | `rear-plane-latency` | 같은 화면 2패스의 rear plane 변형: rear plane을 설정하기 전에 잰 라우팅 지연(Elevane에서는 L2 전제 조건) |
 | `probes-l4-acc-rear-plane` | `rear-plane`, `rear-plane-full` | 패스의 캡처를 3D rear plane으로 되돌리는 방식(먼저 설정): 캡처된 패스의 불투명 픽셀(일부 / 4096 전부) |
-| `probes-l4-3d-fog-dot` | `fog-boundary-start`, `fog-shift-11`, `edge-screen-border`, `dot-queued-cutoff`, `aa-line-pixels`, `zeq-step-boundary` | GBATEK이 느슨하게 적은 fog·edge·1-dot 모서리(첫 fog 경계의 위치, FOG_SHIFT 11, 화면 경계의 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선 픽셀, 깊이 Equal 경계 단계). Buoyane(games/buoyane)에서 옮겨 온 것으로, Buoyane은 GBATEK이 정해 둔 것만 판정합니다 |
+| `probes-l4-3d-fog-dot` | `fog-boundary-start`, `fog-shift-11`, `edge-screen-border`, `poly-right-edge-pixel`, `dot-queued-cutoff`, `aa-line-pixels`, `zeq-step-boundary` | GBATEK이 느슨하게 적은 fog·edge·1-dot 모서리(첫 fog 경계의 위치, FOG_SHIFT 11, 화면 경계의 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선 픽셀, 깊이 Equal 경계 단계). Buoyane(games/buoyane)에서 옮겨 온 것으로, Buoyane은 GBATEK이 정해 둔 것만 판정합니다 |
 | `probes-l4-2d-obj-line` | `2d-obj-line-budget` | 한 줄에 스프라이트 120개: 마지막 그룹이 버려지는가 |
 | `probes-l4-sys-dma-disp` | `sys-dma-disp-pixels` | 캡처 소스 B로 본 메인 메모리 디스플레이 FIFO |
 | `probes-l4-2d-display` | `2d-display-pixels` | 같은 것을 VRAM 디스플레이 프레임 뒤에 확인 |

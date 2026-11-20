@@ -387,11 +387,11 @@ target 16 · prerequisite 8
 
 </details>
 
-<details><summary><b>L4 Research</b> · Probes (40 target items)</summary>
+<details><summary><b>L4 Research</b> · Probes (41 target items)</summary>
 
 #### Probes · research probes
 
-target 40 · prerequisite 0
+target 41 · prerequisite 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(informational)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(informational)_ · [expected.json](probes/expected.json)
@@ -430,6 +430,7 @@ target 40 · prerequisite 0
 - `fog-boundary-start` · Fog density table: of two quads at OFFSET + 0.25 and + 0.75 steps, how many are unfogged (GBATEK puts the first boundary at OFFSET + STEP: 2; melonDS starts raising the density at OFFSET) _(informational)_ · [expected.json](probes/expected.json)
 - `fog-shift-11` · FOG_SHIFT 11 (table step 0): bit 0 the quad before the offset is unfogged, bits 1 and 2 the quads after it are fully fogged (GBATEK: only the densities 0 and 31 apply) _(informational)_ · [expected.json](probes/expected.json)
 - `edge-screen-border` · Edge marking at the screen border: the pixels at x 0 and x 255 of a polygon that touches both, edge colour 1 (yellow) expected on both (GBATEK: "seem to be" marked from the rear-plane polygon ID) _(informational)_ · [expected.json](probes/expected.json)
+- `poly-right-edge-pixel` · The same full-width polygon without edge marking: does it cover the pixel at x 255 (1 = yes; GBATEK "Polygon Size": the right vertical edge may be left out) _(informational)_ · [expected.json](probes/expected.json)
 - `dot-queued-cutoff` · A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn _(informational)_ · [expected.json](probes/expected.json)
 - `aa-line-pixels` · Pixels of an anti-aliased 1-pixel line, x 32..224: opaque | translucent (alpha 30) << 16 (GBATEK gives no count) _(informational)_ · [expected.json](probes/expected.json)
 - `zeq-step-boundary` · Depth Equal one step (raw z 3 and 5 against a base at 4) from the base: pixels drawn at -1 | +1 << 16, of 1024 each (the +-200h window: is the boundary inside?) _(informational)_ · [expected.json](probes/expected.json)

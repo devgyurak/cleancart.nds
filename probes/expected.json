@@ -609,6 +609,20 @@
    "level_basis": "none"
   },
   {
+   "id": "poly-right-edge-pixel",
+   "demo": "l4-3d-fog-dot",
+   "title": "The same full-width polygon without edge marking: does it cover the pixel at x 255 (1 = yes; GBATEK \"Polygon Size\": the right vertical edge may be left out)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
    "id": "dot-queued-cutoff",
    "demo": "l4-3d-fog-dot",
    "title": "A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn",
@@ -707,7 +721,7 @@
      1
     ],
     "edge-screen-border": [
-     671089663
+     67044351
     ],
     "fog-boundary-start": [
      2
@@ -774,6 +788,9 @@
     ],
     "zeq-step-boundary": [
      67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -832,7 +849,7 @@
      0
     ],
     "edge-screen-border": [
-     671099210
+     692726090
     ],
     "fog-boundary-start": [
      2
@@ -899,6 +916,9 @@
     ],
     "zeq-step-boundary": [
      1024
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -957,7 +977,7 @@
      1
     ],
     "edge-screen-border": [
-     671089663
+     67044351
     ],
     "fog-boundary-start": [
      2
@@ -1024,6 +1044,9 @@
     ],
     "zeq-step-boundary": [
      67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1082,7 +1105,7 @@
      1
     ],
     "edge-screen-border": [
-     671089663
+     67044351
     ],
     "fog-boundary-start": [
      2
@@ -1149,6 +1172,9 @@
     ],
     "zeq-step-boundary": [
      67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1207,7 +1233,7 @@
      0
     ],
     "edge-screen-border": [
-     671099210
+     692726090
     ],
     "fog-boundary-start": [
      2
@@ -1274,6 +1300,9 @@
     ],
     "zeq-step-boundary": [
      1024
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1332,7 +1361,7 @@
      1
     ],
     "edge-screen-border": [
-     671089663
+     67044351
     ],
     "fog-boundary-start": [
      2
@@ -1399,6 +1428,9 @@
     ],
     "zeq-step-boundary": [
      67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1524,6 +1556,9 @@
     ],
     "zeq-step-boundary": [
      0
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   }
