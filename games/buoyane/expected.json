@@ -640,18 +640,18 @@
     },
     {
       "id": "wire-texture-alpha",
-      "title": "GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it without blending",
+      "title": "GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it opaque: white wire pixels, none blended",
       "boots": [
         "rehearsal",
         "qa",
         "check-blend"
       ],
       "values": [
-        15
+        21
       ],
-      "check": "mask",
-      "mask": 4,
-      "expect": 0,
+      "check": "range",
+      "min": 1,
+      "max": 65535,
       "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
@@ -993,7 +993,8 @@
         "decal-alpha0-vertex",
         "pre-dot-near-far",
         "pre-edge-marks",
-        "zeq-slope-band-width"
+        "zeq-slope-band-width",
+        "wire-texture-alpha"
       ],
       "na": []
     },
@@ -1021,7 +1022,8 @@
         "pre-dot-near-far",
         "pre-dot-bit13",
         "pre-edge-marks",
-        "zeq-slope-band-width"
+        "zeq-slope-band-width",
+        "wire-texture-alpha"
       ],
       "na": []
     },

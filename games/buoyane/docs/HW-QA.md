@@ -2,6 +2,8 @@
 
 [한국어](HW-QA-KO.md)
 
+**Run 2 (2026-11-20, v0.1.1, console clock 2026-01-18 08:46):** every judged item OK (QA block L1 11/11, L2 20/20; the five check blocks OK), checkpoints equal run 1 and melonDS 1.1 software, and the values of run 1 repeat. The new `values[21]` reads 170 white wire pixels and none blended: the console draws the A5I3 wireframe opaque. See "Run 2" at the end of this page.
+
 **Run 1 (2026-11-20, console clock 2026-01-18 07:42) on a DS Lite + R4 Plus (Wood):** the QA run reaches `RESULT PASS` and every checkpoint hash equals melonDS 1.1 software
 (`compare.py`: 0 differences). The QA block grades **L1 11/11, L2 18/22 OK, 4 gating NG** and 1 informational NG. The four NG items were findings about our expected values, not
 emulator profiles; `expected.json` was changed afterwards (see "Expected values from the run" below). The console agrees with GBATEK on `aa-opaque-dot-hidden`, `edge-aa-translucent`,
@@ -67,3 +69,18 @@ One run only; this record changed no expected value. The next section says what 
 Follow-ups: the ROM change (diagnostics, no judged bit or state hash changed) adds `values[21]` (white | blended pixels over the wire quad) and fixes the stale step wording of `zeq-tolerance-flat` (steps -2 and +2) and the band comment in `lightcheck.c`; then Buoyane v0.1.1 and hardware run 2.
 Run 2 is to read `values[21]` (white 0 = "not drawn", above 0 with `values[15]` bit 2 clear = "drawn opaque"; melonDS software and Compute read 170 white, GL Classic and DeSmuME 0), and to see whether 109 / 159 (`values[10]`, `[11]`), the decal holes 960 (`values[18]`) and the +-1 step planes 0 (`values[13]`) repeat.
 Only after that do the probe items for the band position, the decal holes and the fog alpha glitch go to `probes/`, with the repeated values as the hardware observation (source "Buoyane hw run").
+
+## Run 2: QA run and judge suite with v0.1.1, 2026-11-20 (console clock 2026-01-18 08:46)
+
+| Field | Value |
+|---|---|
+| ROM | release `buoyane-hw-support.nds` v0.1.1, SHA-256 `6f77608124b8e964718f189ac6a775ca7109534d4a0ac5d618d1215133e369c3` (the copy on the card hashes the same), build `3dd5ac721c8a` |
+| `ingest.py` / `judge.py --hardware` (expected values of #217) | QA log PASS, 112 lines, 7 checkpoints, `start=marker`. QA block L1 11/11, L2 20/20 OK; `check-dot`, `-fog`, `-edge`, `-depth`, `-blend` all OK. **NG 0** |
+| Checkpoints | ch1-ch5, judge and credits equal run 1 and melonDS 1.1 software (`compare.py`, 0 differences) |
+| Suite | as run 1: QA block and the five demos `saved=1`, `suite end demos=5 saved=5`, 12 probe steps `ok=1` up to `wait60`, no `suite done` line |
+| Difference from run 1 (every block, word by word) | only the new `values[21]` (`0xaa`) and the lag total. `values[10]`, `[11]` = 109, 159 (width 50), `[13]` = 0, `[18]` = 960, `[14]` = `0xc000be` again |
+
+`values[21]` = 170 white wire pixels | 0 blended << 16: the wireframe with the A5I3 texture (alpha 15) **is drawn, opaque**, as in melonDS software and Compute (170 | 0). GL Classic and DeSmuME read 0: they do not draw it at all.
+`wire-texture-alpha` now judges this word (range 1..65535: at least one white pixel, none blended) instead of `values[15]` bit 2, which could not tell "drawn opaque" from "not drawn"; GL Classic and DeSmuME fail it and join `ng`.
+Run 1 ran v0.1.0, which has no `values[21]`: graded with the current `expected.json` its blocks fail this item (0).
+The Equal band position, the decal holes and the one-step planes repeated, so they can go to `probes/` with these values as the hardware observation.

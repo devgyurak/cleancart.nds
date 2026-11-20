@@ -2,6 +2,8 @@
 
 [English](HW-QA.md)
 
+**실행 2(2026-11-20, v0.1.1, 본체 시계 2026-01-18 08:46):** 판정 항목 모두 OK(QA 블록 L1 11/11, L2 20/20, check 블록 다섯 개 OK)이고, 체크포인트는 실행 1 및 melonDS 1.1 소프트웨어와 같으며, 실행 1의 값이 그대로 반복됩니다. 새 `values[21]`은 흰 와이어 픽셀 170, 블렌딩 픽셀 0: 콘솔은 A5I3 와이어프레임을 불투명하게 그립니다. 이 문서 끝의 "실행 2" 참고.
+
 **실행 1(2026-11-20, 본체 시계 2026-01-18 07:42), DS Lite + R4 Plus(Wood):** QA 실행은 `RESULT PASS`에 닿고 모든 체크포인트 해시가 melonDS 1.1 소프트웨어와 같습니다
 (`compare.py`: 차이 0). QA 블록 판정은 **L1 11/11, L2 18/22 OK, 판정 NG 4개**, 참고용 NG 1개입니다. NG 4개는 에뮬레이터 프로필이 아니라 우리 기대값에 대한 발견이며
 나중에 `expected.json`을 바꿨습니다(아래 "실행에서 나온 기대값"). 에뮬레이터끼리 갈리던 `aa-opaque-dot-hidden`, `edge-aa-translucent`, `aa-marked-line-complete`,
@@ -66,3 +68,18 @@
 후속 작업: ROM 변경(진단용, 판정 비트와 상태 해시는 그대로)이 `values[21]`(와이어 사각형의 흰 | 블렌딩 픽셀 수)을 더하고, `zeq-tolerance-flat`의 낡은 단계 표기(단계 -2와 +2)와 `lightcheck.c`의 띠 주석을 고칩니다. 그다음 Buoyane v0.1.1과 실기 2차입니다.
 실기 2차에서는 `values[21]`(흰 픽셀 0 = "안 그림", 0보다 크고 `values[15]` 비트 2가 0 = "불투명하게 그림". melonDS 소프트웨어·Compute는 흰 픽셀 170, GL Classic·DeSmuME는 0)을 읽고, 109 / 159(`values[10]`, `[11]`), 데칼 구멍 960(`values[18]`), ±1단계 평면 0(`values[13]`)이 반복되는지 봅니다.
 그 뒤에야 띠 위치, 데칼 구멍, fog alpha 글리치의 probe 항목을 `probes/`에 추가하고, 반복된 값을 실기 관측으로 남깁니다(출처 "Buoyane hw run").
+
+## 실행 2: v0.1.1로 한 QA 실행과 판정 스위트, 2026-11-20 (본체 시계 2026-01-18 08:46)
+
+| 항목 | 값 |
+|---|---|
+| ROM | 릴리스 `buoyane-hw-support.nds` v0.1.1, SHA-256 `6f77608124b8e964718f189ac6a775ca7109534d4a0ac5d618d1215133e369c3`(카드의 복사본도 같음), build `3dd5ac721c8a` |
+| `ingest.py` / `judge.py --hardware`(#217의 기대값) | QA 로그 PASS, 112줄, 체크포인트 7개, `start=marker`. QA 블록 L1 11/11, L2 20/20 OK. `check-dot`, `-fog`, `-edge`, `-depth`, `-blend` 모두 OK. **NG 0** |
+| 체크포인트 | ch1-ch5, judge, credits가 실행 1 및 melonDS 1.1 소프트웨어와 같음(`compare.py`, 차이 0) |
+| 스위트 | 실행 1과 같음: QA 블록과 데모 다섯 개 `saved=1`, `suite end demos=5 saved=5`, probe 12단계가 `wait60`까지 `ok=1`, `suite done` 줄 없음 |
+| 실행 1과의 차이(모든 블록, 워드 단위) | 새 `values[21]`(`0xaa`)과 랙 합계뿐. `values[10]`, `[11]` = 109, 159(폭 50), `[13]` = 0, `[18]` = 960, `[14]` = `0xc000be` 그대로 |
+
+`values[21]` = 흰 와이어 픽셀 170 | 블렌딩 픽셀 0 << 16: A5I3 텍스처(알파 15) 와이어프레임은 **그려지고, 불투명**합니다. melonDS 소프트웨어·Compute(170 | 0)와 같습니다. GL Classic과 DeSmuME는 0으로, 아예 그리지 않습니다.
+`wire-texture-alpha`는 이제 `values[15]` 비트 2 대신 이 워드를 판정합니다(범위 1..65535: 흰 픽셀이 하나 이상, 블렌딩 픽셀 없음). 비트 2로는 "불투명하게 그림"과 "안 그림"을 구분하지 못했습니다. GL Classic과 DeSmuME는 이 항목에서 NG가 되어 `ng`에 들어갑니다.
+실행 1은 `values[21]`이 없는 v0.1.0이라, 지금 `expected.json`으로 채점하면 이 항목이 NG(0)입니다.
+Equal 띠 위치, 데칼 구멍, 한 단계 평면이 반복됐으므로 이 값들을 실기 관측으로 삼아 `probes/`로 옮길 수 있습니다.
