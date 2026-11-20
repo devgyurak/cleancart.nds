@@ -226,7 +226,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS Inter Process Communication",
+      "level_basis": "gbatek:DS Inter Process Communication; hw:games/ledgerine/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 0,
@@ -263,7 +263,7 @@
     },
     {
       "id": "ipc-empty-cleared",
-      "title": "An empty read after the remote side cleared its send FIFO returns 0",
+      "title": "An empty read after the remote side cleared its send FIFO does not return 0 (GBATEK says 0; a DS Lite returns a non-zero word)",
       "boots": [
         "rehearsal",
         "qa"
@@ -276,13 +276,13 @@
         2
       ],
       "check": "mask",
-      "mask": 8,
-      "expect": 8,
+      "mask": 12,
+      "expect": 4,
       "tolerance": 0,
-      "source": "GBATEK",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS Inter Process Communication",
+      "level_basis": "gbatek:DS Inter Process Communication; hw:games/ledgerine/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 0,
@@ -590,7 +590,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS DMA Transfers",
+      "level_basis": "gbatek:DS DMA Transfers; hw:games/ledgerine/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 0,
@@ -870,7 +870,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:BIOS Memory Copy",
+      "level_basis": "gbatek:BIOS Memory Copy; hw:games/ledgerine/docs/HW-QA.md",
       "model": null,
       "done": {
         "value": 0,
@@ -1177,7 +1177,8 @@
       "ng": [
         "ipc-empty-last",
         "dma-itcm-runs",
-        "bios-arm7-guard"
+        "bios-arm7-guard",
+        "ipc-empty-cleared"
       ],
       "na": []
     },
@@ -1186,7 +1187,8 @@
       "ng": [
         "ipc-empty-last",
         "dma-itcm-runs",
-        "bios-arm7-guard"
+        "bios-arm7-guard",
+        "ipc-empty-cleared"
       ],
       "na": []
     },
@@ -1195,7 +1197,8 @@
       "ng": [
         "ipc-empty-last",
         "dma-itcm-runs",
-        "bios-arm7-guard"
+        "bios-arm7-guard",
+        "ipc-empty-cleared"
       ],
       "na": []
     },
@@ -1208,7 +1211,8 @@
         "timer-reload-deferred",
         "dma-regs-unchanged",
         "dma-itcm-runs",
-        "bios-arm7-guard"
+        "bios-arm7-guard",
+        "ipc-empty-cleared"
       ],
       "na": []
     }

@@ -12,9 +12,9 @@ melonDS 1.1 점검표입니다 (macOS 키는 저장소 `AGENTS.md`).
 | 리듬 피날레 | 틱 여덟 개가 선으로 떨어지고 박자에 A(±6프레임), HITS n / 8, 목록으로 | headless 실행만 (QA 파일럿이 정확한 프레임에 누름) |
 | 벤치 장부 | 벤치 전체를 한 번 돌리고("RUNNING THE BENCH...", 약 1초) 잰 비용을 책 값 옆에 모두 나열, 판정 창 안이면 초록 밖이면 빨강; 아래 화면에 장별 봉인; B로 뒤로 | ✅ melonDS 1.1 software (스크린샷 확인: 세 장 금색, 큰길과 음관은 아님) |
 | 크레딧 | 스크롤 크레딧, X는 라이선스 뷰어 | 아직 확인 안 함 |
-| rehearsal demo | `pendulane-rehearsal.nds`는 바로 벤치로 부팅; 결과 블록 id `0x48524450` (`PDRH`); README의 방법대로 `judge.py --profile`로 채점 | ✅ 2026-11-17: 프로파일 4개 모두 측정, 각각 `judge.py --profile` MATCH. melonDS 1.1(모든 렌더러): 판정 target 15개 중 11개 OK (카트 gap 둘 다 통과: 1280과 2047). NG: `mem7-main-nonseq`(GBATEK의 N32 10사이클이면 576인데 384), `snd-pcm-busy`·`snd-adpcm-busy`(19와 43: Busy가 마지막 샘플의 끝에서 꺼져 GBATEK보다 1 늦음), `snd-hold-restart`(7: 붙잡힌 옛 값 없이 0 샘플 7개); 시작 차이 두 개는 GBATEK의 2와 8 그대로. DeSmuME py-desmume 0.0.9: 15개 중 7개 OK; NG는 같은 사운드 항목과 `snd-onset-pcm-psg`(6: PSG가 캡처 첫 샘플부터 들림), `spi-512k-minus-4m`, 카트 gap 둘 다(전송이 바로 끝나 엣지 0), `mem7-main-nonseq`(64); `mem7-main-seq`·`mem7-vram-seq`는 1024. 수학 차이 DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0. melonDS SPI 엣지 59 / 122 / 250 / 508. 실기 값은 아직 없음 |
+| rehearsal demo | `pendulane-rehearsal.nds`는 바로 벤치로 부팅; 결과 블록 id `0x48524450` (`PDRH`); README의 방법대로 `judge.py --profile`로 채점 | ✅ 2026-11-17: 프로파일 4개 모두 측정, 각각 `judge.py --profile` MATCH. melonDS 1.1(모든 렌더러): 판정 target 15개 중 11개 OK (카트 gap 둘 다 통과: 1280과 2047). NG: `mem7-code-main-seq`(콘솔은 142인데 128), `snd-pcm-busy`·`snd-adpcm-busy`(19와 43: Busy가 마지막 샘플의 끝에서 꺼져 GBATEK보다 1 늦음), `snd-hold-restart`(7: 붙잡힌 옛 값 없이 0 샘플 7개); 시작 차이 두 개는 GBATEK의 2와 8 그대로. DeSmuME py-desmume 0.0.9: 15개 중 6개 OK; NG는 같은 사운드 항목과 `snd-onset-pcm-psg`(6: PSG가 캡처 첫 샘플부터 들림), `spi-512k-minus-4m`, 카트 gap 둘 다(전송이 바로 끝나 엣지 0), `mem7-main-nonseq`(64. 콘솔과 melonDS는 383과 384), `mem7-code-main-seq`(128); `mem7-main-seq`·`mem7-vram-seq`는 1024. 수학 차이 DeSmuME 10 / 32 / 0, melonDS 9 / 32 / 0. melonDS SPI 엣지 59 / 122 / 250 / 508. 실기: [HW-QA-KO.md](HW-QA-KO.md) 참고(`mem7-main-nonseq` 383, `mem7-code-main-seq` 142) |
 
-실기: 아직 돌리지 않았습니다. [HW-QA-KO.md](HW-QA-KO.md) 참고.
+실기: 2026-11-17 DS Lite + R4 실행 1·2, [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 자동 QA 실행
 

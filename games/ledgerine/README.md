@@ -26,8 +26,8 @@ state after a transfer, ITCM code during DMA), WRAM and VRAM control (half swaps
 bank offsets) and BIOS (CpuFastSet, LZ77, BitUnPack, RLUnComp, the ARM7 CpuSet guard).
 
 **Status.** All six rooms (31 ledger lines) are playable: the press, the tube, the clock wall, the belt, the vault and the
-rule book, the rehearsal and its judge (29 target items, 4 prerequisites) and the hidden auto QA run. Nothing has been
-measured on real hardware; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
+rule book, the rehearsal and its judge (29 target items, 4 prerequisites) and the hidden auto QA run. On real hardware
+(run 1 on a DS Lite (2026-11-17), see [docs/HW-QA.md](docs/HW-QA.md)) one gating item differs and is under review; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
 not been reviewed. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)

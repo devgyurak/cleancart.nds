@@ -23,9 +23,8 @@ emulators can use it as a regression test (see [Using it as an emulator test](#u
 **Status.** All five chapters (40 puzzles), a 2D grid mode, a showcase mode, the rehearsal and
 its judge, the credits with the licence viewer and a hidden auto QA run that plays the whole
 game are done and run headless in DeSmuME and melonDS (software, GL and compute renderers).
-**Nothing has been measured on real hardware yet**: items whose expected value does not come
-from the documentation (GBATEK) or the ROM's own logic stay informational until hardware
-values arrive. Hands-on feel in a desktop emulator has not been
+**Measured on real hardware**: on a DS Lite (R4 card) the QA run and its judge suite judged all 20 items OK,
+including the HBlank-DMA holes items, with every checkpoint equal to melonDS ([docs/HW-QA.md](docs/HW-QA.md)). Hands-on feel in a desktop emulator has not been
 reviewed. Progress and stars are not saved yet.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+
+chapter 4 HEADLANDS
+
+approach "First Headland"
+gate 1 4 4 3 5
+gate 1 2 1 2 3
+gate 1 2 0 1 2
+
+approach "Crook and Stack"
+gate 0 0 1 0 4
+gate 1 3 3 2 4
+gate 1 5 5 3 2
+
+approach "Ox Point Gate"
+gate 0 3 3 5 2
+gate 1 0 4 0 3
+gate 0 4 2 4 0
+
+approach "Rime Cape"
+gate 1 0 1 3 0
+gate 1 0 0 1 3
+gate 0 4 0 4 2
+
+approach "Nettle Ness"
+gate 0 4 4 3 5
+gate 1 5 2 5 4
+gate 0 2 2 0 3
+
+approach "Double Brow"
+gate 1 2 2 3 5
+gate 0 3 5 1 3
+gate 0 5 5 3 4

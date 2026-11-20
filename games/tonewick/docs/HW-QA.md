@@ -6,7 +6,9 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-tonewick-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-Nothing in Tonewick has been measured on a console yet. This is the checklist for the run, so the first values can be
+**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The one gating NG item (`snd-short-silent`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs").
+
+Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be
 recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is operated
 by a person; the steps below are what to do and what to write down.
 
@@ -56,8 +58,8 @@ firmware byte 1Dh in `values[27]`).
 
 | Outcome | What it means | What changes (file, in the PR that records the run) |
 |---|---|---|
-| The value is in the range every time | GBATEK and the ROM are right | `expected.json`: `source` becomes `hw:ds-lite` (the model) and `level_basis` gets `; hw:docs/HW-QA.md` (the file that records the run); the item stays level 2 |
-| The value differs from the range, but is the same every run and has an explanation (the bug as another source describes it, a register mirror, the loader) | the expectation was wrong, the item is documented | `expected.json`: range or `expect` changed to the measured value, `source` `hw:ds-lite`, `level_basis` `hw:docs/HW-QA.md`, the explanation in `title`; the item stays level 2; the lines' model in the district file follows (`junction.c` lines 10 and 11 use the GBATEK bug as their model) |
+| The value is in the range every time | GBATEK and the ROM are right | `expected.json`: `source` becomes `hw:dslite-ntr` (the model) and `level_basis` gets `; hw:games/tonewick/docs/HW-QA.md` (the file that records the run); the item stays level 2 |
+| The value differs from the range, but is the same every run and has an explanation (the bug as another source describes it, a register mirror, the loader) | the expectation was wrong, the item is documented | `expected.json`: range or `expect` changed to the measured value, `source` `hw:dslite-ntr`, `level_basis` `hw:games/tonewick/docs/HW-QA.md`, the explanation in `title`; the item stays level 2; the lines' model in the district file follows (`junction.c` lines 10 and 11 use the GBATEK bug as their model) |
 | The value differs between runs or between consoles, or nobody can explain it | not a documented behaviour: level 4 research | **One PR does all of it** (a `role: relocate` item fails `mklevels.py --check`, so it is never committed): the item leaves `expected.json`, a demo ROM with the experiment goes into `probes/` (its `known` profiles per emulator, see `probes/AGENTS.md`), the district audit may keep the number as a raw value, lines 10 and 11 keep working (their model is the GBATEK bug and the ear's answer is shown beside it), the profiles drop the item from `ng`, and `mklevels.py` regenerates the LEVELS and README cells |
 
 Whoever records the run (the maintainer, with a console and the QA checklist above) opens the PR; the profile `hw-ds-lite`
@@ -66,7 +68,48 @@ lists the items that fail on the console.
 ## Recording
 
 - `docs/QA.md` and `docs/QA-KO.md` (twins): ROM SHA-256s, console and card, the failing items, the QA log header.
-- `expected.json`: for every item whose hardware value matches the ROM's expectation change `source` to `hw:ds-lite` and add
+- `expected.json`: for every item whose hardware value matches the ROM's expectation change `source` to `hw:dslite-ntr` and add
   `hw:` to `level_basis`. If the hardware disagrees the item is a finding: record the value and decide whether the ROM or the
   expectation is wrong. Add a profile `hw-ds-lite` (the failing items) to `known`.
 - Never commit anything under `build/qa/`.
+
+## Run 1: QA run and judge suite, 2026-11-17
+
+| Field | Value |
+|---|---|
+| Date, console, card, R4 kernel | 2026-11-17, DS Lite (NTR), "R4 Plus" dual core card, Wood R4 kernel (`__rpg/`, `_DS_MENU.DAT`). The console clock is not set, so the files say 2002-01-15 |
+| ROM SHA-256 | `tonewick-hw-support.nds` v0.2.1 `a2320df3274725c46c47fb125708b207c086d3f6a7034a1284e2f822d5a16c3d` (453,996 bytes, same as the release); melonDS 1.1 soft was run with the same file |
+| `ingest.py` / `judge.py --hardware` summary | QA log PASS, 21 lines, 4 checkpoints, build `91e6e87fe1c6`, started with `start=marker`. Suite: QA block only (`suite block block=qa saved=1`; no suite demos, so no `suite end` line by design). Judge: L1 9/9, L2 13/14 (**1 gating NG: `snd-short-silent`**); n/a 4: `rtc-ampm-24h` (morning, the console clock is unset) and `save-wel-set/-reset`, `save-status-fixed` (env: no chip access on the R4) |
+| QA log header (`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| First checkpoint that differs from melonDS | None: dist1-dist4 hashes equal melonDS 1.1 soft (`compare.py`, 0 differences) |
+| Lag frames | 39 / 78 / 73 / 54 (dist1-dist4); melonDS soft 34 / 67 / 62 / 45 |
+| 3D flags (`gx=` `rdl=`) per checkpoint | `uf0,of0` everywhere; `rdl=63` on the console (no 3D), melonDS 46 |
+
+| Item | Hardware | melonDS 1.1 soft | Differs? |
+|---|---|---|---|
+| `snd-short-silent` (L2, GBATEK, want 0..2) | **16384** (NG) | 0 | yes: the looped short sample is not silent on the console; the expectation was wrong, now 16320..16448, source `hw:dslite-ntr` (see below) |
+| `snd-hold-level` | 100 (OK) | 0 (NG, profile) | the melonDS profile NG is a real emulator difference |
+| `cap-add-wrap` / `cap-both-negative` / `cap-src-channel` | 24576 / 0 / 40960 (OK) | 65535 / 16384 / 49152 (NG, profile) | as above |
+| `pm-reg-mirror` | 1 (OK) | 0 (NG, profile) | as above |
+| `snd-duty3-edges` | 128 | 127 | both OK |
+| `rtc-ampm-24h` | n/a (values[19] = 0) | OK 8/8 | needs an afternoon clock; OK 8/8 in run 2 |
+| the other judged items | as melonDS soft | | no |
+
+The NG item was left alone in the PR that recorded run 1; it is dealt with in "Expected values from the runs" below.
+
+## Run 2: QA run and judge suite, 2026-11-17 (console clock 2026-01-15 12:07)
+
+The same console, card and ROM as run 1 (`tonewick-hw-support.nds`, build `91e6e87fe1c6`), run again after noon by the console clock (2026-01-15, 12:07; the files say `res-20260115-*`, run 1 `res-20020115-*`). This is the afternoon run the checklist asks for.
+
+| Field | Value |
+|---|---|
+| `judge.py --hardware` | QA block: the same verdicts as run 1, plus `rtc-ampm-24h` graded OK (`values[19]` = 8, all 8 raw reads consistent); `snd-short-silent` 16384 again (NG before the expected values were changed). n/a 3 (env: `save-wel-set`, `save-wel-reset`, `save-status-fixed`; no chip access on the R4) |
+| Difference from run 1 | only `values[19]` (0 -> 8). Every other word of the block is equal, including the 16384 |
+
+## Expected values from the runs
+
+| Item | Change | Why |
+|---|---|---|
+| `snd-short-silent` | range `16320..16448`, source `hw:dslite-ntr`; title: a looped 3-word sample keeps the tape level on the console (GBATEK's "no sound" is not a zero level) | both runs read 16384 (the captured peak) where GBATEK's "no sound" suggested at most 2; The value is the same in both runs. melonDS reads 0, DeSmuME 16384 |
+| `cap-add-wrap`, `cap-both-negative`, `cap-src-channel`, `snd-hold-level`, `pm-reg-mirror`, `rtc-ampm-24h` | `level_basis` gets `hw:games/tonewick/docs/HW-QA.md` | the console agrees with GBATEK (the two capture bugs exist); `rtc-ampm-24h` is confirmed by run 2 (afternoon) |
+| Profiles | `snd-short-silent` is in `ng` of the three melonDS profiles and `-save-chip`; DeSmuME drops it (it reads 16384 now) | melonDS keeps the looped 3-word sample silent |

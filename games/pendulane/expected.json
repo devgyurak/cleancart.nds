@@ -53,7 +53,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Maths"
+      "level_basis": "gbatek:DS Maths; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "math-div64-vs-div32",
@@ -76,7 +76,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Maths"
+      "level_basis": "gbatek:DS Maths; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "math-div6464-eq-div6432",
@@ -99,7 +99,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Maths"
+      "level_basis": "gbatek:DS Maths; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "cart-gap1-clk5",
@@ -180,7 +180,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Sound Notes"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "snd-adpcm-busy",
@@ -205,7 +205,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Sound Notes"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "snd-onset-pcm-psg",
@@ -230,7 +230,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Sound Notes"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "snd-onset-adpcm-pcm",
@@ -255,7 +255,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Sound Notes"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "snd-hold-restart",
@@ -280,7 +280,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Sound Notes"
+      "level_basis": "gbatek:DS Sound Notes; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "snd-rate-slope",
@@ -334,7 +334,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI); hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "mem7-main-seq",
@@ -361,11 +361,11 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Memory Timings"
+      "level_basis": "gbatek:DS Memory Timings; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "mem7-main-nonseq",
-      "title": "ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong",
+      "title": "ARM7 main RAM non-sequential 32-bit access: main RAM N32 effective 7 against WRAM 1: 6×64 = 384 (LDR from main RAM minus LDR from WRAM, 64 times; 376..392); GBATEK's table 10 is not the instruction cost",
       "boots": [
         "rehearsal",
         "qa"
@@ -378,21 +378,21 @@
         16
       ],
       "check": "range",
-      "min": 574,
-      "max": 578,
+      "min": 376,
+      "max": 392,
       "signed": true,
       "done": {
         "value": 0,
         "mask": 16
       },
-      "source": "GBATEK",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Memory Timings"
+      "level_basis": "gbatek:DS Memory Timings; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "mem7-code-main-seq",
-      "title": "ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128)",
+      "title": "ARM7 code fetched from main RAM sequentially: 128 nops minus 64 nops, about 14 cycles over 64 words more than GBATEK's 2 per word (64 x 2 = 128; measured 142, accepted 139..145); cause undocumented",
       "boots": [
         "rehearsal",
         "qa"
@@ -405,17 +405,17 @@
         17
       ],
       "check": "range",
-      "min": 126,
-      "max": 130,
+      "min": 139,
+      "max": 145,
       "signed": true,
       "done": {
         "value": 0,
         "mask": 16
       },
-      "source": "GBATEK",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Memory Timings"
+      "level_basis": "gbatek:DS Memory Timings; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "mem7-vram-seq",
@@ -442,7 +442,7 @@
       "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Memory Timings"
+      "level_basis": "gbatek:DS Memory Timings; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-div-results",
@@ -464,7 +464,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Maths"
+      "level_basis": "gbatek:DS Maths; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-timer-cascade",
@@ -486,7 +486,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Timers"
+      "level_basis": "gbatek:DS Timers; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-spi-busy",
@@ -508,7 +508,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI)"
+      "level_basis": "gbatek:DS Serial Peripheral Interface Bus (SPI); hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-capture-runs",
@@ -530,7 +530,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Sound Capture"
+      "level_basis": "gbatek:DS Sound Capture; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-oneshot-busy",
@@ -552,7 +552,7 @@
       "source": "GBATEK",
       "role": "prerequisite",
       "level": 1,
-      "level_basis": "gbatek:DS Sound Channels"
+      "level_basis": "gbatek:DS Sound Channels; hw:games/pendulane/docs/HW-QA.md"
     },
     {
       "id": "pre-cart-busy",
@@ -630,37 +630,38 @@
         "snd-hold-restart",
         "snd-onset-pcm-psg",
         "snd-pcm-busy",
-        "spi-512k-minus-4m"
+        "spi-512k-minus-4m",
+        "mem7-code-main-seq"
       ],
       "na": []
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
       "ng": [
-        "mem7-main-nonseq",
         "snd-pcm-busy",
         "snd-adpcm-busy",
-        "snd-hold-restart"
+        "snd-hold-restart",
+        "mem7-code-main-seq"
       ],
       "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
       "ng": [
-        "mem7-main-nonseq",
         "snd-pcm-busy",
         "snd-adpcm-busy",
-        "snd-hold-restart"
+        "snd-hold-restart",
+        "mem7-code-main-seq"
       ],
       "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
       "ng": [
-        "mem7-main-nonseq",
         "snd-pcm-busy",
         "snd-adpcm-busy",
-        "snd-hold-restart"
+        "snd-hold-restart",
+        "mem7-code-main-seq"
       ],
       "na": []
     }

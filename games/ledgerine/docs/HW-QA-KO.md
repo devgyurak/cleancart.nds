@@ -6,7 +6,9 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록과 `press-min`를 `res-*-ledgerine-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-Ledgerine은 아직 실기에서 아무것도 측정하지 않았습니다. 이 문서는 첫 측정을 기록하고, 에뮬레이터나 GBATEK 해석에만 근거를 둔 항목을
+**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 하나(`ipc-empty-cleared`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
+
+실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 첫 측정을 기록하고, 에뮬레이터나 GBATEK 해석에만 근거를 둔 항목을
 확정하기 위한 점검표입니다. 콘솔은 사람이 다루며, 아래는 할 일과 적어 둘 것입니다.
 
 **자동 경로(스킬 `nds-hw-qa`):** 카드에 빈 폴더 `cleancart/ledgerine/`를 만들어 두면 리허설과 `press-min` ROM이 결과 블록을 그곳에 씁니다
@@ -42,7 +44,49 @@ Ledgerine은 아직 실기에서 아무것도 측정하지 않았습니다. 이 
 ## 기록
 
 - `docs/QA.md`와 `docs/QA-KO.md`(쌍): ROM SHA-256, 콘솔과 카드, 실패한 항목, QA 로그 머리글.
-- `expected.json`: 실기 값이 ROM의 기대와 같은 항목은 `source`를 `hw:ds-lite`로 바꿉니다. 실기가 다르면 그 항목은 발견입니다. 값을 적고 ROM과
+- `expected.json`: 실기 값이 ROM의 기대와 같은 항목은 `source`를 `hw:dslite-ntr`로 바꿉니다. 실기가 다르면 그 항목은 발견입니다. 값을 적고 ROM과
   기대값 중 어느 쪽이 틀렸는지 정합니다(BIOS 항목은 BIOS에 따라서만 다를 수 있으니 콘솔의 BIOS를 적어 둡니다). 실패한 항목으로 프로필
   `hw-ds-lite`를 `known`에 추가합니다.
 - `build/qa/` 아래 것은 커밋하지 않습니다.
+
+## 실행 1: QA 실행과 판정 스위트, 2026-11-17
+
+| 항목 | 값 |
+|---|---|
+| 날짜, 콘솔, 카드, R4 커널 | 2026-11-17, DS Lite(NTR), "R4 Plus" 듀얼 코어 카드, Wood R4 커널(`__rpg/`, `_DS_MENU.DAT`). 본체 시계가 설정되지 않아 파일 날짜는 2002-01-15 |
+| ROM SHA-256 | `ledgerine-hw-support.nds` v0.2.1 `8e2fbdfad675ebfa14246c44d99eab59aa9eacf88c2d52d6fb9b2ca25c7de2dc`(455,020바이트, 릴리스와 같음). melonDS 1.1 soft도 같은 파일로 실행 |
+| `ingest.py` / `judge.py --hardware` 요약 | QA 로그 PASS, 27줄, 체크포인트 6개, build `8821063cd048`, `start=marker`로 시작. 스위트: QA 블록과 `press-min` 데모 `saved=1`. `suite end demos=1 saved=1`, probe 12개 모두 `ok=1`, `suite done` 줄 없음(참고 참조). 판정: QA 블록 L1 11/11, L2 28/29(**판정 NG 1: `ipc-empty-cleared`**). `press-min` L2 1/1. 41개 중 40개 OK, n/a 없음 |
+| QA 로그 헤더(`sd`, `fat_fail`, `dldi`, `save_detected`, `cart_ready`, `nitro`) | `sd=1 fat_fail=0 fat_pre=1 errno=0 drive=fat:/ dldi="R4(DS) - Revolution for DS (v2)" cart_ready=0 nitro=1`; `save_build=EEPROM save_detected=1 save_available=1` |
+| melonDS와 처음 갈리는 체크포인트 | room2(room1은 같음). room2-room6 해시가 melonDS 1.1 soft와 다름 |
+| 랙 프레임 | 3 / 11 / 54 / 63 / 13 / 2 (room1-room6). melonDS soft 0 / 10 / 53 / 62 / 11 / 1 |
+| 체크포인트별 3D 플래그(`gx=` `rdl=`) | 모두 `uf0,of0`. 콘솔은 `rdl=63`(이 게임은 3D를 쓰지 않음), melonDS는 46 |
+
+| 항목 | 실기 | melonDS 1.1 soft | 차이? |
+|---|---|---|---|
+| `ipc-empty-cleared` (L2, GBATEK, mask 0x8) | **0x0** (NG) | 0x8 | 있음. 기대값이 틀렸음: 이제 mask 0xC / expect 0x4, source `hw:dslite-ntr`(아래 참조) |
+| `ipc-empty-last` | 0x3 (OK) | 0x2 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
+| `bios-arm7-guard` | 0x10 (OK) | 0x0 (NG, 프로필) | 위와 같음 |
+| `dma-itcm-runs` | 0x20 (OK) | 0x0 (NG, 프로필) | 위와 같음 |
+| QA 블록 values[2], [4], [6], [30], [31] (판정 안 함) | 247, 63, 31, 590170, 590170 | 254, 31, 15, 589864, 884598 | 있음, 판정 안 함 |
+| 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+참고: 스위트는 이제 마지막 리셋 전에 `suite end`를 쓰고(#186) 그 줄은 카드에 있습니다. 리셋 뒤의 probe 12줄도 `wait60`까지 모두 있습니다. 실행의 마지막 쓰기인 `suite done` 줄만 빠졌습니다(melonDS는 씀). 따라서 줄을 잃게 만드는 것은 리셋이 아니라, 카드에 마지막으로 쓴 줄이 사라지는 것입니다. 아직 열려 있습니다.
+
+NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실행에서 정한 기대값"에서 다룹니다.
+
+## 실행 2: QA 실행과 판정 스위트, 2026-11-17 (본체 시계 2026-01-15 12:04)
+
+실행 1과 같은 콘솔·카드·ROM(`ledgerine-hw-support.nds`, build `8821063cd048`)으로 다시 돌렸습니다. 이번에는 본체 시계가 2026-01-15 12:04를 가리켜 파일 이름이 `res-20260115-*`입니다(실행 1: `res-20020115-*`).
+
+| 항목 | 값 |
+|---|---|
+| `judge.py --hardware` | QA 블록과 `press-min`: 실행 1과 같은 판정(기대값을 바꾸기 전: 판정 NG 1, `ipc-empty-cleared`, `values[2]` = 0xF7 그대로. 바꾼 뒤: 두 실행의 로그 4개 모두 QA 블록 40개 중 40개, `press-min` 1개 중 1개 OK, NG 0) |
+| 실행 1과의 차이 | 판정 값은 같음. 판정하지 않는 값: `values[19]`, `[20]` 58437 -> 58438, `[21]` 16397 -> 16398, 랙 프레임 합 146 -> 145. `press-min` 블록 프레임 1382 -> 1383 |
+
+## 실행에서 정한 기대값
+
+| 항목 | 변경 | 이유 |
+|---|---|---|
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 이 실행들에서는 그 읽기의 원시 워드를 기록하지 않았고 0이 아니라는 것만 압니다. v0.2.2부터는 `values[44]`(그 직후의 IPCFIFOCNT는 `values[45]`)에 기록하며, 다음 실행에서 읽습니다. melonDS 1.1 soft와 DeSmuME는 둘 다 `values[44]` = 0, `values[45]` = 0xC101(수신 FIFO 비어 있음, 오류 비트 켜짐)을 읽습니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
+| `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis`에 `hw:games/ledgerine/docs/HW-QA.md` 추가 | 콘솔은 GBATEK과 같고, melonDS(와 DeSmuME)는 다름 |
+| 프로필 | `ipc-empty-cleared`를 네 프로필(melonDS soft / GL classic / GL compute, DeSmuME) 모두 `ng`에 추가 | 에뮬레이터는 모두 0을 돌려주고 콘솔은 아님 |

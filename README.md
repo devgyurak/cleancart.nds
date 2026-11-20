@@ -49,6 +49,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick title screen"> | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [QA checklist](games/tonewick/docs/QA.md) · [Hardware QA](games/tonewick/docs/HW-QA.md) · [Assets](games/tonewick/ASSETS.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 | [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 8<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
+| [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 23 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -249,7 +250,35 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Ledgerine, Lightenette, Tonewick (66 target items)</summary>
+<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Tonewick (89 target items)</summary>
+
+#### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
+
+target 23 · prerequisite 11
+
+- `dot-mixed-w-first-colour` · A 1-dot polygon with vertices on both sides of DISP_1DOT_DEPTH is drawn, in the colour of its first vertex (forward order red, reverse order green) · [expected.json](games/buoyane/expected.json)
+- `dot-only-zero-size` · A far 1x0 polygon is drawn; a 0x0 polygon at the same distance is hidden · [expected.json](games/buoyane/expected.json)
+- `dot-depth-extremes` · DISP_1DOT_DEPTH 0 hides a W 1 dot; 7FFF shows dots at W 1, 64 and 1000 · [expected.json](games/buoyane/expected.json)
+- `aa-translucent-dot-kept` · With anti-aliasing on, a translucent (alpha 30) 1-dot polygon is still drawn · [expected.json](games/buoyane/expected.json)
+- `aa-opaque-dot-hidden` · With anti-aliasing on, an opaque 1-dot polygon is hidden (the same dot is drawn without it) · [expected.json](games/buoyane/expected.json)
+- `fog-alpha-glitch` · A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog _(informational)_ · [expected.json](games/buoyane/expected.json)
+- `fog-translucent-and` · Fog on a translucent pixel needs both the polygon fog bit and the fog flag of the pixel behind it (case without: no fog; case with: fog) · [expected.json](games/buoyane/expected.json)
+- `fog-rear-plane-bit` · CLEAR_COLOR bit 15 set: the rear plane is fogged; clear: it is not · [expected.json](games/buoyane/expected.json)
+- `edge-front-only` · Edge marking colours only the edge of the polygon in front (the one with the smaller depth) · [expected.json](games/buoyane/expected.json)
+- `edge-aa-translucent` · With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative) · [expected.json](games/buoyane/expected.json)
+- `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels · [expected.json](games/buoyane/expected.json)
+- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
+- `zeq-slope-band-left` · Equal band on a sloping face: left x (101..107) · [expected.json](games/buoyane/expected.json)
+- `zeq-slope-band-right` · Equal band on a sloping face: right x (149..155) · [expected.json](games/buoyane/expected.json)
+- `zeq-decal-whole` · A decal on a sloping base has no holes · [expected.json](games/buoyane/expected.json)
+- `zeq-no-base-empty` · An Equal polygon with no base polygon draws nothing · [expected.json](games/buoyane/expected.json)
+- `far-plane-hide` · POLYGON_ATTR bit 12 clear hides a polygon that reaches past the far plane; set draws it clipped · [expected.json](games/buoyane/expected.json)
+- `attr-latch-begin` · POLYGON_ATTR sent between Begin and End has no effect until the next Begin · [expected.json](games/buoyane/expected.json)
+- `alpha-test-max-hides` · ALPHA_TEST_REF 1F hides an opaque (alpha 31) polygon · [expected.json](games/buoyane/expected.json)
+- `highlight-clamp` · Highlight shading saturates at 63 (Rt 63 + Rs 33): the captured colour is white, not wrapped · [expected.json](games/buoyane/expected.json)
+- `decal-alpha0-vertex` · A decal texel with alpha 0 shows the vertex colour · [expected.json](games/buoyane/expected.json)
+- `wire-texture-alpha` · A wireframe with an A5I3 texture (alpha 15) is blended, not opaque · [expected.json](games/buoyane/expected.json)
+- `blend-bypass-clear-alpha0` · A translucent polygon over a rear plane of alpha 0 keeps its own colour (no blend) · [expected.json](games/buoyane/expected.json)
 
 #### Ledgerine · system edges
 
@@ -263,7 +292,7 @@ target 30 · prerequisite 11
 - `math-sqrt-edges` · SQRT(2^64-1) = FFFFFFFFh in 64-bit mode; mode 0 ignores the upper half of PARAM · [expected.json](games/ledgerine/expected.json)
 - `ipc-empty-last` · An empty FIFO read returns the last word received and sets the error bit · [expected.json](games/ledgerine/expected.json)
 - `ipc-error-ack` · Writing 1 to IPCFIFOCNT bit 14 clears the error · [expected.json](games/ledgerine/expected.json)
-- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO returns 0 · [expected.json](games/ledgerine/expected.json)
+- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO does not return 0 (GBATEK says 0; a DS Lite returns a non-zero word) · [expected.json](games/ledgerine/expected.json)
 - `ipc-send-full` · The send FIFO is full after 16 words; the 17th write sets the error and is dropped (the other CPU counts 16) · [expected.json](games/ledgerine/expected.json)
 - `ipc-disabled` · FIFO disabled: a write is ignored without error, reads show the oldest word without taking it · [expected.json](games/ledgerine/expected.json)
 - `ipc-irq-edge` · The receive IRQ is edge-triggered: enabling it with a word waiting raises IF bit 18 once, the acknowledge sticks · [expected.json](games/ledgerine/expected.json)
@@ -318,7 +347,7 @@ target 17 · prerequisite 10
 - `snd-voldiv16` · Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170) · [expected.json](games/tonewick/expected.json)
 - `snd-vol127-full` · Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005) · [expected.json](games/tonewick/expected.json)
 - `snd-short-busy` · A one-shot channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set after the sound should have ended (a 4-word one-shot clears it) · [expected.json](games/tonewick/expected.json)
-- `snd-short-silent` · ... and, looped, makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
+- `snd-short-silent` · ... and, looped, a 3-word sample keeps the tape level on the console (GBATEK's "no sound" is not a zero level; the captured peak is 16384, accepted 16320..16448) · [expected.json](games/tonewick/expected.json)
 - `snd-hold-level` · With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level) · [expected.json](games/tonewick/expected.json)
 - `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = X SHR 1, carry: LOW and XOR 6000h, else HIGH; accepted from any offset of the 32767-step sequence): at least 240 captured bits match the model · [expected.json](games/tonewick/expected.json)
 - `snd-adpcm-loop-reload` · An ADPCM loop started in the data part (word 9, not the header) repeats exactly: index and PCM16 value are reloaded to the values that appeared at the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
@@ -381,8 +410,8 @@ target 16 · prerequisite 8
 - `snd-rate-slope` · Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured; the value differs between boot paths on both emulators) _(informational)_ · [expected.json](games/pendulane/expected.json)
 - `spi-512k-minus-4m` · Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles) · [expected.json](games/pendulane/expected.json)
 - `mem7-main-seq` · ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024) · [expected.json](games/pendulane/expected.json)
-- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong · [expected.json](games/pendulane/expected.json)
-- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128) · [expected.json](games/pendulane/expected.json)
+- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access: main RAM N32 effective 7 against WRAM 1: 6×64 = 384 (LDR from main RAM minus LDR from WRAM, 64 times; 376..392); GBATEK's table 10 is not the instruction cost · [expected.json](games/pendulane/expected.json)
+- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially: 128 nops minus 64 nops, about 14 cycles over 64 words more than GBATEK's 2 per word (64 x 2 = 128; measured 142, accepted 139..145); cause undocumented · [expected.json](games/pendulane/expected.json)
 - `mem7-vram-seq` · ARM7 VRAM (bank C mapped to the ARM7) sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (1024) · [expected.json](games/pendulane/expected.json)
 
 </details>

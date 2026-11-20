@@ -41,7 +41,8 @@ TEXT = {
 # Maintained by hand: add a title here when an item first cites it, and keep the spelling of the page.
 GBATEK_SECTIONS = (
     'BIOS Arithmetic Functions', 'BIOS Decompression Functions', 'BIOS Memory Copy', 'BIOS Misc Functions',
-    'DS 3D Display Control', 'DS 3D Status', 'DS 3D Texture Attributes', 'DS 3D Polygon Attributes',
+    'DS 3D Display Control', 'DS 3D Status',
+    'DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing', 'DS 3D Texture Blending', 'DS 3D Rear-Plane', 'DS 3D Final 2D Output', 'DS 3D Texture Attributes', 'DS 3D Polygon Attributes',
     'DS 3D Matrix Stack', 'DS 3D Matrix Load/Multiply', 'DS 3D Geometry Commands', 'DS 3D Tests',
     'DS 3D Texture Coordinates', 'DS 3D Polygon Definitions by Vertices',
     'DS Cartridge Backup', 'DS Cartridge I/O Ports', 'DS Cartridge NitroROM and NitroARC File Systems', 'DS Cartridge Protocol',
@@ -55,7 +56,7 @@ GBATEK_SECTIONS = (
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'pendulane', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'pendulane', 'buoyane', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 
