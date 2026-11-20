@@ -89,7 +89,8 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 |---|---|---|
 | `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 이 실행들에서는 그 읽기의 원시 워드를 기록하지 않았고 0이 아니라는 것만 압니다. v0.2.2부터는 `values[44]`(그 직후의 IPCFIFOCNT는 `values[45]`)에 기록하며, 실행 3에서 `7A00000Fh`를 읽었습니다. melonDS 1.1 soft와 DeSmuME는 둘 다 `values[44]` = 0, `values[45]` = 0xC101(수신 FIFO 비어 있음, 오류 비트 켜짐)을 읽습니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis`에 `hw:games/ledgerine/docs/HW-QA.md` 추가 | 콘솔은 GBATEK과 같고, melonDS(와 DeSmuME)는 다름 |
-| 프로필 | `ipc-empty-cleared`를 네 프로필(melonDS soft / GL classic / GL compute, DeSmuME) 모두 `ng`에 추가 | 에뮬레이터는 모두 0을 돌려주고 콘솔은 아님 |
+| `ipc-empty-cleared-word`(새 항목, 실행 3에서) | `values[44]` `eq` `7A00000Fh`, source `hw:dslite-ntr`, L2 target(레벨 제안은 `level-judge`). 제목: 상대가 비운 뒤의 빈 읽기는 0도, B나 C도 아닌 A15를 돌려줌 | 실행 3이 `7A00000Fh`를 읽음. 스크립트는 barrier로 순서가 정해지고 시간에 기대지 않으므로 같은 ROM은 같은 워드를 냅니다. 실행 3의 링 해석은 첫 빈 읽기 B(`values[41]`, 세 실행 모두 같음)도 맞힙니다. 실행 1·2는 `values[44]`가 없는 ROM이라 이 항목은 NG(0)로 채점됩니다 |
+| 프로필 | `ipc-empty-cleared`와 `ipc-empty-cleared-word`를 네 프로필(melonDS soft / GL classic / GL compute, DeSmuME) 모두 `ng`에 추가 | 에뮬레이터는 모두 0을 돌려주고 콘솔은 아님 |
 
 ## 실행 3: v0.2.2로 한 QA 실행과 판정 스위트, 2026-11-20 (본체 시계 2026-01-18 07:41)
 
@@ -104,4 +105,4 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 
 **상대가 비운 뒤의 빈 읽기(`values[44]`)는 `7A00000Fh`, 곧 A15입니다.** B(`7B000000h`, 마지막으로 읽은 워드)도, C(`7C000000h`, ARM7이 읽히기 전에 비운 워드)도 아닙니다. `values[45]` = `C101h`: FIFO 켜짐, 오류 비트 켜짐, 수신·송신 FIFO 비어 있음으로 melonDS·DeSmuME와 같습니다(이 둘은 `values[44]`가 0).
 실행 1~3에 맞는 해석(문서화된 규칙은 아님): FIFO는 16칸 링이고 빈 읽기는 읽기 포인터 바로 앞 칸을 돌려줍니다. A0..A15가 0~15번 칸을 채우고, B는 0번 칸에 들어가 읽히므로(포인터 1) 첫 빈 읽기는 B입니다(`values[41]`). C는 1번 칸에 들어가고 ARM7이 보내기 FIFO를 비우면 포인터가 0번 칸으로 돌아가며, 그 앞 칸인 15번에는 A15가 그대로 남아 있습니다.
-`ipc-empty-cleared`의 검사(0이 아님, 확인 동작)는 그대로 둡니다. A15를 정확히 기대하는 항목은 별도 변경입니다(레벨 제안은 `level-judge`).
+`ipc-empty-cleared`의 검사(0이 아님, 확인 동작)는 그대로 둡니다. 정확한 워드는 Ledgerine v1.0.1부터 `ipc-empty-cleared-word`가 판정합니다("실행에서 정한 기대값" 참조).

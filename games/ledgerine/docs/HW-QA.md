@@ -92,7 +92,8 @@ The same console, card and ROM as run 1 (`ledgerine-hw-support.nds`, build `8821
 |---|---|---|
 | `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read was not recorded in these runs, only that it is not 0; from v0.2.2 it is in `values[44]` (and IPCFIFOCNT right after it in `values[45]`), read on run 3: `7A00000Fh`. melonDS 1.1 soft and DeSmuME both read `values[44]` = 0 and `values[45]` = 0xC101 (receive FIFO empty, error bit set). The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis` gets `hw:games/ledgerine/docs/HW-QA.md` | the console agrees with GBATEK; melonDS (and DeSmuME) do not |
-| Profiles | `ipc-empty-cleared` is in `ng` of all four (melonDS soft / GL classic / GL compute, DeSmuME) | every emulator returns 0 there, the console does not |
+| `ipc-empty-cleared-word` (new, from run 3) | `values[44]` `eq` `7A00000Fh`, source `hw:dslite-ntr`, L2 target (level proposal from `level-judge`); title: the empty read after the remote clear returns A15, not 0 and not B or C | run 3 read `7A00000Fh`. The script is ordered by barriers and not timed, so the same ROM gives the same word; the ring reading in run 3 also predicts the first empty read B (`values[41]`), equal in all three runs. Runs 1 and 2 ran a ROM without `values[44]` and grade NG on this item (they read 0) |
+| Profiles | `ipc-empty-cleared` and `ipc-empty-cleared-word` are in `ng` of all four (melonDS soft / GL classic / GL compute, DeSmuME) | every emulator returns 0 there, the console does not |
 
 ## Run 3: QA run and judge suite with v0.2.2, 2026-11-20 (console clock 2026-01-18 07:41)
 
@@ -107,4 +108,4 @@ The same console, card and ROM as run 1 (`ledgerine-hw-support.nds`, build `8821
 
 **The empty read after the remote clear (`values[44]`) is `7A00000Fh`: A15**, not B (`7B000000h`, the last word read) and not C (`7C000000h`, the word the ARM7 cleared before it was read). `values[45]` = `C101h`: FIFO enabled, error bit set, receive and send FIFO empty, as melonDS and DeSmuME (which read 0 for `values[44]`).
 A reading that fits runs 1 to 3 (not a documented rule): the FIFO is a 16-entry ring and an empty read returns the entry before the read pointer. A0..A15 fill entries 0..15; B goes to entry 0 and is read (pointer 1), so the first empty read returns B (`values[41]`); C goes to entry 1, the ARM7's send-FIFO clear puts the pointers back to entry 0, and the entry before it, 15, still holds A15.
-`ipc-empty-cleared` keeps its check (not 0, acknowledge works). An item that expects A15 exactly is a separate change (level proposal from `level-judge`).
+`ipc-empty-cleared` keeps its check (not 0, acknowledge works). The exact word is judged by `ipc-empty-cleared-word` from Ledgerine v1.0.1 on (see "Expected values from the runs").

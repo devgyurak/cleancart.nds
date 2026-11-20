@@ -138,14 +138,23 @@ class HardwareValues(unittest.TestCase):
         self.assertIn('NG      ipc-empty-cleared', self.grade(0xC))    # returns 0 (GBATEK, melonDS, DeSmuME)
         self.assertIn('NG      ipc-empty-cleared', self.grade(0x0))    # acknowledge broken as well
 
+    def test_empty_read_after_remote_clear_returns_a15(self):
+        for word, verdict in ((0x7A00000F, 'OK'), (0, 'NG'), (0x7B000000, 'NG'), (0x7C000000, 'NG')):
+            v = good_values('rehearsal')
+            v[44] = word
+            out = run_judge([], block_line(REHEARSAL_ID, v))[1]
+            self.assertIn('%-7s ipc-empty-cleared-word' % verdict, out, hex(word))
+
     def test_every_profile_knows_the_console_difference(self):
         for name, p in EXP['known'].items():
             self.assertIn('ipc-empty-cleared', p['ng'], name)
+            self.assertIn('ipc-empty-cleared-word', p['ng'], name)
 
     def test_sources_are_hardware(self):
         by = {i['id']: i for i in EXP['items']}
         self.assertEqual(by['ipc-empty-cleared']['source'], 'hw:dslite-ntr')
-        for i in ('ipc-empty-cleared', 'ipc-empty-last', 'dma-itcm-runs', 'bios-arm7-guard'):
+        self.assertEqual(by['ipc-empty-cleared-word']['source'], 'hw:dslite-ntr')
+        for i in ('ipc-empty-cleared', 'ipc-empty-cleared-word', 'ipc-empty-last', 'dma-itcm-runs', 'bios-arm7-guard'):
             self.assertIn('hw:games/ledgerine/docs/HW-QA.md', by[i]['level_basis'], i)
 
 
