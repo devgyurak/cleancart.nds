@@ -127,7 +127,8 @@ class Profiles(unittest.TestCase):
     def test_profile_reports_a_newly_passing_item(self):
         rc, out = run_judge(['--profile', 'melonds-1.1-software'], block_line(REHEARSAL_ID, good_values('rehearsal')))
         self.assertEqual(rc, 1, out)
-        self.assertIn('NEWLY PASSING  mem7-main-nonseq', out)
+        self.assertIn('NEWLY PASSING  mem7-code-main-seq', out)
+        self.assertNotIn('mem7-main-nonseq', out.split('LEVELS')[1])   # melonDS reads 384: inside the window, no longer a known NG
 
     def test_profile_reports_a_newly_failing_item(self):
         v = good_values('rehearsal')
@@ -140,6 +141,38 @@ class Profiles(unittest.TestCase):
         ids = {i['id'] for i in EXP['items']}
         for name, p in EXP['known'].items():
             self.assertLessEqual(set(p['ng']) | set(p.get('na', [])), ids, name)
+
+
+class HardwareValues(unittest.TestCase):
+    """Expected values taken from the DS Lite runs (docs/HW-QA.md): the console values pass, the old GBATEK values do not."""
+
+    def grade(self, idx, value, extra=()):
+        v = good_values('rehearsal')
+        v[idx] = value
+        return run_judge(list(extra), block_line(REHEARSAL_ID, v))
+
+    def test_main_ram_nonseq_is_384(self):
+        for value in (383, 384):   # console, melonDS
+            self.assertIn('OK      mem7-main-nonseq', self.grade(16, value)[1])
+        for value in (576, 64):    # the old GBATEK value, DeSmuME
+            self.assertIn('NG      mem7-main-nonseq', self.grade(16, value)[1])
+
+    def test_code_from_main_ram_is_142(self):
+        self.assertIn('OK      mem7-code-main-seq', self.grade(17, 142)[1])
+        for value in (128, 150):   # the old GBATEK value (melonDS, DeSmuME)
+            self.assertIn('NG      mem7-code-main-seq', self.grade(17, value)[1])
+
+    def test_profiles_follow_the_console_values(self):
+        for name, p in EXP['known'].items():
+            self.assertIn('mem7-code-main-seq', p['ng'], name)
+            self.assertEqual('mem7-main-nonseq' in p['ng'], name.startswith('desmume'), name)
+
+    def test_sources_are_hardware(self):
+        by = {i['id']: i for i in EXP['items']}
+        for i in ('mem7-main-nonseq', 'mem7-code-main-seq'):
+            self.assertEqual(by[i]['source'], 'hw:dslite-ntr')
+            self.assertIn('hw:games/pendulane/docs/HW-QA.md', by[i]['level_basis'])
+        self.assertEqual(by['snd-rate-slope']['source'], 'unconfirmed')
 
 
 class ExpectedJson(unittest.TestCase):

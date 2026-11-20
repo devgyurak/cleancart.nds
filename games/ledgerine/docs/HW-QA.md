@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block and `press-min` as `res-*-ledgerine-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, with gating NG items that are findings about our expected values (re-examined in a separate PR, not here).
+**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The one gating NG item (`ipc-empty-cleared`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs").
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can
 be recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is
@@ -47,7 +47,7 @@ findings, not profiles. Old `res-*` logs on the card are cleared first.
 ## Recording
 
 - `docs/QA.md` and `docs/QA-KO.md` (twins): ROM SHA-256s, console and card, the failing items, the QA log header.
-- `expected.json`: for every item whose hardware value matches the ROM's expectation change `source` to `hw:ds-lite`. If the
+- `expected.json`: for every item whose hardware value matches the ROM's expectation change `source` to `hw:dslite-ntr`. If the
   hardware disagrees the item is a finding: record the value and decide whether the ROM or the expectation is wrong (a BIOS
   item may only differ with the BIOS; note which BIOS the console runs). Add a profile `hw-ds-lite` (the failing items) to `known`.
 - Never commit anything under `build/qa/`.
@@ -66,7 +66,7 @@ findings, not profiles. Old `res-*` logs on the card are cleared first.
 
 | Item | Hardware | melonDS 1.1 soft | Differs? |
 |---|---|---|---|
-| `ipc-empty-cleared` (L2, GBATEK, mask 0x8) | **0x0** (NG) | 0x8 | yes: a finding about our expectation (under review) |
+| `ipc-empty-cleared` (L2, GBATEK, mask 0x8) | **0x0** (NG) | 0x8 | yes: the expectation was wrong, now mask 0xC / expect 0x4, source `hw:dslite-ntr` (see below) |
 | `ipc-empty-last` | 0x3 (OK) | 0x2 (NG, profile) | the melonDS profile NG is a real emulator difference |
 | `bios-arm7-guard` | 0x10 (OK) | 0x0 (NG, profile) | as above |
 | `dma-itcm-runs` | 0x20 (OK) | 0x0 (NG, profile) | as above |
@@ -75,4 +75,21 @@ findings, not profiles. Old `res-*` logs on the card are cleared first.
 
 Note: the suite now writes `suite end` before its final reset (#186) and it is on the card, as are the 12 probe lines after the reset up to `wait60`. Only the closing `suite done` line, the last write of the run, is missing (melonDS writes it). So the reset is not what loses the line: the last line written to the card is lost. This is still open.
 
-The NG items are not edited here: `level-judge` proposes the expected values and levels (basis `hw:games/ledgerine/docs/HW-QA.md`), and they change in a separate PR.
+The NG item was left alone in the PR that recorded run 1; it is dealt with in "Expected values from the runs" below.
+
+## Run 2: QA run and judge suite, 2026-11-17 (console clock 2026-01-15 12:04)
+
+The same console, card and ROM as run 1 (`ledgerine-hw-support.nds`, build `8821063cd048`), run again; the console clock now read 2026-01-15, 12:04, so the files say `res-20260115-*` (run 1: `res-20020115-*`).
+
+| Field | Value |
+|---|---|
+| `judge.py --hardware` | QA block and `press-min`: the same verdicts as run 1 (before the expected values were changed: 1 gating NG, `ipc-empty-cleared`, `values[2]` = 0xF7 again; after: QA block 40 of 40 and `press-min` 1 of 1 OK on all four logs of both runs, NG 0) |
+| Difference from run 1 | judged values equal. Not judged: `values[19]` and `[20]` 58437 -> 58438, `[21]` 16397 -> 16398, total lag frames 146 -> 145; the `press-min` block frame 1382 -> 1383 |
+
+## Expected values from the runs
+
+| Item | Change | Why |
+|---|---|---|
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read was not recorded in these runs, only that it is not 0; from v0.2.2 it is in `values[44]` (and IPCFIFOCNT right after it in `values[45]`), to be read on the next run. melonDS 1.1 soft and DeSmuME both read `values[44]` = 0 and `values[45]` = 0xC101 (receive FIFO empty, error bit set). The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
+| `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis` gets `hw:games/ledgerine/docs/HW-QA.md` | the console agrees with GBATEK; melonDS (and DeSmuME) do not |
+| Profiles | `ipc-empty-cleared` is in `ng` of all four (melonDS soft / GL classic / GL compute, DeSmuME) | every emulator returns 0 there, the console does not |

@@ -162,6 +162,32 @@ class Profiles(unittest.TestCase):
             self.assertLessEqual(set(p['ng']) | set(p.get('na', [])), ids, name)
 
 
+class HardwareValues(unittest.TestCase):
+    """Expected values taken from the DS Lite runs (docs/HW-QA.md): the console value passes, the old GBATEK value does not."""
+
+    def grade(self, value):
+        v = good_values('rehearsal')
+        v[10] = value
+        return run_judge([], block_line(REHEARSAL_ID, v))[1]
+
+    def test_short_looped_sample_keeps_the_tape_level(self):
+        for value in (16384, 16320, 16448):
+            self.assertIn('OK      snd-short-silent', self.grade(value))
+        for value in (0, 2, 16319, 16449):   # silence (GBATEK, melonDS) is now the NG
+            self.assertIn('NG      snd-short-silent', self.grade(value))
+
+    def test_profiles_follow_the_console_value(self):
+        for name, p in EXP['known'].items():
+            self.assertEqual('snd-short-silent' in p['ng'], name.startswith('melonds'), name)
+
+    def test_sources_are_hardware(self):
+        by = {i['id']: i for i in EXP['items']}
+        self.assertEqual(by['snd-short-silent']['source'], 'hw:dslite-ntr')
+        for i in ('snd-short-silent', 'cap-add-wrap', 'cap-both-negative', 'cap-src-channel', 'snd-hold-level',
+                  'pm-reg-mirror', 'rtc-ampm-24h'):
+            self.assertIn('hw:games/tonewick/docs/HW-QA.md', by[i]['level_basis'], i)
+
+
 class ExpectedJson(unittest.TestCase):
     def test_levels_and_roles(self):
         self.assertEqual(EXP['target_level'], 2)

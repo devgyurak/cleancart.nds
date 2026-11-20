@@ -263,7 +263,7 @@ target 30 · prerequisite 11
 - `math-sqrt-edges` · SQRT(2^64-1) = FFFFFFFFh in 64-bit mode; mode 0 ignores the upper half of PARAM · [expected.json](games/ledgerine/expected.json)
 - `ipc-empty-last` · An empty FIFO read returns the last word received and sets the error bit · [expected.json](games/ledgerine/expected.json)
 - `ipc-error-ack` · Writing 1 to IPCFIFOCNT bit 14 clears the error · [expected.json](games/ledgerine/expected.json)
-- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO returns 0 · [expected.json](games/ledgerine/expected.json)
+- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO does not return 0 (GBATEK says 0; a DS Lite returns a non-zero word) · [expected.json](games/ledgerine/expected.json)
 - `ipc-send-full` · The send FIFO is full after 16 words; the 17th write sets the error and is dropped (the other CPU counts 16) · [expected.json](games/ledgerine/expected.json)
 - `ipc-disabled` · FIFO disabled: a write is ignored without error, reads show the oldest word without taking it · [expected.json](games/ledgerine/expected.json)
 - `ipc-irq-edge` · The receive IRQ is edge-triggered: enabling it with a word waiting raises IF bit 18 once, the acknowledge sticks · [expected.json](games/ledgerine/expected.json)
@@ -318,7 +318,7 @@ target 17 · prerequisite 10
 - `snd-voldiv16` · Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170) · [expected.json](games/tonewick/expected.json)
 - `snd-vol127-full` · Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005) · [expected.json](games/tonewick/expected.json)
 - `snd-short-busy` · A one-shot channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set after the sound should have ended (a 4-word one-shot clears it) · [expected.json](games/tonewick/expected.json)
-- `snd-short-silent` · ... and, looped, makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
+- `snd-short-silent` · ... and, looped, a 3-word sample keeps the tape level on the console (GBATEK's "no sound" is not a zero level; the captured peak is 16384, accepted 16320..16448) · [expected.json](games/tonewick/expected.json)
 - `snd-hold-level` · With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level) · [expected.json](games/tonewick/expected.json)
 - `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = X SHR 1, carry: LOW and XOR 6000h, else HIGH; accepted from any offset of the 32767-step sequence): at least 240 captured bits match the model · [expected.json](games/tonewick/expected.json)
 - `snd-adpcm-loop-reload` · An ADPCM loop started in the data part (word 9, not the header) repeats exactly: index and PCM16 value are reloaded to the values that appeared at the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
@@ -381,8 +381,8 @@ target 16 · prerequisite 8
 - `snd-rate-slope` · Busy-clear time of 32 extra samples minus 32 x 16384 bus cycles (hardware granularity unknown; informational until measured; the value differs between boot paths on both emulators) _(informational)_ · [expected.json](games/pendulane/expected.json)
 - `spi-512k-minus-4m` · Firmware SPI byte time at 512 kHz minus at 4 MHz, ARM7 cycles (8 bits x (64 - 8) = 448; a 4 MHz bit is 8 cycles) · [expected.json](games/pendulane/expected.json)
 - `mem7-main-seq` · ARM7 main RAM sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (8 x 2 x 64 = 1024) · [expected.json](games/pendulane/expected.json)
-- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access is 10 cycles against 1 in WRAM: LDR from main RAM minus LDR from WRAM, 64 times (9 x 64 = 576); GBATEK also quotes a reported 5 and calls it all wrong · [expected.json](games/pendulane/expected.json)
-- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially costs 2 cycles per word (GBATEK): 128 nops minus 64 nops (64 x 2 = 128) · [expected.json](games/pendulane/expected.json)
+- `mem7-main-nonseq` · ARM7 main RAM non-sequential 32-bit access: main RAM N32 effective 7 against WRAM 1: 6×64 = 384 (LDR from main RAM minus LDR from WRAM, 64 times; 376..392); GBATEK's table 10 is not the instruction cost · [expected.json](games/pendulane/expected.json)
+- `mem7-code-main-seq` · ARM7 code fetched from main RAM sequentially: 128 nops minus 64 nops, about 14 cycles over 64 words more than GBATEK's 2 per word (64 x 2 = 128; measured 142, accepted 139..145); cause undocumented · [expected.json](games/pendulane/expected.json)
 - `mem7-vram-seq` · ARM7 VRAM (bank C mapped to the ARM7) sequential 32-bit access is 2 cycles: LDM of 12 words minus LDM of 4 words, 64 times (1024) · [expected.json](games/pendulane/expected.json)
 
 </details>

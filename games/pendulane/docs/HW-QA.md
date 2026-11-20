@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-pendulane-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Run 1 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS, with gating NG items that are findings about our expected values (re-examined in a separate PR, not here).
+**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The two gating NG items (`mem7-main-nonseq`, `mem7-code-main-seq`) were findings about our expected values; the expectations were set from the console afterwards (see "Expected values from the runs").
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be recorded and the
 `unconfirmed` items in `expected.json` can be promoted. The console is operated by a person (skill `nds-hw-qa`): create the empty folder
@@ -34,6 +34,7 @@ pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are
 | Date | Console | Card | Result |
 |---|---|---|---|
 | 2026-11-17 | DS Lite (NTR) | R4 Plus (Wood) | QA run PASS; 2 gating NG, see run 1 below |
+| 2026-11-17 (console clock 2026-01-15 12:06) | DS Lite (NTR) | R4 Plus (Wood) | QA run PASS; the same 2 gating NG, see run 2 below |
 
 ## Run 1: QA run and judge suite, 2026-11-17
 
@@ -49,12 +50,32 @@ pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are
 
 | Item | Hardware | melonDS 1.1 soft | Differs? |
 |---|---|---|---|
-| `mem7-main-nonseq` (L3, GBATEK, want 574..578) | **383** (NG) | 384 (NG, profile) | the console agrees with melonDS, not with GBATEK's 9 x 64: a finding about our expectation (under review) |
-| `mem7-code-main-seq` (L3, GBATEK, want 126..130) | **142** (NG) | 128 | yes: sequential ARM7 code fetch from main RAM is slower on the console (under review) |
+| `mem7-main-nonseq` (L3, GBATEK, want 574..578) | **383** (NG) | 384 (NG, profile) | the console agrees with melonDS, not with GBATEK's 9 x 64: the expectation was wrong, now 376..392, source `hw:dslite-ntr` (see below) |
+| `mem7-code-main-seq` (L3, GBATEK, want 126..130) | **142** (NG) | 128 | yes: sequential ARM7 code fetch from main RAM is slower on the console: the expectation was wrong, now 139..145, source `hw:dslite-ntr` (see below) |
 | `snd-hold-restart` / `snd-pcm-busy` / `snd-adpcm-busy` | 258 / 18 / 42 (OK) | 7 / 19 / 43 (NG, profile) | the melonDS profile NGs are real emulator differences |
 | `snd-rate-slope` (unconfirmed) | 13 | 830 | inside -16..16 on the console |
 | `math-div32-vs-sqrt`, `spi-512k-minus-4m` | 10, 448 | 9, 449 | both OK |
 | timing words values[24..31], [36..39] (raw edges, not judged) | 2-3 higher than melonDS | | yes, not judged |
 | the other judged items | as melonDS soft | | no |
 
-The NG items are not edited here: `level-judge` proposes the expected values and levels (basis `hw:games/pendulane/docs/HW-QA.md`), and they change in a separate PR.
+The NG items were left alone in the PR that recorded run 1; they are dealt with in "Expected values from the runs" below.
+
+## Run 2: QA run and judge suite, 2026-11-17 (console clock 2026-01-15 12:06)
+
+The same console, card and ROM as run 1 (`pendulane-hw-support.nds`, build `dc770b923005`), run again; the console clock read 2026-01-15, 12:06, so the files say `res-20260115-*` (run 1: `res-20020115-*`).
+
+| Field | Value |
+|---|---|
+| `judge.py --hardware` | QA block: the same verdicts as run 1 (before the expected values were changed: L3 11/13, the same 2 gating NG, 383 and 142 again). n/a 3 (env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`) |
+| Difference from run 1 | `snd-rate-slope` (`values[20]`, raw `[46]`) 13 -> -10, total lag frames 30 -> 32, block frame 4292 -> 4294. Every other word is equal |
+
+## Expected values from the runs
+
+| Item | Change | Why |
+|---|---|---|
+| `mem7-main-nonseq` | range `376..392`, source `hw:dslite-ntr`; title: main RAM N32 effective 7 against WRAM 1: 6x64 = 384; GBATEK's table 10 is not the instruction cost | both runs read 383. melonDS reads 384 and now passes; DeSmuME reads 64 and stays NG |
+| `mem7-code-main-seq` | range `139..145`, source `hw:dslite-ntr`; title: about 14 cycles over 64 words more than GBATEK's 2 per word; cause undocumented | both runs read 142 (GBATEK 128). melonDS and DeSmuME read 128 and are NG now |
+| `snd-rate-slope` | unchanged: `unconfirmed`, -16..16, informational | the console value moved between runs (13, then -10), so it is not a value to expect |
+| `snd-pcm-busy`, `snd-adpcm-busy`, `snd-onset-pcm-psg`, `snd-onset-adpcm-pcm`, `snd-hold-restart`, `spi-512k-minus-4m`, `mem7-main-seq`, `mem7-vram-seq`, the three `math-*` items and the five `pre-*` items that are not `env` | `level_basis` gets `hw:games/pendulane/docs/HW-QA.md` | the console agrees with GBATEK (both runs); source stays `GBATEK` |
+| In-game ledger | from v0.2.2 the ledger screen (`game/ledger.c`) uses the same windows: MAIN NONSEQ 384 +- 8, CODE IN MAIN 142 +- 3. Only the colours and the seal mark of chapter 4 depend on them; the contraptions' station costs (`pdorder/model.py`) are unchanged. melonDS reads MAIN NONSEQ 384 (in the window) and CODE IN MAIN 128 (outside it), so its chapter 4 still shows NO SEAL |
+| Profiles | `mem7-main-nonseq` leaves the three melonDS profiles' `ng` (DeSmuME keeps it); `mem7-code-main-seq` joins `ng` of all four | |

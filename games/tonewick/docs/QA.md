@@ -22,7 +22,7 @@ length of an experiment, so nothing is heard in the game; the title music stops 
 |---|---|---|
 | `rehearsal` | `tonewick-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): the twelve lines solved by script and every district's audit; result block id `0x48525754` (`TWRH`), layout in `game/lab.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute and DeSmuME: profile MATCH, see below |
 
-Hardware: run 1 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
+Hardware: runs 1 and 2 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
@@ -30,11 +30,10 @@ Rehearsal and QA run (boot `qa`) of the release ROM give the same verdicts. **Ru
 
 | Emulator | NG items | Notes |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS, `RTC=2026-11-16-15-30-00`) | `snd-hold-level` (the hold bit is not implemented: the output returns to 0 after a one-shot), `cap-src-channel` (bit 1 is ignored: the mixer sum 4000h is captured, not channel 0's 2000h), `cap-add-wrap` (a capture with the add bit set writes nothing), `cap-both-negative` (reads -4000h, the two channels added, instead of -8000h), `pm-reg-mirror` (the generated firmware says DS Lite, register 5 reads 0 where register 4 reads 40h) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers. The three save items are n/a in the QA run with an SD image (a homebrew run has no save chip); with the emulated 8 KB EEPROM (`SAV=`, profile `melonds-1.1-software-save-chip`) all three are OK |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM, local hour 15 via `RTC_HOUR=15`) | `snd-short-busy` (a 3-word one-shot ends and clears the busy bit), `snd-short-silent` (a tape of 3 words plays), `snd-hold-level`, `snd-noise-lfsr` (152 matching bits), `snd-adpcm-loop-reload` (the loop does not reload), `cap-add-wrap` (no capture), `cap-both-negative` (reads -2000h), `pm-reg-mirror`, `save-wel-reset` (WEL stays set after the write) | profile `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low` passes there |
+| melonDS 1.1 software / GL classic / GL compute (headless, built-in replacement BIOS, `RTC=2026-11-16-15-30-00`) | `snd-short-silent` (the looped 3-word sample is silent, 0; the console keeps its level, 16384), `snd-hold-level` (the hold bit is not implemented: the output returns to 0 after a one-shot), `cap-src-channel` (bit 1 is ignored: the mixer sum 4000h is captured, not channel 0's 2000h), `cap-add-wrap` (a capture with the add bit set writes nothing), `cap-both-negative` (reads -4000h, the two channels added, instead of -8000h), `pm-reg-mirror` (the generated firmware says DS Lite, register 5 reads 0 where register 4 reads 40h) | profiles `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH; identical on the three renderers. The three save items are n/a in the QA run with an SD image (a homebrew run has no save chip); with the emulated 8 KB EEPROM (`SAV=`, profile `melonds-1.1-software-save-chip`) all three are OK |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM, local hour 15 via `RTC_HOUR=15`) | `snd-short-busy` (a 3-word one-shot ends and clears the busy bit), `snd-hold-level`, `snd-noise-lfsr` (152 matching bits), `snd-adpcm-loop-reload` (the loop does not reload), `cap-add-wrap` (no capture), `cap-both-negative` (reads -2000h), `pm-reg-mirror`, `save-wel-reset` (WEL stays set after the write) | profile `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low` passes there, and so does `snd-short-silent` (16384, like the console) |
 
-All NG items are results to check against hardware (items stay gating because GBATEK states them); the capture bugs in
-particular are only documented in GBATEK. What happens when the DS Lite disagrees is written in [HW-QA.md](HW-QA.md), section "Judging the hardware result".
+The NG items are emulator differences from the console: the hardware runs ([HW-QA.md](HW-QA.md)) confirmed the two capture bugs only GBATEK documents and the other GBATEK values, and `snd-short-silent` is the item whose expected value came from the console (a looped 3-word sample keeps the tape level, 16384). What happens when the DS Lite disagrees is in [HW-QA.md](HW-QA.md), section "Judging the hardware result".
 
 ## Auto QA run
 
@@ -58,7 +57,7 @@ graded from the runner output (the `RESULT` line; the SD log holds no result blo
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`); `tools/qa/lint.py` passes. The state hash covers
 the completion bits and the lines solved only: the measured values move a little between runs on a console. The software
 run has no save chip (homebrew run for the SD card); the chip run (`SAV=`) is graded by the `-save-chip` profile and reads
-back the save (`SAVE 2 8192`, `CPU9 cpsr` mode 1F, no data abort). Real DS Lite + R4: run 1 on 2026-11-17 (`HW-QA.md`).
+back the save (`SAVE 2 8192`, `CPU9 cpsr` mode 1F, no data abort). Real DS Lite + R4: runs 1 and 2 on 2026-11-17 (`HW-QA.md`).
 
 ## Starting QA without the keys (SD marker)
 

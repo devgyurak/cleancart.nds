@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-pendulane-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 NG 항목이 있고, 우리 기대값에 대한 발견이라 별도 PR에서 다시 봅니다(여기서는 고치지 않음).
+**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 둘(`mem7-main-nonseq`, `mem7-code-main-seq`)은 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실행 점검표로, 첫 값을 기록하고 `expected.json`의 `unconfirmed` 항목을 승격할 수 있게 합니다.
 콘솔은 사람이 조작합니다 (스킬 `nds-hw-qa`): 카드에 빈 폴더 `cleancart/pendulane/`를 만들면 리허설이 결과 블록을 거기에 씁니다.
@@ -33,6 +33,7 @@
 | 날짜 | 콘솔 | 카드 | 결과 |
 |---|---|---|---|
 | 2026-11-17 | DS Lite(NTR) | R4 Plus(Wood) | QA 실행 PASS. 판정 NG 2, 아래 실행 1 참조 |
+| 2026-11-17 (본체 시계 2026-01-15 12:06) | DS Lite(NTR) | R4 Plus(Wood) | QA 실행 PASS. 같은 판정 NG 2, 아래 실행 2 참조 |
 
 ## 실행 1: QA 실행과 판정 스위트, 2026-11-17
 
@@ -48,12 +49,32 @@
 
 | 항목 | 실기 | melonDS 1.1 soft | 차이? |
 |---|---|---|---|
-| `mem7-main-nonseq` (L3, GBATEK, 기대 574..578) | **383** (NG) | 384 (NG, 프로필) | 콘솔이 GBATEK의 9 x 64가 아니라 melonDS와 같음. 우리 기대값에 대한 발견(검토 중) |
-| `mem7-code-main-seq` (L3, GBATEK, 기대 126..130) | **142** (NG) | 128 | 있음. 콘솔에서는 메인 RAM의 ARM7 순차 코드 읽기가 더 느림(검토 중) |
+| `mem7-main-nonseq` (L3, GBATEK, 기대 574..578) | **383** (NG) | 384 (NG, 프로필) | 콘솔이 GBATEK의 9 x 64가 아니라 melonDS와 같음. 기대값이 틀렸음: 이제 376..392, source `hw:dslite-ntr`(아래 참조) |
+| `mem7-code-main-seq` (L3, GBATEK, 기대 126..130) | **142** (NG) | 128 | 있음. 콘솔에서는 메인 RAM의 ARM7 순차 코드 읽기가 더 느림. 기대값이 틀렸음: 이제 139..145, source `hw:dslite-ntr`(아래 참조) |
 | `snd-hold-restart` / `snd-pcm-busy` / `snd-adpcm-busy` | 258 / 18 / 42 (OK) | 7 / 19 / 43 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
 | `snd-rate-slope` (unconfirmed) | 13 | 830 | 콘솔에서 -16..16 안 |
 | `math-div32-vs-sqrt`, `spi-512k-minus-4m` | 10, 448 | 9, 449 | 둘 다 OK |
 | 타이밍 원시값 values[24..31], [36..39] (판정 안 함) | melonDS보다 2-3 큼 | | 있음, 판정 안 함 |
 | 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
 
-NG 항목은 여기서 고치지 않습니다. `level-judge`가 기대값과 레벨을 제안하고(근거 `hw:games/pendulane/docs/HW-QA.md`), 변경은 별도 PR로 합니다.
+NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실행에서 정한 기대값"에서 다룹니다.
+
+## 실행 2: QA 실행과 판정 스위트, 2026-11-17 (본체 시계 2026-01-15 12:06)
+
+실행 1과 같은 콘솔·카드·ROM(`pendulane-hw-support.nds`, build `dc770b923005`)으로 다시 돌렸습니다. 본체 시계가 2026-01-15 12:06을 가리켜 파일 이름이 `res-20260115-*`입니다(실행 1: `res-20020115-*`).
+
+| 항목 | 값 |
+|---|---|
+| `judge.py --hardware` | QA 블록: 실행 1과 같은 판정(기대값을 바꾸기 전: L3 11/13, 같은 판정 NG 2, 383과 142 그대로). n/a 3(env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`) |
+| 실행 1과의 차이 | `snd-rate-slope`(`values[20]`, 원시 `[46]`) 13 -> -10, 랙 프레임 합 30 -> 32, 블록 프레임 4292 -> 4294. 나머지 워드는 모두 같음 |
+
+## 실행에서 정한 기대값
+
+| 항목 | 변경 | 이유 |
+|---|---|---|
+| `mem7-main-nonseq` | 범위 `376..392`, source `hw:dslite-ntr`. 제목: 메인 RAM N32는 실효 7, WRAM은 1: 6x64 = 384. GBATEK의 표 10은 명령 비용이 아님 | 두 실행 모두 383. melonDS는 384로 이제 통과하고, DeSmuME는 64로 NG 그대로 |
+| `mem7-code-main-seq` | 범위 `139..145`, source `hw:dslite-ntr`. 제목: 64워드에서 GBATEK의 워드당 2보다 약 14사이클 더 듦. 원인은 문서화되지 않음 | 두 실행 모두 142(GBATEK 128). melonDS와 DeSmuME는 128이라 이제 NG |
+| `snd-rate-slope` | 그대로: `unconfirmed`, -16..16, 참고용 | 콘솔 값이 실행마다 흔들려(13, 그다음 -10) 기대할 값이 아님 |
+| `snd-pcm-busy`, `snd-adpcm-busy`, `snd-onset-pcm-psg`, `snd-onset-adpcm-pcm`, `snd-hold-restart`, `spi-512k-minus-4m`, `mem7-main-seq`, `mem7-vram-seq`, `math-*` 셋, `env`가 아닌 `pre-*` 다섯 | `level_basis`에 `hw:games/pendulane/docs/HW-QA.md` 추가 | 콘솔이 GBATEK과 같음(두 실행 모두). source는 `GBATEK` 그대로 |
+| 게임 안 장부 | v0.2.2부터 장부 화면(`game/ledger.c`)도 같은 창을 씁니다: MAIN NONSEQ 384 ±8, CODE IN MAIN 142 ±3. 4장의 글자색과 인장 표시만 여기에 달려 있고, 장치 퍼즐의 정거장 비용(`pdorder/model.py`)은 그대로입니다. melonDS는 MAIN NONSEQ 384(창 안)와 CODE IN MAIN 128(창 밖)을 읽어 4장이 계속 NO SEAL로 보입니다 |
+| 프로필 | `mem7-main-nonseq`를 melonDS 세 프로필의 `ng`에서 뺌(DeSmuME는 유지). `mem7-code-main-seq`를 네 프로필 모두의 `ng`에 추가 | |
