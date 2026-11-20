@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 2,
   "area": "system edges",
-  "about": "Expected result-block values for the Ledgerine rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/ledger.h. Every item reads a flag word (values[1..7]) filled by one room's audit and carries \"done\": the completion bit of that room in values[0] (the rooms-complete items read values[0] itself, qa-verdict reads values[48]; the press-min boot has its own block, id LDPM). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The BIOS items (rule book) grade the BIOS the emulator runs: headless melonDS and the profiles here use its built-in replacement BIOS, a real BIOS dump can differ.",
+  "about": "Expected result-block values for the Ledgerine rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/ledger.h. Every item reads a flag word (values[1..7]) filled by one room's audit and carries \"done\": the completion bit of that room in values[0] (the rooms-complete items read values[0] itself, ipc-empty-cleared-word reads the raw word values[44], qa-verdict reads values[48]; the press-min boot has its own block, id LDPM). \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. The BIOS items (rule book) grade the BIOS the emulator runs: headless melonDS and the profiles here use its built-in replacement BIOS, a real BIOS dump can differ.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -278,6 +278,34 @@
       "check": "mask",
       "mask": 12,
       "expect": 4,
+      "tolerance": 0,
+      "source": "hw:dslite-ntr",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS Inter Process Communication; hw:games/ledgerine/docs/HW-QA.md",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ipc-empty-cleared-word",
+      "title": "The empty read after the remote side cleared its send FIFO returns A15 (7A00000Fh), the last word of the first burst: not 0 (GBATEK) and not B or C (DS Lite)",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 300,
+        "qa": 1
+      },
+      "values": [
+        44
+      ],
+      "check": "eq",
+      "expect": 2046820367,
+      "display": "2046820367 (7A00000Fh, A15)",
       "tolerance": 0,
       "source": "hw:dslite-ntr",
       "role": "target",
@@ -1178,7 +1206,8 @@
         "ipc-empty-last",
         "dma-itcm-runs",
         "bios-arm7-guard",
-        "ipc-empty-cleared"
+        "ipc-empty-cleared",
+        "ipc-empty-cleared-word"
       ],
       "na": []
     },
@@ -1188,7 +1217,8 @@
         "ipc-empty-last",
         "dma-itcm-runs",
         "bios-arm7-guard",
-        "ipc-empty-cleared"
+        "ipc-empty-cleared",
+        "ipc-empty-cleared-word"
       ],
       "na": []
     },
@@ -1198,7 +1228,8 @@
         "ipc-empty-last",
         "dma-itcm-runs",
         "bios-arm7-guard",
-        "ipc-empty-cleared"
+        "ipc-empty-cleared",
+        "ipc-empty-cleared-word"
       ],
       "na": []
     },
@@ -1212,7 +1243,8 @@
         "dma-regs-unchanged",
         "dma-itcm-runs",
         "bios-arm7-guard",
-        "ipc-empty-cleared"
+        "ipc-empty-cleared",
+        "ipc-empty-cleared-word"
       ],
       "na": []
     }

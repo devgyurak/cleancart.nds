@@ -28,10 +28,10 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 
 | 에뮬레이터 | NG 항목 | 비고 |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS) | `ipc-empty-last`(빈 읽기가 마지막 워드 B가 아니라 다음 칸 7A000001h를 돌려줌), `ipc-empty-cleared`(상대가 비운 뒤 0을 돌려줌. 콘솔은 0이 아닌 워드를 돌려줌), `dma-itcm-runs`(DMA 내내 CPU가 멈춤: DMA만 00090027 틱, 루프를 더하면 000d7f6b 틱), `bios-arm7-guard`(대체 BIOS가 BIOS 영역에서 복사함) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 세 렌더러가 같음 |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-empty-cleared`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | 프로필 `desmume-pydesmume-0.0.9` MATCH. 리허설이 예전에 여기서 멈췄던 이유: 모드 2의 `-2^63 / -1` 나눗셈에서 DeSmuME가 통째로 멈춥니다(호스트가 `INT64_MIN`을 -1로 나눔). 그래서 이 검사는 `press-min` ROM으로 옮겼고, 게임과 리허설은 이 계산을 하지 않고, QA 실행은 SD 카드가 있을 때 판정 스위트에서만 합니다(1번 방 "가장 낮은 빚" 줄은 모드 0만 줍니다). upstream에 보고할 만합니다 |
+| melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS) | `ipc-empty-last`(빈 읽기가 마지막 워드 B가 아니라 다음 칸 7A000001h를 돌려줌), `ipc-empty-cleared`, `ipc-empty-cleared-word`(상대가 비운 뒤 0을 돌려줌. 콘솔은 A15, 7A00000Fh를 돌려줌), `dma-itcm-runs`(DMA 내내 CPU가 멈춤: DMA만 00090027 틱, 루프를 더하면 000d7f6b 틱), `bios-arm7-guard`(대체 BIOS가 BIOS 영역에서 복사함) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 세 렌더러가 같음 |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS) | `math-div0`, `ipc-empty-last`, `ipc-empty-cleared`, `ipc-empty-cleared-word`, `ipc-disabled`, `timer-reload-deferred`, `dma-regs-unchanged`, `dma-itcm-runs`, `bios-arm7-guard` | 프로필 `desmume-pydesmume-0.0.9` MATCH. 리허설이 예전에 여기서 멈췄던 이유: 모드 2의 `-2^63 / -1` 나눗셈에서 DeSmuME가 통째로 멈춥니다(호스트가 `INT64_MIN`을 -1로 나눔). 그래서 이 검사는 `press-min` ROM으로 옮겼고, 게임과 리허설은 이 계산을 하지 않고, QA 실행은 SD 카드가 있을 때 판정 스위트에서만 합니다(1번 방 "가장 낮은 빚" 줄은 모드 0만 줍니다). upstream에 보고할 만합니다 |
 
-NG 항목은 콘솔과 다른 에뮬레이터 동작입니다. 실기 실행(`docs/HW-QA-KO.md`)은 `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard`에서 GBATEK과 같았고, `ipc-empty-cleared`는 기대값을 콘솔에서 얻은 유일한 항목입니다(GBATEK은 0, DS Lite는 0이 아닌 워드).
+NG 항목은 콘솔과 다른 에뮬레이터 동작입니다. 실기 실행(`docs/HW-QA-KO.md`)은 `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard`에서 GBATEK과 같았고, `ipc-empty-cleared`와 `ipc-empty-cleared-word`는 기대값을 콘솔에서 얻은 두 항목입니다(GBATEK은 0, DS Lite는 A15, 7A00000Fh).
 
 ## 자동 QA 실행
 
