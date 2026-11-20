@@ -28,6 +28,18 @@ profiles record the interpreter.
 | `l2-tcm` | `quayholt-l2-tcm.nds`: pier E, tightly coupled memory (block id `QYTC`) | profile MATCH on all four |
 | `l2-cache` | `quayholt-l2-cache.nds`: pier F, the caches (block id `QYCA`) | profile MATCH on all four |
 
+## QA run and suite (2026-11-20)
+
+| Check | Result |
+|---|---|
+| melonDS 1.1 soft + SD image, QA run | `RESULT PASS`: 141 log lines, 7 checkpoints (six piers and the rehearsal), all 30 jobs played by the pilot, the rehearsal's measurements, the credits, then the judge suite (`l2-loads` .. `l2-cache`) |
+| `tools/qa/parse_log.py`, `tools/qa/lint.py` | pass |
+| two runs, `tools/qa/compare.py` | 7 checkpoints, 0 differences |
+| `tools/qa/suite_compare.py` against the stand-alone demos | 6 demos, 0 differ |
+| DeSmuME | the QA run reaches the QARN block with verdict PASS and 30 jobs cleared |
+| judge `qa` boot, profile `melonds-1.1-software` | MATCH |
+| reproducible build | two clean builds, same SHA-256 |
+
 ## Judge profiles (2026-11-20, build of this commit)
 
 | Emulator | NG items | Notes |

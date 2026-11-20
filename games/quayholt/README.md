@@ -2,6 +2,8 @@
 
 [한국어](README-KO.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/pier.png" width="256" alt="A pier with its five jobs"> <img src="docs/images/job.png" width="256" alt="A balanced job with a crooked box"></p>
+
 An original two-crane harbour puzzle for the Nintendo DS, and a self-judging test ROM for emulator developers.
 Status: **the harbour game, the measurement harness, the rehearsal and the judge are in place**; the QA run plays
 all 30 jobs. The title, credits and hardware plan are still to be finished for the release.
@@ -50,6 +52,8 @@ python3 tools/judge.py --profile melonds-1.1-software run.log
 
 `expected.json` lists the items and, per emulator, the failures that are known. melonDS profiles are interpreter
 profiles: run melonDS with its JIT off.
+
+*Screenshots: melonDS 1.1 (headless, software renderer), top screen.*
 
 ## Hardware
 

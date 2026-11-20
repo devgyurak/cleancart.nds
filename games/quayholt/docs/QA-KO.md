@@ -28,6 +28,18 @@ melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md` 참고). �
 | `l2-tcm` | `quayholt-l2-tcm.nds`: E 부두, TCM (블록 id `QYTC`) | 네 곳 모두 프로필 MATCH |
 | `l2-cache` | `quayholt-l2-cache.nds`: F 부두, 캐시 (블록 id `QYCA`) | 네 곳 모두 프로필 MATCH |
 
+## QA 실행과 스위트 (2026-11-20)
+
+| 확인 | 결과 |
+|---|---|
+| melonDS 1.1 soft + SD 이미지, QA 실행 | `RESULT PASS`: 로그 141줄, 체크포인트 7개(부두 여섯 곳과 리허설), 조종사가 30개 작업을 모두 풂, 리허설 측정, 크레딧, 이어서 판정 스위트(`l2-loads` ~ `l2-cache`) |
+| `tools/qa/parse_log.py`, `tools/qa/lint.py` | 통과 |
+| 두 번 실행, `tools/qa/compare.py` | 체크포인트 7개, 차이 0 |
+| `tools/qa/suite_compare.py`, 단독 데모와 비교 | 데모 6개, 다른 것 0 |
+| DeSmuME | QA 실행이 QARN 블록(판정 PASS, 작업 30개 완료)에 도달 |
+| 판정 `qa` boot, 프로필 `melonds-1.1-software` | MATCH |
+| 재현 가능한 빌드 | 클린 빌드 두 번, 같은 SHA-256 |
+
 ## 판정 프로필 (2026-11-20, 이 커밋의 빌드)
 
 | 에뮬레이터 | NG 항목 | 비고 |
