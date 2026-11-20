@@ -19,7 +19,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from byroute import model as by_model, routes as by_routes  # noqa: E402
-from cvtools import audio, codec, images  # noqa: E402
+from cvtools import audio, byart, codec, images  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
 
@@ -122,6 +122,16 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    tiles, entries, pal = byart.title_lettering()
+    w.blob('cv_title_tiles', tiles, 'title lettering, 4bpp, %d x %d tiles' % (byart.COLS, byart.ROWS))
+    w.blob('cv_title_map', u16s(entries), 'title lettering map entries, raster order, palette line %d' % byart.PAL_LINE)
+    w.blob('cv_title_pal', pal, 'title lettering palette line (16 colours)')
+    w.raw_h('#define BY_TITLE_COLS %d' % byart.COLS)
+    w.raw_h('#define BY_TITLE_ROWS %d' % byart.ROWS)
+    w.raw_h('#define BY_TITLE_PAL_LINE %d' % byart.PAL_LINE)
+    w.raw_h('#define BY_TITLE_BLANK %d' % byart.BLANK_TILE)
+    w.raw_h('#define BY_TITLE_PANEL %d' % byart.PANEL_TILE)
 
     # --- Routes and the almanac ---------------------------------------------
     # The build stops when a route is not solvable from the almanac (tools/byroute/routes.py).

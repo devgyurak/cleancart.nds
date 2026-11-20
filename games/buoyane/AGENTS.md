@@ -10,7 +10,7 @@ template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's la
 
 Status: playable core: title, chart, voyage (30 approaches in five chapters), almanac, credits; the light check (five scenes), the
 rehearsal and the five check ROMs, `expected.json` + `judge.py`, the QA mode (title -> chart -> all 30 approaches -> credits -> light check ->
-judge suite). The title is still a placeholder; docs (QA, HW-QA) and the title art follow. Target level 2, area "3D rendering edges: polygon rules, texture blending and the
+judge suite). The title is its own (`game/title.c`: a night harbour drawn with fog, edge marking and a translucent beam over `cvtools/byart.py` lettering); docs (QA, HW-QA) follow. Target level 2, area "3D rendering edges: polygon rules, texture blending and the
 fog/edge/anti-aliasing post-pass".
 
 ## Build
@@ -54,5 +54,4 @@ fog/edge/anti-aliasing post-pass".
 ## Rules
 
 Everything the repo-wide rules say applies: SPDX headers, generated assets listed in `ASSETS.md` and `ASSETS-KO.md`, no
-third-party names in ROM strings, QA code only through the hooks in `core/`. The title screen is a placeholder (`TODO(title)`)
-until the voyage PRs replace it.
+third-party names in ROM strings, QA code only through the hooks in `core/`.
