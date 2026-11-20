@@ -137,6 +137,8 @@ void qa_game_publish(bool pass)
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
     r->magic = CV_RESULT_MAGIC;   // last
     DC_FlushRange((void *)CV_RESULT_ADDR, sizeof(CvResult));
+    // end_run() has put the cart's own save back: show that progress again, not the QA run's 30/30
+    by_progress_load();
 }
 
 void qa_game_pilot(int scene, u32 f, QaInput *out)
