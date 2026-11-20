@@ -1,0 +1,1135 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 2,
+  "area": "3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass",
+  "about": "Expected result-block values for the Buoyane rehearsal ROM, the five check ROMs and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h; the scenes are in arm9/source/judge/lightcheck.c. \"frame\" is the minimum number of frames to run, per boot. Every scene item names the capture it depends on (\"done\": values[0] bit of its scene). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Expected values come from GBATEK; the one item marked unconfirmed (fog-alpha-glitch) is the one where GBATEK itself holds back, and waits for a run on hardware (informational until then).",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "buoyane-rehearsal.nds",
+      "item_id": 1213356354,
+      "item_id_text": "BYRH",
+      "frames": 1200,
+      "note": "the first approach of every chapter, scripted through the live voyage scene, then the five light-check scenes; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "buoyane.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 9000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): all 30 approaches named from the almanac, the credits, then the light check once; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+    },
+    "check-dot": {
+      "rom": "buoyane-check-dot.nds",
+      "item_id": 1868852067,
+      "item_id_text": "ckdo",
+      "frames": 150,
+      "note": "the dot scene alone; fills only its own words"
+    },
+    "check-fog": {
+      "rom": "buoyane-check-fog.nds",
+      "item_id": 1868983139,
+      "item_id_text": "ckfo",
+      "frames": 150,
+      "note": "the fog scene alone; fills only its own words"
+    },
+    "check-edge": {
+      "rom": "buoyane-check-edge.nds",
+      "item_id": 1684368227,
+      "item_id_text": "cked",
+      "frames": 150,
+      "note": "the edge scene alone; fills only its own words"
+    },
+    "check-depth": {
+      "rom": "buoyane-check-depth.nds",
+      "item_id": 1701079907,
+      "item_id_text": "ckde",
+      "frames": 150,
+      "note": "the depth scene alone; fills only its own words"
+    },
+    "check-blend": {
+      "rom": "buoyane-check-blend.nds",
+      "item_id": 1818389347,
+      "item_id_text": "ckbl",
+      "frames": 150,
+      "note": "the blend scene alone; fills only its own words"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#1674); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "dot-mixed-w-first-colour",
+      "title": "A 1-dot polygon with vertices on both sides of DISP_1DOT_DEPTH is drawn, in the colour of its first vertex (forward order red, reverse order green)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 25,
+      "expect": 25,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "dot-only-zero-size",
+      "title": "A far 1x0 polygon is drawn; a 0x0 polygon at the same distance is hidden",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 34,
+      "expect": 34,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "dot-depth-extremes",
+      "title": "DISP_1DOT_DEPTH 0 hides a W 1 dot; 7FFF shows dots at W 1, 64 and 1000",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 192,
+      "expect": 192,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "aa-translucent-dot-kept",
+      "title": "With anti-aliasing on, a translucent (alpha 30) 1-dot polygon is still drawn",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 1024,
+      "expect": 1024,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "aa-opaque-dot-hidden",
+      "title": "With anti-aliasing on, an opaque 1-dot polygon is hidden (the same dot is drawn without it)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 768,
+      "expect": 768,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "fog-alpha-glitch",
+      "title": "A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-fog"
+      ],
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 2
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-fog": 150
+      }
+    },
+    {
+      "id": "fog-density-127-full",
+      "title": "A high fog density reaches the fog colour exactly; density 120 does not",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-fog"
+      ],
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 12,
+      "expect": 12,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 2
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-fog": 150
+      }
+    },
+    {
+      "id": "fog-translucent-and",
+      "title": "Fog on a translucent pixel needs both the polygon fog bit and the fog flag of the pixel behind it (case without: no fog; case with: fog)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-fog"
+      ],
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 48,
+      "expect": 48,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 2
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-fog": 150
+      }
+    },
+    {
+      "id": "fog-rear-plane-bit",
+      "title": "CLEAR_COLOR bit 15 set: the rear plane is fogged; clear: it is not",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-fog"
+      ],
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 192,
+      "expect": 192,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Rear-Plane; gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 2
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-fog": 150
+      }
+    },
+    {
+      "id": "edge-front-only",
+      "title": "Edge marking colours only the edge of the polygon in front (the one with the smaller depth)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-edge"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 15,
+      "expect": 15,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 4
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-edge": 150
+      }
+    },
+    {
+      "id": "edge-aa-translucent",
+      "title": "With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-edge"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 4
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-edge": 150
+      }
+    },
+    {
+      "id": "aa-marked-line-complete",
+      "title": "With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-edge"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 4
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-edge": 150
+      }
+    },
+    {
+      "id": "zeq-tolerance-flat",
+      "title": "Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 6,
+      "expect": 6,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "zeq-slope-band-left",
+      "title": "Equal band on a sloping face: left x (101..107)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        10
+      ],
+      "check": "range",
+      "min": 101,
+      "max": 107,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "zeq-slope-band-right",
+      "title": "Equal band on a sloping face: right x (149..155)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        11
+      ],
+      "check": "range",
+      "min": 149,
+      "max": 155,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "zeq-decal-whole",
+      "title": "A decal on a sloping base has no holes",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "zeq-no-base-empty",
+      "title": "An Equal polygon with no base polygon draws nothing",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "far-plane-hide",
+      "title": "POLYGON_ATTR bit 12 clear hides a polygon that reaches past the far plane; set draws it clipped",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 96,
+      "expect": 96,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "attr-latch-begin",
+      "title": "POLYGON_ATTR sent between Begin and End has no effect until the next Begin",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 128,
+      "expect": 128,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "alpha-test-max-hides",
+      "title": "ALPHA_TEST_REF 1F hides an opaque (alpha 31) polygon",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 256,
+      "expect": 256,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "highlight-clamp",
+      "title": "Highlight shading saturates at 63 (Rt 63 + Rs 33): the captured colour is white, not wrapped",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Texture Blending",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "decal-alpha0-vertex",
+      "title": "A decal texel with alpha 0 shows the vertex colour",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Texture Blending",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "wire-texture-alpha",
+      "title": "A wireframe with an A5I3 texture (alpha 15) is blended, not opaque",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Texture Blending",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "blend-bypass-clear-alpha0",
+      "title": "A translucent polygon over a rear plane of alpha 0 keeps its own colour (no blend)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "pre-captures-done",
+      "title": "Every capture of the five scenes finished",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        0
+      ],
+      "check": "eq",
+      "expect": 31,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Video Capture and Main Memory Display Mode",
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1
+      }
+    },
+    {
+      "id": "pre-dot-near-far",
+      "title": "A W 1 dot is drawn and a far 0x0 dot is hidden at DISP_1DOT_DEPTH W 2.0",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 3,
+      "expect": 3,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Display Control",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "pre-dot-bit13",
+      "title": "POLYGON_ATTR bit 13 draws a far dot",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-dot"
+      ],
+      "values": [
+        1
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 1
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-dot": 150
+      }
+    },
+    {
+      "id": "pre-fog-applies",
+      "title": "A fog face behind FOG_OFFSET is blended between its colour and the backdrop",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-fog"
+      ],
+      "values": [
+        3
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 2
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-fog": 150
+      }
+    },
+    {
+      "id": "pre-edge-marks",
+      "title": "Edge marking marks something",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-edge"
+      ],
+      "values": [
+        6
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
+      "done": {
+        "value": 0,
+        "mask": 4
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-edge": 150
+      }
+    },
+    {
+      "id": "pre-zeq-flat-draws",
+      "title": "A coplanar Equal polygon is drawn",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-depth"
+      ],
+      "values": [
+        9
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Polygon Attributes",
+      "done": {
+        "value": 0,
+        "mask": 8
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-depth": 150
+      }
+    },
+    {
+      "id": "pre-toon-index",
+      "title": "Toon shading takes the vertex red as the table index",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Texture Blending",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "pre-blend-path",
+      "title": "The 3D alpha through the BG0 blend tells alpha 31 from alpha 15",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "check-blend"
+      ],
+      "values": [
+        15
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS 3D Final 2D Output",
+      "done": {
+        "value": 0,
+        "mask": 16
+      },
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1,
+        "check-blend": 150
+      }
+    },
+    {
+      "id": "approaches-cleared",
+      "title": "The rehearsal finished the first approach of every chapter (5 approaches); the QA run all 30",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "values": [
+        19
+      ],
+      "check": "range",
+      "min": 5,
+      "max": 30,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "rehearsal": 1200,
+        "qa": 1
+      }
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The QA run passed",
+      "boots": [
+        "qa"
+      ],
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null,
+      "tolerance": 0,
+      "frame": {
+        "qa": 1
+      }
+    }
+  ],
+  "known": {
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64",
+      "ng": [
+        "dot-mixed-w-first-colour",
+        "dot-only-zero-size",
+        "dot-depth-extremes",
+        "aa-opaque-dot-hidden",
+        "edge-front-only",
+        "edge-aa-translucent",
+        "aa-marked-line-complete",
+        "zeq-slope-band-left",
+        "zeq-slope-band-right",
+        "zeq-decal-whole",
+        "far-plane-hide",
+        "alpha-test-max-hides",
+        "decal-alpha0-vertex",
+        "wire-texture-alpha",
+        "pre-dot-near-far",
+        "pre-edge-marks"
+      ],
+      "na": []
+    },
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
+      "ng": [
+        "aa-opaque-dot-hidden",
+        "wire-texture-alpha"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
+      "ng": [
+        "dot-mixed-w-first-colour",
+        "dot-only-zero-size",
+        "dot-depth-extremes",
+        "aa-translucent-dot-kept",
+        "aa-opaque-dot-hidden",
+        "edge-front-only",
+        "edge-aa-translucent",
+        "aa-marked-line-complete",
+        "zeq-tolerance-flat",
+        "zeq-slope-band-left",
+        "zeq-slope-band-right",
+        "zeq-decal-whole",
+        "zeq-no-base-empty",
+        "alpha-test-max-hides",
+        "wire-texture-alpha",
+        "pre-dot-near-far",
+        "pre-dot-bit13",
+        "pre-edge-marks"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
+      "ng": [
+        "aa-opaque-dot-hidden",
+        "edge-aa-translucent",
+        "wire-texture-alpha"
+      ],
+      "na": []
+    }
+  },
+  "known_note": "Measured 2026-11-17 with the rehearsal ROM on each renderer; the NG lists are gating items only (the four unconfirmed items are informational). Emulator results are not golden values: a renderer that matches GBATEK is the reference, not the other way round."
+}

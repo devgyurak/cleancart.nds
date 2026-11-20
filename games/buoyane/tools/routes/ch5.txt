@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+
+chapter 5 HARBOUR
+
+approach "Moon Path Quay"
+gate 1 5 3 5 2
+gate 2 4 4 1 2
+gate 0 4 1 4 0
+
+approach "Rigging Row"
+gate 2 3 3 5 4
+gate 1 2 5 2 4
+gate 1 2 5 2 1
+
+approach "Shutter Steps"
+gate 1 1 1 2 3
+gate 0 5 1 5 0
+gate 2 5 5 2 0
+
+approach "Beacon Pier"
+gate 1 4 3 2 4
+gate 2 3 3 4 5
+gate 2 2 2 4 5
+
+approach "Slipway Nine"
+gate 1 3 3 0 1
+gate 2 1 4 5 1
+gate 0 0 3 0 5
+
+approach "Long Mole"
+gate 0 3 1 0 3
+gate 0 5 1 5 0
+gate 1 4 3 2 4

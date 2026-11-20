@@ -49,6 +49,7 @@
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick 타이틀 화면"> | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 목표 17 · 전제 조건 10<!-- /cell --> | [README](games/tonewick/README-KO.md) · [QA 점검표](games/tonewick/docs/QA-KO.md) · [실기 QA](games/tonewick/docs/HW-QA-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
 | [Pendulane](games/pendulane/) | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간 (진행 중; SPI, ARM7 메모리, 카트 gap, 사운드 시작 지연이 이어집니다). | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 8<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
+| [Buoyane](games/buoyane/) | 밤 항구 접근 게임: 작은 배를 몰며 불빛이 어떻게 보이는지 읽어 항구로 들어갑니다. 리허설 ROM과 확인 ROM 다섯 개로 스스로를 판정합니다.<br>검사 (L2, 3D 렌더링 가장자리): 폴리곤 규칙(1-dot 폴리곤, 깊이 Equal, far plane, 속성 래치), 텍스처 블렌딩(highlight, decal, 와이어프레임), fog·edge·안티앨리어싱 후처리. | 자동 (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 목표 23 · 전제 조건 11<!-- /cell --> | [README](games/buoyane/README-KO.md) · [에셋](games/buoyane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -248,7 +249,35 @@
 
 </details>
 
-<details><summary><b>L2 경계</b> · Ledgerine, Lightenette, Tonewick (66 개)</summary>
+<details><summary><b>L2 경계</b> · Buoyane, Ledgerine, Lightenette, Tonewick (89 개)</summary>
+
+#### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
+
+목표 23 · 전제 조건 11
+
+- `dot-mixed-w-first-colour` · A 1-dot polygon with vertices on both sides of DISP_1DOT_DEPTH is drawn, in the colour of its first vertex (forward order red, reverse order green) · [expected.json](games/buoyane/expected.json)
+- `dot-only-zero-size` · A far 1x0 polygon is drawn; a 0x0 polygon at the same distance is hidden · [expected.json](games/buoyane/expected.json)
+- `dot-depth-extremes` · DISP_1DOT_DEPTH 0 hides a W 1 dot; 7FFF shows dots at W 1, 64 and 1000 · [expected.json](games/buoyane/expected.json)
+- `aa-translucent-dot-kept` · With anti-aliasing on, a translucent (alpha 30) 1-dot polygon is still drawn · [expected.json](games/buoyane/expected.json)
+- `aa-opaque-dot-hidden` · With anti-aliasing on, an opaque 1-dot polygon is hidden (the same dot is drawn without it) · [expected.json](games/buoyane/expected.json)
+- `fog-alpha-glitch` · A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog _(참고용)_ · [expected.json](games/buoyane/expected.json)
+- `fog-translucent-and` · Fog on a translucent pixel needs both the polygon fog bit and the fog flag of the pixel behind it (case without: no fog; case with: fog) · [expected.json](games/buoyane/expected.json)
+- `fog-rear-plane-bit` · CLEAR_COLOR bit 15 set: the rear plane is fogged; clear: it is not · [expected.json](games/buoyane/expected.json)
+- `edge-front-only` · Edge marking colours only the edge of the polygon in front (the one with the smaller depth) · [expected.json](games/buoyane/expected.json)
+- `edge-aa-translucent` · With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative) · [expected.json](games/buoyane/expected.json)
+- `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels · [expected.json](games/buoyane/expected.json)
+- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
+- `zeq-slope-band-left` · Equal band on a sloping face: left x (101..107) · [expected.json](games/buoyane/expected.json)
+- `zeq-slope-band-right` · Equal band on a sloping face: right x (149..155) · [expected.json](games/buoyane/expected.json)
+- `zeq-decal-whole` · A decal on a sloping base has no holes · [expected.json](games/buoyane/expected.json)
+- `zeq-no-base-empty` · An Equal polygon with no base polygon draws nothing · [expected.json](games/buoyane/expected.json)
+- `far-plane-hide` · POLYGON_ATTR bit 12 clear hides a polygon that reaches past the far plane; set draws it clipped · [expected.json](games/buoyane/expected.json)
+- `attr-latch-begin` · POLYGON_ATTR sent between Begin and End has no effect until the next Begin · [expected.json](games/buoyane/expected.json)
+- `alpha-test-max-hides` · ALPHA_TEST_REF 1F hides an opaque (alpha 31) polygon · [expected.json](games/buoyane/expected.json)
+- `highlight-clamp` · Highlight shading saturates at 63 (Rt 63 + Rs 33): the captured colour is white, not wrapped · [expected.json](games/buoyane/expected.json)
+- `decal-alpha0-vertex` · A decal texel with alpha 0 shows the vertex colour · [expected.json](games/buoyane/expected.json)
+- `wire-texture-alpha` · A wireframe with an A5I3 texture (alpha 15) is blended, not opaque · [expected.json](games/buoyane/expected.json)
+- `blend-bypass-clear-alpha0` · A translucent polygon over a rear plane of alpha 0 keeps its own colour (no blend) · [expected.json](games/buoyane/expected.json)
 
 #### Ledgerine · system edges
 
@@ -386,11 +415,11 @@
 
 </details>
 
-<details><summary><b>L4 연구</b> · Probes (34 개)</summary>
+<details><summary><b>L4 연구</b> · Probes (41 개)</summary>
 
 #### Probes · research probes
 
-목표 34 · 전제 조건 0
+목표 41 · 전제 조건 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(참고용)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(참고용)_ · [expected.json](probes/expected.json)
@@ -426,6 +455,13 @@
 - `tex-late-216` · A texture palette rewritten at line 216 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
 - `tex-late-230` · A texture palette rewritten at line 230 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
 - `tex-late-250` · A texture palette rewritten at line 250 (after the swap at the VBlank): lines of the captured next frame (one column, 192) that do not show the new colour (the old one, or black while the bank was in LCDC mode) (3D rendering starts at line 214; no document says where a late write is lost, so this is only recorded) _(참고용)_ · [expected.json](probes/expected.json)
+- `fog-boundary-start` · Fog density table: of two quads at OFFSET + 0.25 and + 0.75 steps, how many are unfogged (GBATEK puts the first boundary at OFFSET + STEP: 2; melonDS shifts its table by one entry and agrees) _(참고용)_ · [expected.json](probes/expected.json)
+- `fog-shift-11` · FOG_SHIFT 11 (table step 0): bit 0 the quad before the offset is unfogged, bits 1 and 2 the quads after it are fully fogged (GBATEK: only the densities 0 and 31 apply) _(참고용)_ · [expected.json](probes/expected.json)
+- `edge-screen-border` · Edge marking at the screen border: the pixels at x 0 and x 255 of a polygon that touches both, edge colour 1 (yellow) expected on both (GBATEK: "seem to be" marked from the rear-plane polygon ID) _(참고용)_ · [expected.json](probes/expected.json)
+- `poly-right-edge-pixel` · The same full-width polygon without edge marking: does it cover the pixel at x 255 (1 = yes; GBATEK "Polygon Size": the right vertical edge may be left out) _(참고용)_ · [expected.json](probes/expected.json)
+- `dot-queued-cutoff` · A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn _(참고용)_ · [expected.json](probes/expected.json)
+- `aa-line-pixels` · Pixels of an anti-aliased 1-pixel line, x 32..224: opaque | translucent (alpha 30) << 16 (GBATEK gives no count) _(참고용)_ · [expected.json](probes/expected.json)
+- `zeq-step-boundary` · Depth Equal one step (raw z 3 and 5 against a base at 4) from the base: pixels drawn at -1 | +1 << 16, of 1024 each (the +-200h window: is the boundary inside?) _(참고용)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->

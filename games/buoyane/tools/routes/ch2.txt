@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)
+
+chapter 2 SECTORS
+
+approach "Two-Colour Bend"
+gate 0 5 5 1 0
+gate 1 1 2 1 3
+gate 2 2 4 3 2
+
+approach "Brindle Sector"
+gate 2 1 1 0 5
+gate 2 2 4 3 2
+gate 0 4 0 1 4
+
+approach "Pale Quarter"
+gate 1 3 2 3 0
+gate 1 3 3 0 2
+gate 1 1 2 1 4
+
+approach "Sedge Light Cut"
+gate 0 3 0 2 3
+gate 0 4 0 4 3
+gate 2 3 4 3 5
+
+approach "Dunnock Turn"
+gate 1 5 1 5 2
+gate 2 3 5 3 0
+gate 2 0 1 0 3
+
+approach "Cinder Wake"
+gate 1 3 2 3 1
+gate 2 1 5 1 0
+gate 0 4 3 4 0

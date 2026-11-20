@@ -2,7 +2,7 @@
 
 [한국어](README-KO.md)
 
-Research probes for emulator developers: 17 small Nintendo DS demo ROMs that report what an emulator
+Research probes for emulator developers: 18 small Nintendo DS demo ROMs that report what an emulator
 does for behaviour **nobody has confirmed on hardware** (level L4, see [../docs/LEVELS.md](../docs/LEVELS.md)).
 This is not a game: there is no title, no credits and no QA mode, only ROMs that run for 120 frames,
 write a result block and keep the picture on screen.
@@ -32,6 +32,7 @@ per-line OBJ budget, the reversed-UV seam). Nothing is graded against hardware, 
 | `probes-l4-acc-rear-plane` | `rear-plane`, `rear-plane-full` | the capture of a pass routed back as the 3D rear plane, set up first: opaque pixels of the captured pass (partial / all 4096) |
 | `probes-l4-vcount-write` | `vcw-212-lines`, `vcw-212-residual`, `vcw-205-lines`, `vcw-212-210-lines`, `vcw-outside-lines` | VCOUNT writes: lines a write adds, the residual cycles, and whether a write outside the 202..212 range GBATEK allows is ignored (Heddlemere judges only the 10 to 11 line window as an L2 prerequisite) |
 | `probes-l4-tex-late` | `tex-late-192` to `tex-late-250` | a texture palette rewritten at a given line after the buffer swap: from which line a late write is lost to the 3D render (rendering starts at line 214) |
+| `probes-l4-3d-fog-dot` | `fog-boundary-start`, `fog-shift-11`, `edge-screen-border`, `poly-right-edge-pixel`, `dot-queued-cutoff`, `aa-line-pixels`, `zeq-step-boundary` | the fog, edge and 1-dot corners GBATEK words loosely (where the first fog boundary lies, FOG_SHIFT 11, edge marking at the screen border, a queued 1-dot, anti-aliased line pixels, the depth Equal boundary step); moved out of Buoyane (games/buoyane), which judges only what GBATEK pins down |
 | `probes-l4-2d-obj-line` | `2d-obj-line-budget` | 120 sprites on one line: is the last group dropped? |
 | `probes-l4-sys-dma-disp` | `sys-dma-disp-pixels` | the main-memory display FIFO seen by capture source B |
 | `probes-l4-2d-display` | `2d-display-pixels` | the same, after a VRAM display frame |
@@ -61,7 +62,7 @@ are what emulators do, not what a console does.
 ## Build and use
 
 ```sh
-./build.sh -j8 release          # build/release/demos (17 ROMs) and build/release/judge (expected.json + judge.py)
+./build.sh -j8 release          # build/release/demos (18 ROMs) and build/release/judge (expected.json + judge.py)
 tools/melonds/mds.sh demos probes/build/release/demos > probes.log        # headless melonDS (RENDERER=soft|gl|compute)
 RESULT_WORDS=16 tools/emu/emu.sh demos probes > probes.log                # headless DeSmuME
 python3 probes/tools/judge.py probes.log                                 # print the values (informational, exit 0)

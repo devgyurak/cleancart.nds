@@ -1849,6 +1849,263 @@ typedef struct {
 // The ROM demo names carry the l4- prefix: their result-block ids differ from
 // the Corvane, Hushwell, Lightenette and Elevane ones (the same demo code runs
 // in Corvane under its plain name).
+// --- Fog boundary, FOG_SHIFT 11, screen-border edges, a queued 1-dot, AA lines, depth Equal +-1 ------
+// Observations of the fog / edge / 1-dot corners that GBATEK words loosely or not at all and that
+// Buoyane (games/buoyane) therefore does not judge. Nothing here is graded: the judge records what each
+// emulator gives. Every number is read from a capture of the 3D layer alone (DISPCAPCNT bit 24).
+//
+//   values[0]  fog boundary: how many of the two quads at OFFSET + 0.25 / + 0.75 steps are unfogged
+//              (GBATEK: the first boundary lies at OFFSET + STEP, so 2; melonDS shifts the table by one entry, so it agrees)
+//   values[1]  the quad at OFFSET + 0.25 step | + 0.75 step << 16 (raw RGB555)
+//   values[2]  FOG_SHIFT 11: bit 0 quad before the offset unfogged, bit 1 / bit 2 quads after it fully fogged
+//   values[3]  the quad before the offset | the first quad after it << 16 (raw)
+//   values[4]  screen-border edge: pixel at (0, 96) | pixel at (255, 96) << 16 with edge marking and a polygon on the border
+//   values[5]  a 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn
+//   values[6]  anti-aliased 1-pixel lines, pixels found: opaque | translucent (alpha 30) << 16, x 32..224
+//   values[7]  depth Equal, one step from the base: pixels drawn at -1 step | +1 step << 16 (of 1024 each)
+//   values[8]  the screen-border polygon without edge marking: 1 when it covers the pixel at (255, 96) (GBATEK "Polygon Size")
+
+#define FD_CLEAR RGB15(0, 0, 10)
+#define FD_RED   RGB15(31, 0, 0)
+#define FD_FOG   RGB15(0, 31, 31)
+
+static const m4x4 fd_ident = { { 4096, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 4096 } };
+static const m4x4 fd_dot = { { 4096, 0, 0, 0, 0, 4096, 0, 0, 0, 0, 0, -4096, 0, 0, 0, 0 } };
+static const m4x4 fd_px = { { 24576, 0, 0, 0, 0, -32768, 0, 0, 0, 0, 4096, 0, -12288, 12288, 0, 12288 } };
+
+static int fd_pass;
+static const u16 *const FD_CAP = (const u16 *)0x06860000;
+
+static u16 fd_at(int x, int y)
+{
+    return FD_CAP[y * 256 + x] & 0x7FFF;
+}
+
+static void fd_idv(int x, int y, int z)
+{
+    glVertex3v16((x - 128) * 32, (96 - y) * 128 / 3, z);
+}
+
+static void fd_idquad(int x0, int y0, int x1, int y1, int z)
+{
+    glBegin(GL_QUADS);
+    fd_idv(x0, y0, z);
+    fd_idv(x0, y1, z);
+    fd_idv(x1, y1, z);
+    fd_idv(x1, y0, z);
+    glEnd();
+}
+
+static void fd_dotv(int x, int y, int32_t w)
+{
+    int32_t a = (x - 128) * 32, b = (96 - y) * 128 / 3;
+    GFX_COLOR = RGB15(31, 31, 31);
+    glVertex3v16(a * w / 4096, b * w / 4096, -w);
+}
+
+static void fd_pxquad(int x0, int y0, int x1, int y1, int z)
+{
+    glBegin(GL_QUADS);
+    glVertex3v16(x0 * 16, y0 * 16, z);
+    glVertex3v16(x0 * 16, y1 * 16, z);
+    glVertex3v16(x1 * 16, y1 * 16, z);
+    glVertex3v16(x1 * 16, y0 * 16, z);
+    glEnd();
+}
+
+static void fd_draw(void)
+{
+    const u32 opaque = POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrix4x4(&fd_ident);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    GFX_TEX_FORMAT = 0;
+    switch (fd_pass)
+    {
+        case 0:   // FOG_SHIFT 0, offset 0x2000, step 0x400: quads at +0.25 and +0.75 step
+            glPolyFmt(opaque | POLY_FOG);
+            GFX_COLOR = FD_RED;
+            fd_idquad(16, 40, 96, 100, 2 * 0x2100 * 4096 / 0x7FFF - 4096);
+            fd_idquad(160, 40, 240, 100, 2 * 0x2300 * 4096 / 0x7FFF - 4096);
+            break;
+        case 1:   // FOG_SHIFT 11: before the offset, and two quads after it
+            glPolyFmt(opaque | POLY_FOG);
+            GFX_COLOR = FD_RED;
+            fd_idquad(8, 40, 72, 100, 2 * 0x1F00 * 4096 / 0x7FFF - 4096);
+            fd_idquad(96, 40, 160, 100, 2 * 0x2010 * 4096 / 0x7FFF - 4096);
+            fd_idquad(184, 40, 248, 100, 2 * 0x3000 * 4096 / 0x7FFF - 4096);
+            break;
+        case 2:   // a polygon on the screen border with edge marking
+            glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(8));
+            GFX_COLOR = RGB15(10, 10, 10);
+            fd_idquad(0, 40, 256, 150, 0);
+            break;
+        case 3:   // a far 1-dot queued behind a backlog of matrix work while the cut-off is raised
+            glCutoffDepth(16);
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrix4x4(&fd_dot);
+            glMatrixMode(GL_MODELVIEW);
+            while (GFX_STATUS & (1u << 27))
+                ;
+            for (int i = 0; i < 24; i++)
+                glMultMatrix4x4(&fd_ident);
+            glPolyFmt(opaque);
+            glBegin(GL_TRIANGLES);
+            fd_dotv(128, 96, F(4));
+            fd_dotv(128, 96, F(4));
+            fd_dotv(128, 96, F(4));
+            glEnd();
+            glCutoffDepth(0x7FFF);
+            break;
+        case 4:   // anti-aliased 1-pixel lines
+            glCutoffDepth(16);
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrix4x4(&fd_dot);
+            glMatrixMode(GL_MODELVIEW);
+            for (int k = 0; k < 2; k++)
+            {
+                glPolyFmt((k ? POLY_ALPHA(30) : POLY_ALPHA(31)) | POLY_CULL_NONE | POLY_ID(2 + k));
+                glBegin(GL_TRIANGLES);
+                fd_dotv(32, 96 + k * 24, F(1));
+                fd_dotv(224, 96 + k * 24, F(1));
+                fd_dotv(224, 96 + k * 24, F(1));
+                glEnd();
+            }
+            break;
+        default:  // depth Equal, one step (raw z 3 and 5 against the base at 4) from the base
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrix4x4(&fd_px);
+            glMatrixMode(GL_MODELVIEW);
+            glPolyFmt(opaque);
+            GFX_COLOR = RGB15(12, 12, 12);
+            fd_pxquad(12, 72, 244, 104, 4);
+            glPolyFmt(opaque | POLY_DEPTH_TEST_EQUAL);
+            GFX_COLOR = RGB15(31, 31, 0);
+            fd_pxquad(20, 72, 52, 105, 3);
+            fd_pxquad(60, 72, 92, 105, 5);
+            break;
+    }
+    g3_flush(false);
+}
+
+static void fd_capture(void)
+{
+    vram_set(VB_D, 0, 0);
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)FD_CAP)[i] = 0x55555555;
+    for (int f = 0; f < 8; f++)
+    {
+        fd_draw();
+        if (f == 4)
+            REG_DISPCAPCNT = (1u << 31) | (1u << 24) | (3 << 16) | (3 << 20);
+        vsync();
+    }
+}
+
+static void fd_setup(u32 d3, u16 clear)
+{
+    while (GFX_STATUS & (1u << 27))
+        ;
+    GFX_CONTROL = (u16)(d3 | 1u << 3);
+    GFX_CLEAR_COLOR = clear | 31u << 16 | 63u << 24;
+    GFX_CLEAR_DEPTH = 0x7FFF;
+    GFX_FOG_COLOR = FD_FOG | 31u << 16;
+    GFX_FOG_OFFSET = 0x2000;
+    for (int i = 0; i < 8; i++)
+        GFX_EDGE_TABLE[i] = RGB15(31, 31, 0);
+    glCutoffDepth(0x7FFF);
+}
+
+static void d_3d_fog_dot(void)
+{
+    con_3d(VL_TERRAIN);
+    vram_set(VB_D, 0, 0);
+    demo_title("3D-FOG-DOT");
+    REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while capturing
+    u32 v[9] = { 0 };
+    u32 pend = 0;
+
+    // 0: fog boundary. FOG_SHIFT 0 (step 400h): entry 0 is 0, entries 1.. are 127, so the first boundary decides:
+    // GBATEK starts the rise at OFFSET + STEP (both quads in entry 0, unfogged); melonDS shifts its density table by one entry
+    // (RenderFogDensityTable[0] = table[0]), which gives the same result, so all profiles are expected to agree.
+    fd_pass = 0;
+    fd_setup(1u << 7, FD_CLEAR);
+    glFogShift(0);
+    for (int i = 0; i < 32; i++)
+        GFX_FOG_TABLE[i] = i < 1 ? 0 : 127;
+    fd_capture();
+    u16 q0 = fd_at(56, 70), q1 = fd_at(200, 70);
+    v[0] = (q0 == FD_RED) + (q1 == FD_RED);
+    v[1] = q0 | (u32)q1 << 16;
+
+    // 1: FOG_SHIFT 11: no table step left; recorded as is
+    fd_pass = 1;
+    fd_setup(1u << 7, FD_CLEAR);
+    glFogShift(11);
+    for (int i = 0; i < 32; i++)
+        GFX_FOG_TABLE[i] = i < 16 ? 0 : 127;
+    fd_capture();
+    u16 a = fd_at(40, 70), b = fd_at(128, 70), c = fd_at(216, 70);
+    v[2] = (a == FD_RED) | (b == FD_FOG) << 1 | (c == FD_FOG) << 2;
+    v[3] = a | (u32)b << 16;
+
+    // 2: screen border with edge marking
+    fd_pass = 2;
+    fd_setup(1u << 5, FD_CLEAR);
+    fd_capture();
+    v[4] = fd_at(0, 96) | (u32)fd_at(255, 96) << 16;
+
+    // 2b: the same polygon without edge marking: does it cover x 255 at all (GBATEK "Polygon Size": the right edge may drop)
+    fd_pass = 2;
+    fd_setup(0, FD_CLEAR);
+    fd_capture();
+    pend = fd_at(255, 96) == RGB15(10, 10, 10);
+
+    // 3: queued dot
+    fd_pass = 3;
+    fd_setup(0, FD_CLEAR);
+    fd_capture();
+    v[5] = fd_at(128, 96) != FD_CLEAR;
+
+    // 4: anti-aliased 1-pixel lines
+    fd_pass = 4;
+    fd_setup(1u << 4, FD_CLEAR);
+    fd_capture();
+    u32 lo = 0, lt = 0;
+    for (int x = 32; x < 224; x++)
+    {
+        lo += fd_at(x, 96) != FD_CLEAR;
+        lt += fd_at(x, 120) != FD_CLEAR;
+    }
+    v[6] = lo | lt << 16;
+
+    // 5: depth Equal, one step from the base
+    fd_pass = 5;
+    fd_setup(0, FD_CLEAR);
+    fd_capture();
+    u32 m1 = 0, p1 = 0;
+    for (int y = 72; y < 104; y++)
+        for (int x = 0; x < 32; x++)
+        {
+            m1 += fd_at(20 + x, y) == RGB15(31, 31, 0);
+            p1 += fd_at(60 + x, y) == RGB15(31, 31, 0);
+        }
+    v[7] = m1 | p1 << 16;
+    v[8] = pend;
+
+    REG_DISPCAPCNT = 0;
+    REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
+    volatile CvResult *r = CV_RESULT;
+    for (int i = 4; i < 9; i++)
+        r->values[i] = v[i];
+    con_printf("FOG START %lu (2)  SHIFT11 %lu\n", (unsigned long)v[0], (unsigned long)v[2]);
+    con_printf("BORDER %08lX  QUEUED %lu\n", (unsigned long)v[4], (unsigned long)v[5]);
+    con_printf("AA LINES %08lX  EQ+-1 %08lX\n", (unsigned long)v[6], (unsigned long)v[7]);
+    con_printf("RIGHT PIXEL %lu\n", (unsigned long)v[8]);
+    finish(v[0], v[1], v[2], v[3]);
+}
+
 static const DemoEntry demos[] = {
     { "l4-sys-dma-gfx", d_sys_dma_gfx },     { "l4-sys-dma-disp", d_sys_dma_disp },
     { "l4-2d-obj-line", d_2d_obj_line },     { "l4-2d-display", d_2d_display },
@@ -1859,6 +2116,7 @@ static const DemoEntry demos[] = {
     { "l4-acc-split-rear", d_acc_split_rear }, { "l4-acc-split-hdma", d_acc_split_hdma },
     { "l4-acc-rear-plane", d_acc_rear_plane },
     { "l4-vcount-write", d_vcount_write },   { "l4-tex-late", d_tex_late },
+    { "l4-3d-fog-dot", d_3d_fog_dot },
 };
 
 void demo_main(const char *name)
