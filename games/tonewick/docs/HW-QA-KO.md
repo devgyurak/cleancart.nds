@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-tonewick-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 NG 항목이 있고, 우리 기대값에 대한 발견이라 별도 PR에서 다시 봅니다(여기서는 고치지 않음).
+**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 하나(`snd-short-silent`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 그 실행의 점검표입니다. 첫 값을 기록하고, 에뮬레이터나 GBATEK 읽기만
 뒷받침하는 항목을 확정하기 위한 것입니다. 콘솔은 사람이 조작하며, 아래 단계는 할 일과 적어 둘 것입니다.
@@ -56,8 +56,8 @@
 
 | 결과 | 뜻 | 바뀌는 것 (파일, 실행을 기록하는 PR에서) |
 |---|---|---|
-| 값이 매번 범위 안 | GBATEK과 ROM이 맞음 | `expected.json`: `source`는 `hw:ds-lite`(기종), `level_basis`에 `; hw:docs/HW-QA.md`(실행을 기록한 파일) 추가. 항목은 레벨 2 유지 |
-| 범위를 벗어나지만 매번 같고 설명이 있음(다른 자료가 말하는 버그, 레지스터 미러, 로더) | 기대값이 틀렸고 항목은 문서화됨 | `expected.json`: 범위나 `expect`를 측정값으로 바꾸고 `source`는 `hw:ds-lite`, `level_basis`는 `hw:docs/HW-QA.md`, 설명은 `title`에. 항목은 레벨 2 유지. 줄의 모델도 따라감(`junction.c`의 10·11번 줄은 GBATEK 버그를 모델로 씁니다) |
+| 값이 매번 범위 안 | GBATEK과 ROM이 맞음 | `expected.json`: `source`는 `hw:dslite-ntr`(기종), `level_basis`에 `; hw:games/tonewick/docs/HW-QA.md`(실행을 기록한 파일) 추가. 항목은 레벨 2 유지 |
+| 범위를 벗어나지만 매번 같고 설명이 있음(다른 자료가 말하는 버그, 레지스터 미러, 로더) | 기대값이 틀렸고 항목은 문서화됨 | `expected.json`: 범위나 `expect`를 측정값으로 바꾸고 `source`는 `hw:dslite-ntr`, `level_basis`는 `hw:games/tonewick/docs/HW-QA.md`, 설명은 `title`에. 항목은 레벨 2 유지. 줄의 모델도 따라감(`junction.c`의 10·11번 줄은 GBATEK 버그를 모델로 씁니다) |
 | 값이 실행마다 또는 콘솔마다 다르거나 아무도 설명하지 못함 | 문서화된 동작이 아님: 레벨 4 연구 | **한 PR에서 모두 합니다**(`role: relocate` 항목은 `mklevels.py --check`가 실패시키므로 커밋하지 않습니다). 항목은 `expected.json`에서 빠지고, 그 실험을 담은 데모 ROM이 `probes/`에 들어가며(에뮬레이터별 `known` 프로필, `probes/AGENTS.md` 참고), 지역 감사는 숫자를 원값으로 남겨도 되고, 10·11번 줄은 그대로 동작하며(모델은 GBATEK 버그, 귀의 답은 옆에 표시), 프로필의 `ng`에서 항목을 빼고, `mklevels.py`가 LEVELS와 README 칸을 다시 만듭니다 |
 
 실행을 기록하는 사람(콘솔이 있는 관리자)이 PR을 엽니다. 프로필 `hw-ds-lite`는 콘솔에서 실패하는 항목을 나열합니다.
@@ -65,7 +65,7 @@
 ## 기록
 
 - `docs/QA.md`와 `docs/QA-KO.md`(쌍둥이): ROM SHA-256, 콘솔과 카드, 실패한 항목, QA 로그 머리글.
-- `expected.json`: 실기 값이 ROM의 기대와 맞는 항목은 `source`를 `hw:ds-lite`로 바꾸고 `level_basis`에 `hw:`를 더합니다.
+- `expected.json`: 실기 값이 ROM의 기대와 맞는 항목은 `source`를 `hw:dslite-ntr`로 바꾸고 `level_basis`에 `hw:`를 더합니다.
   실기가 다르면 그 항목은 발견입니다. 값을 기록하고 ROM과 기대 중 어느 쪽이 틀렸는지 정합니다. `known`에 프로필 `hw-ds-lite`
   (실패한 항목)를 더합니다.
 - `build/qa/` 아래는 절대 커밋하지 않습니다.
@@ -84,12 +84,29 @@
 
 | 항목 | 실기 | melonDS 1.1 soft | 차이? |
 |---|---|---|---|
-| `snd-short-silent` (L2, GBATEK, 기대 0..2) | **16384** (NG) | 0 | 있음. 콘솔에서는 반복하는 짧은 샘플이 무음이 아님. 우리 기대값에 대한 발견(검토 중) |
+| `snd-short-silent` (L2, GBATEK, 기대 0..2) | **16384** (NG) | 0 | 있음. 콘솔에서는 반복하는 짧은 샘플이 무음이 아님. 기대값이 틀렸음: 이제 16320..16448, source `hw:dslite-ntr`(아래 참조) |
 | `snd-hold-level` | 100 (OK) | 0 (NG, 프로필) | melonDS 프로필 NG가 실제 에뮬레이터 차이임이 확인됨 |
 | `cap-add-wrap` / `cap-both-negative` / `cap-src-channel` | 24576 / 0 / 40960 (OK) | 65535 / 16384 / 49152 (NG, 프로필) | 위와 같음 |
 | `pm-reg-mirror` | 1 (OK) | 0 (NG, 프로필) | 위와 같음 |
 | `snd-duty3-edges` | 128 | 127 | 둘 다 OK |
-| `rtc-ampm-24h` | n/a (values[19] = 0) | OK 8/8 | 오후 시계가 필요 |
+| `rtc-ampm-24h` | n/a (values[19] = 0) | OK 8/8 | 오후 시계가 필요. 실행 2에서 OK 8/8 |
 | 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
 
-NG 항목은 여기서 고치지 않습니다. `level-judge`가 기대값과 레벨을 제안하고(근거 `hw:games/tonewick/docs/HW-QA.md`), 변경은 별도 PR로 합니다.
+NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실행에서 정한 기대값"에서 다룹니다.
+
+## 실행 2: QA 실행과 판정 스위트, 2026-11-17 (본체 시계 2026-01-15 12:07)
+
+실행 1과 같은 콘솔·카드·ROM(`tonewick-hw-support.nds`, build `91e6e87fe1c6`)으로, 이번에는 본체 시계가 정오를 지난 뒤(2026-01-15 12:07, 파일 이름 `res-20260115-*`, 실행 1은 `res-20020115-*`) 다시 돌렸습니다. 점검표가 요구한 오후 실행입니다.
+
+| 항목 | 값 |
+|---|---|
+| `judge.py --hardware` | QA 블록: 실행 1과 같은 판정에 `rtc-ampm-24h`가 OK로 채점됨(`values[19]` = 8, 원시 읽기 8번 모두 일치). `snd-short-silent`는 다시 16384(기대값을 바꾸기 전에는 NG). n/a 3(env: `save-wel-set`, `save-wel-reset`, `save-status-fixed`. R4에서는 칩에 접근 못함) |
+| 실행 1과의 차이 | `values[19]`만 다름(0 -> 8). 16384를 포함해 블록의 나머지 워드는 모두 같음 |
+
+## 실행에서 정한 기대값
+
+| 항목 | 변경 | 이유 |
+|---|---|---|
+| `snd-short-silent` | 범위 `16320..16448`, source `hw:dslite-ntr`. 제목: 반복하는 3워드 샘플은 콘솔에서 테이프 레벨을 유지함(GBATEK의 "소리 없음"은 0 레벨이 아님) | 두 실행 모두 16384(캡처한 피크)를 읽었고 GBATEK의 "소리 없음"에서 짐작한 2 이하가 아님. 두 실행에서 값이 같습니다. melonDS는 0, DeSmuME는 16384를 읽음 |
+| `cap-add-wrap`, `cap-both-negative`, `cap-src-channel`, `snd-hold-level`, `pm-reg-mirror`, `rtc-ampm-24h` | `level_basis`에 `hw:games/tonewick/docs/HW-QA.md` 추가 | 콘솔이 GBATEK과 같음(캡처 버그 둘이 실제로 있음). `rtc-ampm-24h`는 실행 2(오후)로 확인 |
+| 프로필 | `snd-short-silent`를 melonDS 세 프로필과 `-save-chip`의 `ng`에 추가. DeSmuME는 뺌(이제 16384를 읽음) | melonDS는 반복하는 3워드 샘플을 무음으로 둠 |

@@ -22,7 +22,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 |---|---|---|
 | `rehearsal` | `tonewick-rehearsal.nds`는 곧장 리허설로 부팅합니다(세이브 칩·NitroFS 없음). 스크립트로 신호선 12개를 풀고 모든 지역을 감사합니다. 결과 블록 id `0x48525754`(`TWRH`), 배치는 `game/lab.h`. `python3 tools/judge.py`(부트 `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute와 DeSmuME: 프로필 MATCH, 아래 참고 |
 
-실기: 2026-11-17 DS Lite + R4 실행 1, [HW-QA-KO.md](HW-QA-KO.md) 참고.
+실기: 2026-11-17 DS Lite + R4 실행 1·2, [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 판정 프로필 (2026-11-16, 이 커밋의 빌드)
 
@@ -30,11 +30,10 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 
 | 에뮬레이터 | NG 항목 | 비고 |
 |---|---|---|
-| melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS, `RTC=2026-11-16-15-30-00`) | `snd-hold-level`(hold 비트 미구현: one-shot이 끝나면 출력이 0으로 돌아감), `cap-src-channel`(비트 1을 무시: 채널 0의 2000h가 아니라 믹서 합 4000h가 캡처됨), `cap-add-wrap`(add 비트를 켠 캡처가 아무것도 쓰지 않음), `cap-both-negative`(-8000h가 아니라 두 채널을 더한 -4000h), `pm-reg-mirror`(생성한 펌웨어가 DS Lite라고 하는데 레지스터 4는 40h, 레지스터 5는 0) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 렌더러 셋이 같습니다. SD 이미지로 돌린 QA 실행에서는 세이브 항목 셋이 n/a입니다(홈브류 실행에는 세이브 칩이 없음). 에뮬레이트한 8 KB EEPROM(`SAV=`, 프로필 `melonds-1.1-software-save-chip`)에서는 셋 모두 OK |
-| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM, `RTC_HOUR=15`로 현지 시각 15시) | `snd-short-busy`(3워드 one-shot이 끝나면서 busy가 내려감), `snd-short-silent`(3워드 테이프가 소리를 냄), `snd-hold-level`, `snd-noise-lfsr`(일치 비트 152), `snd-adpcm-loop-reload`(루프가 재적재되지 않음), `cap-add-wrap`(캡처 없음), `cap-both-negative`(-2000h), `pm-reg-mirror`, `save-wel-reset`(쓰기 뒤에도 WEL이 켜진 채) | 프로필 `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low`는 통과합니다 |
+| melonDS 1.1 software / GL classic / GL compute (헤드리스, 내장 대체 BIOS, `RTC=2026-11-16-15-30-00`) | `snd-short-silent`(반복하는 3워드 샘플이 무음, 0. 콘솔은 레벨을 유지해 16384), `snd-hold-level`(hold 비트 미구현: one-shot이 끝나면 출력이 0으로 돌아감), `cap-src-channel`(비트 1을 무시: 채널 0의 2000h가 아니라 믹서 합 4000h가 캡처됨), `cap-add-wrap`(add 비트를 켠 캡처가 아무것도 쓰지 않음), `cap-both-negative`(-8000h가 아니라 두 채널을 더한 -4000h), `pm-reg-mirror`(생성한 펌웨어가 DS Lite라고 하는데 레지스터 4는 40h, 레지스터 5는 0) | 프로필 `melonds-1.1-software`, `-gl-classic`, `-gl-compute` MATCH. 렌더러 셋이 같습니다. SD 이미지로 돌린 QA 실행에서는 세이브 항목 셋이 n/a입니다(홈브류 실행에는 세이브 칩이 없음). 에뮬레이트한 8 KB EEPROM(`SAV=`, 프로필 `melonds-1.1-software-save-chip`)에서는 셋 모두 OK |
+| DeSmuME (py-desmume 0.0.9, HLE BIOS, EEPROM, `RTC_HOUR=15`로 현지 시각 15시) | `snd-short-busy`(3워드 one-shot이 끝나면서 busy가 내려감), `snd-hold-level`, `snd-noise-lfsr`(일치 비트 152), `snd-adpcm-loop-reload`(루프가 재적재되지 않음), `cap-add-wrap`(캡처 없음), `cap-both-negative`(-2000h), `pm-reg-mirror`, `save-wel-reset`(쓰기 뒤에도 WEL이 켜진 채) | 프로필 `desmume-pydesmume-0.0.9` MATCH. `snd-duty7-low`는 통과하고, `snd-short-silent`도 통과합니다(콘솔처럼 16384) |
 
-NG 항목은 모두 실기와 견줘 볼 결과입니다(GBATEK이 적은 내용이라 항목은 gating으로 둡니다). 특히 캡처 버그 둘은 GBATEK에만
-적혀 있습니다. DS Lite가 다른 값을 내면 어떻게 하는지는 [HW-QA-KO.md](HW-QA-KO.md)의 "실기 결과 판정" 절에 적었습니다.
+NG 항목은 콘솔과 다른 에뮬레이터 동작입니다. 실기 실행([HW-QA-KO.md](HW-QA-KO.md))이 GBATEK에만 적힌 캡처 버그 둘과 나머지 GBATEK 값을 확인했고, `snd-short-silent`는 기대값을 콘솔에서 얻은 항목입니다(반복하는 3워드 샘플이 테이프 레벨 16384를 유지). DS Lite가 다른 값을 내면 어떻게 하는지는 [HW-QA-KO.md](HW-QA-KO.md)의 "실기 결과 판정" 절에 적었습니다.
 
 ## 자동 QA 실행
 
@@ -57,7 +56,7 @@ Start로 근무를 끝냅니다), 크레딧, 다시 타이틀. 그러고 `RESULT
 소프트웨어 실행 두 번은 체크포인트 해시가 같습니다(`tools/qa/compare.py`). `tools/qa/lint.py`도 통과합니다. 상태 해시는
 완료 비트와 푼 줄 수만 덮습니다. 측정값은 콘솔에서 실행마다 조금씩 움직이기 때문입니다. 소프트웨어 실행에는 세이브 칩이 없습니다
 (SD 카드용 홈브류 실행). 칩 실행(`SAV=`)은 `-save-chip` 프로필로 채점하고 세이브를 다시 읽습니다(`SAVE 2 8192`, `CPU9 cpsr`
-모드 1F, 데이터 어보트 없음). 실제 DS Lite + R4: 아직 돌리지 않았습니다.
+모드 1F, 데이터 어보트 없음). 실제 DS Lite + R4: 2026-11-17 실행 1·2(`HW-QA-KO.md`).
 
 ## 키 없이 QA 시작하기 (SD 표식)
 

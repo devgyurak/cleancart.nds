@@ -317,7 +317,7 @@
 - `snd-voldiv16` · Volume divider 3 divides by 16, not by 8 (the swing ratio of divider 0 to divider 3 is 16.0, x10 = 150 to 170) · [expected.json](games/tonewick/expected.json)
 - `snd-vol127-full` · Volume register 127 counts as 128 (N = 0..126, 128): the level at 127 is exactly twice the level at 64 (ratio x1000 = 1995 to 2005) · [expected.json](games/tonewick/expected.json)
 - `snd-short-busy` · A one-shot channel with PNT+LEN of 3 words (below the 4-word minimum) keeps the busy bit set after the sound should have ended (a 4-word one-shot clears it) · [expected.json](games/tonewick/expected.json)
-- `snd-short-silent` · ... and, looped, makes no sound (the captured peak is at most 2) · [expected.json](games/tonewick/expected.json)
+- `snd-short-silent` · ... and, looped, a 3-word sample keeps the tape level on the console (GBATEK's "no sound" is not a zero level; the captured peak is 16384, accepted 16320..16448) · [expected.json](games/tonewick/expected.json)
 - `snd-hold-level` · With the hold bit a one-shot sound keeps its last sample after it ended (90 to 110 % of the looped level) · [expected.json](games/tonewick/expected.json)
 - `snd-noise-lfsr` · The noise channel follows the GBATEK shift register (X = X SHR 1, carry: LOW and XOR 6000h, else HIGH; accepted from any offset of the 32767-step sequence): at least 240 captured bits match the model · [expected.json](games/tonewick/expected.json)
 - `snd-adpcm-loop-reload` · An ADPCM loop started in the data part (word 9, not the header) repeats exactly: index and PCM16 value are reloaded to the values that appeared at the loop start (the drift between two passes is at most 3 %) · [expected.json](games/tonewick/expected.json)
