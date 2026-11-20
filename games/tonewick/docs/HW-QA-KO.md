@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-tonewick-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 하나(`snd-short-silent`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
+**2026-11-17, 2026-11-20 DS Lite 실행 1~3(이 문서 끝에 기록):** QA 실행은 매번 PASS입니다. 실행 1·2의 판정 NG 항목 하나(`snd-short-silent`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조). v0.2.2로 한 실행 3은 **채점한 모든 항목이 OK**입니다(`rtc-ampm-24h`는 정오 전이라 n/a, 실행 2에서 OK).
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 그 실행의 점검표입니다. 첫 값을 기록하고, 에뮬레이터나 GBATEK 읽기만
 뒷받침하는 항목을 확정하기 위한 것입니다. 콘솔은 사람이 조작하며, 아래 단계는 할 일과 적어 둘 것입니다.
@@ -110,3 +110,14 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 | `snd-short-silent` | 범위 `16320..16448`, source `hw:dslite-ntr`. 제목: 반복하는 3워드 샘플은 콘솔에서 테이프 레벨을 유지함(GBATEK의 "소리 없음"은 0 레벨이 아님) | 두 실행 모두 16384(캡처한 피크)를 읽었고 GBATEK의 "소리 없음"에서 짐작한 2 이하가 아님. 두 실행에서 값이 같습니다. melonDS는 0, DeSmuME는 16384를 읽음 |
 | `cap-add-wrap`, `cap-both-negative`, `cap-src-channel`, `snd-hold-level`, `pm-reg-mirror`, `rtc-ampm-24h` | `level_basis`에 `hw:games/tonewick/docs/HW-QA.md` 추가 | 콘솔이 GBATEK과 같음(캡처 버그 둘이 실제로 있음). `rtc-ampm-24h`는 실행 2(오후)로 확인 |
 | 프로필 | `snd-short-silent`를 melonDS 세 프로필과 `-save-chip`의 `ng`에 추가. DeSmuME는 뺌(이제 16384를 읽음) | melonDS는 반복하는 3워드 샘플을 무음으로 둠 |
+
+## 실행 3: v0.2.2로 한 QA 실행과 판정 스위트, 2026-11-20 (본체 시계 2026-01-18 07:39)
+
+| 항목 | 값 |
+|---|---|
+| ROM | 릴리스 `tonewick-hw-support.nds` v0.2.2, SHA-256 `a2320df3274725c46c47fb125708b207c086d3f6a7034a1284e2f822d5a16c3d`(453,996바이트, 카드의 복사본도 같음), build `91e6e87fe1c6`: 실행 1·2와 같은 코드(v0.2.2는 기대값만 바꿈) |
+| `ingest.py` / `judge.py --hardware --allow-na` | QA 로그 PASS, 21줄, 체크포인트 4개, `start=marker`. QA 블록 L1 9/9, L2 14/14 OK, **NG 0**. `snd-short-silent` 16384 OK. n/a 4: `rtc-ampm-24h`(본체 시계 07:39, 정오 전. 실행 2에서 OK)와 env 세이브 항목 셋 |
+| QA 로그 헤더 | 실행 1·2와 같음 |
+| 체크포인트 | dist1-dist4가 실행 1·2와 같음(`compare.py`, 차이 0). 랙 39 / 78 / 73 / 54 |
+| 스위트 | `block=qa saved=1`(Tonewick에는 스위트 데모가 없음) |
+| 실행 2와의 차이 | `values[19]`만 8 -> 0(오전, 실행 1과 같음). 나머지 워드는 모두 같음 |

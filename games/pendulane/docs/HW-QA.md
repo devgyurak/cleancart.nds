@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-pendulane-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The two gating NG items (`mem7-main-nonseq`, `mem7-code-main-seq`) were findings about our expected values; the expectations were set from the console afterwards (see "Expected values from the runs").
+**Runs 1 to 3 on a DS Lite (2026-11-17 and 2026-11-20), recorded at the end of this page:** QA run PASS every time. The two gating NG items of runs 1 and 2 (`mem7-main-nonseq`, `mem7-code-main-seq`) were findings about our expected values; the expectations were set from the console afterwards (see "Expected values from the runs"). Run 3 with v0.2.2 judged **every item OK** (383 and 142 again) and the in-game ledger showed no red line.
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be recorded and the
 `unconfirmed` items in `expected.json` can be promoted. The console is operated by a person (skill `nds-hw-qa`): create the empty folder
@@ -35,6 +35,7 @@ pendulane` grades it with `judge.py --hardware --partial`. Hardware NG items are
 |---|---|---|---|
 | 2026-11-17 | DS Lite (NTR) | R4 Plus (Wood) | QA run PASS; 2 gating NG, see run 1 below |
 | 2026-11-17 (console clock 2026-01-15 12:06) | DS Lite (NTR) | R4 Plus (Wood) | QA run PASS; the same 2 gating NG, see run 2 below |
+| 2026-11-20 (console clock 2026-01-18 07:40) | DS Lite (NTR) | R4 Plus (Wood) | v0.2.2: QA run PASS, NG 0, see run 3 below |
 
 ## Run 1: QA run and judge suite, 2026-11-17
 
@@ -79,3 +80,17 @@ The same console, card and ROM as run 1 (`pendulane-hw-support.nds`, build `dc77
 | `snd-pcm-busy`, `snd-adpcm-busy`, `snd-onset-pcm-psg`, `snd-onset-adpcm-pcm`, `snd-hold-restart`, `spi-512k-minus-4m`, `mem7-main-seq`, `mem7-vram-seq`, the three `math-*` items and the five `pre-*` items that are not `env` | `level_basis` gets `hw:games/pendulane/docs/HW-QA.md` | the console agrees with GBATEK (both runs); source stays `GBATEK` |
 | In-game ledger | from v0.2.2 the ledger screen (`game/ledger.c`) uses the same windows: MAIN NONSEQ 384 +- 8, CODE IN MAIN 142 +- 3. Only the colours and the seal mark of chapter 4 depend on them; the contraptions' station costs (`pdorder/model.py`) are unchanged. melonDS reads MAIN NONSEQ 384 (in the window) and CODE IN MAIN 128 (outside it), so its chapter 4 still shows NO SEAL |
 | Profiles | `mem7-main-nonseq` leaves the three melonDS profiles' `ng` (DeSmuME keeps it); `mem7-code-main-seq` joins `ng` of all four | |
+
+## Run 3: QA run and judge suite with v0.2.2, 2026-11-20 (console clock 2026-01-18 07:40)
+
+| Field | Value |
+|---|---|
+| ROM | release `pendulane-hw-support.nds` v0.2.2, SHA-256 `cb0d9890c5bded07adbde79ae93bd275997e0062d2184347c528a038f723b0f9` (439,660 bytes; the copy on the card hashes the same), build `9bd85da96fae` |
+| `ingest.py` / `judge.py --hardware` | QA log PASS, 53 lines, 7 checkpoints, `start=marker`. QA block L1 7/7, L3 13/13 OK +1 informational, **NG 0**; n/a 3 (env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`). `mem7-main-nonseq` 383 and `mem7-code-main-seq` 142 again, now inside 376..392 and 139..145 |
+| QA log header | as runs 1 and 2 |
+| Checkpoints | ch1-ch5, judge and credits equal runs 1 and 2 (`compare.py`, 0 differences); lag 6 / 6 / 6 / 5 / 6 / 1 / 0 |
+| Suite | `block=qa saved=1` (Pendulane has no suite demos) |
+| Difference from run 2 | `snd-rate-slope` (`values[20]`, raw `[46]`) -10 -> -33, total lag frames 32 -> 30, block frame 4294 -> 4292. Every other word is equal |
+| In-game ledger | chapter 4 (MAIN NONSEQ, CODE IN MAIN) showed no red line on the console (checked on screen by the person at the console) |
+
+`snd-rate-slope` read 13, -10 and -33 in the three runs: it stays `unconfirmed` and informational (the console value moves from run to run; -33 is outside -16..16 and shows as INFO-NG, which does not gate).

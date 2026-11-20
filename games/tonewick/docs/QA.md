@@ -22,7 +22,7 @@ length of an experiment, so nothing is heard in the game; the title music stops 
 |---|---|---|
 | `rehearsal` | `tonewick-rehearsal.nds` boots straight into the rehearsal (no save chip, no NitroFS): the twelve lines solved by script and every district's audit; result block id `0x48525754` (`TWRH`), layout in `game/lab.h`; graded by `python3 tools/judge.py` (boot `rehearsal`) | melonDS 1.1 soft / GL classic / GL compute and DeSmuME: profile MATCH, see below |
 
-Hardware: runs 1 and 2 on a DS Lite + R4 on 2026-11-17, see [HW-QA.md](HW-QA.md).
+Hardware: runs 1 to 3 on a DS Lite + R4 (2026-11-17, 2026-11-20), see [HW-QA.md](HW-QA.md).
 
 ## Judge profiles (2026-11-16, build of this commit)
 
@@ -57,7 +57,7 @@ graded from the runner output (the `RESULT` line; the SD log holds no result blo
 Two software runs give identical checkpoint hashes (`tools/qa/compare.py`); `tools/qa/lint.py` passes. The state hash covers
 the completion bits and the lines solved only: the measured values move a little between runs on a console. The software
 run has no save chip (homebrew run for the SD card); the chip run (`SAV=`) is graded by the `-save-chip` profile and reads
-back the save (`SAVE 2 8192`, `CPU9 cpsr` mode 1F, no data abort). Real DS Lite + R4: runs 1 and 2 on 2026-11-17 (`HW-QA.md`).
+back the save (`SAVE 2 8192`, `CPU9 cpsr` mode 1F, no data abort). Real DS Lite + R4: runs 1 to 3 (`HW-QA.md`).
 
 ## Starting QA without the keys (SD marker)
 
