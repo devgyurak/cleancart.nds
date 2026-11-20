@@ -262,7 +262,7 @@
 - `math-sqrt-edges` · SQRT(2^64-1) = FFFFFFFFh in 64-bit mode; mode 0 ignores the upper half of PARAM · [expected.json](games/ledgerine/expected.json)
 - `ipc-empty-last` · An empty FIFO read returns the last word received and sets the error bit · [expected.json](games/ledgerine/expected.json)
 - `ipc-error-ack` · Writing 1 to IPCFIFOCNT bit 14 clears the error · [expected.json](games/ledgerine/expected.json)
-- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO returns 0 · [expected.json](games/ledgerine/expected.json)
+- `ipc-empty-cleared` · An empty read after the remote side cleared its send FIFO does not return 0 (GBATEK says 0; a DS Lite returns a non-zero word) · [expected.json](games/ledgerine/expected.json)
 - `ipc-send-full` · The send FIFO is full after 16 words; the 17th write sets the error and is dropped (the other CPU counts 16) · [expected.json](games/ledgerine/expected.json)
 - `ipc-disabled` · FIFO disabled: a write is ignored without error, reads show the oldest word without taking it · [expected.json](games/ledgerine/expected.json)
 - `ipc-irq-edge` · The receive IRQ is edge-triggered: enabling it with a word waiting raises IF bit 18 once, the acknowledge sticks · [expected.json](games/ledgerine/expected.json)
