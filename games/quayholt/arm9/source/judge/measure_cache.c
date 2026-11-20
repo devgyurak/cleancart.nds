@@ -126,3 +126,38 @@ void measure_cache(void)
     leaveCriticalSection(old);
     ledger_flags(QV_DONE, QD_CACHE, true);
 }
+
+u32 probe_cache(u32 which, u32 p)
+{
+    int old = enterCriticalSection();
+    volatile u32 *b = cb;
+    u32 res;
+    if (which == 0)
+    {
+        // write C into a cached line, [clean it], DMA D into the memory behind, [invalidate the line], read the word.
+        b[0] = 0xAAAA0001u;
+        DC_FlushRange(cb, 32);
+        (void)b[0];
+        b[0] = 0xCCCC0002u;
+        if (p & 1)
+            qy9_dc_clean_range(cb, 32);
+        csrc[0] = 0xBBBB0003u;
+        dma_word(csrc, cb);
+        if (p & 2)
+            inval_line(cb);
+        res = b[0];
+        DC_FlushRange(cb, 32);
+    }
+    else
+    {
+        code_set(1);
+        IC_InvalidateAll();
+        (void)run_code();
+        code_set(2);
+        if (p == 0)
+            IC_InvalidateAll();
+        res = run_code();
+    }
+    leaveCriticalSection(old);
+    return res;
+}

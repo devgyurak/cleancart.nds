@@ -132,7 +132,7 @@ void measure_alu(void)
     // C4: with CP15 control bit 15 set the ARM9 behaves like an ARMv4 core: LDR PC ignores bit 0 and stays
     // in ARM state (marker 1). Marker 2: it switched to Thumb (bit 15 ignored).
     old = enterCriticalSection();
-    qy9_c4(out);
+    qy9_c4(out, 1);
     leaveCriticalSection(old);
     raw9(QV_C4, out, 1);
     qy_res[QV_C4] = qy_class(out[0], 1, 2, 0xFFFFFFFFu);

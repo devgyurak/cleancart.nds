@@ -166,6 +166,19 @@ qy9_dc_flush_range:
         mcr     p15, 0, r0, c7, c10, 4
         bx      lr
 
+        .global qy9_dc_clean_range
+        .type   qy9_dc_clean_range, %function
+qy9_dc_clean_range:
+        add     r1, r1, r0
+        bic     r0, r0, #0x1F
+1:      mcr     p15, 0, r0, c7, c10, 1  @ clean data cache line by address (the line stays valid)
+        add     r0, r0, #0x20
+        cmp     r0, r1
+        blo     1b
+        mov     r0, #0
+        mcr     p15, 0, r0, c7, c10, 4
+        bx      lr
+
         .global qy9_ic_inv_all
         .type   qy9_ic_inv_all, %function
 qy9_ic_inv_all:

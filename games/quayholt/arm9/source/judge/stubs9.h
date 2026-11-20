@@ -20,9 +20,12 @@ void qy9_c2(uint32_t *out);
 // SMLABB overflow: out[0] result, out[1] Q; SMLALBB 64-bit wrap: out[2] high word, out[3] Q
 void qy9_c3(uint32_t *out);
 // CP15 control bit 15 set, then LDR PC with bit 0 set into code that is ARM and Thumb at once:
-// out[0] = 1 the core stayed in ARM state, 2 it switched to Thumb
-void qy9_c4(uint32_t *out);
+// (bit15 = 0 leaves the bit clear: the game's other setup) out[0] = 1 the core stayed in ARM state, 2 it switched to Thumb
+void qy9_c4(uint32_t *out, uint32_t bit15);
 // Plain LDM/STM round trip, ARM and Thumb: out[0] ARM ok, out[1] Thumb ok
 void qy9_pre_ldm(uint32_t *out, uint32_t *buf);
+
+// One instruction of the game's devices: r0..r7 = in[0..7], flags cleared; out[0..7] = r0..r7, out[8] = CPSR.
+void qy9_run1(const uint32_t *in, uint32_t *out, uint32_t code);
 
 #endif // QY_STUBS9_H

@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from cvtools import audio, codec, images, qyart  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
+from qyjobs import check as jobcheck, pack as jobpack  # noqa: E402
 
 
 class CWriter:
@@ -105,6 +106,12 @@ def main():
     title_pix, title_pal = qyart.title_art()
     w.blob('cv_title_lz', lz(title_pix), '256x192 8bpp title picture, LZ77')
     w.blob('cv_title_pal', title_pal[qyart.BASE * 2:], 'palette entries 96-255')
+
+    # --- Jobs: the ops, the GBATEK model and the 30 jobs (qyjobs); a build stops if a job cannot be solved
+    problems = jobcheck.check()
+    if problems:
+        sys.exit('job check failed: ' + '; '.join(problems))
+    jobpack.emit(w)
 
     # --- Sound ------------------------------------------------------------
     samples = audio.make_samples()

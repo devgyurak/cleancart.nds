@@ -170,7 +170,16 @@ enum {
     CV_QY_B5,              // thumb7-stmia-base-new
     CV_QY_B6,              // stm-pc12 (ARM7 half)
     CV_QY_C1,              // alu7-rn-pc12
+    CV_QY_RUN1,            // the harbour game's devices: run the one instruction in CV_QY_REQ (see below)
 };
+
+// The game's devices (arm9/source/game/devices.c) run one instruction on either CPU. The ARM9 writes a request
+// to CV_QY_REQ (word 0 instruction, 1 Thumb flag, 2 mask of registers that get the test buffer's address added,
+// 3..10 r0..r7, 11..18 the 8 test buffer words) and sends CV_QY_RUN1; the ARM7 runs it from its own code buffer
+// and answers in the raw page at CV_QY_RAW[QY_RUN1_OUT ..]: r0..r7, CPSR, the 8 buffer words, the buffer's
+// address, the code address.
+#define CV_QY_REQ      ((volatile uint32_t *)0x0237FC00u)
+#define QY_RUN1_OUT    192
 
 // Shared WRAM as seen by each CPU when it owns all 32 KB.
 #define CV_SWRAM_ARM9 ((volatile uint8_t *)0x03000000)

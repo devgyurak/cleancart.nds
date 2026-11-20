@@ -144,6 +144,40 @@ uint32_t step7_run(uint32_t step)
             qy7_c1(out);
             r = qy_class(out[0], 12, 8, 0xFFFFFFFFu);   // Rn = PC with a register shift reads PC + 12; 2 = +8
             break;
+        case CV_QY_RUN1:
+        {
+            // The game's one-instruction device: the request is in CV_QY_REQ (cv_ipc.h), the answer goes to the raw
+            // page. Registers listed in the base mask get this CPU's test buffer address added.
+            static uint32_t code[4] __attribute__((aligned(16)));
+            static uint32_t rbuf[8] __attribute__((aligned(32)));
+            volatile uint32_t *q = CV_QY_REQ;
+            uint32_t in[8], res[9];
+            for (int i = 0; i < 8; i++)
+                rbuf[i] = q[11 + i];
+            for (int i = 0; i < 8; i++)
+                in[i] = q[3 + i] + ((q[2] >> i & 1) ? (uint32_t)(uintptr_t)rbuf : 0);
+            uint32_t addr = (uint32_t)(uintptr_t)code;
+            if (q[1])
+            {
+                ((uint16_t *)code)[0] = (uint16_t)q[0];
+                ((uint16_t *)code)[1] = 0x4770;      // bx lr
+                addr |= 1;
+            }
+            else
+            {
+                code[0] = q[0];
+                code[1] = 0xE12FFF1Eu;               // bx lr
+            }
+            qy7_run1(in, res, addr);
+            volatile uint32_t *o = CV_QY_RAW + QY_RUN1_OUT;
+            for (int i = 0; i < 9; i++)
+                o[i] = res[i];
+            for (int i = 0; i < 8; i++)
+                o[9 + i] = rbuf[i];
+            o[17] = (uint32_t)(uintptr_t)rbuf;
+            o[18] = (uint32_t)(uintptr_t)code;
+            return 1;
+        }
         default:
             break;
     }

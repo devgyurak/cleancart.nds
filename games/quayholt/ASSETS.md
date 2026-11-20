@@ -20,5 +20,6 @@ documentation, not assets: the build never reads them and they are not in the RO
 | `cv_title_lz`, `cv_title_pal` | the title picture: a harbour at dusk, two cranes (a lattice jib and a slim box boom) on the quay, stacked cargo boxes, a sun glint on the water and the name in stencil lettering (256x192, 8bpp, LZ77) | `cvtools/qyart.py` `title_art()` | original, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | the samples the engine links (`SAMPLES_USED` in `cvtools/audio.py`) | `cvtools/audio.py` `make_samples()` | original, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | the song `harbour`, a slow dorian tune composed by code | `cvtools/audio.py` `SONGS`, `compose()` | original, Apache-2.0 |
+| `qy_ops`, `qy_model`, `qy_jobs`, `qy_labels`, `qy_pier_names`, `QYOP_*` | the harbour's devices, the book (what a correct console answers for every crane and setup, worked out from GBATEK), the 30 jobs with their titles and orders, the dial texts | `tools/qyjobs/` (`model.py`, `jobs.py`, `pack.py`; `check.py` stops the build if a job is unsolvable) | original, Apache-2.0 |
 | `probe.bin` (NitroFS) | 2 KB known-CRC file the cart check reads | `tools/mkassets.py` | original, Apache-2.0 |
 | banner icon (`icon.bmp`) | 32x32 4bpp icon, a cargo box under a crane hook | `cvtools/qyart.py` `icon()` | original, Apache-2.0 |

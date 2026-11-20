@@ -28,4 +28,8 @@ void qy7_c1(uint32_t *out);
 // Plain LDM/STM round trip, ARM and Thumb: out[0] ARM ok, out[1] Thumb ok (1 = the words came back in order)
 void qy7_pre_ldm(uint32_t *out, uint32_t *buf);
 
+// Runs one instruction word (or Thumb halfword, code address with bit 0 set) with r0..r7 = in[0..7] and the flags
+// cleared, and stores r0..r7 and then the CPSR to out[0..8]. The code at `code` ends with BX LR.
+void qy7_run1(const uint32_t *in, uint32_t *out, uint32_t code);
+
 #endif // QY_STUBS7_H

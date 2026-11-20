@@ -207,3 +207,21 @@ qy7_pre_ldm:
         .align  2
 2:      pop     {r4-r7, lr}
         bx      lr
+
+@ ---- the game's one-instruction runner ------------------------------------------------------------
+        .global qy7_run1
+        .type   qy7_run1, %function
+qy7_run1:
+        push    {r4-r11, lr}
+        mov     r8, r0
+        mov     r9, r1
+        mov     r10, r2
+        msr     cpsr_f, #0
+        ldmia   r8, {r0-r7}
+        adr     lr, 1f
+        bx      r10
+1:      stmia   r9, {r0-r7}
+        mrs     r0, cpsr
+        str     r0, [r9, #32]
+        pop     {r4-r11, lr}
+        bx      lr                      @ ARMv4T: POP {PC} does not interwork

@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/sys.h"
+#include "game/harbour.h"
 #include "game/ledger.h"
 
 u32 qy_res[61];
@@ -26,6 +27,11 @@ void ledger_flags(int word, u32 mask, bool ok)
 
 void ledger_publish(u32 demo_id, u32 frame)
 {
+    if (demo_id == QYRH_ID)   // the pier demos carry no game state, so a suite run and a stand-alone run agree
+    {
+        qy_res[QV_JOBS] = (u32)jobs_cleared();
+        qy_res[QV_PLAN] = jobs_plan_hash();
+    }
     volatile CvResult *r = CV_RESULT;
     r->magic = 0;
     r->demo_id = demo_id;

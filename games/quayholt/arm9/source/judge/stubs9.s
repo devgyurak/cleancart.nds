@@ -127,6 +127,8 @@ qy9_c4:
         adr     r2, qy_cell
         mrc     p15, 0, r5, c1, c0, 0
         orr     r0, r5, #0x8000
+        cmp     r1, #0
+        moveq   r0, r5                  @ flag 0: bit 15 left clear (the game's "habit off")
         mcr     p15, 0, r0, c1, c0, 0
         ldr     pc, [r2]
 9:      mcr     p15, 0, r5, c1, c0, 0
@@ -196,3 +198,20 @@ qy9_pre_ldm:
         .align  2
 2:      pop     {r4-r7, lr}
         bx      lr
+
+@ ---- the game's one-instruction runner (same as the ARM7's, arm7/source/stubs7.s) -----------------
+        .global qy9_run1
+        .type   qy9_run1, %function
+qy9_run1:
+        push    {r4-r11, lr}
+        mov     r8, r0
+        mov     r9, r1
+        mov     r10, r2
+        msr     cpsr_f, #0
+        ldmia   r8, {r0-r7}
+        adr     lr, 1f
+        bx      r10
+1:      stmia   r9, {r0-r7}
+        mrs     r0, cpsr
+        str     r0, [r9, #32]
+        pop     {r4-r11, pc}

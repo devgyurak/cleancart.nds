@@ -9,9 +9,9 @@ are in `../../AGENTS.md`. Created from the ledgerine folder (which came from the
 games). The plan is `out/WORKPLAN-quayholt.md` (not committed).
 
 Status: the measurement harness (piers A loads, B blocks, C tally, D customs = protection unit, E locker =
-TCM, F ledger board = caches), the rehearsal, the per-pier demos and their judge (`expected.json`, `tools/judge.py`) and a QA run
-through the rehearsal and the credits. The harbour game (30 jobs) and the title polish come in later
-changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and the ARM9 CP15.
+TCM, F ledger board = caches), the rehearsal, the per-pier demos and their judge (`expected.json`, `tools/judge.py`),
+the harbour game (30 jobs, `tools/qyjobs`) and a QA run that plays all 30 jobs, then the rehearsal and the credits.
+The title polish, hardware plan and release come later. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and the ARM9 CP15.
 
 ## Design principles
 
@@ -41,6 +41,9 @@ changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and 
 | `arm9/source/demo/demo.c` | demo ROMs: `rehearsal` and one per pier (`l2-loads`, `l2-blocks`, `l2-alu`, `l2-pu`, `l2-tcm`, `l2-cache`; block ids `QYLO`, `QYBL`, `QYAL`, `QYPU`, `QYTC`, `QYCA`) |
 | `tools/judge.py`, `expected.json` | the judge and its items, boots and per-emulator profiles |
 | `tools/cvtools/qyart.py` | title picture and icon |
+| `tools/qyjobs/` | the harbour's devices and their GBATEK model (`model.py`), the 30 jobs (`jobs.py`), the solvability proof (`check.py`, run by every asset build), `pack.py` (writes `qy_ops`, `qy_model`, `qy_jobs`, `qy_labels` into the generated assets) |
+| `arm9/source/game/devices.c` | `hw_run(op, crane, setup)`: the harbour's devices on real hardware (one-instruction runner on either CPU, `CV_QY_RUN1` for the ARM7, or the probes in `judge/`) |
+| `arm9/source/game/harbour.c` | pier and job scenes, job state, the scripted rehearsal run (`jobs_script_firsts`), the QA pilot's keys |
 
 ## The exception harness (piers D and E), what to keep in mind
 
@@ -58,6 +61,17 @@ changes. Target level 2, area "ARM core edges": ARM9/ARM7 instruction edges and 
 - melonDS recomputes all regions when a region register is written, but only the changed region when a
   permission register is written: write the region again after the permissions (`win_region()`).
 - A BLX into a region without execute permission reports a different LR on melonDS: the LR is recorded only.
+
+## The harbour game
+
+- The book is data: `tools/qyjobs/model.py` is the only place that says what a device answers; the ROM looks it up in
+  `qy_model`. The C side computes only the hardware answer. Add a device = add it to `OPS` and `devices.c` (same op
+  order), give the job list a job for it and run `python3 tools/qyjobs/check.py`.
+- A job is done when the book's answer for the chosen crane and setup equals the goal, whatever the hardware does; a
+  hardware answer that differs marks the job crooked (not part of the QA hash).
+- `make DEMO=devcheck` (not graded) runs every device on both cranes with every setup and lists the crooked boxes in the
+  result block: values[0] setups run, [1] differences, [2..] `op | crane << 8 | setup << 16` and the hardware word.
+- The ARM7 has no interworking `pop {pc}`: an ARM7 stub that returns to Thumb C code ends in `bx lr`.
 
 ## Adding a measurement
 

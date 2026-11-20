@@ -12,7 +12,10 @@
 #include "core/sys.h"
 #include "demo/demo.h"
 #include "game/ledger.h"
+#include "assets.h"
+#include "game/devices.h"
 #include "game/rehearsal.h"
+#include "judge/measure.h"
 
 typedef struct {
     const char *name;
@@ -58,6 +61,40 @@ const QaSuiteDemo demo_suite[] = {
 };
 const int demo_suite_count = (int)(sizeof(demo_suite) / sizeof(demo_suite[0]));
 
+// make DEMO=devcheck: runs every device of the harbour on both cranes with every setup and lists where the hardware's
+// chalk word differs from the model (the "crooked boxes"): values[0] = devices run, [1] = differences, [2..] = op | crane << 8 |
+// p << 16 and the hardware word, up to 28 pairs. Development aid, not a judged ROM.
+static void devcheck(void)
+{
+
+    u32 n = 0, diff = 0, w[61] = { 0 };
+    for (int op = 0; op < QY_NUM_OPS; op++)
+        for (int c = 0; c < 2; c++)
+            for (int p = 0; p < qy_ops[op].setups; p++)
+            {
+                u32 m = qy_model[(op * 2 + c) * QY_MAX_SETUPS + p];
+                if (m == 0xFFFFFFFFu)
+                    continue;
+                u32 h = hw_run(op, c, p);
+                n++;
+                if (h != m && h != QY_HW_NONE)
+                {
+                    if (diff < 28)
+                    {
+                        w[2 + diff * 2] = (u32)op | (u32)c << 8 | (u32)p << 16;
+                        w[3 + diff * 2] = h;
+                    }
+                    diff++;
+                }
+            }
+    w[0] = n;
+    w[1] = diff;
+    ledger_clear();
+    for (int i = 0; i < 61; i++)
+        qy_res[i] = w[i];
+    ledger_publish(0x56454451u, cv_frame);      // "QDEV"
+}
+
 void demo_main(const char *name)
 {
     memset((void *)CV_RESULT_ADDR, 0, sizeof(CvResult));
@@ -65,6 +102,12 @@ void demo_main(const char *name)
     {
         rehearsal_run();
         rehearsal_idle();
+    }
+    if (strcmp(name, "devcheck") == 0)
+    {
+        devcheck();
+        for (;;)
+            sys_vsync();
     }
     for (int i = 0; i < N_PIER_DEMOS; i++)
         if (strcmp(name, pier_demos[i].name) == 0)
