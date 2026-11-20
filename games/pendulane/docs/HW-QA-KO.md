@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-pendulane-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 둘(`mem7-main-nonseq`, `mem7-code-main-seq`)은 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
+**2026-11-17, 2026-11-20 DS Lite 실행 1~3(이 문서 끝에 기록):** QA 실행은 매번 PASS입니다. 실행 1·2의 판정 NG 항목 둘(`mem7-main-nonseq`, `mem7-code-main-seq`)은 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조). v0.2.2로 한 실행 3은 **모든 항목 OK**(다시 383과 142)이고 게임 안 장부에도 빨간 줄이 없었습니다.
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실행 점검표로, 첫 값을 기록하고 `expected.json`의 `unconfirmed` 항목을 승격할 수 있게 합니다.
 콘솔은 사람이 조작합니다 (스킬 `nds-hw-qa`): 카드에 빈 폴더 `cleancart/pendulane/`를 만들면 리허설이 결과 블록을 거기에 씁니다.
@@ -34,6 +34,7 @@
 |---|---|---|---|
 | 2026-11-17 | DS Lite(NTR) | R4 Plus(Wood) | QA 실행 PASS. 판정 NG 2, 아래 실행 1 참조 |
 | 2026-11-17 (본체 시계 2026-01-15 12:06) | DS Lite(NTR) | R4 Plus(Wood) | QA 실행 PASS. 같은 판정 NG 2, 아래 실행 2 참조 |
+| 2026-11-20 (본체 시계 2026-01-18 07:40) | DS Lite(NTR) | R4 Plus(Wood) | v0.2.2: QA 실행 PASS, NG 0, 아래 실행 3 참조 |
 
 ## 실행 1: QA 실행과 판정 스위트, 2026-11-17
 
@@ -78,3 +79,17 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 | `snd-pcm-busy`, `snd-adpcm-busy`, `snd-onset-pcm-psg`, `snd-onset-adpcm-pcm`, `snd-hold-restart`, `spi-512k-minus-4m`, `mem7-main-seq`, `mem7-vram-seq`, `math-*` 셋, `env`가 아닌 `pre-*` 다섯 | `level_basis`에 `hw:games/pendulane/docs/HW-QA.md` 추가 | 콘솔이 GBATEK과 같음(두 실행 모두). source는 `GBATEK` 그대로 |
 | 게임 안 장부 | v0.2.2부터 장부 화면(`game/ledger.c`)도 같은 창을 씁니다: MAIN NONSEQ 384 ±8, CODE IN MAIN 142 ±3. 4장의 글자색과 인장 표시만 여기에 달려 있고, 장치 퍼즐의 정거장 비용(`pdorder/model.py`)은 그대로입니다. melonDS는 MAIN NONSEQ 384(창 안)와 CODE IN MAIN 128(창 밖)을 읽어 4장이 계속 NO SEAL로 보입니다 |
 | 프로필 | `mem7-main-nonseq`를 melonDS 세 프로필의 `ng`에서 뺌(DeSmuME는 유지). `mem7-code-main-seq`를 네 프로필 모두의 `ng`에 추가 | |
+
+## 실행 3: v0.2.2로 한 QA 실행과 판정 스위트, 2026-11-20 (본체 시계 2026-01-18 07:40)
+
+| 항목 | 값 |
+|---|---|
+| ROM | 릴리스 `pendulane-hw-support.nds` v0.2.2, SHA-256 `cb0d9890c5bded07adbde79ae93bd275997e0062d2184347c528a038f723b0f9`(439,660바이트, 카드의 복사본도 같음), build `9bd85da96fae` |
+| `ingest.py` / `judge.py --hardware` | QA 로그 PASS, 53줄, 체크포인트 7개, `start=marker`. QA 블록 L1 7/7, L3 13/13 OK +참고용 1, **NG 0**. n/a 3(env: `cart-gap1-clk5`, `cart-gap1-clk8`, `pre-cart-busy`). `mem7-main-nonseq` 383, `mem7-code-main-seq` 142가 다시 나왔고 이제 376..392, 139..145 안 |
+| QA 로그 헤더 | 실행 1·2와 같음 |
+| 체크포인트 | ch1-ch5, judge, credits가 실행 1·2와 같음(`compare.py`, 차이 0). 랙 6 / 6 / 6 / 5 / 6 / 1 / 0 |
+| 스위트 | `block=qa saved=1`(Pendulane에는 스위트 데모가 없음) |
+| 실행 2와의 차이 | `snd-rate-slope`(`values[20]`, 원시 `[46]`) -10 -> -33, 랙 프레임 합 32 -> 30, 블록 프레임 4294 -> 4292. 나머지 워드는 모두 같음 |
+| 게임 안 장부 | 4장(MAIN NONSEQ, CODE IN MAIN)에 빨간 줄 없음(콘솔 앞의 사람이 화면으로 확인) |
+
+`snd-rate-slope`는 세 실행에서 13, -10, -33이었습니다. 실행마다 값이 움직이므로 `unconfirmed` 참고용으로 둡니다(-33은 -16..16 밖이라 INFO-NG로 나오지만 판정을 막지 않음).

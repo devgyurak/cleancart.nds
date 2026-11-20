@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block (it carries the rehearsal items) as `res-*-tonewick-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The one gating NG item (`snd-short-silent`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs").
+**Runs 1 to 3 on a DS Lite (2026-11-17 and 2026-11-20), recorded at the end of this page:** QA run PASS every time. The one gating NG item of runs 1 and 2 (`snd-short-silent`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs"). Run 3 with v0.2.2 judged **every graded item OK** (`rtc-ampm-24h` n/a before noon; graded OK in run 2).
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can be
 recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is operated
@@ -113,3 +113,14 @@ The same console, card and ROM as run 1 (`tonewick-hw-support.nds`, build `91e6e
 | `snd-short-silent` | range `16320..16448`, source `hw:dslite-ntr`; title: a looped 3-word sample keeps the tape level on the console (GBATEK's "no sound" is not a zero level) | both runs read 16384 (the captured peak) where GBATEK's "no sound" suggested at most 2; The value is the same in both runs. melonDS reads 0, DeSmuME 16384 |
 | `cap-add-wrap`, `cap-both-negative`, `cap-src-channel`, `snd-hold-level`, `pm-reg-mirror`, `rtc-ampm-24h` | `level_basis` gets `hw:games/tonewick/docs/HW-QA.md` | the console agrees with GBATEK (the two capture bugs exist); `rtc-ampm-24h` is confirmed by run 2 (afternoon) |
 | Profiles | `snd-short-silent` is in `ng` of the three melonDS profiles and `-save-chip`; DeSmuME drops it (it reads 16384 now) | melonDS keeps the looped 3-word sample silent |
+
+## Run 3: QA run and judge suite with v0.2.2, 2026-11-20 (console clock 2026-01-18 07:39)
+
+| Field | Value |
+|---|---|
+| ROM | release `tonewick-hw-support.nds` v0.2.2, SHA-256 `a2320df3274725c46c47fb125708b207c086d3f6a7034a1284e2f822d5a16c3d` (453,996 bytes; the copy on the card hashes the same), build `91e6e87fe1c6`: the same code as runs 1 and 2 (v0.2.2 changed the expected values only) |
+| `ingest.py` / `judge.py --hardware --allow-na` | QA log PASS, 21 lines, 4 checkpoints, `start=marker`. QA block L1 9/9, L2 14/14 OK, **NG 0**; `snd-short-silent` 16384 OK. n/a 4: `rtc-ampm-24h` (the console clock read 07:39, before noon; graded OK in run 2) and the three env save items |
+| QA log header | as runs 1 and 2 |
+| Checkpoints | dist1-dist4 equal runs 1 and 2 (`compare.py`, 0 differences); lag 39 / 78 / 73 / 54 |
+| Suite | `block=qa saved=1` (Tonewick has no suite demos) |
+| Difference from run 2 | only `values[19]` 8 -> 0 (morning, as run 1). Every other word is equal |

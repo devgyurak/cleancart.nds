@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록과 `press-min`를 `res-*-ledgerine-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1·2(이 문서 끝에 기록):** QA 실행은 두 번 모두 PASS입니다. 판정 NG 항목 하나(`ipc-empty-cleared`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조).
+**2026-11-17, 2026-11-20 DS Lite 실행 1~3(이 문서 끝에 기록):** QA 실행은 매번 PASS입니다. 실행 1·2의 판정 NG 항목 하나(`ipc-empty-cleared`)는 우리 기대값에 대한 발견이었고, 이후 콘솔 값으로 기대값을 정했습니다("실행에서 정한 기대값" 참조). v0.2.2로 한 실행 3은 **모든 항목 OK**(QA 블록 40개 중 40개, `press-min` 1개 중 1개)이고, 그 빈 읽기의 원시 워드를 읽었습니다: A0..A15 묶음의 마지막 워드인 `7A00000Fh`(실행 3 참조).
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 첫 측정을 기록하고, 에뮬레이터나 GBATEK 해석에만 근거를 둔 항목을
 확정하기 위한 점검표입니다. 콘솔은 사람이 다루며, 아래는 할 일과 적어 둘 것입니다.
@@ -87,6 +87,21 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 
 | 항목 | 변경 | 이유 |
 |---|---|---|
-| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 이 실행들에서는 그 읽기의 원시 워드를 기록하지 않았고 0이 아니라는 것만 압니다. v0.2.2부터는 `values[44]`(그 직후의 IPCFIFOCNT는 `values[45]`)에 기록하며, 다음 실행에서 읽습니다. melonDS 1.1 soft와 DeSmuME는 둘 다 `values[44]` = 0, `values[45]` = 0xC101(수신 FIFO 비어 있음, 오류 비트 켜짐)을 읽습니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 이 실행들에서는 그 읽기의 원시 워드를 기록하지 않았고 0이 아니라는 것만 압니다. v0.2.2부터는 `values[44]`(그 직후의 IPCFIFOCNT는 `values[45]`)에 기록하며, 실행 3에서 `7A00000Fh`를 읽었습니다. melonDS 1.1 soft와 DeSmuME는 둘 다 `values[44]` = 0, `values[45]` = 0xC101(수신 FIFO 비어 있음, 오류 비트 켜짐)을 읽습니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis`에 `hw:games/ledgerine/docs/HW-QA.md` 추가 | 콘솔은 GBATEK과 같고, melonDS(와 DeSmuME)는 다름 |
 | 프로필 | `ipc-empty-cleared`를 네 프로필(melonDS soft / GL classic / GL compute, DeSmuME) 모두 `ng`에 추가 | 에뮬레이터는 모두 0을 돌려주고 콘솔은 아님 |
+
+## 실행 3: v0.2.2로 한 QA 실행과 판정 스위트, 2026-11-20 (본체 시계 2026-01-18 07:41)
+
+| 항목 | 값 |
+|---|---|
+| ROM | 릴리스 `ledgerine-hw-support.nds` v0.2.2, SHA-256 `c86cf47044bc686138cb9da7c21fb3619706d11d463f3a93fdad09e32ec51420`(455,020바이트, 카드의 복사본도 같음), build `6a4718fa6293` |
+| `ingest.py` / `judge.py --hardware` | QA 로그 PASS, 27줄, 체크포인트 6개, `start=marker`. QA 블록 L1 11/11, L2 29/29 OK. `press-min` L2 1/1 OK. **NG 0**, n/a 없음 |
+| QA 로그 헤더 | 실행 1·2와 같음(`sd=1 fat_fail=0`, R4 DLDI, `cart_ready=0 nitro=1`, `save_detected=1`) |
+| 체크포인트 | room1-room6이 실행 1·2와 같음(`compare.py`, 차이 0). 랙 3 / 11 / 54 / 63 / 14 / 4 |
+| 스위트 | `block=qa saved=1`, `press-min saved=1`, `suite end demos=1 saved=1`, probe 12개가 `wait60`까지 모두 `ok=1`. 이번에도 `suite done` 줄은 없음 |
+| 실행 2와의 차이 | `values[44]` 0 -> `7A00000Fh`, `[45]` 0 -> `C101h`(v0.2.2부터 기록). 판정하지 않는 값: `[21]` 16398 -> 16397, `[27]`/`[28]`(DMA 주소, 새 빌드에서 40h 이동), 랙 프레임 합 145 -> 149 |
+
+**상대가 비운 뒤의 빈 읽기(`values[44]`)는 `7A00000Fh`, 곧 A15입니다.** B(`7B000000h`, 마지막으로 읽은 워드)도, C(`7C000000h`, ARM7이 읽히기 전에 비운 워드)도 아닙니다. `values[45]` = `C101h`: FIFO 켜짐, 오류 비트 켜짐, 수신·송신 FIFO 비어 있음으로 melonDS·DeSmuME와 같습니다(이 둘은 `values[44]`가 0).
+실행 1~3에 맞는 해석(문서화된 규칙은 아님): FIFO는 16칸 링이고 빈 읽기는 읽기 포인터 바로 앞 칸을 돌려줍니다. A0..A15가 0~15번 칸을 채우고, B는 0번 칸에 들어가 읽히므로(포인터 1) 첫 빈 읽기는 B입니다(`values[41]`). C는 1번 칸에 들어가고 ARM7이 보내기 FIFO를 비우면 포인터가 0번 칸으로 돌아가며, 그 앞 칸인 15번에는 A15가 그대로 남아 있습니다.
+`ipc-empty-cleared`의 검사(0이 아님, 확인 동작)는 그대로 둡니다. A15를 정확히 기대하는 항목은 별도 변경입니다(레벨 제안은 `level-judge`).
