@@ -6,7 +6,7 @@
 
 **판정 스위트(QA 판정 스위트 PR 이후):** QA 실행(`autoqa`)이 이제 스위트로 끝납니다. `RESULT PASS` 뒤에 QA 블록(리허설 항목을 담음)를 `res-*-heddlemere-*.log`로 쓰고 진행 파일 `suite-<stamp>.log`도 남깁니다. hw-support ROM 한 번 실행으로 충분하고, **전원은 스위트가 끝난 뒤에** 끕니다(`suite-<stamp>.log`에 `suite end`). 아래의 리허설·데모 ROM은 항목 하나를 다시 돌릴 때만 씁니다(Wood 커널에서는 SD 카드를 받지 못함). `tools/qa/ingest.py`가 파일마다 채점합니다.
 
-**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 항목 모두 OK.
+**2026-11-17 DS Lite 실행 1(이 문서 끝에 기록):** QA 실행 PASS, 판정 항목 모두 OK. 그 뒤로 실기를 기다리던 다섯 항목이 판정합니다("실행에서 정한 기대값" 참조).
 
 실행 1 전에는 실기에서 잰 값이 없었습니다. 이 문서는 실기 점검표입니다. 첫 값을 기록하고, `expected.json`의 `unconfirmed`
 네 항목을 승격하고, 가장 위험한 gating 수치(ARM9 HBlank 낮은 구간, GBATEK 1606)를 확정하기 위한 것입니다. 콘솔은 사람이
@@ -41,7 +41,7 @@
    기다립니다. 측정(한동안 화면은 마지막 주문 그대로)하고, 장마다 첫 주문을 플레이한 뒤 `REHEARSAL RESULT`와
    값을 16진수로 보여 줍니다. 카드에 폴더가 있으면 블록이 SD에도 써집니다.
 4. **게임**: `heddlemere.nds`를 켭니다. 1-01을 플레이합니다(목록에서 A, A, 칸을 맞추고 A). Select로 도면 보기, B로 돌아옵니다.
-   납품 뒤 모터 램프를 보세요. GBATEK 비용이 맞다면 실기에서는 OK가 나와야 합니다.
+   납품 뒤 모터 램프를 보세요. 램프는 GBATEK 비용(MTX_TRANS 22)과 견주므로, 35를 쓰는 콘솔에서는 melonDS처럼 `MOTOR CHECK`가 나옵니다(정보용).
 5. **자동 QA 실행**: 카드에 빈 `cleancart/heddlemere/autoqa`를 둡니다(또는 타이틀에서 L+R+X+Y를 2초 누릅니다). 게임이 크레딧까지
    스스로 플레이하고 `cleancart/heddlemere/qa-*.log`를 씁니다. 그다음
    `python3 tools/qa/ingest.py /Volumes/<card> --game heddlemere`로 가져오고 에뮬레이터 실행과 비교합니다
@@ -76,3 +76,18 @@
 | `swap-tail` (unconfirmed, 6208..6336) | 6256 | 5224 | 콘솔에서 범위 안 |
 | 게이트 기울기(`gx-identity-slope`, `gx-pushpop-slope`, `gx-halfirq-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`) | 305 / 848 / 303 / 480 / -2 | 304 / 847 / 305 / 479 / 0 | 둘 다 허용 범위 안 |
 | 나머지 판정 항목 | melonDS soft와 같음 | | 없음 |
+
+## 실행에서 정한 기대값
+
+실행 1(한 번)로 정했습니다(레벨 제안은 `level-judge`). 다섯 항목은 `unconfirmed` 참고용이었고 이제 판정합니다.
+
+| 항목 | 변경 | 이유 |
+|---|---|---|
+| `hblank-low-arm9` | source는 `GBATEK` 그대로, 범위 25664..25728 유지. `level_basis`에 `hw:games/heddlemere/docs/HW-QA.md` 추가 | 콘솔은 25710: GBATEK의 1606사이클이 맞음. melonDS 25343, DeSmuME 25632: 둘 다 NG |
+| `hblank-low-arm7` | 범위 `25680..25744`(콘솔 값 +-2사이클), source `hw:dslite-ntr` | 콘솔은 25712로 ARM9와 같은 구간이고 GBATEK의 1613(25808)이 아님. 우리 ARM7 코어의 폴링 루프로 잼. melonDS 25343, DeSmuME 25634: NG |
+| `gx-trans-cycles` | 범위 `556..564`(35사이클 +-0.25), source `hw:dslite-ntr`. `done` 마스크 65 -> 1(비트 6, ARM7 구간은 MTX_TRANS와 상관없음) | 콘솔은 560 = 정확히 35사이클로 melonDS(559, OK)와 같고 GBATEK의 22가 아님. DeSmuME 0: NG |
+| `gx-box-cycles` | 범위 `2012..2028`(126사이클 +-0.5), source `hw:dslite-ntr` | 콘솔은 2020(126.25): GBATEK의 103도 melonDS의 257(4114: NG)도 아님. DeSmuME 2: NG. 원인은 문서에 없음. 다음 실행이 범위를 벗어나면 이 항목은 `probes/`로 감 |
+| `swap-tail` | source는 `GBATEK` 그대로, 범위 유지, hw 근거 추가 | 콘솔은 6256(391사이클). melonDS 5224, DeSmuME 528: NG |
+| 프로필 | melonDS(렌더러 셋) `ng`에 HBlank 둘, `gx-box-cycles`, `swap-tail` 추가. DeSmuME `ng`에 다섯 모두 추가 | 2026-11-20 v1.0.0 리허설 ROM과 QA 실행으로 다시 확인 |
+
+게임 안 모터 램프는 여전히 GBATEK 비용(MTX_TRANS 22)과 견주므로 콘솔에서 `MOTOR CHECK`가 나옵니다. 정보용이라 그대로 둡니다(비용을 바꾸면 `plan-ticks` 해시가 바뀜).

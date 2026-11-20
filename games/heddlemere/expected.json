@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 3,
   "area": "3D engine and scanline timing",
-  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate; the four items marked unconfirmed are those where GBATEK and melonDS disagree and wait for a measurement on hardware. hblank-low-arm9 (GBATEK 1606, melonDS 1584) is the fifth such item and informational for the same reason; its measurement is unbiased by a dithered delay (arm9/source/judge/timing.c). The cycle residual of a VCOUNT write is measured (values[8]) but not judged: it moves to probes/ with the apply line.",
+  "about": "Expected result-block values for the Heddlemere rehearsal ROM and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h (measurements: arm9/source/judge/timing.h). Timing values are cycles of the 33.51 MHz bus clock; \"x16\" values are fixed point with four fractional bits (the means of many lines or the slopes of two run lengths). Every measurement polls with IME = 0 and uses only differences, so interrupt latency cancels. \"frame\" is the minimum number of frames to run, per boot. Items of the measurement carry \"done\" on flags bit 0: every wait finished. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. GBATEK figures gate. The five items that waited for hardware (the HBlank-low spans, MTX_TRANS, BOX_TEST, the SWAP_BUFFERS tail) gate since the DS Lite run (docs/HW-QA.md): where the console disagrees with GBATEK the item carries source hw:dslite-ntr and a range around the console value. The HBlank-low measurement is unbiased by a dithered delay (arm9/source/judge/timing.c). The cycle residual of a VCOUNT write is measured (values[8]) but not judged: it moves to probes/ with the apply line.",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -88,7 +88,7 @@
     },
     {
       "id": "hblank-low-arm9",
-      "title": "The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); informational until the DS Lite measures it: melonDS reads 1584",
+      "title": "The HBlank flag is low for 1606 cycles of a line on the ARM9 (x16, polling phases averaged); a DS Lite reads 25710; melonDS 1584",
       "boots": [
         "rehearsal",
         "qa"
@@ -99,10 +99,10 @@
       "check": "range",
       "min": 25664,
       "max": 25728,
-      "source": "unconfirmed",
+      "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Video Stuff",
+      "level_basis": "gbatek:DS Video Stuff; hw:games/heddlemere/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 1
@@ -115,7 +115,7 @@
     },
     {
       "id": "hblank-low-arm7",
-      "title": "The same on the ARM7 core: GBATEK gives 1613 \"for whatever reason\" (x16); informational until measured on hardware",
+      "title": "The HBlank flag is low for the same span on the ARM7 core as on the ARM9: a DS Lite reads 25712 (1607 cycles x16, accepted 25680..25744), not GBATEK's 1613 \"for whatever reason\"",
       "boots": [
         "rehearsal",
         "qa"
@@ -124,12 +124,12 @@
         4
       ],
       "check": "range",
-      "min": 25776,
-      "max": 25840,
-      "source": "unconfirmed",
+      "min": 25680,
+      "max": 25744,
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS Video Stuff",
+      "level_basis": "gbatek:DS Video Stuff; hw:games/heddlemere/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 65
@@ -252,7 +252,7 @@
     },
     {
       "id": "gx-trans-cycles",
-      "title": "MTX_TRANS costs 22 cycles in GBATEK (x16); melonDS charges 35 for every multiplication; informational until measured on hardware",
+      "title": "MTX_TRANS costs 35 cycles on a DS Lite (560 x16, accepted 556..564), not GBATEK's 22; melonDS charges 35 too",
       "boots": [
         "rehearsal",
         "qa"
@@ -261,16 +261,16 @@
         11
       ],
       "check": "range",
-      "min": 348,
-      "max": 356,
+      "min": 556,
+      "max": 564,
       "signed": true,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map",
+      "level_basis": "gbatek:DS 3D I/O Map; hw:games/heddlemere/docs/HW-QA.md",
       "done": {
         "value": 0,
-        "mask": 65
+        "mask": 1
       },
       "model": null,
       "frame": {
@@ -336,7 +336,7 @@
     },
     {
       "id": "gx-box-cycles",
-      "title": "BOX_TEST costs 103 cycles in GBATEK (x16); melonDS charges 257; informational until measured on hardware",
+      "title": "BOX_TEST costs about 126 cycles on a DS Lite (2020 x16 measured, accepted 2012..2028): not GBATEK's 103, not melonDS's 257; cause undocumented",
       "boots": [
         "rehearsal",
         "qa"
@@ -345,13 +345,13 @@
         14
       ],
       "check": "range",
-      "min": 1640,
-      "max": 1656,
+      "min": 2012,
+      "max": 2028,
       "signed": true,
-      "source": "unconfirmed",
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map",
+      "level_basis": "gbatek:DS 3D I/O Map; hw:games/heddlemere/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 1
@@ -420,7 +420,7 @@
     },
     {
       "id": "swap-tail",
-      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); melonDS 328; informational until measured on hardware",
+      "title": "From the VBlank until the engine is idle after a bare SWAP_BUFFERS: GBATEK gives 392 cycles (x16); a DS Lite reads 391 (6256), melonDS 326.5",
       "boots": [
         "rehearsal",
         "qa"
@@ -431,10 +431,10 @@
       "check": "range",
       "min": 6208,
       "max": 6336,
-      "source": "unconfirmed",
+      "source": "GBATEK",
       "role": "target",
       "level": 3,
-      "level_basis": "gbatek:DS 3D I/O Map",
+      "level_basis": "gbatek:DS 3D I/O Map; hw:games/heddlemere/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 1
@@ -734,7 +734,12 @@
         "gx-pushpop-slope",
         "gx-scale-mode2-extra",
         "gx-trans-mode2-extra",
-        "vcount-write-lines"
+        "vcount-write-lines",
+        "hblank-low-arm9",
+        "hblank-low-arm7",
+        "gx-box-cycles",
+        "swap-tail",
+        "gx-trans-cycles"
       ],
       "na": [
         "swap-ramcount-line"
@@ -742,17 +747,32 @@
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
-      "ng": [],
+      "ng": [
+        "hblank-low-arm9",
+        "hblank-low-arm7",
+        "gx-box-cycles",
+        "swap-tail"
+      ],
       "na": []
     },
     "melonds-1.1-gl-classic": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe",
-      "ng": [],
+      "ng": [
+        "hblank-low-arm9",
+        "hblank-low-arm7",
+        "gx-box-cycles",
+        "swap-tail"
+      ],
       "na": []
     },
     "melonds-1.1-gl-compute": {
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
-      "ng": [],
+      "ng": [
+        "hblank-low-arm9",
+        "hblank-low-arm7",
+        "gx-box-cycles",
+        "swap-tail"
+      ],
       "na": []
     }
   }
