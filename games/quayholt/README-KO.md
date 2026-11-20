@@ -47,6 +47,11 @@ python3 tools/judge.py --profile melonds-1.1-software run.log
 `expected.json`은 항목과, 에뮬레이터별로 알려진 실패를 적습니다. melonDS 프로필은 인터프리터 기준이므로 melonDS의
 JIT를 끄고 실행하세요.
 
+## 실기
+
+아직 콘솔에서 돌리지 않았습니다. 계획, ROM 순서, 미확인 항목 일곱 개는 [docs/HW-QA-KO.md](docs/HW-QA-KO.md)에 있습니다. 릴리스에는
+Wood 계열 R4 커널용 `quayholt-hw-support.nds`(게임 코드 `####`)도 들어 있습니다.
+
 ## 라이선스
 
 전부 Apache-2.0이고, ROM은 제3자 런타임 라이브러리와 그 고지도 담습니다(`THIRD_PARTY_NOTICES`, `licenses/`).

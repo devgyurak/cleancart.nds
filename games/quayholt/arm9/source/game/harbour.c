@@ -179,7 +179,7 @@ QyScene scene_job(void)
         text_printf(&sub_text, 1, 5, TP_WHITE, "CRANE   %-3s %s", qy_crane == 0 ? "OLD" : "NEW",
                     j->crane_mask == 3 ? "(X: OTHER)" : "(ONLY ONE)");
         text_printf(&sub_text, 1, 8, TP_WHITE, "SETUP   < %-16s >", setup_text(j, qy_setup));
-        text_printf(&sub_text, 1, 9, TP_GRAY, "        %2d OF %2d  L/R: BIG STEP", qy_setup + 1, op->setups);
+        text_printf(&sub_text, 1, 9, TP_GRAY, "        %2d OF %2d  L/R: BIG", qy_setup + 1, op->setups);
         text_printf(&sub_text, 1, 13, TP_WHITE, "A: LIFT");
         text_printf(&sub_text, 1, 15, TP_GRAY, "THE HOOK RUNS THE REAL");
         text_printf(&sub_text, 1, 16, TP_GRAY, "INSTRUCTION; THEN THE BOOK");
