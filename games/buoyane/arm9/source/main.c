@@ -16,6 +16,7 @@
 #include "demo/demo.h"
 #endif
 #include "game/scenes.h"
+#include "game/voyage.h"
 #include "gfx/gl3d.h"
 
 int main(int argc, char *argv[])
@@ -40,10 +41,11 @@ int main(int argc, char *argv[])
         save_write();
     cv_sfx_volume = cv_save.sfx_volume;
     snd_master(cv_save.volume);
+    by_progress_load();
     g3_init();
 #endif
 
-    static const char *const scene_names[] = { "title", "credits" };
+    static const char *const scene_names[] = { "title", "chart", "voyage", "credits" };
     ByScene scene = SC_TITLE;
     for (;;)
     {
@@ -51,6 +53,8 @@ int main(int argc, char *argv[])
                             ? scene_names[scene] : "?");
         switch (scene)
         {
+            case SC_CHART:   scene = scene_chart(); break;
+            case SC_VOYAGE:  scene = scene_voyage(); break;
             case SC_CREDITS: scene = scene_credits(); break;
             case SC_TITLE:
             default:         scene = scene_title(); break;

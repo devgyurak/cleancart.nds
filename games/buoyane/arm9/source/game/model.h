@@ -11,6 +11,8 @@
 #include <nds.h>
 #include <stdbool.h>
 
+#include "assets.h"
+
 typedef struct {
     u8 view;      // 0..2
     u8 truth;     // the light that is drawn, 0..5
@@ -25,6 +27,9 @@ int by_look_of(int chapter, int type, int view);
 
 // The option index (0..2) the almanac names for the gate: the one whose look equals the truth's.
 int by_almanac_answer(int chapter, ByGate g);
+
+// What a look is called on the chart ("SEEN", "RED", ...), per chapter.
+const char *by_look_word(int chapter, int look);
 
 // FNV-1a of the packed routes; equal to BY_PLAN_HASH when the blob is intact.
 u32 by_plan_hash(void);

@@ -8,9 +8,9 @@ each with a Korean twin `*-KO.md`): `README.md`, `ASSETS.md`, `docs/QA.md`; plus
 Repo-wide rules are in `../../AGENTS.md`. Created from paneveil (which came from elevane, lightenette and the corvane
 template): `arm7/`, `common/`, and `arm9/source/core` and `gfx` are corvane's layers (keep fixes in sync when they apply to all games).
 
-Status: scaffold (PR 1 of the stack): title and credits, the light check (five scenes), the rehearsal and the five check
-ROMs, `expected.json` + `judge.py`, the QA mode (title -> credits -> light check -> judge suite). The chart, voyage and
-the 30 approaches follow. Target level 2, area "3D rendering edges: polygon rules, texture blending and the
+Status: playable core: title, chart, voyage (30 approaches in five chapters), almanac, credits; the light check (five scenes), the
+rehearsal and the five check ROMs, `expected.json` + `judge.py`, the QA mode (title -> chart -> all 30 approaches -> credits -> light check ->
+judge suite). The title is still a placeholder; docs (QA, HW-QA) and the title art follow. Target level 2, area "3D rendering edges: polygon rules, texture blending and the
 fog/edge/anti-aliasing post-pass".
 
 ## Build
@@ -34,11 +34,17 @@ fog/edge/anti-aliasing post-pass".
 - `arm9/source/demo/demo.c`: `rehearsal`, `check-<scene>`; check ROM ids are `ck` + the first two letters of the scene.
 - `arm9/source/game/qa_game.c`: QA hooks; after the credits the light check runs once, `qa_pass`, then `qa_suite_run("buoyane", ...)` runs the
   five check scenes as `res-*-check-<scene>.log` (`tools/qa/suite_compare.py` must say SAME for each).
+- `arm9/source/game/model.c/.h`: routes and almanac accessors (`by_gate`, `by_look_of`, `by_almanac_answer`). `voyage.c`: the chart and the voyage
+  (`by_pilot_keys()` is the scripted player shared by the rehearsal and the QA pilot). `lamps.c`: the lights, one function per chapter
+  (1 DISP_1DOT_DEPTH, 2 mixed-W dots, 3 fog density, 4 edge marking, 5 depth Equal), drawn with the same rules the light check judges.
+- `tools/byroute/model.py` is the almanac (single source: mkassets generates the C tables), `routes.py` parses, checks and packs `tools/routes/ch*.txt`.
+  The checker proves at every gate that exactly one option has the look of the true light in that view, so every approach can be finished
+  from the almanac alone (Select) on any emulator. `tools/tests/test_routes.py`, `test_judge.py`.
 - `arm9/source/core`, `gfx`, `arm7/`, `common/`: corvane layers. `core/qa*.c`, `qalog*`, `qasuite*` stay identical across games.
 
 ## Judging
 
-- `expected.json`: 23 target items (level 2), 10 prerequisites (11 once the chapters PR adds its own). `source: unconfirmed` is informational until a
+- `expected.json`: 23 target items (level 2), 11 prerequisites. `source: unconfirmed` is informational until a
   hardware run: only `fog-alpha-glitch` (GBATEK itself holds back). Every other item is a GBATEK statement that gates; an emulator that
   gets one wrong is recorded in `known`.
 - `known` holds the measured failing set per emulator profile (DeSmuME, melonDS software, GL Classic, GL Compute). Re-measure after every scene change.

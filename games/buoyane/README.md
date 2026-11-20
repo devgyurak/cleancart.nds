@@ -6,8 +6,8 @@
 
 [한국어](README-KO.md)
 
-An original night-harbour approach game for the Nintendo DS (work in progress: this is the scaffold, with the title,
-credits and the judge; the chart and the voyage follow). You steer a small boat into a made-up harbour and
+An original night-harbour approach game for the Nintendo DS (work in progress: the chart, the voyage with 30
+approaches, the almanac and the judge are in; the title art and the QA notes follow). You steer a small boat into a made-up harbour and
 name each light by how it looks. It also judges itself: a rehearsal ROM and five check ROMs draw
 pixel-exact 3D scenes, capture them and report a result block that other emulators can use as a regression test.
 

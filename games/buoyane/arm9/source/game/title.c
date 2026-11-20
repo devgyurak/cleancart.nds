@@ -32,7 +32,9 @@ ByScene scene_title(void)
         g3_flush(false);
         scene_frame_end();
         if (qa_title_poll() || qa_marker_poll())
-            return SC_CREDITS;   // the voyage scenes come later; the QA run starts with the credits
+            return SC_CHART;   // the hidden auto QA mode: the same flow a player takes
+        if (cv_in.pressed & KEY_START)
+            return SC_CHART;
         if ((cv_in.pressed & KEY_X) && !(cv_in.held & (KEY_L | KEY_R)))
             return SC_CREDITS;
     }
