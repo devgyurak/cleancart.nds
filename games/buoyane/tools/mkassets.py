@@ -18,6 +18,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from byroute import model as by_model, routes as by_routes  # noqa: E402
 from cvtools import audio, codec, images  # noqa: E402
 from cvtools.gfx import u16s, bmp_4bpp  # noqa: E402
 
@@ -121,6 +122,51 @@ def main():
     w.blob('cv_font_tiles', images.font_tiles(), 'Font, 4bpp, chars 0x20-0x5F')
     w.blob('cv_ui_tiles', images.ui_tiles(), 'Window/gauge tiles, 4bpp')
     w.blob('cv_ui_pal', u16s([0]) + images.palette_bytes(images.UI_PALETTE)[2:])
+
+    # --- Routes and the almanac ---------------------------------------------
+    # The build stops when a route is not solvable from the almanac (tools/byroute/routes.py).
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        chapters = by_routes.load_all(os.path.join(here, 'routes'))
+    except by_routes.RouteError as e:
+        sys.exit('route files failed the checker:\n%s' % e)
+    blob = by_routes.pack(chapters)
+    w.blob('cv_routes', blob, 'routes: chapters x approaches x gates x (view, true, a, b, c), tools/byroute/routes.py')
+    w.define('BY_CHAPTERS', by_model.NCHAPTERS)
+    w.define('BY_APPROACHES', by_routes.APPROACHES)
+    w.define('BY_GATES', by_routes.GATES)
+    w.define('BY_TYPES', by_model.NTYPES)
+    w.define('BY_VIEWS', by_model.NVIEWS)
+    w.define('BY_PLAN_HASH', '0x%08xu' % by_routes.plan_hash(blob))
+    w.raw_h('extern const char *const by_chapter_name[BY_CHAPTERS];')
+    w.raw_c('const char *const by_chapter_name[BY_CHAPTERS] = { %s };\n'
+            % ', '.join('"%s"' % c for c in by_model.CHAPTERS))
+    w.raw_h('extern const char *const by_approach_name[BY_CHAPTERS][BY_APPROACHES];')
+    rows = ['    { %s },' % ', '.join('"%s"' % n.upper() for n in names)
+            for names in by_routes.approach_names(chapters)]
+    w.raw_c('const char *const by_approach_name[BY_CHAPTERS][BY_APPROACHES] = {\n%s\n};\n' % '\n'.join(rows))
+    # the almanac: look[chapter][type][view], and the numbers the 3D lights are drawn from
+    w.raw_h('extern const uint8_t by_look[BY_CHAPTERS][BY_TYPES][BY_VIEWS];')
+    w.raw_c('const uint8_t by_look[BY_CHAPTERS][BY_TYPES][BY_VIEWS] = {\n%s\n};\n' % '\n'.join(
+        '    { %s },' % ', '.join('{ %s }' % ', '.join(str(v) for v in t) for t in ch) for ch in by_model.table()))
+
+    def table(name, values, ctype='uint8_t'):
+        w.raw_h('extern const %s %s[%d];' % (ctype, name, len(values)))
+        w.raw_c('const %s %s[%d] = { %s };\n' % (ctype, name, len(values), ', '.join(str(v) for v in values)))
+
+    table('by_range_w', by_model.RANGE_W)
+    table('by_range_cut', by_model.RANGE_CUT)
+    table('by_sect_first', by_model.SECT_FIRST)
+    table('by_sect_w1', by_model.SECT_W1)
+    table('by_sect_w2', by_model.SECT_W2)
+    table('by_sect_cut', by_model.SECT_CUT)
+    table('by_fog_bucket', by_model.FOG_BUCKET)
+    w.raw_h('extern const uint8_t by_fog_density[BY_VIEWS][BY_TYPES];')
+    w.raw_c('const uint8_t by_fog_density[BY_VIEWS][BY_TYPES] = { %s };\n'
+            % ', '.join('{ %s }' % ', '.join(str(v) for v in row) for row in by_model.FOG_DENSITY))
+    table('by_edge_a', by_model.EDGE_A)
+    table('by_edge_b', by_model.EDGE_B)
+    table('by_harbour_gap', by_model.HARBOUR_GAP)
 
     # --- Sound ------------------------------------------------------------
     samples = audio.make_samples()
