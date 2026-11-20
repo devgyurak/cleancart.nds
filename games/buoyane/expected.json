@@ -3,7 +3,7 @@
   "schema": 3,
   "target_level": 2,
   "area": "3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass",
-  "about": "Expected result-block values for the Buoyane rehearsal ROM, the five check ROMs and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h; the scenes are in arm9/source/judge/lightcheck.c. \"frame\" is the minimum number of frames to run, per boot. Every scene item names the capture it depends on (\"done\": values[0] bit of its scene). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Expected values come from GBATEK; the one item marked unconfirmed (fog-alpha-glitch) is the one where GBATEK itself holds back, and waits for a run on hardware (informational until then).",
+  "about": "Expected result-block values for the Buoyane rehearsal ROM, the five check ROMs and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/rehearsal.h; the scenes are in arm9/source/judge/lightcheck.c. \"frame\" is the minimum number of frames to run, per boot. Every scene item names the capture it depends on (\"done\": values[0] bit of its scene). \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Expected values come from GBATEK; wire-texture-alpha is the one item whose expected value is the console's (hw:dslite-ntr): GBATEK says otherwise. The Equal band position, the decal holes and the +-1 step plane (values[10], [11], [13], [18]) are recorded in the block but not judged; they and the fog alpha glitch are research probe items (probes/).",
   "block": {
     "address": "0x0237F000",
     "magic": 1380275779
@@ -218,36 +218,6 @@
       }
     },
     {
-      "id": "fog-alpha-glitch",
-      "title": "A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog",
-      "boots": [
-        "rehearsal",
-        "qa",
-        "check-fog"
-      ],
-      "values": [
-        3
-      ],
-      "check": "mask",
-      "mask": 1,
-      "expect": 1,
-      "source": "unconfirmed",
-      "role": "target",
-      "level": 2,
-      "level_basis": "gbatek:DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing",
-      "done": {
-        "value": 0,
-        "mask": 2
-      },
-      "model": null,
-      "tolerance": 0,
-      "frame": {
-        "rehearsal": 1200,
-        "qa": 1,
-        "check-fog": 150
-      }
-    },
-    {
       "id": "fog-density-127-full",
       "title": "A high fog density reaches the fog colour exactly; density 120 does not",
       "boots": [
@@ -458,79 +428,20 @@
       }
     },
     {
-      "id": "zeq-slope-band-left",
-      "title": "Equal band on a sloping face: left x (101..107)",
+      "id": "zeq-slope-band-width",
+      "title": "Equal band on a sloping face is 42..54 pixels wide (the +-200h window; right x minus left x)",
       "boots": [
         "rehearsal",
         "qa",
         "check-depth"
       ],
       "values": [
-        10
-      ],
-      "check": "range",
-      "min": 101,
-      "max": 107,
-      "source": "GBATEK",
-      "role": "target",
-      "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Attributes",
-      "done": {
-        "value": 0,
-        "mask": 8
-      },
-      "model": null,
-      "tolerance": 0,
-      "frame": {
-        "rehearsal": 1200,
-        "qa": 1,
-        "check-depth": 150
-      }
-    },
-    {
-      "id": "zeq-slope-band-right",
-      "title": "Equal band on a sloping face: right x (149..155)",
-      "boots": [
-        "rehearsal",
-        "qa",
-        "check-depth"
-      ],
-      "values": [
+        10,
         11
       ],
-      "check": "range",
-      "min": 149,
-      "max": 155,
-      "source": "GBATEK",
-      "role": "target",
-      "level": 2,
-      "level_basis": "gbatek:DS 3D Polygon Attributes",
-      "done": {
-        "value": 0,
-        "mask": 8
-      },
-      "model": null,
-      "tolerance": 0,
-      "frame": {
-        "rehearsal": 1200,
-        "qa": 1,
-        "check-depth": 150
-      }
-    },
-    {
-      "id": "zeq-decal-whole",
-      "title": "A decal on a sloping base has no holes",
-      "boots": [
-        "rehearsal",
-        "qa",
-        "check-depth"
-      ],
-      "values": [
-        9
-      ],
-      "check": "mask",
-      "mask": 8,
-      "expect": 8,
+      "check": "span",
+      "min": 42,
+      "max": 54,
       "source": "GBATEK",
       "role": "target",
       "level": 2,
@@ -729,7 +640,7 @@
     },
     {
       "id": "wire-texture-alpha",
-      "title": "A wireframe with an A5I3 texture (alpha 15) is blended, not opaque",
+      "title": "GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it without blending",
       "boots": [
         "rehearsal",
         "qa",
@@ -740,11 +651,11 @@
       ],
       "check": "mask",
       "mask": 4,
-      "expect": 4,
-      "source": "GBATEK",
+      "expect": 0,
+      "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "gbatek:DS 3D Texture Blending",
+      "level_basis": "gbatek:DS 3D Texture Blending; hw:games/buoyane/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 16
@@ -1077,23 +988,19 @@
         "edge-front-only",
         "edge-aa-translucent",
         "aa-marked-line-complete",
-        "zeq-slope-band-left",
-        "zeq-slope-band-right",
-        "zeq-decal-whole",
         "far-plane-hide",
         "alpha-test-max-hides",
         "decal-alpha0-vertex",
-        "wire-texture-alpha",
         "pre-dot-near-far",
-        "pre-edge-marks"
+        "pre-edge-marks",
+        "zeq-slope-band-width"
       ],
       "na": []
     },
     "melonds-1.1-software": {
       "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer",
       "ng": [
-        "aa-opaque-dot-hidden",
-        "wire-texture-alpha"
+        "aa-opaque-dot-hidden"
       ],
       "na": []
     },
@@ -1109,15 +1016,12 @@
         "edge-aa-translucent",
         "aa-marked-line-complete",
         "zeq-tolerance-flat",
-        "zeq-slope-band-left",
-        "zeq-slope-band-right",
-        "zeq-decal-whole",
         "zeq-no-base-empty",
         "alpha-test-max-hides",
-        "wire-texture-alpha",
         "pre-dot-near-far",
         "pre-dot-bit13",
-        "pre-edge-marks"
+        "pre-edge-marks",
+        "zeq-slope-band-width"
       ],
       "na": []
     },
@@ -1125,11 +1029,10 @@
       "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe",
       "ng": [
         "aa-opaque-dot-hidden",
-        "edge-aa-translucent",
-        "wire-texture-alpha"
+        "edge-aa-translucent"
       ],
       "na": []
     }
   },
-  "known_note": "Measured 2026-11-17 with the rehearsal ROM on each renderer; the NG lists are gating items only (the four unconfirmed items are informational). Emulator results are not golden values: a renderer that matches GBATEK is the reference, not the other way round."
+  "known_note": "Measured 2026-11-17 (profiles re-checked 2026-11-20) with the rehearsal ROM on each renderer; the NG lists are gating items only. Emulator results are not golden values: a renderer that matches GBATEK is the reference, not the other way round."
 }

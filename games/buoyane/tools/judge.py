@@ -238,6 +238,11 @@ def grade(item, vals):
     if check == 'range':
         lo, hi = item['min'], item['max']
         return lo - tol <= got[0] <= hi + tol, '%d' % got[0], '%d..%d' % (lo, hi)
+    if check == 'span':
+        # values[0] = left edge, values[1] = right edge: the width is graded.
+        lo, hi = item['min'], item['max']
+        width = got[1] - got[0]
+        return lo - tol <= width <= hi + tol, '%d (%d..%d)' % (width, got[0], got[1]), '%d..%d wide' % (lo, hi)
     if check == 'all_equal':
         shown = '/'.join('%04x' % g for g in got)
         if 'unlike' in item:
