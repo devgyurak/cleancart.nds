@@ -76,4 +76,5 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 | `mem7-code-main-seq` | 범위 `139..145`, source `hw:dslite-ntr`. 제목: 64워드에서 GBATEK의 워드당 2보다 약 14사이클 더 듦. 원인은 문서화되지 않음 | 두 실행 모두 142(GBATEK 128). melonDS와 DeSmuME는 128이라 이제 NG |
 | `snd-rate-slope` | 그대로: `unconfirmed`, -16..16, 참고용 | 콘솔 값이 실행마다 흔들려(13, 그다음 -10) 기대할 값이 아님 |
 | `snd-pcm-busy`, `snd-adpcm-busy`, `snd-onset-pcm-psg`, `snd-onset-adpcm-pcm`, `snd-hold-restart`, `spi-512k-minus-4m`, `mem7-main-seq`, `mem7-vram-seq`, `math-*` 셋, `env`가 아닌 `pre-*` 다섯 | `level_basis`에 `hw:games/pendulane/docs/HW-QA.md` 추가 | 콘솔이 GBATEK과 같음(두 실행 모두). source는 `GBATEK` 그대로 |
+| 게임 안 장부 | v0.2.2부터 장부 화면(`game/ledger.c`)도 같은 창을 씁니다: MAIN NONSEQ 384 ±8, CODE IN MAIN 142 ±3. 4장의 글자색과 인장 표시만 여기에 달려 있고, 장치 퍼즐의 정거장 비용(`pdorder/model.py`)은 그대로입니다. melonDS는 MAIN NONSEQ 384(창 안)와 CODE IN MAIN 128(창 밖)을 읽어 4장이 계속 NO SEAL로 보입니다 |
 | 프로필 | `mem7-main-nonseq`를 melonDS 세 프로필의 `ng`에서 뺌(DeSmuME는 유지). `mem7-code-main-seq`를 네 프로필 모두의 `ng`에 추가 | |
