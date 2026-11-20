@@ -2,7 +2,7 @@
 
 [English](QA.md)
 
-melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드리스"는 별말이 없으면 melonDS 1.1 코어 실행기 `tools/melonds/mds.sh`(소프트웨어 렌더러)입니다. 아직 melonDS 앱이나 실기에서 손으로 확인한 것은 없습니다.
+melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드리스"는 별말이 없으면 melonDS 1.1 코어 실행기 `tools/melonds/mds.sh`(소프트웨어 렌더러)입니다. 아직 melonDS 앱에서 손으로 확인한 것은 없습니다. 실기: DS Lite + R4에서 실행 1(2026-11-20), [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 | 장면 | 확인 | 상태 |
 |---|---|---|
@@ -10,7 +10,7 @@ melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드�
 | 해도 | 다섯 장과 `n/6` 완료 수, 위/아래 장, 좌/우 접근, A로 출항, B로 타이틀 | 헤드리스 스크린샷 |
 | 항해 | 위: 그 장의 보기에서 참 불빛의 모습, 아래: 후보 불빛 세 개. 좌/우로 고르고 A로 답하며(맞으면 차임, 틀리면 클릭음), Select는 후보마다 연감의 모습을, B·Start는 뒤로. 관문 세 개로 접근 하나가 끝납니다 | 헤드리스: QA 파일럿이 30개 전부 진행 |
 | 크레딧·라이선스 뷰어 | 스크롤 크레딧(libnds, BlocksDS crts MPL-2.0과 소스 URL, picolibc, libgcc), X로 라이선스 뷰어 | 아직 확인 안 함 |
-| 리허설 데모 | `buoyane-rehearsal.nds`: 장마다 첫 접근(스크립트), 이어서 확인 장면 5개. 블록 id `0x48525942`(`BYRH`), 프레임 약 500에 게시, 1500프레임 실행. 판정: `tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 1500 out/x "" 1499 \| python3 games/buoyane/tools/judge.py --profile melonds-1.1-software`(`RENDERER=gl`, `compute`. DeSmuME는 `RESULT_WORDS=64 tools/emu/emu.sh run …`에 `--profile desmume-pydesmume-0.0.9`) | ✅ 프로필 4개 모두 MATCH, 2026-11-17 |
+| 리허설 데모 | `buoyane-rehearsal.nds`: 장마다 첫 접근(스크립트), 이어서 확인 장면 5개. 블록 id `0x48525942`(`BYRH`), 프레임 약 500에 게시, 1500프레임 실행. 판정: `tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 1500 out/x "" 1499 \| python3 games/buoyane/tools/judge.py --profile melonds-1.1-software`(`RENDERER=gl`, `compute`. DeSmuME는 `RESULT_WORDS=64 tools/emu/emu.sh run …`에 `--profile desmume-pydesmume-0.0.9`) | ✅ 프로필 4개 모두 MATCH, 2026-11-17, 실기 1 뒤 변경 후 다시 2026-11-20 |
 | 확인 ROM | `buoyane-check-dot|fog|edge|depth|blend.nds`: 장면 하나씩(약 150프레임), id `ckdo`, `ckfo`, `cked`, `ckde`, `ckbl`. 모든 프로필 MATCH | ✅ 2026-11-17 |
 
 ## 자동 QA 실행
@@ -24,7 +24,9 @@ melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드�
 (먼저 `out/by/x/cleancart/buoyane/`를 만듭니다). 2026-11-17 melonDS 1.1(소프트웨어)에서 확인: 프레임 약 3140에 `RESULT PASS`, 접근 30개 중 30개, 장 마스크 `0x1f`,
 체크포인트 7개, 두 번 돌린 `tools/qa/compare.py` 차이 0, `tools/qa/lint.py` 통과, `QARN` 블록을 `judge.py --profile`로 판정해 melonDS 1.1 소프트웨어와 DeSmuME에서 MATCH,
 `tools/qa/suite_compare.py`: 스위트 블록 5개가 단독 ROM의 블록과 같음(SAME). 저장: 접근을 끝낼 때마다 게임이 저장하고(실행이 쓰기마다 로그에 거울로 남깁니다), 진행이 든 세이브로 평소처럼 부팅하면 해도에 보이고, QA 실행이 끝난 뒤에는 실행 전의 진행이 해도에 보입니다(실행 중의 30/30이 아님).
-아직: GL Classic·Compute QA 실행, melonDS 앱, 실기.
+실기 실행 1(DS Lite + R4, 2026-11-20): QA 실행 PASS, 체크포인트 해시가 melonDS 소프트웨어와 같고, 판정 NG 4개가 있었으며 그 뒤 기대값을 바꿨습니다([HW-QA-KO.md](HW-QA-KO.md)의 "실행에서 나온 기대값"). 새 `expected.json`으로 다시 채점했습니다(2026-11-20). melonDS 소프트웨어·GL Classic·GL Compute에서는 리허설 블록, SD 이미지를 붙인 QA 실행(`RESULT PASS`, 12000프레임)의 `QARN` 블록과 그 스위트 블록 5개(`--demo buoyane-check-<장면>`), DeSmuME에서는 리허설, `QARN`(SD 없음), check-depth·check-blend 블록입니다. 모든 프로필이 MATCH입니다.
+진단용 ROM(`values[21]`, 빌드 `3dd5ac721c8a`, 2026-11-20): 경고 0, 클린 빌드 두 번이 같은 SHA-256, 체크포인트 해시가 이전 ROM과 같음(`compare.py`, 차이 0), melonDS 소프트웨어·GL Classic·GL Compute의 리허설, QA(SD 이미지, `RESULT PASS`), check 블록과 DeSmuME의 리허설, check-blend, QA 블록에서 모든 프로필 MATCH, `suite_compare.py`: SAME 5개. `values[21]`은 melonDS 소프트웨어·Compute에서 흰 픽셀 170, GL Classic·DeSmuME에서 0입니다.
+아직: melonDS 앱.
 
 ## 재현성
 

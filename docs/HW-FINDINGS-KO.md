@@ -5,7 +5,7 @@
 이 저장소의 게임들이 실제 콘솔에서 쟀는데 GBATEK이나 에뮬레이터가 말하는 것과 다른 값을 모은 곳입니다. 에뮬레이터
 개발자가 한곳에서 볼 수 있게 정리했고, 근거(로그, 표, ROM 해시)는 각 게임의 `docs/HW-QA-KO.md`에 있습니다.
 
-모든 항목의 콘솔: DS Lite(NTR) + R4 Plus 카드(Wood 커널), 릴리스 ROM의 hw-support 빌드, 2026-11-17~2026-11-20.
+모든 항목의 콘솔: DS Lite(NTR) + R4 Plus 카드(Wood 커널), 릴리스 ROM의 hw-support 빌드, 2026-11-17~2026-11-20(Buoyane 실행 1: 2026-11-20).
 에뮬레이터: melonDS 1.1(software, OpenGL Classic, OpenGL Compute, 헤드리스 코어)과 DeSmuME(py-desmume 0.0.9).
 콘솔은 한 대뿐이라 초기형 DS나 DSi에서는 값이 다를 수 있습니다.
 
@@ -30,6 +30,10 @@
 | Heddlemere `gx-trans-cycles` (L3) | MTX_TRANS는 22사이클 | **35**(560 = 35 x16) | 35(559) | 0 | Heddlemere v1.0.1부터 범위 556..564, `hw:dslite-ntr` |
 | Heddlemere `gx-box-cycles` (L3) | BOX_TEST는 103사이클 | **약 126**(2020 = 126.25 x16) | 257(4114) | 2 | v1.0.1부터 범위 2012..2028, `hw:dslite-ntr`(지금까지 한 실행) |
 | Heddlemere `hblank-low-arm7` (L3) | 한 줄의 HBlank가 아닌 구간은 ARM7에서 1613사이클("for whatever reason"), ARM9에서 1606 | **25712**(x16): ARM9(25710)와 같음. 두 CPU 모두 GBATEK의 1606이 맞음 | 25343(ARM9 25343) | 25634(ARM9 25632) | v1.0.1부터 범위 25680..25744, `hw:dslite-ntr` |
+| Buoyane `wire-texture-alpha` (L2) | "Wire-frame polygons are always having Av=31, however, they can be made transparent by using Translucent Textures (ie. A5I3 or A3I5 formats) with At<31"(GBATEK, DS 3D Texture Blending). A5I3 텍스처(알파 15)를 쓴 와이어프레임은 블렌딩됨 | **블렌딩 안 됨**: 블렌딩된 와이어 픽셀이 없음(한 실행). 에뮬레이터 4종도 같음 | 블렌딩 안 됨 | 블렌딩 안 됨 | 다음 Buoyane 릴리스부터 기대값 0, `hw:dslite-ntr`. 흰 와이어 픽셀을 세기 전까지는 "불투명하게 그림"과 "안 그림"을 구분하지 못함 |
+| Buoyane `zeq-slope-band-left`, `zeq-slope-band-right` (L2, 뺌) | 경사면의 Equal 띠가 x 101..107에서 x 149..155까지(GBATEK의 ±200h 창에 대한 우리 모델) | **109**와 **159**: 4, 7픽셀 오른쪽(한 실행). 폭 50은 GBATEK 허용 오차의 창 안 | 105, 152(폭 47) | 118, 141(폭 23) | 폭을 판정(`zeq-slope-band-width`, 42..54, GBATEK). 위치는 `probes/`로 감(후속) |
+| Buoyane `zeq-decal-whole` (L2, 뺌) | 경사진 바닥 위 데칼에 구멍이 없음 | **구멍 있음**: 960픽셀(`values[18]`, 한 실행) | 구멍 없음(0) | 2120(`0x848`) | 판정 안 함(래스터라이저 반올림은 문서에 없음). 구멍은 `probes/`로 감(후속) |
+| Buoyane `values[13]` `W_ZEQ_1`(판정 안 함) | 바닥에서 깊이가 한 단계(±1) 다른 평면을 Equal이 허용 오차 안에서 그림 | **0**픽셀 | 1024 + 1024픽셀(`0x04000400`) | 0 | `probes/`의 `zeq-step-boundary`가 같은 평면을 잼. 콘솔 값은 거기 기록할 예정 |
 
 ARM7 HBlank 구간은 우리 ARM7 코어가 폴링해서 재므로 폴링 루프가 값에 섞였을 수 있습니다. 같은 방법으로 잰 ARM9 값이
 GBATEK과 맞기 때문에 ARM7 값을 여기에 올렸습니다.
@@ -65,6 +69,9 @@ GBATEK과 맞기 때문에 ARM7 값을 여기에 올렸습니다.
 | Heddlemere `gx-identity-slope`, `gx-pushpop-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`, `gx-full-stall-rate`, `gx-halfirq-slope` (L3) | 지오메트리 명령의 사이클 비용과 FIFO 정지가 GBATEK대로 | DeSmuME |
 | Heddlemere `vcount-write-lines` (L2) | 212줄에서 VCOUNT를 쓰면 10~11줄이 반복됨 | DeSmuME |
 | Heddlemere `hblank-low-arm9`, `swap-tail` (L3) | ARM9에서 한 줄의 HBlank 플래그가 1606사이클 동안 낮음(25710 x16). 맨 SWAP_BUFFERS 뒤 VBlank부터 392사이클 뒤에 엔진이 쉼(6256 = 391) | melonDS(25343, 5224), DeSmuME(25632, 528) |
+| Buoyane `aa-opaque-dot-hidden` (L2) | 안티앨리어싱을 켜면 불투명 1-dot 폴리곤이 가려짐(`values[1]` 0x7ff) | 네 가지 모두: melonDS 소프트웨어, GL Classic, GL Compute, DeSmuME |
+| Buoyane `edge-aa-translucent` (L2) | 안티앨리어싱에서 edge 표시 가장자리는 edge 색도 면 색도 아님 | melonDS GL Classic, GL Compute, DeSmuME |
+| Buoyane `aa-marked-line-complete` (L2) | 안티앨리어싱과 edge marking에서 1픽셀 선에 틈이 없음(192/192픽셀) | melonDS GL Classic, DeSmuME |
 
 `env` 항목(세이브 칩 접근이나 카트리지 gap처럼 테스트 하네스가 필요)은 R4에서 n/a라 넣지 않았습니다: Tonewick
 `save-wel-reset`, Pendulane `cart-gap1-clk5`, `cart-gap1-clk8`.
@@ -78,6 +85,7 @@ GBATEK과 맞기 때문에 ARM7 값을 여기에 올렸습니다.
 | 일정 구간의 보이는 줄 HBlank IRQ 수 | 31464(Corvane), 31520 / 31465(Lightenette) | 31323, 31532 | 판정 범위 안 |
 | Pendulane 원시 타이밍 경계 `values[24..31]`, `[36..39]` | 2~3 더 큼 | | 판정 안 함 |
 | Pendulane `snd-rate-slope`(참고용) | 세 실행에서 13, -10, -33: 실행마다 움직임 | 830 | `unconfirmed` 유지 |
+| Buoyane `fog-alpha-glitch`(전에는 L2 `unconfirmed`, 뺌) | 0: FOG_OFFSET 앞의 fog 면이 fog 없는 같은 프레임 알파 31 면처럼 보이는 일이 읽은 픽셀에서 없음(한 실행, 한 장면) | 0 | probe 항목이 될 예정(후속) |
 
 ## 항목 추가하기
 

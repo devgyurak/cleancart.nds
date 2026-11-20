@@ -6,7 +6,7 @@ What the games of this repository measured on a real console that GBATEK or the 
 for emulator developers; the evidence (logs, tables, ROM hashes) stays in each game's `docs/HW-QA.md`.
 
 Console for every entry: DS Lite (NTR) with an R4 Plus card (Wood kernel), hw-support builds of the release
-ROMs, 2026-11-17 to 2026-11-20. Emulators: melonDS 1.1 (software, OpenGL Classic, OpenGL Compute; headless core)
+ROMs, 2026-11-17 to 2026-11-20 (Buoyane run 1: 2026-11-20). Emulators: melonDS 1.1 (software, OpenGL Classic, OpenGL Compute; headless core)
 and DeSmuME (py-desmume 0.0.9). One console only: a value can still differ on an original DS or a DSi.
 
 The sections:
@@ -30,6 +30,10 @@ The sections:
 | Heddlemere `gx-trans-cycles` (L3) | MTX_TRANS costs 22 cycles | **35** (560 = 35 x16) | 35 (559) | 0 | range 556..564, `hw:dslite-ntr`, since Heddlemere v1.0.1 |
 | Heddlemere `gx-box-cycles` (L3) | BOX_TEST costs 103 cycles | **about 126** (2020 = 126.25 x16) | 257 (4114) | 2 | range 2012..2028, `hw:dslite-ntr`, since v1.0.1 (one run so far) |
 | Heddlemere `hblank-low-arm7` (L3) | The non-HBlank span of a line is 1613 cycles on the ARM7 ("for whatever reason"), 1606 on the ARM9 | **25712** (x16): the same as the ARM9 (25710); GBATEK's 1606 holds for both CPUs | 25343 (ARM9 25343) | 25634 (ARM9 25632) | range 25680..25744, `hw:dslite-ntr`, since v1.0.1 |
+| Buoyane `wire-texture-alpha` (L2) | "Wire-frame polygons are always having Av=31, however, they can be made transparent by using Translucent Textures (ie. A5I3 or A3I5 formats) with At<31" (GBATEK, DS 3D Texture Blending). A wireframe with an A5I3 texture (alpha 15) is blended | **not blended**: no blended wire pixel (one run); the same on all four emulators | not blended | not blended | expected value 0, `hw:dslite-ntr`, since the next Buoyane release; it cannot tell "drawn opaque" from "not drawn" until the white wire pixels are counted |
+| Buoyane `zeq-slope-band-left`, `zeq-slope-band-right` (L2, removed) | The Equal band on a sloping face runs from x 101..107 to x 149..155 (our model of GBATEK's +-200h window) | **109** and **159**: 4 and 7 pixels further right (one run). The width, 50, is inside the window GBATEK's tolerance gives | 105, 152 (width 47) | 118, 141 (width 23) | the width is judged (`zeq-slope-band-width`, 42..54, GBATEK); the position moves to `probes/` (follow-up) |
+| Buoyane `zeq-decal-whole` (L2, removed) | A decal on a sloping base has no holes | **holes**: 960 pixels (`values[18]`, one run) | no holes (0) | 2120 (`0x848`) | not judged (rasteriser rounding is undocumented); the holes move to `probes/` (follow-up) |
+| Buoyane `values[13]` `W_ZEQ_1` (not judged) | A plane one depth step (+-1) off the base is drawn by Equal inside the tolerance | **0** pixels | 1024 + 1024 pixels (`0x04000400`) | 0 | the probe `zeq-step-boundary` measures the same planes; the console value is to be recorded there |
 
 The ARM7 HBlank span is polled by our own ARM7 core, so the poll loop may be part of the figure; the ARM9 figure with the
 same method matches GBATEK, which is why the ARM7 one is listed.
@@ -65,6 +69,9 @@ issue). "Fails on" lists the known profiles that have the item in `ng`.
 | Heddlemere `gx-identity-slope`, `gx-pushpop-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`, `gx-full-stall-rate`, `gx-halfirq-slope` (L3) | Geometry command cycle costs and FIFO stall as GBATEK gives them | DeSmuME |
 | Heddlemere `vcount-write-lines` (L2) | A VCOUNT write at line 212 repeats 10 or 11 lines | DeSmuME |
 | Heddlemere `hblank-low-arm9`, `swap-tail` (L3) | The HBlank flag is low for 1606 cycles of a line on the ARM9 (25710 x16); the engine is idle 392 cycles after the VBlank that follows a bare SWAP_BUFFERS (6256 = 391) | melonDS (25343, 5224), DeSmuME (25632, 528) |
+| Buoyane `aa-opaque-dot-hidden` (L2) | With anti-aliasing on, an opaque 1-dot polygon is hidden (`values[1]` 0x7ff) | all four: melonDS software, GL Classic, GL Compute, DeSmuME |
+| Buoyane `edge-aa-translucent` (L2) | With anti-aliasing a marked edge is neither the edge colour nor the face colour | melonDS GL Classic, GL Compute, DeSmuME |
+| Buoyane `aa-marked-line-complete` (L2) | With anti-aliasing and edge marking a one-pixel line has no gap (192 of 192 pixels) | melonDS GL Classic, DeSmuME |
 
 Items with `env` (they need the test harness, such as save chip access or the cartridge gap) are n/a on the R4 and are
 not listed: Tonewick `save-wel-reset`, Pendulane `cart-gap1-clk5` and `cart-gap1-clk8`.
@@ -78,6 +85,7 @@ not listed: Tonewick `save-wel-reset`, Pendulane `cart-gap1-clk5` and `cart-gap1
 | Visible-line HBlank IRQ count over a span | 31464 (Corvane), 31520 / 31465 (Lightenette) | 31323, 31532 | inside the judged ranges |
 | Pendulane raw timing edges `values[24..31]`, `[36..39]` | 2-3 higher | | not judged |
 | Pendulane `snd-rate-slope` (informational) | 13, -10, -33 in three runs: it moves from run to run | 830 | stays `unconfirmed` |
+| Buoyane `fog-alpha-glitch` (formerly L2 `unconfirmed`, removed) | 0: a fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog in none of the pixels read (one run, one scene) | 0 | to become a probe item (follow-up) |
 
 ## Adding an entry
 

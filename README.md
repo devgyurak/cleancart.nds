@@ -51,7 +51,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick title screen"> | Listening puzzle in four districts (twelve signal lines): mend the broken signal lines of a moor listening post with an oscilloscope. Each line is a register field of the sound block, and the ROM listens to its own sound with the capture units. It judges itself with a rehearsal ROM.<br>Tests (L2, sound and I/O edges): the boundary values and documented bugs of the sound channels and capture units, plus the RTC, power management, save chip and firmware user settings. | automatic (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 target 17 · prerequisite 10<!-- /cell --> | [README](games/tonewick/README.md) · [QA checklist](games/tonewick/docs/QA.md) · [Hardware QA](games/tonewick/docs/HW-QA.md) · [Assets](games/tonewick/ASSETS.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 | [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 8<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
-| [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 23 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
+| [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 20 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -252,34 +252,31 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Tonewick (90 target items)</summary>
+<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Tonewick (87 target items)</summary>
 
 #### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
 
-target 23 · prerequisite 11
+target 20 · prerequisite 11
 
 - `dot-mixed-w-first-colour` · A 1-dot polygon with vertices on both sides of DISP_1DOT_DEPTH is drawn, in the colour of its first vertex (forward order red, reverse order green) · [expected.json](games/buoyane/expected.json)
 - `dot-only-zero-size` · A far 1x0 polygon is drawn; a 0x0 polygon at the same distance is hidden · [expected.json](games/buoyane/expected.json)
 - `dot-depth-extremes` · DISP_1DOT_DEPTH 0 hides a W 1 dot; 7FFF shows dots at W 1, 64 and 1000 · [expected.json](games/buoyane/expected.json)
 - `aa-translucent-dot-kept` · With anti-aliasing on, a translucent (alpha 30) 1-dot polygon is still drawn · [expected.json](games/buoyane/expected.json)
 - `aa-opaque-dot-hidden` · With anti-aliasing on, an opaque 1-dot polygon is hidden (the same dot is drawn without it) · [expected.json](games/buoyane/expected.json)
-- `fog-alpha-glitch` · A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog _(informational)_ · [expected.json](games/buoyane/expected.json)
 - `fog-translucent-and` · Fog on a translucent pixel needs both the polygon fog bit and the fog flag of the pixel behind it (case without: no fog; case with: fog) · [expected.json](games/buoyane/expected.json)
 - `fog-rear-plane-bit` · CLEAR_COLOR bit 15 set: the rear plane is fogged; clear: it is not · [expected.json](games/buoyane/expected.json)
 - `edge-front-only` · Edge marking colours only the edge of the polygon in front (the one with the smaller depth) · [expected.json](games/buoyane/expected.json)
 - `edge-aa-translucent` · With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative) · [expected.json](games/buoyane/expected.json)
 - `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels · [expected.json](games/buoyane/expected.json)
-- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
-- `zeq-slope-band-left` · Equal band on a sloping face: left x (101..107) · [expected.json](games/buoyane/expected.json)
-- `zeq-slope-band-right` · Equal band on a sloping face: right x (149..155) · [expected.json](games/buoyane/expected.json)
-- `zeq-decal-whole` · A decal on a sloping base has no holes · [expected.json](games/buoyane/expected.json)
+- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -2 and +2 (raw z 2 and 6 against a base at 4, beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
+- `zeq-slope-band-width` · Equal band on a sloping face is 42..54 pixels wide (the +-200h window; right x minus left x) · [expected.json](games/buoyane/expected.json)
 - `zeq-no-base-empty` · An Equal polygon with no base polygon draws nothing · [expected.json](games/buoyane/expected.json)
 - `far-plane-hide` · POLYGON_ATTR bit 12 clear hides a polygon that reaches past the far plane; set draws it clipped · [expected.json](games/buoyane/expected.json)
 - `attr-latch-begin` · POLYGON_ATTR sent between Begin and End has no effect until the next Begin · [expected.json](games/buoyane/expected.json)
 - `alpha-test-max-hides` · ALPHA_TEST_REF 1F hides an opaque (alpha 31) polygon · [expected.json](games/buoyane/expected.json)
 - `highlight-clamp` · Highlight shading saturates at 63 (Rt 63 + Rs 33): the captured colour is white, not wrapped · [expected.json](games/buoyane/expected.json)
 - `decal-alpha0-vertex` · A decal texel with alpha 0 shows the vertex colour · [expected.json](games/buoyane/expected.json)
-- `wire-texture-alpha` · A wireframe with an A5I3 texture (alpha 15) is blended, not opaque · [expected.json](games/buoyane/expected.json)
+- `wire-texture-alpha` · GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it without blending · [expected.json](games/buoyane/expected.json)
 - `blend-bypass-clear-alpha0` · A translucent polygon over a rear plane of alpha 0 keeps its own colour (no blend) · [expected.json](games/buoyane/expected.json)
 
 #### Ledgerine · system edges
