@@ -87,6 +87,6 @@ NG 항목은 실행 1을 기록한 PR에서는 고치지 않았고, 아래 "실�
 
 | 항목 | 변경 | 이유 |
 |---|---|---|
-| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 그 읽기의 원시 워드는 기록하지 않았고 0이 아니라는 것만 압니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`. 제목: 상대가 보내기 FIFO를 비운 뒤의 빈 읽기는 0을 돌려주지 않음 | GBATEK은 0이라고 하지만 두 실행 모두 `values[2]` = 0xF7(비트 3 "0을 돌려줌"은 꺼짐, 비트 2 오류 확인은 켜짐). 이 실행들에서는 그 읽기의 원시 워드를 기록하지 않았고 0이 아니라는 것만 압니다. v0.2.2부터는 `values[44]`(그 직후의 IPCFIFOCNT는 `values[45]`)에 기록하며, 다음 실행에서 읽습니다. melonDS 1.1 soft와 DeSmuME는 둘 다 `values[44]` = 0, `values[45]` = 0xC101(수신 FIFO 비어 있음, 오류 비트 켜짐)을 읽습니다. 마스크가 비트 2도 검사하므로 확인 동작이 깨져도 항목이 실패합니다 |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis`에 `hw:games/ledgerine/docs/HW-QA.md` 추가 | 콘솔은 GBATEK과 같고, melonDS(와 DeSmuME)는 다름 |
 | 프로필 | `ipc-empty-cleared`를 네 프로필(melonDS soft / GL classic / GL compute, DeSmuME) 모두 `ng`에 추가 | 에뮬레이터는 모두 0을 돌려주고 콘솔은 아님 |

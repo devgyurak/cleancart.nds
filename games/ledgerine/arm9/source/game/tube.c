@@ -10,7 +10,8 @@
 //   0  an empty read returns the last word received (B)
 //   1  an empty read sets the error bit (IPCFIFOCNT bit 14)
 //   2  writing 1 to bit 14 clears the error
-//   3  an empty read after the remote side cleared its FIFO returns 0
+//   3  an empty read after the remote side cleared its FIFO returns 0 (GBATEK says 0; a DS Lite returns a
+//      non-zero word, so the judged item expects bit 3 clear on the console: expected.json)
 //   4  16 writes fill the FIFO (full bit), the 17th sets the error and is dropped (the ARM7 counts 16)
 //   5  FIFO disabled: a write is ignored without error (the ARM7 sees nothing)
 //   6  FIFO disabled: reads peek the oldest word without taking it (E1, E1; E1, E2 once enabled again)
@@ -18,7 +19,8 @@
 //      acknowledging it with the word still there does not raise it again
 // L1 prerequisite (lg_res[LV_PRE] bit 1): the 16 words A0..A15 arrive in order and the ARM7 counts
 // the 16 words of the ARM9's burst.
-// raw: values[41] = the empty-read word, [42] = the count the ARM7 read, [43] = the ARM7's status word.
+// raw: values[41] = the empty-read word, [42] = the count the ARM7 read, [43] = the ARM7's status word,
+// [44] = the empty read after the remote clear, [45] = IPCFIFOCNT right after it (not judged).
 
 #include <nds.h>
 #include <string.h>
@@ -40,6 +42,7 @@ typedef struct {
     bool pre_err, post_err; // error bit before and after the empty read
     bool acked;             // error cleared by writing 1
     u32 zero_read;          // the empty read after the remote clear
+    u32 zero_fcr;           // IPCFIFOCNT right after it
     bool full15, full16;    // full bit after 15 and 16 writes
     bool err16, err17;      // error bit after the 16th and 17th write
     u32 count;              // words the ARM7 found
@@ -118,6 +121,7 @@ static bool tube_run(TubeRun *r)
         if (!barrier(5) || !barrier(6) || !barrier(7))
             break;
         r->zero_read = RX;                              // the ARM7 cleared its send side
+        r->zero_fcr = FCR;
         ack_error();
         for (int i = 0; i < 17; i++)
         {
@@ -272,6 +276,8 @@ static void audit_tube(void)
     lg_res[LV_RAW + 33] = r.echo;
     lg_res[LV_RAW + 34] = r.count;
     lg_res[LV_RAW + 35] = r.status;
+    lg_res[LV_RAW + 36] = r.zero_read;
+    lg_res[LV_RAW + 37] = r.zero_fcr;
     lg_res[LV_TUBE] = f;
     ledger_flags(LV_PRE, 1u << 1, r.ran && r.in_order && r.count == 16);
 }

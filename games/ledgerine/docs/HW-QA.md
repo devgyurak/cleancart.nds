@@ -90,6 +90,6 @@ The same console, card and ROM as run 1 (`ledgerine-hw-support.nds`, build `8821
 
 | Item | Change | Why |
 |---|---|---|
-| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read is not recorded, only that it is not 0. The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read was not recorded in these runs, only that it is not 0; from v0.2.2 it is in `values[44]` (and IPCFIFOCNT right after it in `values[45]`), to be read on the next run. melonDS 1.1 soft and DeSmuME both read `values[44]` = 0 and `values[45]` = 0xC101 (receive FIFO empty, error bit set). The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis` gets `hw:games/ledgerine/docs/HW-QA.md` | the console agrees with GBATEK; melonDS (and DeSmuME) do not |
 | Profiles | `ipc-empty-cleared` is in `ng` of all four (melonDS soft / GL classic / GL compute, DeSmuME) | every emulator returns 0 there, the console does not |
