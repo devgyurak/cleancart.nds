@@ -52,7 +52,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 | [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 8<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
 | [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 20 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
-| [Quayholt](games/quayholt/) | Two-crane harbour puzzle: shift cargo with an old steam crane and a new electric one and watch them handle the same job differently. It judges itself with a rehearsal ROM and per-pier check ROMs.<br>Tests (L2, ARM core edges): ARM7 and ARM9 load/store-multiple, odd-address halfword, PC-offset, saturating and multiply edges, and the ARM9 CP15 control register (protection unit, tightly coupled memory, caches). | automatic (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 target 14 · prerequisite 5<!-- /cell --> | [README](games/quayholt/README.md) · [Assets](games/quayholt/ASSETS.md) |
+| [Quayholt](games/quayholt/) | Two-crane harbour puzzle: shift cargo with an old steam crane and a new electric one and watch them handle the same job differently. It judges itself with a rehearsal ROM and per-pier check ROMs.<br>Tests (L2, ARM core edges): ARM7 and ARM9 load/store-multiple, odd-address halfword, PC-offset, saturating and multiply edges, and the ARM9 CP15 control register (protection unit, tightly coupled memory, caches). | automatic (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 target 26 · prerequisite 9<!-- /cell --> | [README](games/quayholt/README.md) · [Assets](games/quayholt/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -253,7 +253,7 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (101 target items)</summary>
+<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (113 target items)</summary>
 
 #### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
 
@@ -342,7 +342,7 @@ target 19 · prerequisite 18
 
 #### Quayholt · ARM core edges: ARM9/ARM7 instruction edges and the ARM9 CP15 (protection unit, TCM, caches)
 
-target 14 · prerequisite 5
+target 26 · prerequisite 9
 
 - `ldrh7-odd` · ARM7 LDRH [odd] reads the halfword at odd-1 and rotates it right by 8 · [expected.json](games/quayholt/expected.json)
 - `ldrsh7-odd` · ARM7 LDRSH [odd] acts like LDRSB [odd]: the byte at the address, sign-extended · [expected.json](games/quayholt/expected.json)
@@ -358,6 +358,18 @@ target 14 · prerequisite 5
 - `qdadd9-dbl-sat` · QDADD saturates Rn*2 first and sets Q even when the final sum is in range · [expected.json](games/quayholt/expected.json)
 - `smla9-q-nosat` · SMLAxy overflow sets Q without saturating; SMLALxy does not set Q · [expected.json](games/quayholt/expected.json)
 - `cp15-prev5-bit15` · CP15 control bit 15 set: an ARM9 PC load stays in ARM state · [expected.json](games/quayholt/expected.json)
+- `cp15-ctrl-bits` · CP15 control register: bits 0, 2, 7 and 12-19 are writable, bits 3-6 always read 1 · [expected.json](games/quayholt/expected.json)
+- `bkpt9-pabt` · BKPT takes the prefetch abort vector (0Ch) in abort mode with LR = BKPT + 4 · [expected.json](games/quayholt/expected.json)
+- `pu-priority` · Of overlapping protection regions the higher number wins · [expected.json](games/quayholt/expected.json)
+- `pu-background` · An access outside every region is a data abort with LR = instruction + 8 · [expected.json](games/quayholt/expected.json)
+- `pu-user-ro` · Access permission 2: user mode may read, a user write is a data abort · [expected.json](games/quayholt/expected.json)
+- `pu-code-xn` · Instruction permission 0: a fetch from the region is a prefetch abort · [expected.json](games/quayholt/expected.json)
+- `itcm-over-dtcm` · Overlapping ITCM and DTCM: the ITCM wins · [expected.json](games/quayholt/expected.json)
+- `dtcm-mirror` · A 32 KB virtual DTCM mirrors its 16 KB of memory · [expected.json](games/quayholt/expected.json)
+- `itcm-size` · With a 16 KB virtual ITCM the mirror at +4000h is no longer ITCM · [expected.json](games/quayholt/expected.json)
+- `tcm-dma-bus` · A DMA read of a DTCM address returns the main RAM behind it · [expected.json](games/quayholt/expected.json)
+- `dtcm-load-mode` · Control bit 17 (DTCM load mode): reads of the DTCM go to the bus behind, writes still reach it _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `itcm-load-mode` · Control bit 19 (ITCM load mode): reads of the ITCM region do not return the ITCM word _(informational)_ · [expected.json](games/quayholt/expected.json)
 
 #### Tonewick · sound and I/O edges
 

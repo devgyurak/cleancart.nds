@@ -19,4 +19,9 @@ void measure_alu(void);
 // The prerequisite bits (values[31]) the three piers above own: 0, 1, 2.
 void measure_prereq(void);
 
+// Pier D: the control register, BKPT and the protection unit (needs the exception harness).
+void measure_pu(void);
+// Pier E: tightly coupled memory (DTCM / ITCM size, overlap, mirrors, DMA view, load modes).
+void measure_tcm(void);
+
 #endif // QY_MEASURE_H
