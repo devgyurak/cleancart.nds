@@ -24,7 +24,7 @@ Nothing is tuned (`qa_tune.h`); a checkpoint per finished chapter plus one for t
 Headless: `SDDIR=out/by/x tools/melonds/mds.sh run games/buoyane/buoyane.nds 12000 out/by/x "300:L:140,300:R:140,300:X:140,300:Y:140"` (create
 `out/by/x/cleancart/buoyane/` first). Verified 2026-11-17 in melonDS 1.1 (software): `RESULT PASS` at about frame 3140, 30 of 30 approaches, chapters
 mask `0x1f`, 7 checkpoints, `tools/qa/compare.py` on two runs: 0 differences, `tools/qa/lint.py` ok, the `QARN` block graded with `judge.py --profile` MATCH on melonDS 1.1
-software and DeSmuME, `tools/qa/suite_compare.py`: the five suite blocks equal the stand-alone ROMs' (SAME). Save: the game saves after every finished approach (the run mirrors each write to the log); a normal boot on a save with progress shows it on the chart.
+software and DeSmuME, `tools/qa/suite_compare.py`: the five suite blocks equal the stand-alone ROMs' (SAME). Save: the game saves after every finished approach (the run mirrors each write to the log); a normal boot on a save with progress shows it on the chart, and after the QA run ends the chart shows the progress from before it (not the run's 30/30).
 Not yet: GL Classic and Compute QA runs, melonDS application, hardware.
 
 ## Reproducibility
