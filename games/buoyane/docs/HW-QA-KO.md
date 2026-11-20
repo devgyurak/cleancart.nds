@@ -63,5 +63,6 @@
 | `fog-alpha-glitch` | 게임에서 뺌 | 한 장면의 음성 결과 하나로 "글리치 없음"을 확정할 수 없고, `unconfirmed` 항목은 L4인데 게임에는 L4를 둘 수 없습니다. 콘솔 값 0은 여기와 `docs/HW-FINDINGS-KO.md` 3절에 기록 |
 | 프로필 | `ng`: 소프트웨어 1(`aa-opaque-dot-hidden`), Compute 2(그것과 `edge-aa-translucent`), GL Classic 15, DeSmuME 13 | 렌더러마다 리허설 블록을 다시 채점: 네 프로필 모두 MATCH |
 
-이 변경에 없는 후속 작업: 띠 위치(콘솔 109와 159), 데칼 구멍(960), fog alpha 글리치(0)의 probe 항목을 `probes/`에 추가하고 이 값들을 실기 관측으로 남깁니다(출처 "Buoyane v0.1.0 hw run 1").
-ROM 변경으로 흰 와이어 픽셀 수를 더하고, `zeq-tolerance-flat`의 낡은 단계 표기와 `lightcheck.c`의 띠 주석을 고칩니다. 그다음 Buoyane v0.1.1과 실기 2차입니다.
+후속 작업: ROM 변경(진단용, 판정 비트와 상태 해시는 그대로)이 `values[21]`(와이어 사각형의 흰 | 블렌딩 픽셀 수)을 더하고, `zeq-tolerance-flat`의 낡은 단계 표기(단계 -2와 +2)와 `lightcheck.c`의 띠 주석을 고칩니다. 그다음 Buoyane v0.1.1과 실기 2차입니다.
+실기 2차에서는 `values[21]`(흰 픽셀 0 = "안 그림", 0보다 크고 `values[15]` 비트 2가 0 = "불투명하게 그림". melonDS 소프트웨어·Compute는 흰 픽셀 170, GL Classic·DeSmuME는 0)을 읽고, 109 / 159(`values[10]`, `[11]`), 데칼 구멍 960(`values[18]`), ±1단계 평면 0(`values[13]`)이 반복되는지 봅니다.
+그 뒤에야 띠 위치, 데칼 구멍, fog alpha 글리치의 probe 항목을 `probes/`에 추가하고, 반복된 값을 실기 관측으로 남깁니다(출처 "Buoyane hw run").

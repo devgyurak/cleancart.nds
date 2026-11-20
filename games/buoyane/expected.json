@@ -399,7 +399,7 @@
     },
     {
       "id": "zeq-tolerance-flat",
-      "title": "Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane",
+      "title": "Depth test Equal draws nothing for steps of -2 and +2 (raw z 2 and 6 against a base at 4, beyond +-200h) from the base plane",
       "boots": [
         "rehearsal",
         "qa",

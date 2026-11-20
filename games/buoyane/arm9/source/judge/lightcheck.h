@@ -34,13 +34,14 @@ enum {
     W_DEPTH = 9,
     W_BAND_L = 10,
     W_BAND_R = 11,
-    W_ZEQ_3 = 12,
+    W_ZEQ_2 = 12,
     W_ZEQ_1 = 13,
     W_AA_LINES = 14,
     W_BLEND = 15,
     W_HI_DECAL = 16,
     W_WIRE_BYPASS = 17,
     W_HOLES = 18,
+    W_WIRE_PIXELS = 21,   // after the approaches (19) and the plan hash (20): the wire quad's white | blended pixels << 16 (record)
     W_WORDS = 20
 };
 

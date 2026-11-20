@@ -267,7 +267,7 @@
 - `edge-front-only` · Edge marking colours only the edge of the polygon in front (the one with the smaller depth) · [expected.json](games/buoyane/expected.json)
 - `edge-aa-translucent` · With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative) · [expected.json](games/buoyane/expected.json)
 - `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels · [expected.json](games/buoyane/expected.json)
-- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
+- `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -2 and +2 (raw z 2 and 6 against a base at 4, beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
 - `zeq-slope-band-width` · Equal band on a sloping face is 42..54 pixels wide (the +-200h window; right x minus left x) · [expected.json](games/buoyane/expected.json)
 - `zeq-no-base-empty` · An Equal polygon with no base polygon draws nothing · [expected.json](games/buoyane/expected.json)
 - `far-plane-hide` · POLYGON_ATTR bit 12 clear hides a polygon that reaches past the far plane; set draws it clipped · [expected.json](games/buoyane/expected.json)
