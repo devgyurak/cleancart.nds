@@ -6,7 +6,7 @@ What the games of this repository measured on a real console that GBATEK or the 
 for emulator developers; the evidence (logs, tables, ROM hashes) stays in each game's `docs/HW-QA.md`.
 
 Console for every entry: DS Lite (NTR) with an R4 Plus card (Wood kernel), hw-support builds of the release
-ROMs, 2026-11-17 to 2026-11-20. Emulators: melonDS 1.1 (software, OpenGL Classic, OpenGL Compute; headless core)
+ROMs, 2026-11-17 to 2026-11-20 (Buoyane run 1: 2026-11-20). Emulators: melonDS 1.1 (software, OpenGL Classic, OpenGL Compute; headless core)
 and DeSmuME (py-desmume 0.0.9). One console only: a value can still differ on an original DS or a DSi.
 
 The sections:
@@ -30,6 +30,11 @@ The sections:
 | Heddlemere `gx-trans-cycles` (L3) | MTX_TRANS costs 22 cycles | **35** (560 = 35 x16) | 35 (559) | 0 | range 556..564, `hw:dslite-ntr`, since Heddlemere v1.0.1 |
 | Heddlemere `gx-box-cycles` (L3) | BOX_TEST costs 103 cycles | **about 126** (2020 = 126.25 x16) | 257 (4114) | 2 | range 2012..2028, `hw:dslite-ntr`, since v1.0.1 (one run so far) |
 | Heddlemere `hblank-low-arm7` (L3) | The non-HBlank span of a line is 1613 cycles on the ARM7 ("for whatever reason"), 1606 on the ARM9 | **25712** (x16): the same as the ARM9 (25710); GBATEK's 1606 holds for both CPUs | 25343 (ARM9 25343) | 25634 (ARM9 25632) | range 25680..25744, `hw:dslite-ntr`, since v1.0.1 |
+| Buoyane `zeq-slope-band-left`, `zeq-slope-band-right` (L2) | The Equal band on a sloping face runs from x 101..107 to x 149..155 (GBATEK's +-200h tolerance; the band-drawing code assumed x 104 and 152) | **109** and **159**: 4 and 7 pixels further right (one run) | 105, 152 | NG (profile) | under review; `expected.json` unchanged |
+| Buoyane `zeq-decal-whole` (L2) | A decal on a sloping base has no holes | **holes**: 960 pixels (`values[18]`) | no holes (0) | NG (profile) | under review |
+| Buoyane `values[13]` `W_ZEQ_1` (not judged) | A plane one depth step off the base (+-1) is drawn by Equal inside the tolerance | **0** pixels | 1024 + 1024 pixels (`0x04000400`) | | under review (not judged) |
+| Buoyane `wire-texture-alpha` (L2) | A wireframe with an A5I3 texture (alpha 15) is blended, not opaque | **not blended**: the same as all four emulators | not blended | not blended | under review: whether GBATEK really says it, or it is our reading |
+| Buoyane `fog-alpha-glitch` (L2, `unconfirmed`) | A fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog | **0**: no glitch in this scene (one run) | 0 | 0 | under review |
 
 The ARM7 HBlank span is polled by our own ARM7 core, so the poll loop may be part of the figure; the ARM9 figure with the
 same method matches GBATEK, which is why the ARM7 one is listed.
@@ -65,6 +70,9 @@ issue). "Fails on" lists the known profiles that have the item in `ng`.
 | Heddlemere `gx-identity-slope`, `gx-pushpop-slope`, `gx-trans-mode2-extra`, `gx-scale-mode2-extra`, `gx-full-stall-rate`, `gx-halfirq-slope` (L3) | Geometry command cycle costs and FIFO stall as GBATEK gives them | DeSmuME |
 | Heddlemere `vcount-write-lines` (L2) | A VCOUNT write at line 212 repeats 10 or 11 lines | DeSmuME |
 | Heddlemere `hblank-low-arm9`, `swap-tail` (L3) | The HBlank flag is low for 1606 cycles of a line on the ARM9 (25710 x16); the engine is idle 392 cycles after the VBlank that follows a bare SWAP_BUFFERS (6256 = 391) | melonDS (25343, 5224), DeSmuME (25632, 528) |
+| Buoyane `aa-opaque-dot-hidden` (L2) | With anti-aliasing on, an opaque 1-dot polygon is hidden (`values[1]` 0x7ff) | all four: melonDS software, GL Classic, GL Compute, DeSmuME |
+| Buoyane `edge-aa-translucent` (L2) | With anti-aliasing a marked edge is neither the edge colour nor the face colour | melonDS GL Classic, GL Compute, DeSmuME |
+| Buoyane `aa-marked-line-complete` (L2) | With anti-aliasing and edge marking a one-pixel line has no gap (192 of 192 pixels) | melonDS GL Classic, DeSmuME |
 
 Items with `env` (they need the test harness, such as save chip access or the cartridge gap) are n/a on the R4 and are
 not listed: Tonewick `save-wel-reset`, Pendulane `cart-gap1-clk5` and `cart-gap1-clk8`.
