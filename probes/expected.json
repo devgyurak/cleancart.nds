@@ -38,7 +38,8 @@
   "l4-acc-split-hdma": 2335395293,
   "l4-acc-rear-plane": 1470346845,
   "l4-vcount-write": 1005781691,
-  "l4-tex-late": 3160160016
+  "l4-tex-late": 3160160016,
+  "l4-3d-fog-dot": 3992592172
  },
  "items": [
   {
@@ -564,6 +565,104 @@
    "role": "target",
    "level": 4,
    "level_basis": "none"
+  },
+  {
+   "id": "fog-boundary-start",
+   "demo": "l4-3d-fog-dot",
+   "title": "Fog density table: of two quads at OFFSET + 0.25 and + 0.75 steps, how many are unfogged (GBATEK puts the first boundary at OFFSET + STEP: 2; melonDS shifts its table by one entry and agrees)",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 2,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "fog-shift-11",
+   "demo": "l4-3d-fog-dot",
+   "title": "FOG_SHIFT 11 (table step 0): bit 0 the quad before the offset is unfogged, bits 1 and 2 the quads after it are fully fogged (GBATEK: only the densities 0 and 31 apply)",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 7,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "edge-screen-border",
+   "demo": "l4-3d-fog-dot",
+   "title": "Edge marking at the screen border: the pixels at x 0 and x 255 of a polygon that touches both, edge colour 1 (yellow) expected on both (GBATEK: \"seem to be\" marked from the rear-plane polygon ID)",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 67044351,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "poly-right-edge-pixel",
+   "demo": "l4-3d-fog-dot",
+   "title": "The same full-width polygon without edge marking: does it cover the pixel at x 255 (1 = yes; GBATEK \"Polygon Size\": the right vertical edge may be left out)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "dot-queued-cutoff",
+   "demo": "l4-3d-fog-dot",
+   "title": "A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "aa-line-pixels",
+   "demo": "l4-3d-fog-dot",
+   "title": "Pixels of an anti-aliased 1-pixel line, x 32..224: opaque | translucent (alpha 30) << 16 (GBATEK gives no count)",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 12583104,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "zeq-step-boundary",
+   "demo": "l4-3d-fog-dot",
+   "title": "Depth Equal one step (raw z 3 and 5 against a base at 4) from the base: pixels drawn at -1 | +1 << 16, of 1024 each (the +-200h window: is the boundary inside?)",
+   "values": [
+    7
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
   }
  ],
  "known": {
@@ -606,6 +705,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     12583104
+    ],
     "acc-dual-both": [
      1
     ],
@@ -614,6 +716,18 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "dot-queued-cutoff": [
+     1
+    ],
+    "edge-screen-border": [
+     67044351
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      4096
@@ -633,21 +747,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -660,6 +759,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -669,8 +771,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -713,6 +833,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     0
+    ],
     "acc-dual-both": [
      1
     ],
@@ -721,6 +844,18 @@
     ],
     "acc-stage-cut-exact": [
      0
+    ],
+    "dot-queued-cutoff": [
+     0
+    ],
+    "edge-screen-border": [
+     692726090
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      1408
@@ -740,21 +875,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -767,6 +887,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -776,8 +899,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     1024
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -820,6 +961,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     12583104
+    ],
     "acc-dual-both": [
      1
     ],
@@ -828,6 +972,18 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "dot-queued-cutoff": [
+     1
+    ],
+    "edge-screen-border": [
+     67044351
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      1408
@@ -847,21 +1003,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -874,6 +1015,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -883,8 +1027,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -927,6 +1089,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     12583104
+    ],
     "acc-dual-both": [
      1
     ],
@@ -935,6 +1100,18 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "dot-queued-cutoff": [
+     1
+    ],
+    "edge-screen-border": [
+     67044351
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      4096
@@ -954,21 +1131,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -981,6 +1143,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -990,8 +1155,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1034,6 +1217,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     0
+    ],
     "acc-dual-both": [
      1
     ],
@@ -1042,6 +1228,18 @@
     ],
     "acc-stage-cut-exact": [
      0
+    ],
+    "dot-queued-cutoff": [
+     0
+    ],
+    "edge-screen-border": [
+     692726090
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      1408
@@ -1061,21 +1259,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -1088,6 +1271,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -1097,8 +1283,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     1024
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1141,6 +1345,9 @@
     "3d-test-vec-z": [
      4294964076
     ],
+    "aa-line-pixels": [
+     12583104
+    ],
     "acc-dual-both": [
      1
     ],
@@ -1149,6 +1356,18 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "dot-queued-cutoff": [
+     1
+    ],
+    "edge-screen-border": [
+     67044351
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      1408
@@ -1168,21 +1387,6 @@
     "sys-dma-gfx-polys": [
      2
     ],
-    "vcw-212-lines": [
-     11
-    ],
-    "vcw-212-residual": [
-     4294967290
-    ],
-    "vcw-205-lines": [
-     4
-    ],
-    "vcw-212-210-lines": [
-     3
-    ],
-    "vcw-outside-lines": [
-     51
-    ],
     "tex-late-192": [
      0
     ],
@@ -1195,6 +1399,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      192
     ],
@@ -1204,8 +1411,26 @@
     "tex-late-250": [
      192
     ],
-    "tex-late-215": [
-     0
+    "vcw-205-lines": [
+     4
+    ],
+    "vcw-212-210-lines": [
+     3
+    ],
+    "vcw-212-lines": [
+     11
+    ],
+    "vcw-212-residual": [
+     4294967290
+    ],
+    "vcw-outside-lines": [
+     51
+    ],
+    "zeq-step-boundary": [
+     67109888
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   },
@@ -1248,6 +1473,9 @@
     "3d-test-vec-z": [
      4294964077
     ],
+    "aa-line-pixels": [
+     0
+    ],
     "acc-dual-both": [
      1
     ],
@@ -1256,6 +1484,18 @@
     ],
     "acc-stage-cut-exact": [
      1179648
+    ],
+    "dot-queued-cutoff": [
+     1
+    ],
+    "edge-screen-border": [
+     67044351
+    ],
+    "fog-boundary-start": [
+     2
+    ],
+    "fog-shift-11": [
+     7
     ],
     "rear-plane": [
      4096
@@ -1275,21 +1515,6 @@
     "sys-dma-gfx-polys": [
      0
     ],
-    "vcw-212-lines": [
-     0
-    ],
-    "vcw-212-residual": [
-     65535
-    ],
-    "vcw-205-lines": [
-     0
-    ],
-    "vcw-212-210-lines": [
-     0
-    ],
-    "vcw-outside-lines": [
-     0
-    ],
     "tex-late-192": [
      0
     ],
@@ -1302,6 +1527,9 @@
     "tex-late-214": [
      0
     ],
+    "tex-late-215": [
+     0
+    ],
     "tex-late-216": [
      0
     ],
@@ -1311,8 +1539,26 @@
     "tex-late-250": [
      0
     ],
-    "tex-late-215": [
+    "vcw-205-lines": [
      0
+    ],
+    "vcw-212-210-lines": [
+     0
+    ],
+    "vcw-212-lines": [
+     0
+    ],
+    "vcw-212-residual": [
+     65535
+    ],
+    "vcw-outside-lines": [
+     0
+    ],
+    "zeq-step-boundary": [
+     0
+    ],
+    "poly-right-edge-pixel": [
+     1
     ]
    }
   }
