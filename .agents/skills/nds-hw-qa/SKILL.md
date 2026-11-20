@@ -91,7 +91,10 @@ user has to pick every ROM by hand, say how long the whole card takes.
    observed values; the proposal is to store them as `known.hardware-dslite-r4.observed` in
    `probes/expected.json`. Do not write it automatically: show the user, get a yes, then make the PR.
    `level-judge` lists the items that can move down to L2/L3 with the `hw:` evidence.
-4. Never commit anything under `build/qa/`.
+4. Add the run's findings to `docs/HW-FINDINGS.md` and `HW-FINDINGS-KO.md` (the repository-wide list for emulator
+   developers): every item where the console disagreed with GBATEK, every gating item that passes on the console and
+   fails on an emulator, and differences worth knowing that are not judged. Evidence stays in the game's `HW-QA.md`.
+5. Never commit anything under `build/qa/`.
 
 Things that can go wrong: no `cleancart/` folder (FAT did not mount: header `sd=0 fat_fail=1` or `errno=`),
 the kit folder missing (no `res-*.log`, no `RESULT SAVED`), `nitro=0` (NitroFS failed on the cart: not
