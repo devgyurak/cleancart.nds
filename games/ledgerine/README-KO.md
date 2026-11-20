@@ -23,7 +23,7 @@ DMA(repeat reload 규칙, 전송 뒤 레지스터 상태, DMA 중 ITCM 코드 �
 뱅크 오프셋), BIOS(CpuFastSet, LZ77, BitUnPack, RLUnComp, ARM7 CpuSet 보호).
 
 **현재 상태.** 여섯 방(장부 줄 31개) 전부 플레이할 수 있습니다: 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서. 리허설과 판정기
-(목표 항목 29개, 전제 조건 4개), 숨은 자동 QA 실행이 있습니다. 실기(2026-11-17 DS Lite 실행 1, [docs/HW-QA-KO.md](docs/HW-QA-KO.md))에서는 판정 항목 하나가 달라 검토 중이고, BIOS 항목은 에뮬레이터가
+(목표 항목 29개, 전제 조건 4개), 숨은 자동 QA 실행이 있습니다. 실기(DS Lite 실행 1~3, [docs/HW-QA-KO.md](docs/HW-QA-KO.md))에서는 v0.2.2부터 모든 판정 항목이 OK이고(기대값 하나, `ipc-empty-cleared`는 콘솔에서 얻음), BIOS 항목은 에뮬레이터가
 돌리는 BIOS를 그대로 채점합니다. 데스크톱 에뮬레이터에서의 손맛은 아직 검토하지 않았습니다. 진행 상황은 저장하지 않습니다.
 
 - 언어: C (게임, ARM9 + 자체 ARM7 코어), Python 3 (빌드 도구)

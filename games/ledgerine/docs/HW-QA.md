@@ -6,7 +6,7 @@
 
 **Judge suite (since the QA judge suite PRs):** the QA run (`autoqa`) now ends with a suite: after `RESULT PASS` it writes the QA block and `press-min` as `res-*-ledgerine-*.log` and a progress file `suite-<stamp>.log`. One run of the hw-support ROM is enough; **wait for the end of the suite** (`suite end` in `suite-<stamp>.log`) before powering off. The separate rehearsal / demo ROMs below are only for re-running one item (a Wood kernel gives them no SD card). `tools/qa/ingest.py` grades every file on its own.
 
-**Runs 1 and 2 on a DS Lite (2026-11-17), recorded at the end of this page:** QA run PASS both times. The one gating NG item (`ipc-empty-cleared`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs").
+**Runs 1 to 3 on a DS Lite (2026-11-17 and 2026-11-20), recorded at the end of this page:** QA run PASS every time. The one gating NG item of runs 1 and 2 (`ipc-empty-cleared`) was a finding about our expected value; the expectation was set from the console afterwards (see "Expected values from the runs"). Run 3 with v0.2.2 judged **every item OK** (QA block 40 of 40, `press-min` 1 of 1) and read the raw word of that empty read: `7A00000Fh`, the last word of the A0..A15 burst (see run 3).
 
 Before run 1 nothing had been measured on a console. This is the checklist for the run, so the first values can
 be recorded and the items that only an emulator or a reading of GBATEK stands behind can be settled. The console is
@@ -90,6 +90,21 @@ The same console, card and ROM as run 1 (`ledgerine-hw-support.nds`, build `8821
 
 | Item | Change | Why |
 |---|---|---|
-| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read was not recorded in these runs, only that it is not 0; from v0.2.2 it is in `values[44]` (and IPCFIFOCNT right after it in `values[45]`), to be read on the next run. melonDS 1.1 soft and DeSmuME both read `values[44]` = 0 and `values[45]` = 0xC101 (receive FIFO empty, error bit set). The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
+| `ipc-empty-cleared` | `mask 0xC`, `expect 0x4`, source `hw:dslite-ntr`; title: an empty read after the remote side cleared its send FIFO does not return 0 | GBATEK says 0; both runs read `values[2]` = 0xF7 (bit 3, "returned 0", clear; bit 2, the error acknowledge, set). The raw word of that read was not recorded in these runs, only that it is not 0; from v0.2.2 it is in `values[44]` (and IPCFIFOCNT right after it in `values[45]`), read on run 3: `7A00000Fh`. melonDS 1.1 soft and DeSmuME both read `values[44]` = 0 and `values[45]` = 0xC101 (receive FIFO empty, error bit set). The mask keeps bit 2 in the check, so the item also fails if the acknowledge broke |
 | `ipc-empty-last`, `dma-itcm-runs`, `bios-arm7-guard` | `level_basis` gets `hw:games/ledgerine/docs/HW-QA.md` | the console agrees with GBATEK; melonDS (and DeSmuME) do not |
 | Profiles | `ipc-empty-cleared` is in `ng` of all four (melonDS soft / GL classic / GL compute, DeSmuME) | every emulator returns 0 there, the console does not |
+
+## Run 3: QA run and judge suite with v0.2.2, 2026-11-20 (console clock 2026-01-18 07:41)
+
+| Field | Value |
+|---|---|
+| ROM | release `ledgerine-hw-support.nds` v0.2.2, SHA-256 `c86cf47044bc686138cb9da7c21fb3619706d11d463f3a93fdad09e32ec51420` (455,020 bytes; the copy on the card hashes the same), build `6a4718fa6293` |
+| `ingest.py` / `judge.py --hardware` | QA log PASS, 27 lines, 6 checkpoints, `start=marker`. QA block L1 11/11, L2 29/29 OK; `press-min` L2 1/1 OK. **NG 0**, no n/a |
+| QA log header | as runs 1 and 2 (`sd=1 fat_fail=0`, R4 DLDI, `cart_ready=0 nitro=1`, `save_detected=1`) |
+| Checkpoints | room1-room6 equal runs 1 and 2 (`compare.py`, 0 differences); lag 3 / 11 / 54 / 63 / 14 / 4 |
+| Suite | `block=qa saved=1`, `press-min saved=1`, `suite end demos=1 saved=1`, all 12 probes `ok=1` up to `wait60`; again no `suite done` line |
+| Difference from run 2 | `values[44]` 0 -> `7A00000Fh` and `[45]` 0 -> `C101h` (recorded from v0.2.2 on). Not judged: `[21]` 16398 -> 16397, `[27]`/`[28]` (DMA addresses, moved by 40h with the new build), total lag frames 145 -> 149 |
+
+**The empty read after the remote clear (`values[44]`) is `7A00000Fh`: A15**, not B (`7B000000h`, the last word read) and not C (`7C000000h`, the word the ARM7 cleared before it was read). `values[45]` = `C101h`: FIFO enabled, error bit set, receive and send FIFO empty, as melonDS and DeSmuME (which read 0 for `values[44]`).
+A reading that fits runs 1 to 3 (not a documented rule): the FIFO is a 16-entry ring and an empty read returns the entry before the read pointer. A0..A15 fill entries 0..15; B goes to entry 0 and is read (pointer 1), so the first empty read returns B (`values[41]`); C goes to entry 1, the ARM7's send-FIFO clear puts the pointers back to entry 0, and the entry before it, 15, still holds A15.
+`ipc-empty-cleared` keeps its check (not 0, acknowledge works). An item that expects A15 exactly is a separate change (level proposal from `level-judge`).

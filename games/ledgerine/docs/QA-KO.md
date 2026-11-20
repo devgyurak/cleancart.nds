@@ -22,7 +22,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 | `press-min` | `ledgerine-press-min.nds`: 나눗셈기 모드 2의 `-2^63 / -1` 하나만(항목 `math-overflow-min64`). 결과 블록 id `0x4D50444C`(`LDPM`), values[0] = 끝나면 1, values[1] bit 0 = 검사 결과. DeSmuME의 나눗셈기가 이 계산에서 에뮬레이터째 멈추기 때문에 별도 ROM입니다 | melonDS 1.1 soft / GL classic / GL compute: OK. DeSmuME: 멈춤(채점 안 함) |
 | `rehearsal` | `ledgerine-rehearsal.nds`는 곧바로 리허설로 부팅합니다(저장 칩, NitroFS 없음): 모든 방의 감사. 결과 블록 id `0x4852444C`(`LDRH`), 배치는 `game/ledger.h`. `python3 tools/judge.py`(boot `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute: 프로필 MATCH. 아래 참고 |
 
-실기: 2026-11-17 DS Lite + R4 실행 1·2, [HW-QA-KO.md](HW-QA-KO.md) 참고.
+실기: DS Lite + R4 실행 1~3(2026-11-17, 2026-11-20), [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 판정 프로필 (2026-11-16, 이 커밋의 빌드)
 
@@ -56,8 +56,8 @@ QA 로그의 `cp` 줄 끝에는 `gx=uf<n>,of<n> rdl=<min>`이 붙는다. 직전 
 | DeSmuME (py-desmume 0.0.9) | verdict 1, 프레임 1770에 블록 | `desmume-pydesmume-0.0.9` MATCH |
 
 소프트웨어 렌더러로 두 번 돌린 체크포인트 해시는 같고(`tools/qa/compare.py`, 체크포인트 6개) `tools/qa/lint.py`도 통과합니다. 소프트웨어
-실행에는 저장 칩이 없어서(SD 카드용 홈브류 실행) 저장 미러의 읽기 비교는 같았지만 칩 쓰기는 확인하지 못했습니다. 실제 DS Lite + R4: 아직
-돌리지 않았습니다.
+실행에는 저장 칩이 없어서(SD 카드용 홈브류 실행) 저장 미러의 읽기 비교는 같았지만 칩 쓰기는 확인하지 못했습니다. 실제 DS Lite + R4: 실행 1~3(`HW-QA-KO.md`).
+거기서도 칩 쓰기는 확인하지 못했습니다(R4는 세이브를 SD 카드로 미러링).
 
 ## 키 없이 QA 시작하기 (SD 마커)
 

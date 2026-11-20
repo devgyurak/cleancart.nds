@@ -27,7 +27,7 @@ bank offsets) and BIOS (CpuFastSet, LZ77, BitUnPack, RLUnComp, the ARM7 CpuSet g
 
 **Status.** All six rooms (31 ledger lines) are playable: the press, the tube, the clock wall, the belt, the vault and the
 rule book, the rehearsal and its judge (29 target items, 4 prerequisites) and the hidden auto QA run. On real hardware
-(run 1 on a DS Lite (2026-11-17), see [docs/HW-QA.md](docs/HW-QA.md)) one gating item differs and is under review; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
+(runs 1 to 3 on a DS Lite, see [docs/HW-QA.md](docs/HW-QA.md)) every judged item is OK since v0.2.2; one expected value, `ipc-empty-cleared`, comes from the console; the BIOS items grade whichever BIOS the emulator runs. Hands-on feel in a desktop emulator has
 not been reviewed. Progress is not saved.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)

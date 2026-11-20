@@ -22,7 +22,7 @@ melonDS 1.1용 점검표입니다 (macOS 키는 저장소 루트 `AGENTS.md` 참
 |---|---|---|
 | `rehearsal` | `tonewick-rehearsal.nds`는 곧장 리허설로 부팅합니다(세이브 칩·NitroFS 없음). 스크립트로 신호선 12개를 풀고 모든 지역을 감사합니다. 결과 블록 id `0x48525754`(`TWRH`), 배치는 `game/lab.h`. `python3 tools/judge.py`(부트 `rehearsal`)로 채점 | melonDS 1.1 soft / GL classic / GL compute와 DeSmuME: 프로필 MATCH, 아래 참고 |
 
-실기: 2026-11-17 DS Lite + R4 실행 1·2, [HW-QA-KO.md](HW-QA-KO.md) 참고.
+실기: DS Lite + R4 실행 1~3(2026-11-17, 2026-11-20), [HW-QA-KO.md](HW-QA-KO.md) 참고.
 
 ## 판정 프로필 (2026-11-16, 이 커밋의 빌드)
 
@@ -56,7 +56,7 @@ Start로 근무를 끝냅니다), 크레딧, 다시 타이틀. 그러고 `RESULT
 소프트웨어 실행 두 번은 체크포인트 해시가 같습니다(`tools/qa/compare.py`). `tools/qa/lint.py`도 통과합니다. 상태 해시는
 완료 비트와 푼 줄 수만 덮습니다. 측정값은 콘솔에서 실행마다 조금씩 움직이기 때문입니다. 소프트웨어 실행에는 세이브 칩이 없습니다
 (SD 카드용 홈브류 실행). 칩 실행(`SAV=`)은 `-save-chip` 프로필로 채점하고 세이브를 다시 읽습니다(`SAVE 2 8192`, `CPU9 cpsr`
-모드 1F, 데이터 어보트 없음). 실제 DS Lite + R4: 2026-11-17 실행 1·2(`HW-QA-KO.md`).
+모드 1F, 데이터 어보트 없음). 실제 DS Lite + R4: 실행 1~3(`HW-QA-KO.md`).
 
 ## 키 없이 QA 시작하기 (SD 표식)
 

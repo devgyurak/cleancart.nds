@@ -19,7 +19,7 @@ the square-root unit ("DS Maths"), the firmware SPI byte time at 4 MHz and 512 k
 main RAM, WRAM-vs-main-RAM and VRAM access timings ("DS Memory Timings"), and sound channel timing ("DS Sound Notes": when Busy clears, how many samples a PCM, PSG and ADPCM channel needs before it is heard, what a Hold restart plays) and the slot-1 cartridge transfer gap ("DS Cartridge I/O Ports": gap1 in clock pulses at two clock rates). Every value is the difference of two measurements, so the
 fixed cost of the measurement cancels.
 
-**Status.** The four benches and the game: 20 contraptions in five chapters (mill, bell rope, conveyor, highway, organ), each ended by a rhythm piece, a bench ledger and the hidden auto QA run. Progress is not saved yet. On real hardware (run 1 on a DS Lite (2026-11-17), see [docs/HW-QA.md](docs/HW-QA.md)) two gating timing items differ and are under review.
+**Status.** The four benches and the game: 20 contraptions in five chapters (mill, bell rope, conveyor, highway, organ), each ended by a rhythm piece, a bench ledger and the hidden auto QA run. Progress is not saved yet. On real hardware (runs 1 to 3 on a DS Lite, see [docs/HW-QA.md](docs/HW-QA.md)) every judged item is OK since v0.2.2; two timing expected values, `mem7-main-nonseq` and `mem7-code-main-seq`, come from the console.
 
 - Languages: C (game, ARM9 + own ARM7 core), Python 3 (build-time tools)
 - Toolchain: BlocksDS v1.25.0 (Docker image pinned by digest)
