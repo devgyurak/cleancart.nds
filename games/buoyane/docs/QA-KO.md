@@ -24,7 +24,7 @@ melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드�
 (먼저 `out/by/x/cleancart/buoyane/`를 만듭니다). 2026-11-17 melonDS 1.1(소프트웨어)에서 확인: 프레임 약 3140에 `RESULT PASS`, 접근 30개 중 30개, 장 마스크 `0x1f`,
 체크포인트 7개, 두 번 돌린 `tools/qa/compare.py` 차이 0, `tools/qa/lint.py` 통과, `QARN` 블록을 `judge.py --profile`로 판정해 melonDS 1.1 소프트웨어와 DeSmuME에서 MATCH,
 `tools/qa/suite_compare.py`: 스위트 블록 5개가 단독 ROM의 블록과 같음(SAME). 저장: 접근을 끝낼 때마다 게임이 저장하고(실행이 쓰기마다 로그에 거울로 남깁니다), 진행이 든 세이브로 평소처럼 부팅하면 해도에 보이고, QA 실행이 끝난 뒤에는 실행 전의 진행이 해도에 보입니다(실행 중의 30/30이 아님).
-실기 실행 1(DS Lite + R4, 2026-11-20): QA 실행 PASS, 체크포인트 해시가 melonDS 소프트웨어와 같고, 판정 NG 4개가 있었으며 그 뒤 기대값을 바꿨습니다([HW-QA-KO.md](HW-QA-KO.md)의 "실행에서 나온 기대값"). 모든 렌더러의 리허설 블록을 새 `expected.json`으로 다시 채점했고 네 프로필 모두 MATCH입니다(2026-11-20, `QARN` 블록과 check ROM은 다시 돌리지 않음).
+실기 실행 1(DS Lite + R4, 2026-11-20): QA 실행 PASS, 체크포인트 해시가 melonDS 소프트웨어와 같고, 판정 NG 4개가 있었으며 그 뒤 기대값을 바꿨습니다([HW-QA-KO.md](HW-QA-KO.md)의 "실행에서 나온 기대값"). 새 `expected.json`으로 다시 채점했습니다(2026-11-20). melonDS 소프트웨어·GL Classic·GL Compute에서는 리허설 블록, SD 이미지를 붙인 QA 실행(`RESULT PASS`, 12000프레임)의 `QARN` 블록과 그 스위트 블록 5개(`--demo buoyane-check-<장면>`), DeSmuME에서는 리허설, `QARN`(SD 없음), check-depth·check-blend 블록입니다. 모든 프로필이 MATCH입니다.
 아직: GL Classic·Compute QA 실행, melonDS 앱.
 
 ## 재현성

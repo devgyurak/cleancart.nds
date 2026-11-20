@@ -655,7 +655,7 @@
       "source": "hw:dslite-ntr",
       "role": "target",
       "level": 2,
-      "level_basis": "hw:games/buoyane/docs/HW-QA.md",
+      "level_basis": "gbatek:DS 3D Texture Blending; hw:games/buoyane/docs/HW-QA.md",
       "done": {
         "value": 0,
         "mask": 16
@@ -1034,5 +1034,5 @@
       "na": []
     }
   },
-  "known_note": "Measured 2026-11-17 with the rehearsal ROM on each renderer; the NG lists are gating items only. Emulator results are not golden values: a renderer that matches GBATEK is the reference, not the other way round."
+  "known_note": "Measured 2026-11-17 (profiles re-checked 2026-11-20) with the rehearsal ROM on each renderer; the NG lists are gating items only. Emulator results are not golden values: a renderer that matches GBATEK is the reference, not the other way round."
 }
