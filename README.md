@@ -266,7 +266,7 @@ target 23 · prerequisite 10
 - `fog-rear-plane-bit` · CLEAR_COLOR bit 15 set: the rear plane is fogged; clear: it is not · [expected.json](games/buoyane/expected.json)
 - `edge-front-only` · Edge marking colours only the edge of the polygon in front (the one with the smaller depth) · [expected.json](games/buoyane/expected.json)
 - `edge-aa-translucent` · With anti-aliasing a marked edge is neither the edge colour nor the face colour (qualitative) · [expected.json](games/buoyane/expected.json)
-- `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels _(informational)_ · [expected.json](games/buoyane/expected.json)
+- `aa-marked-line-complete` · With anti-aliasing and edge marking a real one-pixel line (own polygon ID) has no gap: 192 of 192 pixels · [expected.json](games/buoyane/expected.json)
 - `zeq-tolerance-flat` · Depth test Equal draws nothing for steps of -3 and +3 (beyond +-200h) from the base plane · [expected.json](games/buoyane/expected.json)
 - `zeq-slope-band-left` · Equal band on a sloping face: left x (101..107) · [expected.json](games/buoyane/expected.json)
 - `zeq-slope-band-right` · Equal band on a sloping face: right x (149..155) · [expected.json](games/buoyane/expected.json)

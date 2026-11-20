@@ -38,9 +38,9 @@ fog/edge/anti-aliasing post-pass".
 
 ## Judging
 
-- `expected.json`: 23 target items (level 2), 10 prerequisites. `source: unconfirmed` items are informational until a
-  hardware run (`fog-alpha-glitch`: GBATEK itself holds back; `aa-marked-line-complete`: GBATEK says nothing). The rest are
-  GBATEK items that gate; an emulator that gets one wrong is recorded in `known`.
+- `expected.json`: 23 target items (level 2), 10 prerequisites (11 once the chapters PR adds its own). `source: unconfirmed` is informational until a
+  hardware run: only `fog-alpha-glitch` (GBATEK itself holds back). Every other item is a GBATEK statement that gates; an emulator that
+  gets one wrong is recorded in `known`.
 - `known` holds the measured failing set per emulator profile (DeSmuME, melonDS software, GL Classic, GL Compute). Re-measure after every scene change.
 - The 5-bit capture cannot tell fog density 126 from 127, nor 127 from 128 (a difference of less than one level), so `fog-density-127-full` (a level 1 prerequisite) only checks that a high density reaches the fog colour and 120 does not.
 - Texture/palette setup is in `textures_load()`: VRAM A (textures) and G (palette) are mapped as LCDC while written.

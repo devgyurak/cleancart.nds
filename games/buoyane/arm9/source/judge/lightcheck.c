@@ -484,7 +484,7 @@ static void draw_edge(void)
     GFX_POLY_FORMAT = PA_ALPHA(31) | PA_CULL_NONE | PA_ID(16);
     GFX_COLOR = EDGE_B;
     px_quad(120, 72, 200, 120, 1024);
-    // a real one-pixel line (degenerate triangle) with its own polygon ID (the rear plane has ID 0): edge marking
+    // a real one-pixel line (degenerate triangle) with its own polygon ID (the clear plane has ID 63): edge marking
     // plus anti-aliasing must leave no gap along it
     cutoff(16);
     load_proj(&dot_proj);
