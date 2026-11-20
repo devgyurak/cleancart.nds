@@ -52,6 +52,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 | [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 8<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
 | [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 20 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
+| [Quayholt](games/quayholt/) | Two-crane harbour puzzle: shift cargo with an old steam crane and a new electric one and watch them handle the same job differently. It judges itself with a rehearsal ROM and per-pier check ROMs.<br>Tests (L2, ARM core edges): ARM7 and ARM9 load/store-multiple, odd-address halfword, PC-offset, saturating and multiply edges, and the ARM9 CP15 control register (protection unit, tightly coupled memory, caches). | automatic (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 target 14 · prerequisite 5<!-- /cell --> | [README](games/quayholt/README.md) · [Assets](games/quayholt/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -252,7 +253,7 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Tonewick (87 target items)</summary>
+<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (101 target items)</summary>
 
 #### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
 
@@ -338,6 +339,25 @@ target 19 · prerequisite 18
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
 - `snd-wave-pan-right-exact` · Pan 126 (hard right) leaves the left mixer a swing of exactly 3: GBATEK reads two ways (fraction MSB as two's complement gives +1 / -2, as magnitude +1 / -1), the console reads the first, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
+
+#### Quayholt · ARM core edges: ARM9/ARM7 instruction edges and the ARM9 CP15 (protection unit, TCM, caches)
+
+target 14 · prerequisite 5
+
+- `ldrh7-odd` · ARM7 LDRH [odd] reads the halfword at odd-1 and rotates it right by 8 · [expected.json](games/quayholt/expected.json)
+- `ldrsh7-odd` · ARM7 LDRSH [odd] acts like LDRSB [odd]: the byte at the address, sign-extended · [expected.json](games/quayholt/expected.json)
+- `thumb7-ldrh-odd` · ARM7 Thumb LDRH and LDRSH [odd] follow the same rules · [expected.json](games/quayholt/expected.json)
+- `stm7-base-new` · ARM7 STM Rb! with Rb in the list and not first stores the new base · [expected.json](games/quayholt/expected.json)
+- `ldm7-base-nowb` · ARM7 LDM Rb! with Rb in the list: no writeback, the loaded value stays · [expected.json](games/quayholt/expected.json)
+- `ldm9-base-wb` · ARM9 LDM Rb! writes back when Rb is alone or not last in the list; not when it is last · [expected.json](games/quayholt/expected.json)
+- `stm7-empty` · ARM7 empty-list STM (ARM and Thumb STMIA) stores R15 and moves the base by 40h · [expected.json](games/quayholt/expected.json)
+- `thumb7-stmia-base-new` · ARM7 Thumb STMIA with Rb in the list and not first stores the new base · [expected.json](games/quayholt/expected.json)
+- `stm-pc12` · STM {..PC} stores the address of the STM + 12 · [expected.json](games/quayholt/expected.json)
+- `ldm9-empty` · ARM9 empty-list LDM (ARM and Thumb) loads nothing and moves the base by 40h _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `alu7-rn-pc12` · ARM7 ALU with Rn = R15 and a register-specified shift reads PC + 12 · [expected.json](games/quayholt/expected.json)
+- `qdadd9-dbl-sat` · QDADD saturates Rn*2 first and sets Q even when the final sum is in range · [expected.json](games/quayholt/expected.json)
+- `smla9-q-nosat` · SMLAxy overflow sets Q without saturating; SMLALxy does not set Q · [expected.json](games/quayholt/expected.json)
+- `cp15-prev5-bit15` · CP15 control bit 15 set: an ARM9 PC load stays in ARM state · [expected.json](games/quayholt/expected.json)
 
 #### Tonewick · sound and I/O edges
 

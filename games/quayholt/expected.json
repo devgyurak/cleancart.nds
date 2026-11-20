@@ -1,0 +1,662 @@
+{
+  "license": "Apache-2.0; SPDX-FileCopyrightText: 2026 devgyurak (cleancart.nds maintainer)",
+  "schema": 3,
+  "target_level": 2,
+  "area": "ARM core edges: ARM9/ARM7 instruction edges and the ARM9 CP15 (protection unit, TCM, caches)",
+  "about": "Expected result-block values for the Quayholt rehearsal ROM, its per-pier demo ROMs and the release ROM's auto QA run, judged by tools/judge.py. Block layout: arm9/source/game/ledger.h. Every item reads one result code (values[1..30]: 1 = the behaviour GBATEK describes, 2/3 = known alternatives, 0xFF other, 0xFFFF never measured) or a prerequisite bit (values[31]) and carries \"done\": the completion bit of its pier in values[0]. \"frame\" is the minimum number of frames to run, per boot. \"known\" lists, per emulator version and renderer, the gating items expected to fail there; judge.py --profile passes only when the failing set matches exactly. Run melonDS with its JIT off (the interpreter is what the profiles record; headless mds.sh uses the interpreter). Items whose source is unconfirmed have no hardware evidence yet and are informational until the DS Lite run (docs/HW-QA.md).",
+  "block": {
+    "address": "0x0237F000",
+    "magic": 1380275779
+  },
+  "boots": {
+    "rehearsal": {
+      "rom": "quayholt-rehearsal.nds",
+      "item_id": 1213356369,
+      "item_id_text": "QYRH",
+      "frames": 300,
+      "note": "every pier's measurements in order; no save chip, no NitroFS"
+    },
+    "qa": {
+      "rom": "quayholt.nds",
+      "item_id": 1314013521,
+      "item_id_text": "QARN",
+      "frames": 4000,
+      "note": "the release ROM's hidden auto QA mode (title: hold L+R+X+Y for 120 frames): the rehearsal and the credits; the block uses the rehearsal's layout and adds the QA words at values[48..54] (verdict 1 PASS / 2 FAIL, log lines, SD flags, last state hash, checkpoints, lag, save flags)"
+    },
+    "l2-loads": {
+      "rom": "quayholt-l2-loads.nds",
+      "item_id": 1330403665,
+      "item_id_text": "QYLO",
+      "frames": 120,
+      "note": "only the items of one pier"
+    },
+    "l2-blocks": {
+      "rom": "quayholt-l2-blocks.nds",
+      "item_id": 1279416657,
+      "item_id_text": "QYBL",
+      "frames": 120,
+      "note": "only the items of one pier"
+    },
+    "l2-alu": {
+      "rom": "quayholt-l2-alu.nds",
+      "item_id": 1279351121,
+      "item_id_text": "QYAL",
+      "frames": 120,
+      "note": "only the items of one pier"
+    }
+  },
+  "sources": {
+    "GBATEK": "documented hardware behaviour; gating",
+    "report:<ref>": "a hardware report by a third party (e.g. report:melonDS#2008); gating",
+    "hw:<model>": "measured by us on real hardware; gating",
+    "rom": "decided by the ROM's own deterministic logic, independent of the emulator; gating",
+    "unconfirmed": "no hardware value yet; informational only, never fails the run"
+  },
+  "items": [
+    {
+      "id": "ldrh7-odd",
+      "title": "ARM7 LDRH [odd] reads the halfword at odd-1 and rotates it right by 8",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1
+      },
+      "values": [
+        1
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CPU Memory Alignments",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "ldrsh7-odd",
+      "title": "ARM7 LDRSH [odd] acts like LDRSB [odd]: the byte at the address, sign-extended",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1
+      },
+      "values": [
+        2
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CPU Memory Alignments",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "thumb7-ldrh-odd",
+      "title": "ARM7 Thumb LDRH and LDRSH [odd] follow the same rules",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1
+      },
+      "values": [
+        3
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CPU Memory Alignments",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 1
+      }
+    },
+    {
+      "id": "stm7-base-new",
+      "title": "ARM7 STM Rb! with Rb in the list and not first stores the new base",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        4
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ldm7-base-nowb",
+      "title": "ARM7 LDM Rb! with Rb in the list: no writeback, the loaded value stays",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        5
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ldm9-base-wb",
+      "title": "ARM9 LDM Rb! writes back when Rb is alone or not last in the list; not when it is last",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        6
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "stm7-empty",
+      "title": "ARM7 empty-list STM (ARM and Thumb STMIA) stores R15 and moves the base by 40h",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        7
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM); gbatek:THUMB Opcodes: Memory Multiple Load/Store (PUSH/POP and LDM/STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "thumb7-stmia-base-new",
+      "title": "ARM7 Thumb STMIA with Rb in the list and not first stores the new base",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        8
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:THUMB Opcodes: Memory Multiple Load/Store (PUSH/POP and LDM/STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "stm-pc12",
+      "title": "STM {..PC} stores the address of the STM + 12",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        9
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM); report:melonDS#2312",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "ldm9-empty",
+      "title": "ARM9 empty-list LDM (ARM and Thumb) loads nothing and moves the base by 40h",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-blocks"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-blocks": 1
+      },
+      "values": [
+        10
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 2
+      }
+    },
+    {
+      "id": "alu7-rn-pc12",
+      "title": "ARM7 ALU with Rn = R15 and a register-specified shift reads PC + 12",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        11
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Data Processing (ALU)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "qdadd9-dbl-sat",
+      "title": "QDADD saturates Rn*2 first and sets Q even when the final sum is in range",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        12
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Special ARM9 Instructions (CLZ, QADD/QSUB)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "smla9-q-nosat",
+      "title": "SMLAxy overflow sets Q without saturating; SMLALxy does not set Q",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        13
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Multiply and Multiply-Accumulate (MUL, MLA)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "cp15-prev5-bit15",
+      "title": "CP15 control bit 15 set: an ARM9 PC load stays in ARM state",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        14
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Control Register",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 4
+      }
+    },
+    {
+      "id": "pre-ldr-str-word",
+      "title": "Aligned LDR/STR words round-trip (ARM9 and ARM7)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads",
+        "l2-blocks",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1,
+        "l2-blocks": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 1,
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Single Data Transfer (LDR, STR, PLD)",
+      "model": null
+    },
+    {
+      "id": "pre-ldm-plain",
+      "title": "LDM/STM without the base in the list round-trip in ARM and Thumb (ARM9 and ARM7)",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads",
+        "l2-blocks",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1,
+        "l2-blocks": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 2,
+      "expect": 2,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM)",
+      "model": null
+    },
+    {
+      "id": "pre-ipc-step",
+      "title": "The ARM7 answers a measurement step over the FIFO",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-loads",
+        "l2-blocks",
+        "l2-alu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-loads": 1,
+        "l2-blocks": 1,
+        "l2-alu": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 4,
+      "expect": 4,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS Inter Process Communication",
+      "model": null
+    },
+    {
+      "id": "rehearsal-done",
+      "title": "The rehearsal ran every pier the build has",
+      "boots": [
+        "rehearsal",
+        "qa"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1
+      },
+      "values": [
+        0
+      ],
+      "check": "mask",
+      "mask": 256,
+      "expect": 256,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    },
+    {
+      "id": "qa-verdict",
+      "title": "The auto QA run ended with verdict PASS",
+      "boots": [
+        "qa"
+      ],
+      "frame": {
+        "qa": 1
+      },
+      "values": [
+        48
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "rom",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "none",
+      "model": null
+    }
+  ],
+  "known": {
+    "melonds-1.1-software": {
+      "emulator": "melonDS 1.1 core, headless runner (tools/melonds/mds.sh), software renderer, interpreter (no JIT), built-in replacement BIOS",
+      "ng": [
+        "ldrh7-odd",
+        "ldrsh7-odd",
+        "thumb7-ldrh-odd",
+        "stm7-base-new",
+        "stm7-empty",
+        "thumb7-stmia-base-new",
+        "stm-pc12",
+        "alu7-rn-pc12",
+        "cp15-prev5-bit15"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-classic": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Classic) renderer, Mesa llvmpipe, interpreter, built-in replacement BIOS",
+      "ng": [
+        "ldrh7-odd",
+        "ldrsh7-odd",
+        "thumb7-ldrh-odd",
+        "stm7-base-new",
+        "stm7-empty",
+        "thumb7-stmia-base-new",
+        "stm-pc12",
+        "alu7-rn-pc12",
+        "cp15-prev5-bit15"
+      ],
+      "na": []
+    },
+    "melonds-1.1-gl-compute": {
+      "emulator": "melonDS 1.1 core, headless runner, OpenGL (Compute) renderer, Mesa llvmpipe, interpreter, built-in replacement BIOS",
+      "ng": [
+        "ldrh7-odd",
+        "ldrsh7-odd",
+        "thumb7-ldrh-odd",
+        "stm7-base-new",
+        "stm7-empty",
+        "thumb7-stmia-base-new",
+        "stm-pc12",
+        "alu7-rn-pc12",
+        "cp15-prev5-bit15"
+      ],
+      "na": []
+    },
+    "desmume-pydesmume-0.0.9": {
+      "emulator": "DeSmuME py-desmume 0.0.9, headless harness (tools/emu/emu.sh), RESULT_WORDS=64, HLE BIOS",
+      "ng": [
+        "ldrh7-odd",
+        "ldrsh7-odd",
+        "thumb7-ldrh-odd",
+        "stm7-base-new",
+        "ldm7-base-nowb",
+        "ldm9-base-wb",
+        "stm7-empty",
+        "thumb7-stmia-base-new",
+        "stm-pc12",
+        "alu7-rn-pc12",
+        "cp15-prev5-bit15"
+      ],
+      "na": []
+    }
+  }
+}

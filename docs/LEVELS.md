@@ -62,7 +62,7 @@ L4 lives in a separate probe collection (`probes/`), which is not a game.
 | Level | Game (area) |
 |---|---|
 | L1 | Corvane (graphics and system), Hushwell (sound and I/O), Paneveil (3D geometry and texturing) |
-| L2 | Lightenette (display edge cases), Ledgerine (system edges), Tonewick (sound and I/O edges), Buoyane (3D rendering edges) |
+| L2 | Lightenette (display edge cases), Ledgerine (system edges), Tonewick (sound and I/O edges), Buoyane (3D rendering edges), Quayholt (ARM core edges) |
 | L3 | Elevane (display timing and compositing), Heddlemere (3D engine and scanline timing), Pendulane (CPU, bus and sound timing) |
 | L4 | `probes/`: informational only, recorded per emulator as a profile |
 
