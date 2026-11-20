@@ -38,7 +38,7 @@ tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 300 out/x "" 299 | 
 
 `expected.json`에 항목(레벨, 근거, 역할)과, `known`에 각 에뮬레이터가 지금 틀리는 항목(2026-11-17 측정, 2026-11-20 실기 1 뒤 정리)이 있습니다:
 melonDS 1.1 소프트웨어: `aa-opaque-dot-hidden`, GL Compute: 이것과 `edge-aa-translucent`, GL Classic: 15개, DeSmuME py-desmume 0.0.9: 13개. 기대값은 GBATEK 기준이고,
-예외는 콘솔 값을 쓰는 `wire-texture-alpha`뿐입니다. 실기 실행 1(DS Lite + R4, 2026-11-20): QA 실행 PASS. 그 NG 4개 때문에 `wire-texture-alpha`는 콘솔 값을 기대값으로 삼고, Equal 띠는 폭으로만 판정하고, 데칼 구멍과 fog alpha 글리치는 게임에서 `probes/`로 갔습니다. [docs/HW-QA-KO.md](docs/HW-QA-KO.md) 참고.
+예외는 콘솔 값을 쓰는 `wire-texture-alpha`뿐입니다. 실기 실행 1·2(DS Lite + R4, 2026-11-20): v0.1.1로 한 실행 2는 모든 항목 OK. 실행 1의 NG 4개 때문에 `wire-texture-alpha`는 콘솔 값을 기대값으로 삼고, Equal 띠는 폭으로만 판정하고, 데칼 구멍과 fog alpha 글리치는 게임에서 `probes/`로 갔습니다. [docs/HW-QA-KO.md](docs/HW-QA-KO.md) 참고.
 
 진행은 저장됩니다. 접근을 하나 끝낼 때마다 카트 세이브(공용 세이브 블록의 continue 필드)에 쓰고 부팅할 때 읽습니다.
 QA 실행은 끝날 때 카트 본래의 세이브를 되돌려 놓습니다. 배치: `arm9/source/game/rehearsal.h`.

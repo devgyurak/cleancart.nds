@@ -95,12 +95,13 @@ class Grading(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         self.assertIn('OK      zeq-slope-band-width', out)
 
-    def test_a_wireframe_that_blends_fails_the_item(self):
-        v = good_values('rehearsal')
-        v[15] |= 4   # wire-texture-alpha: the console draws no blended wire pixel
-        rc, out = run_judge([], block_line(REHEARSAL_ID, v))
-        self.assertEqual(rc, 1, out)
-        self.assertIn('NG      wire-texture-alpha', out)
+    def test_the_wireframe_must_be_drawn_opaque(self):
+        # values[21] = white wire pixels | blended << 16; the DS Lite reads 170 white, 0 blended (runs 1 and 2)
+        for word, verdict in ((170, 'OK'), (0, 'NG'), (170 | 12 << 16, 'NG'), (12 << 16, 'NG')):
+            v = good_values('rehearsal')
+            v[21] = word
+            rc, out = run_judge([], block_line(REHEARSAL_ID, v))
+            self.assertIn('%-7s wire-texture-alpha' % verdict, out, hex(word))
 
     def test_an_unconfirmed_item_never_fails_the_run(self):
         exp = json.loads(json.dumps(EXP))

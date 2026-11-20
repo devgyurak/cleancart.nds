@@ -275,7 +275,7 @@
 - `alpha-test-max-hides` · ALPHA_TEST_REF 1F hides an opaque (alpha 31) polygon · [expected.json](games/buoyane/expected.json)
 - `highlight-clamp` · Highlight shading saturates at 63 (Rt 63 + Rs 33): the captured colour is white, not wrapped · [expected.json](games/buoyane/expected.json)
 - `decal-alpha0-vertex` · A decal texel with alpha 0 shows the vertex colour · [expected.json](games/buoyane/expected.json)
-- `wire-texture-alpha` · GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it without blending · [expected.json](games/buoyane/expected.json)
+- `wire-texture-alpha` · GBATEK says At<31 makes the wireframe translucent; a DS Lite draws it opaque: white wire pixels, none blended · [expected.json](games/buoyane/expected.json)
 - `blend-bypass-clear-alpha0` · A translucent polygon over a rear plane of alpha 0 keeps its own colour (no blend) · [expected.json](games/buoyane/expected.json)
 
 #### Ledgerine · system edges
