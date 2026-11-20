@@ -43,7 +43,7 @@ tools/melonds/mds.sh run games/buoyane/buoyane-rehearsal.nds 300 out/x "" 299 | 
 
 `expected.json` lists the items (level, basis, role) and, under `known`, what each emulator currently gets wrong (measured 2026-11-20):
 melonDS 1.1 software: `aa-opaque-dot-hidden`; GL Compute: that one and `edge-aa-translucent`; GL Classic: 15 items; DeSmuME py-desmume 0.0.9: 13 items. Expected values
-are from GBATEK, except `wire-texture-alpha`, whose value is the console's. Hardware run 1 (DS Lite + R4, 2026-11-20): QA run PASS; its four NG items led to `wire-texture-alpha` taking the console value, the Equal band being judged by its width only, and the decal holes and the fog alpha glitch leaving the game for `probes/`. See [docs/HW-QA.md](docs/HW-QA.md).
+are from GBATEK, except `wire-texture-alpha`, whose value is the console's. Hardware runs 1 and 2 (DS Lite + R4, 2026-11-20): run 2 with v0.1.1 judged every item OK; the four NG items of run 1 led to `wire-texture-alpha` taking the console value, the Equal band being judged by its width only, and the decal holes and the fog alpha glitch leaving the game for `probes/`. See [docs/HW-QA.md](docs/HW-QA.md).
 
 Progress is saved: every finished approach is written to the cart save (the continue fields of the shared save block) and read back at boot.
 The QA run restores the cart's own save when it ends. Layout: `arm9/source/game/rehearsal.h`.

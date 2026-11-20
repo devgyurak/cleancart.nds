@@ -27,6 +27,7 @@ melonDS 1.1용 점검표입니다(macOS 키는 저장소 `AGENTS.md`). "헤드�
 실기 실행 1(DS Lite + R4, 2026-11-20): QA 실행 PASS, 체크포인트 해시가 melonDS 소프트웨어와 같고, 판정 NG 4개가 있었으며 그 뒤 기대값을 바꿨습니다([HW-QA-KO.md](HW-QA-KO.md)의 "실행에서 나온 기대값"). 새 `expected.json`으로 다시 채점했습니다(2026-11-20). melonDS 소프트웨어·GL Classic·GL Compute에서는 리허설 블록, SD 이미지를 붙인 QA 실행(`RESULT PASS`, 12000프레임)의 `QARN` 블록과 그 스위트 블록 5개(`--demo buoyane-check-<장면>`), DeSmuME에서는 리허설, `QARN`(SD 없음), check-depth·check-blend 블록입니다. 모든 프로필이 MATCH입니다.
 진단용 ROM(`values[21]`, 빌드 `3dd5ac721c8a`, 2026-11-20): 경고 0, 클린 빌드 두 번이 같은 SHA-256, 체크포인트 해시가 이전 ROM과 같음(`compare.py`, 차이 0), melonDS 소프트웨어·GL Classic·GL Compute의 리허설, QA(SD 이미지, `RESULT PASS`), check 블록과 DeSmuME의 리허설, check-blend, QA 블록에서 모든 프로필 MATCH, `suite_compare.py`: SAME 5개. `values[21]`은 melonDS 소프트웨어·Compute에서 흰 픽셀 170, GL Classic·DeSmuME에서 0입니다.
 아직: melonDS 앱.
+실기 실행 2(v0.1.1, 2026-11-20): 판정 항목 모두 OK, 실행 1의 값이 반복됨, `values[21]` = 흰 픽셀 170 | 블렌딩 0. `wire-texture-alpha`는 이제 `values[21]`을 판정합니다(1..65535: 그려졌고 블렌딩 없음). GL Classic과 DeSmuME(0, 그리지 않음)는 이 항목이 `ng`에 들어갑니다. v0.1.1 릴리스 ROM으로 다시 확인: melonDS 소프트웨어·GL Classic·GL Compute의 리허설, QA, check 블록 다섯 개와 DeSmuME 리허설 모두 MATCH.
 
 ## 재현성
 
