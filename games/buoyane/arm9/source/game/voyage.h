@@ -22,6 +22,7 @@ u16 by_pilot_keys(u32 scene_frame);
 // Called once per frame inside the voyage after the real input was read; the rehearsal sets it.
 extern void (*by_play_hook)(void);
 
+void by_progress_load(void);   // by_cleared_bits from the save (0 when there is none)
 int by_cleared_count(void);
 int by_chapter_cleared(int chapter);   // how many of its approaches were finished
 int by_gate_mistakes(void);            // wrong answers in the voyage that just ended

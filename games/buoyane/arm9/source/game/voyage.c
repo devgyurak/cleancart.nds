@@ -7,6 +7,7 @@
 #include "assets.h"
 #include "core/input.h"
 #include "core/qa.h"
+#include "core/save.h"
 #include "core/snd.h"
 #include "game/lamps.h"
 #include "game/model.h"
@@ -25,6 +26,22 @@ static CvText top, bottom;
 static int cursor, gate_no, mistakes, last_mistakes;
 static ByGate gate_now;
 static bool almanac_open;
+
+// Progress lives in the shared save block: continue_stage 1 marks "there is progress", continue_score holds the
+// cleared bits (Buoyane has no stage to continue, so the Corvane fields are free). Demo builds never touch the chip.
+void by_progress_load(void)
+{
+    by_cleared_bits = cv_save.continue_stage ? (cv_save.continue_score & ((1u << (BY_CHAPTERS * BY_APPROACHES)) - 1)) : 0;
+}
+
+static void progress_save(void)
+{
+#ifndef CV_DEMO
+    cv_save.continue_stage = 1;
+    cv_save.continue_score = by_cleared_bits;
+    qa_save_written(save_write());
+#endif
+}
 
 int by_cleared_count(void)
 {
@@ -123,6 +140,7 @@ ByScene scene_voyage(void)
         gate_no++;
     }
     by_cleared_bits |= 1u << ((by_chapter - 1) * BY_APPROACHES + by_approach);
+    progress_save();
     last_mistakes = mistakes;
     lamps_reset();
     return SC_CHART;

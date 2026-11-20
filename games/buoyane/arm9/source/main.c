@@ -16,6 +16,7 @@
 #include "demo/demo.h"
 #endif
 #include "game/scenes.h"
+#include "game/voyage.h"
 #include "gfx/gl3d.h"
 
 int main(int argc, char *argv[])
@@ -40,6 +41,7 @@ int main(int argc, char *argv[])
         save_write();
     cv_sfx_volume = cv_save.sfx_volume;
     snd_master(cv_save.volume);
+    by_progress_load();
     g3_init();
 #endif
 

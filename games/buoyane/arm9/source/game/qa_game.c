@@ -20,7 +20,6 @@
 #include "game/scenes.h"
 #include "game/voyage.h"
 #include "game/model.h"
-#include "core/save.h"
 #include "gfx/gl3d.h"
 #include "judge/lightcheck.h"
 
@@ -28,7 +27,7 @@ const QaTune qa_tune_off = { 0 };
 const QaTune qa_tune_on = { 0 };
 
 static u32 res[W_WORDS + 4];
-static bool credits_seen, judged, save_proved;
+static bool credits_seen, judged;
 static unsigned chapters_done;   // bit n-1: every approach of chapter n was finished
 static int prev_scene = -1;
 
@@ -40,7 +39,7 @@ const char *qa_game_name(void)
 void qa_game_reset(void)
 {
     memset(res, 0, sizeof(res));
-    credits_seen = judged = save_proved = false;
+    credits_seen = judged = false;
     chapters_done = 0;
     prev_scene = -1;
     by_cleared_bits = 0;   // a run starts from the same place whatever the player did before
@@ -94,11 +93,6 @@ void qa_game_scene(int id)
     switch (id)
     {
         case SC_VOYAGE:
-            if (!save_proved)
-            {
-                qa_save_written(save_write());   // the game saves nothing itself: prove the path once
-                save_proved = true;
-            }
             break;
         case SC_CREDITS:
             credits_seen = by_cleared_count() >= BY_CHAPTERS * BY_APPROACHES;
