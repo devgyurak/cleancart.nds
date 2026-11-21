@@ -51,6 +51,12 @@ python3 tools/judge.py --profile melonds-1.1-software run.log
 `expected.json` lists the items and, per emulator, the failures that are known. melonDS profiles are interpreter
 profiles: run melonDS with its JIT off.
 
+## Hardware
+
+Nothing has been run on a console yet: the plan, the order of the ROMs and the seven `unconfirmed` items are in
+[docs/HW-QA.md](docs/HW-QA.md). The release also ships `quayholt-hw-support.nds` (game code `####`) for
+Wood-style R4 kernels.
+
 ## Licence
 
 Apache-2.0 for everything; the ROM also carries third-party runtime libraries with their notices
