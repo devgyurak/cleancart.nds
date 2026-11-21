@@ -1864,6 +1864,10 @@ typedef struct {
 //   values[6]  anti-aliased 1-pixel lines, pixels found: opaque | translucent (alpha 30) << 16, x 32..224
 //   values[7]  depth Equal, one step from the base: pixels drawn at -1 step | +1 step << 16 (of 1024 each)
 //   values[8]  the screen-border polygon without edge marking: 1 when it covers the pixel at (255, 96) (GBATEK "Polygon Size")
+//   values[9]  fog on the alpha only, through a BG0 blend onto a backdrop (moved from Buoyane's fog scene, same coordinates):
+//              bit 0 a fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog (the "fog alpha glitch"),
+//              bit 1 the fog face behind the offset differs from that face and from the backdrop
+//   values[10] the pixels read for values[9]: the near fog face | the unfogged reference << 16
 
 #define FD_CLEAR RGB15(0, 0, 10)
 #define FD_RED   RGB15(31, 0, 0)
@@ -1901,6 +1905,16 @@ static void fd_dotv(int x, int y, int32_t w)
     int32_t a = (x - 128) * 32, b = (96 - y) * 128 / 3;
     GFX_COLOR = RGB15(31, 31, 31);
     glVertex3v16(a * w / 4096, b * w / 4096, -w);
+}
+
+static void fd_pxslope(int x0, int y0, int x1, int y1, int z0, int z1)
+{
+    glBegin(GL_QUADS);
+    glVertex3v16(x0 * 16, y0 * 16, z0);
+    glVertex3v16(x0 * 16, y1 * 16, z0);
+    glVertex3v16(x1 * 16, y1 * 16, z1);
+    glVertex3v16(x1 * 16, y0 * 16, z1);
+    glEnd();
 }
 
 static void fd_pxquad(int x0, int y0, int x1, int y1, int z)
@@ -1973,6 +1987,28 @@ static void fd_draw(void)
                 glEnd();
             }
             break;
+        case 6:   // fog on the alpha only: Buoyane's fog scene, a fog face in front of and behind FOG_OFFSET and a reference without fog
+            glPolyFmt(opaque | POLY_FOG);
+            GFX_COLOR = FD_RED;
+            fd_idquad(16, 141, 112, 180, -F(0.5));
+            fd_idquad(144, 141, 240, 180, F(0.5));
+            glPolyFmt(opaque | POLY_ID(2));
+            fd_idquad(16, 81, 112, 120, -F(0.5));
+            break;
+        case 7:   // depth Equal on a slope: Buoyane's depth scene, the band against a flat base and the decal against a slanted floor
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrix4x4(&fd_px);
+            glMatrixMode(GL_MODELVIEW);
+            glPolyFmt(opaque);
+            GFX_COLOR = RGB15(12, 12, 12);
+            fd_pxquad(32, 112, 224, 136, 6);
+            fd_pxslope(16, 144, 240, 184, 300, 3000);
+            glPolyFmt(opaque | POLY_DEPTH_TEST_EQUAL);
+            GFX_COLOR = RGB15(0, 31, 0);
+            fd_pxslope(32, 112, 224, 137, 3, 9);
+            GFX_COLOR = RGB15(31, 0, 0);
+            fd_pxslope(40, 144, 208, 185, 589, 2615);
+            break;
         default:  // depth Equal, one step (raw z 3 and 5 against the base at 4) from the base
             glMatrixMode(GL_PROJECTION);
             glLoadMatrix4x4(&fd_px);
@@ -1989,7 +2025,7 @@ static void fd_draw(void)
     g3_flush(false);
 }
 
-static void fd_capture(void)
+static void fd_capture(bool only_3d)
 {
     vram_set(VB_D, 0, 0);
     for (int i = 0; i < 256 * 192 / 2; i++)
@@ -1998,7 +2034,7 @@ static void fd_capture(void)
     {
         fd_draw();
         if (f == 4)
-            REG_DISPCAPCNT = (1u << 31) | (1u << 24) | (3 << 16) | (3 << 20);
+            REG_DISPCAPCNT = (1u << 31) | (only_3d ? 1u << 24 : 0) | (3 << 16) | (3 << 20);
         vsync();
     }
 }
@@ -2023,7 +2059,7 @@ static void d_3d_fog_dot(void)
     vram_set(VB_D, 0, 0);
     demo_title("3D-FOG-DOT");
     REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while capturing
-    u32 v[9] = { 0 };
+    u32 v[11] = { 0 };
     u32 pend = 0;
 
     // 0: fog boundary. FOG_SHIFT 0 (step 400h): entry 0 is 0, entries 1.. are 127, so the first boundary decides:
@@ -2034,7 +2070,7 @@ static void d_3d_fog_dot(void)
     glFogShift(0);
     for (int i = 0; i < 32; i++)
         GFX_FOG_TABLE[i] = i < 1 ? 0 : 127;
-    fd_capture();
+    fd_capture(true);
     u16 q0 = fd_at(56, 70), q1 = fd_at(200, 70);
     v[0] = (q0 == FD_RED) + (q1 == FD_RED);
     v[1] = q0 | (u32)q1 << 16;
@@ -2045,7 +2081,7 @@ static void d_3d_fog_dot(void)
     glFogShift(11);
     for (int i = 0; i < 32; i++)
         GFX_FOG_TABLE[i] = i < 16 ? 0 : 127;
-    fd_capture();
+    fd_capture(true);
     u16 a = fd_at(40, 70), b = fd_at(128, 70), c = fd_at(216, 70);
     v[2] = (a == FD_RED) | (b == FD_FOG) << 1 | (c == FD_FOG) << 2;
     v[3] = a | (u32)b << 16;
@@ -2053,25 +2089,25 @@ static void d_3d_fog_dot(void)
     // 2: screen border with edge marking
     fd_pass = 2;
     fd_setup(1u << 5, FD_CLEAR);
-    fd_capture();
+    fd_capture(true);
     v[4] = fd_at(0, 96) | (u32)fd_at(255, 96) << 16;
 
     // 2b: the same polygon without edge marking: does it cover x 255 at all (GBATEK "Polygon Size": the right edge may drop)
     fd_pass = 2;
     fd_setup(0, FD_CLEAR);
-    fd_capture();
+    fd_capture(true);
     pend = fd_at(255, 96) == RGB15(10, 10, 10);
 
     // 3: queued dot
     fd_pass = 3;
     fd_setup(0, FD_CLEAR);
-    fd_capture();
+    fd_capture(true);
     v[5] = fd_at(128, 96) != FD_CLEAR;
 
     // 4: anti-aliased 1-pixel lines
     fd_pass = 4;
     fd_setup(1u << 4, FD_CLEAR);
-    fd_capture();
+    fd_capture(true);
     u32 lo = 0, lt = 0;
     for (int x = 32; x < 224; x++)
     {
@@ -2083,7 +2119,7 @@ static void d_3d_fog_dot(void)
     // 5: depth Equal, one step from the base
     fd_pass = 5;
     fd_setup(0, FD_CLEAR);
-    fd_capture();
+    fd_capture(true);
     u32 m1 = 0, p1 = 0;
     for (int y = 72; y < 104; y++)
         for (int x = 0; x < 32; x++)
@@ -2094,16 +2130,71 @@ static void d_3d_fog_dot(void)
     v[7] = m1 | p1 << 16;
     v[8] = pend;
 
+    // 6: fog on the alpha only, through the BG0 blend onto a blue backdrop (the 3D layer has alpha 0 where nothing is drawn)
+    fd_pass = 6;
+    fd_setup(1u << 6 | 1u << 7, 0);
+    GFX_CLEAR_COLOR = 0 | 0u << 16 | 63u << 24;
+    GFX_FOG_COLOR = RGB15(31, 31, 31);   // alpha 0
+    glFogOffset(0x3000);
+    for (int i = 0; i < 32; i++)
+        GFX_FOG_TABLE[i] = 64;
+    u16 backdrop = CV_PAL_BG_MAIN[0];
+    CV_PAL_BG_MAIN[0] = RGB15(0, 0, 31);
+    REG_BLDCNT = BLEND_ALPHA | BLEND_SRC_BG0 | BLEND_DST_BACKDROP;
+    REG_BLDALPHA = 0x1010;
+    fd_capture(false);
+    REG_BLDCNT = 0;
+    CV_PAL_BG_MAIN[0] = backdrop;
+    u16 fnear = fd_at(64, 160), ffar = fd_at(192, 160), fref = fd_at(64, 100);
+    v[9] = (fnear == fref) | (ffar != fref && ffar != RGB15(0, 0, 31)) << 1;
+    v[10] = fnear | (u32)fref << 16;
+
     REG_DISPCAPCNT = 0;
     REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
     volatile CvResult *r = CV_RESULT;
-    for (int i = 4; i < 9; i++)
+    for (int i = 4; i < 11; i++)
         r->values[i] = v[i];
     con_printf("FOG START %lu (2)  SHIFT11 %lu\n", (unsigned long)v[0], (unsigned long)v[2]);
     con_printf("BORDER %08lX  QUEUED %lu\n", (unsigned long)v[4], (unsigned long)v[5]);
     con_printf("AA LINES %08lX  EQ+-1 %08lX\n", (unsigned long)v[6], (unsigned long)v[7]);
     con_printf("RIGHT PIXEL %lu\n", (unsigned long)v[8]);
+    con_printf("FOG ALPHA %lu  %08lX\n", (unsigned long)v[9], (unsigned long)v[10]);
     finish(v[0], v[1], v[2], v[3]);
+}
+
+// The Equal band and the decal of Buoyane's depth scene (games/buoyane/arm9/source/judge/lightcheck.c, draw_depth), the same
+// coordinates and raw z values; hardware observation there (hardware run 1 and 2): band x 109..159, decal holes 960.
+//   values[0]  left end of the band, x of the first pixel at y 124 that has the band colour (0 = none)
+//   values[1]  right end of the band
+//   values[2]  decal pixels not drawn over x 40..208, y 144..184
+static void d_3d_zeq_slope(void)
+{
+    con_3d(VL_TERRAIN);
+    vram_set(VB_D, 0, 0);
+    demo_title("3D-ZEQ-SLOPE");
+    REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while capturing
+    fd_pass = 7;
+    fd_setup(0, FD_CLEAR);
+    fd_capture(true);
+    int left = -1, right = -1;
+    for (int x = 32; x < 224; x++)
+    {
+        if (fd_at(x, 124) != RGB15(0, 31, 0))
+            continue;
+        if (left < 0)
+            left = x;
+        right = x;
+    }
+    u32 holes = 0;
+    for (int y = 144; y < 184; y++)
+        for (int x = 40; x < 208; x++)
+            holes += fd_at(x, y) != RGB15(31, 0, 0);
+    u32 l = left < 0 ? 0 : (u32)left, r = right < 0 ? 0 : (u32)right;
+    REG_DISPCAPCNT = 0;
+    REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
+    con_printf("BAND %lu..%lu\n", (unsigned long)l, (unsigned long)r);
+    con_printf("DECAL HOLES %lu\n", (unsigned long)holes);
+    finish(l, r, holes, 0);
 }
 
 static const DemoEntry demos[] = {
@@ -2116,7 +2207,7 @@ static const DemoEntry demos[] = {
     { "l4-acc-split-rear", d_acc_split_rear }, { "l4-acc-split-hdma", d_acc_split_hdma },
     { "l4-acc-rear-plane", d_acc_rear_plane },
     { "l4-vcount-write", d_vcount_write },   { "l4-tex-late", d_tex_late },
-    { "l4-3d-fog-dot", d_3d_fog_dot },
+    { "l4-3d-fog-dot", d_3d_fog_dot },       { "l4-3d-zeq-slope", d_3d_zeq_slope },
 };
 
 void demo_main(const char *name)

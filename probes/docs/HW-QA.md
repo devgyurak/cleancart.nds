@@ -8,13 +8,20 @@ the probe item has a new reference value (recorded as proposed below).
 
 ## What to put on the card
 
-- ROMs: `build/release/demos/*.nds` (every probe ROM)
+- ROMs: the **hardware-support copies**, `build/release/rom/probes-*-hw-support.nds` (19 of them; the release zip
+  `probes-vX.Y.Z.zip` holds them). The probe ROMs carry the game code `PRBS` (melonDS needs it for its save chip), and the
+  R4 Plus (Wood) kernel attaches the SD card only to ROMs with the code `####`: on the plain ROMs `RESULT SAVED` never
+  appears and no file is written. A copy differs from its ROM in the four game code bytes and the header CRC only
+  (`tools/hwsupport.py`). Do not put the plain `demos/` ROMs on the card.
 - The empty folder `cleancart/probes/` (without it the ROMs write nothing)
 
 ## Run
 
-1. Start every probe ROM one by one; wait for `RESULT SAVED`, then reset.
-2. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game probes`.
+1. Start the 19 ROMs one by one, in any order (run the Buoyane-origin pair `l4-3d-zeq-slope` and `l4-3d-fog-dot` first
+   if time is short). Wait for `RESULT SAVED` under the checkpoint, then reset. Every ROM stops at its checkpoint
+   (frame 120; `l4-vcount-write` and `l4-tex-late` earlier) and keeps the picture, so nothing needs a button.
+2. About 15 to 20 minutes for all 19 (a few seconds per ROM, the rest is choosing the next file in the kernel menu).
+3. Mac: `python3 tools/qa/ingest.py /Volumes/<card> --game probes`.
 
 ## Record (one block per run)
 

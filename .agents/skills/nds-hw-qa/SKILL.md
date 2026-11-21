@@ -26,7 +26,7 @@ What the ROMs do by themselves (`core/sdcard.c`, `core/qa.c`):
    `_DS_MENU.DAT` at the root, take `build/release/rom/<game>-hw-support.nds` instead: the kernel
    DLDI-patches only ROMs with the homebrew code `####`, any other code gets save emulation and no SD
    card, so nothing is logged; confirmed on a DS Lite + R4 Plus with Wood, 2026-11-17). **Games need nothing else:** the QA run ends with the judge suite
-   (every judged demo, one res file each; see skill `nds-qa-mode`), so no demo ROM is copied. Only `probes/` has no QA run: copy its `build/release/demos/*.nds`.
+   (every judged demo, one res file each; see skill `nds-qa-mode`), so no demo ROM is copied. Only `probes/` has no QA run: copy its ROMs one per probe. On a Wood-style kernel take `build/release/rom/probes-<demo>-hw-support.nds` (game code `####`); the `build/release/demos/*.nds` keep `PRBS` and get no SD card there, so they write nothing.
    Stand-alone demo ROMs are for re-running one whose suite line says `saved=0` (a Wood kernel gives them no SD, so such a re-run needs a card with a real DLDI).
 3. Move or delete the old `res-*.log` on the card (they pile up; after a rebuild a ROM that is not run again
    would be graded with its old result, and `ingest.py` only warns when the builds differ).
