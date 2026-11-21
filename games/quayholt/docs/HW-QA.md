@@ -46,6 +46,8 @@ For each item whose hardware value matches the ROM's expectation change `source`
 decide whether the ROM or the expectation is wrong; an item the emulators cannot be made to agree with moves to
 `probes/`. Add a profile `hw-ds-lite` (the failing items) to `known`.
 
+If an F1–F3 value looks odd on the console, suspect first that the replacement (pseudo-random) evicted the tested cache line between the fill and the read: the tests assume the line stays, which holds when the accesses in between hit.
+
 ## Steps
 
 1. Build: `cd games/quayholt && ./build.sh -j8 release`. Note `shasum -a 256` of `build/release/rom/quayholt.nds`,

@@ -20,6 +20,16 @@ def solutions(op, mask, goal):
     return [(c, p) for c in (0, 1) if mask >> c & 1 for p in range(OPS[op][3]) if model(op, c, p) == goal]
 
 
+def start_crane(op, mask, goal):
+    """The crane a job starts on (the same rule as game/harbour.c): an allowed crane that cannot deliver the goal
+    with any setup if there is one, else the first allowed crane."""
+    allowed = [c for c in (0, 1) if mask >> c & 1]
+    for c in allowed:
+        if all(model(op, c, q) != goal for q in range(OPS[op][3])):
+            return c
+    return allowed[0]
+
+
 def check():
     problems = []
     jl = job_list()
@@ -57,8 +67,10 @@ def check():
         total = sum(OPS[op][3] for c in (0, 1) if mask >> c & 1 and OPS[op][2] >> c & 1)
         if len(sols) >= total:
             problems.append('%s: every setup delivers the goal (no puzzle)' % name)
-        # the game starts a job on the first allowed crane with the first setup that does not deliver the goal
-        start = next((c for c in (0, 1) if mask >> c & 1), None)
+        # a job both cranes may work is worked out by the intended crane only (so choosing the crane matters)
+        if mask == 3 and any(c != crane for c, _ in sols):
+            problems.append('%s: the other crane delivers the goal too' % name)
+        start = start_crane(op, mask, goal)
         if all(model(op, start, q) == goal for q in range(OPS[op][3])):
             problems.append('%s: the starting crane delivers the goal with every setup' % name)
     if any(o[3] > MAX_SETUPS for o in OPS):

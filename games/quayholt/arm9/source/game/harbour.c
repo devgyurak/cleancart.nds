@@ -165,7 +165,23 @@ QyScene scene_job(void)
     const QyJob *j = &qy_jobs[qy_job];
     scene_text_screens(&main_text, &sub_text);
     fx_bright(FX_BOTH, 0);
+    // Start on an allowed crane that cannot give the goal with any setup, if there is one: in a job both cranes may
+    // work, the crane has to be chosen (X). Same rule as tools/qyjobs/check.py start_crane().
     qy_crane = (j->crane_mask & 1) ? 0 : 1;
+    if (j->crane_mask == 3)
+    {
+        for (int c = 0; c < 2; c++)
+        {
+            bool gives = false;
+            for (int p = 0; p < qy_ops[j->op].setups; p++)
+                gives = gives || model_of(j, c, p) == j->goal;
+            if (!gives)
+            {
+                qy_crane = c;
+                break;
+            }
+        }
+    }
     // Start on the first setup that does not already deliver the goal, so a job is never balanced on entry.
     qy_setup = 0;
     for (int p = 0; p < qy_ops[j->op].setups; p++)

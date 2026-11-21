@@ -44,6 +44,8 @@ D, E 부두의 ARM9 측정(`l2-pu`, `l2-tcm`)은 IRQ를 막은 채 몇 마이크
 됩니다). 실기가 다르면 발견입니다: 값을 적고 ROM과 기대 중 무엇이 틀렸는지 정합니다. 에뮬레이터를 맞출 수 없는 항목은
 `probes/`로 옮깁니다. `known`에 프로필 `hw-ds-lite`(실패 항목)를 더합니다.
 
+콘솔에서 F1~F3 값이 이상하면, 채우기와 읽기 사이에 (의사 난수) 교체가 시험하던 캐시 줄을 내쫓았는지 먼저 의심하세요. 시험은 줄이 남아 있다고 가정하며, 그 사이 접근이 히트이면 그렇습니다.
+
 ## 순서
 
 1. 빌드: `cd games/quayholt && ./build.sh -j8 release`. `build/release/rom/quayholt.nds`, `quayholt-hw-support.nds`, 데모 ROM의
