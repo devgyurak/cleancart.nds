@@ -80,7 +80,7 @@ QyScene scene_pier(void)
     text_center(&sub_text, 9, TP_GRAY, "L/R: OTHER PIER   B: BACK");
     text_center(&sub_text, 13, TP_GRAY, "THE FOREMAN CHECKS EVERY");
     text_center(&sub_text, 15, TP_GRAY, "CHALK WORD AGAINST THE BOOK.");
-    text_center(&sub_text, 17, TP_GRAY, "CROOKED: CRANE DID OTHERWISE");
+    text_center(&sub_text, 17, TP_GRAY, "OK BALANCED  !! CROOKED BOX");
     for (;;)
     {
         text_clear(&main_text);
@@ -94,7 +94,7 @@ QyScene scene_pier(void)
                         qy_jobs[j].title);
             text_printf(&main_text, 5, 6 + 3 * k, TP_GRAY, "%-22s", qy_jobs[j].order);
             if (qy_job_done[j])
-                text_printf(&main_text, 27, 5 + 3 * k, qy_job_crooked[j] ? TP_RED : TP_GREEN, qy_job_crooked[j] ? "CROOKED" : "BALANCED");
+                text_printf(&main_text, 29, 5 + 3 * k, qy_job_crooked[j] ? TP_RED : TP_GREEN, qy_job_crooked[j] ? "!!" : "OK");
         }
         scene_frame_end();
         if (cv_in.pressed & (KEY_UP | KEY_DOWN))
@@ -166,7 +166,14 @@ QyScene scene_job(void)
     scene_text_screens(&main_text, &sub_text);
     fx_bright(FX_BOTH, 0);
     qy_crane = (j->crane_mask & 1) ? 0 : 1;
+    // Start on the first setup that does not already deliver the goal, so a job is never balanced on entry.
     qy_setup = 0;
+    for (int p = 0; p < qy_ops[j->op].setups; p++)
+        if (model_of(j, qy_crane, p) != j->goal)
+        {
+            qy_setup = p;
+            break;
+        }
     qy_job_state = 0;
     u32 hw = 0, model = 0;
     bool have = false;

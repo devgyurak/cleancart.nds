@@ -128,7 +128,7 @@ qy9_c4:
         mrc     p15, 0, r5, c1, c0, 0
         orr     r0, r5, #0x8000
         cmp     r1, #0
-        moveq   r0, r5                  @ flag 0: bit 15 left clear (the game's "habit off")
+        biceq   r0, r5, #0x8000         @ flag 0: bit 15 cleared (the game's "habit off")
         mcr     p15, 0, r0, c1, c0, 0
         ldr     pc, [r2]
 9:      mcr     p15, 0, r5, c1, c0, 0

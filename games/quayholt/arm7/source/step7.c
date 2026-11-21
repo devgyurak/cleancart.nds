@@ -15,7 +15,7 @@
 #include "step7.h"
 #include "stubs7.h"
 
-// 64 words so that every stub finds room (b4 uses +0x100 for the Thumb run).
+// 96 words so that every stub finds room (b4 uses +0x100 for the Thumb run).
 static uint32_t buf[96] __attribute__((aligned(32)));
 
 static void fill(uint32_t a, uint32_t b, uint32_t c, uint32_t d)
@@ -87,9 +87,11 @@ uint32_t step7_run(uint32_t step)
             qy7_b1(out, buf);
             // STMIA Rb!,{r1,Rb,r5}: Rb is not first, GBATEK stores the NEW base (buf + 12); with Rb first the OLD base.
             if (out[0] == b + 12 && out[1] == b)
-                r = QY_GBATEK;
+                r = QY_BOOK;
             else if (out[0] == b && out[1] == b)
                 r = QY_ALT2;     // always the old base
+            else if (out[0] == b + 4 && out[1] == b)
+                r = QY_ALT3;     // the base as it stood after the first register was stored (melonDS)
             else
                 r = QY_OTHER;
             break;
@@ -104,7 +106,7 @@ uint32_t step7_run(uint32_t step)
         case CV_QY_B4:
         {
             // Empty Rlist (ARMv4): R15 is stored and the base moves by 40h. out[0]/out[1] ARM,
-            // out[2]/out[3] Thumb: the final base and word 0 (0 left untouched, see the fill).
+            // out[2]/out[3] Thumb: the final base and word 0 (C0DE0000h / C0DE0001h are the fill values).
             fill(0xC0DE0000u, 0, 0, 0);
             buf[64] = 0xC0DE0001u;
             uint32_t rawv[4];
@@ -114,7 +116,7 @@ uint32_t step7_run(uint32_t step)
             int arm_moved = out[0] == b + 0x40, thumb_moved = out[2] == b + 0x100 + 0x40;
             int arm_stored = out[1] != 0xC0DE0000u, thumb_stored = out[3] != 0xC0DE0001u;
             if (arm_moved && thumb_moved && arm_stored && thumb_stored)
-                r = QY_GBATEK;
+                r = QY_BOOK;
             else if (out[0] == b && out[2] == b + 0x100)
                 r = QY_ALT2;     // empty list ignored: nothing stored, base unchanged
             else if (arm_moved && thumb_moved)
@@ -128,7 +130,7 @@ uint32_t step7_run(uint32_t step)
             fill(0, 0, 0, 0);
             qy7_b5(out, buf);
             if (out[0] == b + 12 && out[1] == b)
-                r = QY_GBATEK;
+                r = QY_BOOK;
             else if (out[0] == b && out[1] == b)
                 r = QY_ALT2;
             else
@@ -138,7 +140,7 @@ uint32_t step7_run(uint32_t step)
         case CV_QY_B6:
             fill(0, 0, 0, 0);
             qy7_b6(out, buf);
-            r = qy_class(out[0], 12, 8, 0xFFFFFFFFu);   // STM {PC} stores the STM's address + 12 (GBATEK); 2 = +8
+            r = qy_class(out[0], 12, 8, 0xFFFFFFFFu);   // STM {PC} stores the STM's address + 12 (ARM7TDMI; GBATEK does not say it for STM); 2 = +8
             break;
         case CV_QY_C1:
             qy7_c1(out);

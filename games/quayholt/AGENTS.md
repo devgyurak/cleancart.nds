@@ -25,7 +25,8 @@ The title polish, hardware plan and release come later. Target level 2, area "AR
    FIFO handler).
 4. Judging and rehearsal modes work without NitroFS and without a save chip.
 5. No third-party trademarks and no CPU or emulator names in ROM strings (the workshop panel may show
-   mnemonics such as LDM and STM).
+   mnemonics such as LDM and STM; the credits and licence texts rule 4 requires, the SD QA log and the third-party
+   library strings are exempt).
 
 ## Code map
 
@@ -50,7 +51,7 @@ The title polish, hardware plan and release come later. Target level 2, area "AR
 - While a D test runs, control bit 13 is clear and the vector table (`qy9_exc_table`) sits at address 0 in the
   ITCM. The first 64 bytes of the ITCM hold libnds' `CP15_CleanAndFlushDCacheRange` / `CP15_FlushDCacheRange`:
   they are saved and restored, and nothing between `exc_begin()` and `exc_end()` may call `DC_*` (use
-  `qy9_dc_flush_*`). Handlers use only the banked SP and R12 and resume the stub at `qy_exc_resume` in system mode.
+  `qy9_dc_flush_*`). Handlers use only R12 and the banked LR (never an exception mode's SP: the BIOS keeps its frames there) and resume the stub at `qy_exc_resume` in system mode.
 - Everything the harness changes (control register, permissions, the eight regions, cache and write-buffer
   bits, DTCM, ITCM, the vector words, the CPSR I/F bits) is saved first and written back in `exc_end()`; an
   unexpected exception with a stale resume address is not recoverable (IRQs are masked, the run hangs).

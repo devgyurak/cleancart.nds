@@ -325,7 +325,7 @@
       "check": "eq",
       "expect": 1,
       "tolerance": 0,
-      "source": "GBATEK",
+      "source": "report:melonDS#2312",
       "role": "target",
       "level": 2,
       "level_basis": "gbatek:ARM Opcodes: Memory: Block Data Transfer (LDM, STM); report:melonDS#2312",

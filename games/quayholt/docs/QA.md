@@ -9,8 +9,8 @@ profiles record the interpreter.
 |---|---|---|
 | Title | the dusk harbour with two cranes, "QUAYHOLT" in stencil letters, the tagline and the X/Select hint on the top screen; licence, ARM7 and save lines on the bottom screen. Start and Select open the test menu, X the credits | headless run (screenshots looked at); not yet by hand in melonDS |
 | Test menu | the rehearsal and the credits; B back | headless run only |
-| Pier | pier name and progress on top, five jobs with `BALANCED` / `CROOKED` marks; up/down choose, A open, L/R other pier, B title | headless run with the QA pilot (screenshot looked at); not yet by hand |
-| Job | the order, the wanted chalk word, the quay with the hook, after a lift THE BOOK / THE CRANE words, `BALANCED` and `CROOKED BOX` lines; bottom: crane (X), setup (left/right, L/R by 5), A lift, B back | headless run with the QA pilot (screenshot looked at); not yet by hand |
+| Pier | pier name and progress on top, five jobs with `OK` (balanced) / `!!` (crooked box) marks; up/down choose, A open, L/R other pier, B title | headless run with the QA pilot (screenshot looked at); not yet by hand |
+| Job | the order, the wanted chalk word, the quay with the hook, after a lift THE BOOK / THE CRANE words, `BALANCED` and `CROOKED BOX` lines; a job starts on a setup that is not yet the answer; bottom: crane (X, in the jobs of piers A and B that both cranes may work), setup (left/right, L/R by 5), A lift, B back | headless run with the QA pilot (screenshot looked at); not yet by hand |
 | Rehearsal | six pier lines; DONE for the piers the build has (A to F), LATER for the others | headless run |
 | Credits | scrolls; X opens the licence viewer (needs NitroFS), B back | not yet checked |
 

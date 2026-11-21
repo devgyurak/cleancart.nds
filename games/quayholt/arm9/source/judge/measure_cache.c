@@ -117,7 +117,7 @@ void measure_cache(void)
     out[2] = run_code();
     raw9(QV_F4, out, 3);
     if (out[0] == 1 && out[1] == 1 && out[2] == 2)
-        qy_res[QV_F4] = QY_GBATEK;
+        qy_res[QV_F4] = QY_BOOK;
     else if (out[0] == 1 && out[1] == 2 && out[2] == 2)
         qy_res[QV_F4] = QY_ALT2;                // coherent: no instruction cache
     else
@@ -138,12 +138,13 @@ u32 probe_cache(u32 which, u32 p)
         b[0] = 0xAAAA0001u;
         DC_FlushRange(cb, 32);
         (void)b[0];
-        b[0] = 0xCCCC0002u;
+        if (!(p & 4))
+            b[0] = 0xCCCC0002u;
         if (p & 1)
             qy9_dc_clean_range(cb, 32);
         csrc[0] = 0xBBBB0003u;
         dma_word(csrc, cb);
-        if (p & 2)
+        if (p & 2 || p == 5)
             inval_line(cb);
         res = b[0];
         DC_FlushRange(cb, 32);

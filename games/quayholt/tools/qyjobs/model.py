@@ -156,7 +156,13 @@ def tcm_loadmode(crane, p):
 
 
 def cache_seq(crane, p):
-    # write C into a cached line, [clean it], DMA D into the RAM behind, [invalidate the line], read the word.
+    # [write C into a cached line], [clean it], DMA D into the RAM behind, [invalidate the line], read the word.
+    # p 0-3: write C; bit 0 = clean it before the DMA, bit 1 = invalidate the line before the read.
+    # p 4, 5: no write (the line holds the old word A, clean); p 5 invalidates the line before the read.
+    # Documentation: GBATEK "ARM CP15 Cache Control" for the clean/invalidate operations; that a DMA bypasses the cache
+    # and that a write-back line holds the new word until it is cleaned follow from the ARM946E-S technical reference manual.
+    if p == 4:
+        return CACHE_A
     return CACHE_C if p < 2 else CACHE_D
 
 
@@ -185,7 +191,7 @@ OPS = (
     ('ITCM_SIZE',  4, 2, 2, itcm_size),
     ('TCM_VIEW',   4, 2, 2, tcm_view),
     ('TCM_LOADMODE', 4, 2, 2, tcm_loadmode),
-    ('CACHE_SEQ',  5, 2, 4, cache_seq),
+    ('CACHE_SEQ',  5, 2, 6, cache_seq),
     ('ICACHE_SEQ', 5, 2, 2, icache_seq),
 )
 OP_ID = {o[0]: i for i, o in enumerate(OPS)}
@@ -217,7 +223,7 @@ def setup_label(op, p):
         'ITCM_SIZE': ('BIG SHELF', 'SMALL SHELF'),
         'TCM_VIEW': ('HAND LOOKS', 'BARGE LOOKS'),
         'TCM_LOADMODE': ('HATCH CLOSED', 'HATCH OPEN'),
-        'CACHE_SEQ': ('KEEP, NO WIPE', 'CLEAN, NO WIPE', 'KEEP, WIPE', 'CLEAN, WIPE'),
+        'CACHE_SEQ': ('KEEP, NO WIPE', 'CLEAN, NO WIPE', 'KEEP, WIPE', 'CLEAN, WIPE', 'NO WRITE, KEEP', 'NO WRITE, WIPE'),
         'ICACHE_SEQ': ('WIPE ORDERS', 'KEEP ORDERS'),
     }
     if name in ('LDRH_ODD', 'LDRSH_ODD', 'LDRH_THUMB'):

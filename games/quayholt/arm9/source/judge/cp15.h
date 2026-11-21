@@ -47,7 +47,7 @@ extern uint32_t qy_exc_resume;
 extern const uint32_t qy9_exc_table[16];
 
 // Each does one thing that raises (or not) an exception and returns the address of the instruction that did
-// it; the handler resumes after it in system mode with the registers it found (r12 is clobbered).
+// it; the handler resumes after it in system mode with the registers it found (r12 is clobbered; the banked SPs are not touched).
 uint32_t qy9_do_swi(void);
 uint32_t qy9_do_undef(void);
 uint32_t qy9_do_bkpt(void);

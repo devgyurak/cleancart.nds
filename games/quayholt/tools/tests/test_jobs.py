@@ -58,6 +58,10 @@ class Model(unittest.TestCase):
         self.assertIsNone(m('STM_EMPTY', NEW, 0))
         self.assertIsNone(m('LDRH_ODD', OLD, 4))
 
+    def test_cache_sequence(self):
+        self.assertEqual([m('CACHE_SEQ', NEW, p) for p in range(6)],
+                         [0xCCCC0002, 0xCCCC0002, 0xBBBB0003, 0xBBBB0003, 0xAAAA0001, 0xBBBB0003])
+
     def test_labels_fit_the_dial(self):
         for op, o in enumerate(OPS):
             for p in range(o[3]):
