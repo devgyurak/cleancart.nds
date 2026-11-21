@@ -7,7 +7,7 @@ probe는 누구도 판정하지 않습니다. 실기 값이 없기 때문입니�
 
 ## 모든 probe ROM의 공통 규칙
 
-- 빌드: `./build.sh DEMO=l4-<name>` → `probes-l4-<name>.nds` (18개 전부는 `./build.sh`, 배포 폴더는 `./build.sh -j8 release`).
+- 빌드: `./build.sh DEMO=l4-<name>` → `probes-l4-<name>.nds` (19개 전부는 `./build.sh`, 배포 폴더는 `./build.sh -j8 release`).
 - 화면: probe 이름과 결과가 텍스트 BG 콘솔에 나옵니다(3D probe는 메인 화면의 BG1 콘솔).
 - 체크포인트: 시작 120프레임 뒤에 화면이 완성되고 `CHECKPOINT` 줄이 출력됩니다. 같은 값이 메인 RAM
   `0x0237F000`에 기록됩니다(`u32 magic 'CVER'`, `u32` 데모 이름의 FNV-1a, `u32 frame`, `u32 values[13]`).
@@ -24,7 +24,7 @@ python3 probes/tools/judge.py --profile melonds-1.1-software soft.log   # 종료
 ```
 
 melonDS 출력의 `SAVE 2 ...`(타입 0이 아니라 2: melonDS가 목록에 두지 않은 게임 코드에는 항상 세이브 칩이 붙음)는
-ROM이 정상 부팅했다는 뜻입니다. 18개 probe 모두 일곱 프로필(melonDS 1.1과 master `4ce2188` 각각 soft / GL classic / GL compute, DeSmuME)에서 체크포인트에 도달했습니다. master: `MELONDS_COMMIT=4ce2188 RENDERER=... tools/melonds/mds.sh demos ...`.
+ROM이 정상 부팅했다는 뜻입니다. 19개 probe 모두 일곱 프로필(melonDS 1.1과 master `4ce2188` 각각 soft / GL classic / GL compute, DeSmuME)에서 체크포인트에 도달했습니다. master: `MELONDS_COMMIT=4ce2188 RENDERER=... tools/melonds/mds.sh demos ...`.
 
 ## 기대 화면
 
@@ -52,7 +52,8 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
 | l4-acc-split-hdma | 같은 장면을 캡처 뱅크에서 엔진 B 비트맵 BG로 HBlank DMA | 지연, 변형, 분할 x, 구멍이 있는 프레임 수 | `1 6 56 0` (master GL/Compute `1 6 56 808`: 마지막 16프레임 중 8 + 8프레임에 구멍, 구멍 픽셀 2056개) |
 | l4-vcount-write | 콘솔에 `WRITE <값> AT <라인>: <n> LINES, RES <r>`(212·205·212·100라인의 VCOUNT 쓰기를 쓰기 없는 프레임과 비교. 지연을 흩뜨린 폴링으로 8프레임 평균을 냄. 프레임 120이 아니라 끝나는 대로 마침(프레임 3). 100라인에 쓰면 콘솔에서 그 프레임 화면이 찢어질 수 있음) | 네 경우의 라인 수, values[4..8]에 각각의 부호 있는 남는 사이클 ×16(통라인이 더해지지 않았으면 0xFFFF)과 프레임 길이 | `11 4 3 51`(남는 사이클 약 0) |
 | l4-tex-late | 콘솔에 `WRITE AT <라인>: <n> NOT NEW`(전체 화면 텍스처 사각형의 팔레트 항목을 스왑 뒤 그 라인에서 다시 씀. 인터럽트 끔. 캡처한 한 열) | 200·213·214·216라인 쓰기에서 새 색이 아닌 라인 수, values[4..6]에 192·230·250, values[8]에 215 | `0 0 0 192` |
-| l4-3d-fog-dot | 콘솔에 `FOG START`, `BORDER`, `AA LINES` 줄(3D 레이어 캡처 여섯 번: fog 경계, FOG_SHIFT 11, 화면 경계 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선, 기준 면에서 한 단계 떨어진 깊이 Equal) | fog 시작, 그 두 색, FOG_SHIFT 11 비트, 그 색 | `0 7fe07fe0 7 7fe0001f`(values[4..7]은 측정표 참조) |
+| l4-3d-fog-dot | 콘솔에 `FOG START`, `BORDER`, `AA LINES` 줄(3D 레이어 캡처 여섯 번: fog 경계, FOG_SHIFT 11, 화면 경계 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선, 기준 면에서 한 단계 떨어진 깊이 Equal. 그 뒤 캡처 한 번 더: 알파에만 거는 fog를 BG0 블렌드 뒤에서 봄, `FOG ALPHA`) | fog 시작, 그 두 색, FOG_SHIFT 11 비트, 그 색 | `0 7fe07fe0 7 7fe0001f`(values[4..7]은 측정표 참조) |
+| l4-3d-zeq-slope | 콘솔에 `BAND <왼쪽>..<오른쪽>`, `DECAL HOLES <n>` 줄(3D 레이어 캡처 한 번: Buoyane의 깊이 장면. z 6 평면 위에 Equal로 그린 z 3..9 경사면과, 기울어진 바닥 위 데칼 경사면) | 띠 왼쪽 끝, 오른쪽 끝, 데칼 구멍 수 | `69 98 0` (16진수. 105, 152, 0. soft) |
 | l4-acc-rear-plane | 같은 2패스 방식에 rear plane 사용(Elevane 프리셋 2에 대응). rear plane을 먼저 설정한 뒤 캡처된 패스의 불투명 샘플을 셉니다(4096 = 양쪽 절반) | 지연, 변형, 분할 x, 0, 불투명 샘플, 왼쪽 절반, 오른쪽 절반(values[4..6]) | `1 7 56 0`, `1000 800 800`(soft, DeSmuME); GL: `580 580 0` |
 
 ## 측정 표 (2026-11-12)
@@ -103,6 +104,10 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
 | `dot-queued-cutoff` | l4-3d-fog-dot | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 1 |
 | `aa-line-pixels` | l4-3d-fog-dot | 12583104 | 12583104 | 0 | 12583104 | 12583104 | 0 | 12583104 | 0 |
 | `zeq-step-boundary` | l4-3d-fog-dot | 0 | 67109888 | 1024 | 67109888 | 67109888 | 1024 | 67109888 | 0 |
+| `fog-alpha-glitch` | l4-3d-fog-dot | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `zeq-slope-band-left` | l4-3d-zeq-slope | 101..107 | 105 | 32 | 105 | 105 | 32 | 105 | 118 |
+| `zeq-slope-band-right` | l4-3d-zeq-slope | 149..155 | 152 | 127 | 152 | 152 | 127 | 152 | 141 |
+| `zeq-slope-decal-holes` | l4-3d-zeq-slope | 0 | 0 | 1920 | 0 | 0 | 1920 | 0 | 2120 |
 
 에뮬레이터마다 다른 점:
 
@@ -119,6 +124,7 @@ melonDS 실행은 결과 블록으로 비교했습니다(Corvane 데모와 같�
   빌드는 메인 메모리 디스플레이 FIFO에서 1.1이 0인 곳에 653개(`sys-dma-disp-pixels`)와 768개(`2d-display-pixels`)가 틀립니다.
 - **일곱 모두**: 스프라이트 120개 줄에서 마지막 OBJ 그룹이 남습니다(`2d-obj-line-budget` 3: 줄당 예산에서 스프라이트를
   버리는 에뮬레이터는 없고, 콘솔이 어디서 버리는지는 아무도 측정하지 않았습니다).
+- **경사면 Equal과 fog alpha 글리치**(`l4-3d-zeq-slope`와 `l4-3d-fog-dot`의 `fog-alpha-glitch`, 2026-11-21 측정. Buoyane 실기가 잰 장면이고, 콘솔 값은 이 ROM이 아니라 Buoyane에서 잰 것): melonDS soft와 GL compute(1.1, master)는 띠를 105..152에 두고 데칼 구멍이 없어 Buoyane과 같습니다. GL classic은 띠를 32..127에 그리고 데칼 1920픽셀을 빠뜨립니다. DeSmuME는 118..141과 2120입니다. fog alpha 글리치는 어느 프로필에도 나타나지 않습니다(전부 0, Buoyane 장면의 콘솔과 같음). Buoyane 실기 관측: 띠 109..159, 구멍 960, 글리치 없음.
 - **VCOUNT 쓰기**(`l4-vcount-write`, 2026-11-16 측정, Heddlemere 리뷰에서 나온 새 probe): melonDS는 모든 프로필에서 어디서 쓰든 적용합니다. 212라인에서 202를 쓰면 11라인, 205라인에서 202는 4라인, 212라인에서 210은 3라인이고, GBATEK이 허용하는 202..212 밖인 100라인에서 50을 써도 51라인입니다(범위 없는 모델). DeSmuME는 네 쓰기를 모두 무시합니다(0라인). **늦게 쓴 텍스처 팔레트**(`l4-tex-late`): melonDS(전 프로필)는 215라인까지 쓴 것은 보여 주고 216라인부터 쓴 것은 전부 놓칩니다(옛 색 192라인). 중간 단계는 없습니다. DeSmuME는 모든 라인에 새 색을 보여 주므로 우리가 쓰는 마지막 쓰기 뒤에 팔레트를 읽습니다.
 - 나머지(폴리곤 수, `BOX_TEST`/`POS_TEST`/`VEC_TEST` 결과, 정면·평면 화면, rear plane 지연 1)는 melonDS의 모든 프로필에서 같고,
   3D 테스트 값은 `vec-z`만 빼고 DeSmuME과도 같습니다. 프레임 지연은 부팅 때 걸려 있는 SwapBuffers를 측정 루프 전에

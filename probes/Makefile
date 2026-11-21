@@ -36,7 +36,7 @@ DEMOS := \
   l4-sys-dma-gfx l4-sys-dma-disp l4-2d-obj-line l4-2d-display \
   l4-3d-fifo l4-3d-matrix l4-3d-light l4-3d-clip l4-3d-poly l4-3d-test \
   l4-acc-stage l4-acc-dual l4-acc-split-rear l4-acc-split-hdma l4-acc-rear-plane \
-  l4-vcount-write l4-tex-late l4-3d-fog-dot
+  l4-vcount-write l4-tex-late l4-3d-fog-dot l4-3d-zeq-slope
 
 VARIANT  := probes-$(DEMO)
 ROM      := $(VARIANT).nds
@@ -130,7 +130,7 @@ demos:
 	@for d in $(DEMOS); do $(MAKE) --no-print-directory DEMO=$$d || exit 1; done
 
 # Files for a tagged release (.github/workflows/release.yml uploads them):
-# build/release/demos (the probe ROMs) and build/release/judge (expected.json +
+# build/release/demos (the probe ROMs), build/release/rom (their hardware-support copies) and build/release/judge (expected.json +
 # judge.py, which records and compares what an emulator does), each with the
 # licence texts and notices a binary distribution has to carry.
 RELEASE := build/release
@@ -142,6 +142,12 @@ release:
 	@mkdir -p $(RELEASE)/demos && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/demos/
 	@for d in $(DEMOS); do cp probes-$$d.nds $(RELEASE)/demos/ || exit 1; done
+	@# The same ROMs with the homebrew game code "####", for flash card kernels that only give homebrew
+	@# their SD card (DLDI): tools/hwsupport.py says why. They go to rom/ (the release ROMs keep PRBS,
+	@# see GAME_CODE), not to demos/, which the emulator runners and the judge read ROM by ROM.
+	@mkdir -p $(RELEASE)/rom && \
+		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses $(RELEASE)/rom/
+	@for d in $(DEMOS); do python3 tools/hwsupport.py probes-$$d.nds $(RELEASE)/rom/probes-$$d-hw-support.nds || exit 1; done
 	@mkdir -p $(RELEASE)/judge && \
 		cp -R LICENSE NOTICE THIRD_PARTY_NOTICES licenses expected.json tools/judge.py $(RELEASE)/judge/
 

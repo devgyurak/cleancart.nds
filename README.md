@@ -416,11 +416,11 @@ target 16 · prerequisite 8
 
 </details>
 
-<details><summary><b>L4 Research</b> · Probes (41 target items)</summary>
+<details><summary><b>L4 Research</b> · Probes (45 target items)</summary>
 
 #### Probes · research probes
 
-target 41 · prerequisite 0
+target 45 · prerequisite 0
 
 - `sys-dma-gfx-polys` · A cube drawn from a DMA-fed display list shows 2 polygons at the checkpoint _(informational)_ · [expected.json](probes/expected.json)
 - `3d-fifo-polys` · ship over terrain: polygons in polygon RAM _(informational)_ · [expected.json](probes/expected.json)
@@ -463,6 +463,10 @@ target 41 · prerequisite 0
 - `dot-queued-cutoff` · A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn _(informational)_ · [expected.json](probes/expected.json)
 - `aa-line-pixels` · Pixels of an anti-aliased 1-pixel line, x 32..224: opaque | translucent (alpha 30) << 16 (GBATEK gives no count) _(informational)_ · [expected.json](probes/expected.json)
 - `zeq-step-boundary` · Depth Equal one step (raw z 3 and 5 against a base at 4) from the base: pixels drawn at -1 | +1 << 16, of 1024 each (the +-200h window: is the boundary inside?) _(informational)_ · [expected.json](probes/expected.json)
+- `zeq-slope-band-left` · Depth Equal on a slope: first pixel of the band at y 124, a z 3..9 slope drawn Equal over a flat base at z 6 (x 32..224; the +-200h window gives about 48 pixels; the depth model in GBATEK puts the left end at 101..107). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 109; melonDS soft: 105 _(informational)_ · [expected.json](probes/expected.json)
+- `zeq-slope-band-right` · Depth Equal on a slope: last pixel of the same band (the model puts the right end at 149..155). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 159; melonDS soft: 152 _(informational)_ · [expected.json](probes/expected.json)
+- `zeq-slope-decal-holes` · Depth Equal on a slope: pixels of a decal slope (z 589..2615) drawn Equal over a floor slope (z 300..3000) that are not drawn, of 168 x 40 (the model: none). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 960; melonDS soft: 0 _(informational)_ · [expected.json](probes/expected.json)
+- `fog-alpha-glitch` · Fog on the alpha only (FOG alpha-only bit), a BG0 blend onto a backdrop: bit 0 = a fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog (the "glitch" GBATEK mentions loosely: 1). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 0, no glitch in that scene; melonDS: 0 _(informational)_ · [expected.json](probes/expected.json)
 
 </details>
 <!-- levels:end -->

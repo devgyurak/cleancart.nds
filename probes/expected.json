@@ -39,7 +39,8 @@
   "l4-acc-rear-plane": 1470346845,
   "l4-vcount-write": 1005781691,
   "l4-tex-late": 3160160016,
-  "l4-3d-fog-dot": 3992592172
+  "l4-3d-fog-dot": 3992592172,
+  "l4-3d-zeq-slope": 131802604
  },
  "items": [
   {
@@ -663,6 +664,65 @@
    "role": "target",
    "level": 4,
    "level_basis": "none"
+  },
+  {
+   "id": "zeq-slope-band-left",
+   "demo": "l4-3d-zeq-slope",
+   "title": "Depth Equal on a slope: first pixel of the band at y 124, a z 3..9 slope drawn Equal over a flat base at z 6 (x 32..224; the +-200h window gives about 48 pixels; the depth model in GBATEK puts the left end at 101..107). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 109; melonDS soft: 105",
+   "values": [
+    0
+   ],
+   "check": "range",
+   "min": 101,
+   "max": 107,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "zeq-slope-band-right",
+   "demo": "l4-3d-zeq-slope",
+   "title": "Depth Equal on a slope: last pixel of the same band (the model puts the right end at 149..155). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 159; melonDS soft: 152",
+   "values": [
+    1
+   ],
+   "check": "range",
+   "min": 149,
+   "max": 155,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "zeq-slope-decal-holes",
+   "demo": "l4-3d-zeq-slope",
+   "title": "Depth Equal on a slope: pixels of a decal slope (z 589..2615) drawn Equal over a floor slope (z 300..3000) that are not drawn, of 168 x 40 (the model: none). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 960; melonDS soft: 0",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 0,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "fog-alpha-glitch",
+   "demo": "l4-3d-fog-dot",
+   "title": "Fog on the alpha only (FOG alpha-only bit), a BG0 blend onto a backdrop: bit 0 = a fog face in front of FOG_OFFSET looks like a same-frame alpha 31 face without fog (the \"glitch\" GBATEK mentions loosely: 1). Observed in Buoyane (hardware runs 1 and 2, DS Lite): 0, no glitch in that scene; melonDS: 0",
+   "values": [
+    9
+   ],
+   "check": "mask",
+   "mask": 1,
+   "expect": 1,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
   }
  ],
  "known": {
@@ -723,11 +783,17 @@
     "edge-screen-border": [
      67044351
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      4096
@@ -786,11 +852,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     105
+    ],
+    "zeq-slope-band-right": [
+     152
+    ],
+    "zeq-slope-decal-holes": [
+     0
+    ],
     "zeq-step-boundary": [
      67109888
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -851,11 +923,17 @@
     "edge-screen-border": [
      692726090
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      1408
@@ -914,11 +992,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     32
+    ],
+    "zeq-slope-band-right": [
+     127
+    ],
+    "zeq-slope-decal-holes": [
+     1920
+    ],
     "zeq-step-boundary": [
      1024
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -979,11 +1063,17 @@
     "edge-screen-border": [
      67044351
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      1408
@@ -1042,11 +1132,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     105
+    ],
+    "zeq-slope-band-right": [
+     152
+    ],
+    "zeq-slope-decal-holes": [
+     0
+    ],
     "zeq-step-boundary": [
      67109888
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -1107,11 +1203,17 @@
     "edge-screen-border": [
      67044351
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      4096
@@ -1170,11 +1272,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     105
+    ],
+    "zeq-slope-band-right": [
+     152
+    ],
+    "zeq-slope-decal-holes": [
+     0
+    ],
     "zeq-step-boundary": [
      67109888
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -1235,11 +1343,17 @@
     "edge-screen-border": [
      692726090
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      1408
@@ -1298,11 +1412,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     32
+    ],
+    "zeq-slope-band-right": [
+     127
+    ],
+    "zeq-slope-decal-holes": [
+     1920
+    ],
     "zeq-step-boundary": [
      1024
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -1363,11 +1483,17 @@
     "edge-screen-border": [
      67044351
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      1408
@@ -1426,11 +1552,17 @@
     "vcw-outside-lines": [
      51
     ],
+    "zeq-slope-band-left": [
+     105
+    ],
+    "zeq-slope-band-right": [
+     152
+    ],
+    "zeq-slope-decal-holes": [
+     0
+    ],
     "zeq-step-boundary": [
      67109888
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   },
@@ -1491,11 +1623,17 @@
     "edge-screen-border": [
      67044351
     ],
+    "fog-alpha-glitch": [
+     0
+    ],
     "fog-boundary-start": [
      2
     ],
     "fog-shift-11": [
      7
+    ],
+    "poly-right-edge-pixel": [
+     1
     ],
     "rear-plane": [
      4096
@@ -1554,11 +1692,17 @@
     "vcw-outside-lines": [
      0
     ],
+    "zeq-slope-band-left": [
+     118
+    ],
+    "zeq-slope-band-right": [
+     141
+    ],
+    "zeq-slope-decal-holes": [
+     2120
+    ],
     "zeq-step-boundary": [
      0
-    ],
-    "poly-right-edge-pixel": [
-     1
     ]
    }
   }
