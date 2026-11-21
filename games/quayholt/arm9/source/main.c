@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     snd_master(cv_save.volume);
 #endif
 
-    static const char *const scene_names[] = { "title", "menu", "rehearsal", "credits" };
+    static const char *const scene_names[] = { "title", "menu", "rehearsal", "credits", "pier", "job" };
     QyScene scene = SC_TITLE;
     for (;;)
     {
@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
             case SC_MENU:  scene = scene_menu(); break;
             case SC_REHEARSAL: scene = scene_rehearsal(); break;
             case SC_CREDITS: scene = scene_credits(); break;
+            case SC_PIER:  scene = scene_pier(); break;
+            case SC_JOB:   scene = scene_job(); break;
             case SC_TITLE:
             default:       scene = scene_title(); break;
         }

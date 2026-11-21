@@ -6,6 +6,7 @@
 #include "core/input.h"
 #include "core/sdcard.h"
 #include "core/sys.h"
+#include "game/harbour.h"
 #include "game/ledger.h"
 #include "game/rehearsal.h"
 #include "game/scenes.h"
@@ -61,6 +62,7 @@ void rehearsal_run(void)
     show();
     scene_frame_end();
     qy_res[QV_DONE] |= QD_REHEARSAL;
+    jobs_script_firsts();
     ledger_publish(REHEARSAL_ID, cv_frame);
 }
 

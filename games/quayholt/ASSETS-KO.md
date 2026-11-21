@@ -19,5 +19,6 @@ ROM에도 들어가지 않습니다.
 | `cv_title_lz`, `cv_title_pal` | 타이틀 그림: 해질녘 항구, 부두의 크레인 두 대(격자 지브와 가는 박스 붐), 쌓인 화물 상자, 물에 비친 해, 스텐실 글자로 쓴 이름 (256x192, 8bpp, LZ77) | `cvtools/qyart.py` `title_art()` | 자체 제작, Apache-2.0 |
 | `cv_smp_*`, `cv_sound_bank`, `cv_sample_names` | 엔진이 링크하는 샘플 (`cvtools/audio.py`의 `SAMPLES_USED`) | `cvtools/audio.py` `make_samples()` | 자체 제작, Apache-2.0 |
 | `cv_song_*`, `cv_song_names` | 노래 `harbour`, 코드로 작곡한 느린 도리안 선율 | `cvtools/audio.py` `SONGS`, `compose()` | 자체 제작, Apache-2.0 |
+| `qy_ops`, `qy_model`, `qy_jobs`, `qy_labels`, `qy_pier_names`, `QYOP_*` | 항구의 장치, 장부(크레인과 세팅마다 올바른 콘솔이 내놓을 답, GBATEK에서 계산), 제목·지시문이 있는 30개 작업, 다이얼 글자 | `tools/qyjobs/` (`model.py`, `jobs.py`, `pack.py`. `check.py`는 풀 수 없는 작업이 있으면 빌드를 멈춤) | 자체 제작, Apache-2.0 |
 | `probe.bin` (NitroFS) | 카트 검사가 읽는 CRC가 알려진 2 KB 파일 | `tools/mkassets.py` | 자체 제작, Apache-2.0 |
 | 배너 아이콘 (`icon.bmp`) | 32x32 4bpp 아이콘, 크레인 갈고리 아래의 화물 상자 | `cvtools/qyart.py` `icon()` | 자체 제작, Apache-2.0 |

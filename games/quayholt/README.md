@@ -3,15 +3,29 @@
 [한국어](README-KO.md)
 
 An original two-crane harbour puzzle for the Nintendo DS, and a self-judging test ROM for emulator developers.
-Status: **measurement harness complete** (loads, blocks, tally, customs, locker and ledger-board piers, rehearsal, judge);
-the harbour game itself follows.
+Status: **the harbour game, the measurement harness, the rehearsal and the judge are in place**; the QA run plays
+all 30 jobs. The title, credits and hardware plan are still to be finished for the release.
 
 Target level **L2**, area **ARM core edges**: ARM9 (v5TE) and ARM7 (v4T) instruction edges and the ARM9 CP15
 (protection unit, tightly coupled memory, caches). Each judged item runs one instruction or CP15 operation on fixed
 test data and compares the raw result with a constant worked out by hand from GBATEK. See
 [docs/LEVELS.md](../../docs/LEVELS.md) for what L2 means.
 
-## Judged items (so far)
+## The game
+
+A dusk quay with two cranes: an old steam crane (the console's second processor) and a new electric one (the
+main processor). Six piers (loads, blocks, tally, customs, locker, ledger board) of five jobs each. A job names a
+device, the foreman's wanted chalk word and the cranes that may work it; you choose the crane (X) and the setup
+(left/right, L/R for big steps) and lift (A). The hook runs one real instruction (or one real system operation)
+on the chosen processor and the game compares two answers: **the book** (the ROM's own model of the documented
+behaviour) and **the crane** (what the console really did). The book alone decides whether the job is balanced, so
+every job can be finished on any emulator; when the crane disagrees, the box is marked **crooked**.
+`tools/qyjobs/check.py` proves from the book alone that all 30 jobs are solvable and none is a gimme.
+
+Controls: D-pad choose, A open / lift, X other crane, L/R other pier or big setup step, B back, Select on the
+title opens the test menu (rehearsal, credits), X on the title opens the credits.
+
+## Judged items
 
 | Pier | Items |
 |---|---|

@@ -20,6 +20,7 @@ void qy9_cp15_get(uint32_t *s);
 void qy9_cp15_set(const uint32_t *s);
 void qy9_dc_flush_all(void);
 void qy9_dc_flush_range(const void *p, uint32_t len);
+void qy9_dc_clean_range(const void *p, uint32_t len);   // clean, the lines stay in the cache
 void qy9_ic_inv_all(void);
 void qy9_set_ctrl(uint32_t v);
 uint32_t qy9_get_cpsr(void);

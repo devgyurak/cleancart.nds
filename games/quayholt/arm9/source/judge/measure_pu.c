@@ -388,3 +388,159 @@ void measure_tcm(void)
     leaveCriticalSection(old);
     ledger_flags(QV_DONE, QD_TCM, true);
 }
+
+// ---------------------------------------------------------------------------------------------------
+// Probes for the game's devices (see measure.h): the same stubs with the player's setup.
+
+static u32 probe_begin(void)
+{
+    int old = enterCriticalSection();
+    if (sys_wram_is_arm9())
+        sys_wram_to_arm7();
+    exc_begin();
+    return (u32)old;
+}
+
+static void probe_end(u32 old)
+{
+    exc_end();
+    leaveCriticalSection((int)old);
+}
+
+u32 probe_pu_access(u32 ap, u32 kind)
+{
+    u32 old = probe_begin(), res = 0, v, ud[4] = { 0, 0, 0, 0 };
+    win_fill(0x77665544u);
+    switch (kind)
+    {
+        case 0:
+            win_region(ap, 3);
+            qy9_do_load((u32)(uintptr_t)qy_win, &v);
+            res = qy_exc_rec.id == 4 ? 4 : 0;
+            break;
+        case 1:
+            win_region(ap, 3);
+            qy9_do_store((u32)(uintptr_t)qy_win + 4, 0x2468ACE0u);
+            res = qy_exc_rec.id == 4 ? 4 : 0;
+            break;
+        case 2:
+            *(volatile u32 *)qy_win = 0xE12FFF1Eu;
+            qy9_dc_flush_range(qy_win, sizeof(qy_win));
+            qy9_ic_inv_all();
+            win_region(3, ap);
+            qy9_do_call((u32)(uintptr_t)qy_win);
+            res = qy_exc_rec.id == 3 ? 3 : 0;
+            break;
+        default:
+            win_region(ap, 3);
+            qy9_do_user_rw((u32)(uintptr_t)qy_win, ud);
+            if (ud[0] != 0x77665544u)
+                res = 4;                                // the read itself was refused
+            else if (kind == 3)
+                res = 0;
+            else
+                res = qy_exc_rec.id == 4 ? 4 : 0;       // the write: refused (4) or it went through (SWI at the end)
+            break;
+    }
+    probe_end(old);
+    return res;
+}
+
+u32 probe_pu_priority(u32 p)
+{
+    u32 old = probe_begin(), v;
+    win_fill(0x13572468u);
+    if (p == 0)
+        win_region(0, 3);                    // region 7 (high) refuses over region 6
+    else
+    {
+        u32 dp = hs[QS_DPERM];
+        set_nibble(&dp, 4, 0);
+        qy9_set_region4(WIN_REGION);         // region 4 (low) refuses under region 6
+        qy9_set_dperm(dp);
+        qy9_set_region4(WIN_REGION);
+    }
+    qy9_do_load((u32)(uintptr_t)qy_win, &v);
+    u32 res = qy_exc_rec.id == 4 ? 4 : 0;
+    probe_end(old);
+    return res;
+}
+
+u32 probe_vector(u32 p)
+{
+    u32 old = probe_begin();
+    if (p == 0)
+        qy9_do_swi();
+    else if (p == 1)
+        qy9_do_undef();
+    else
+        qy9_do_bkpt();
+    u32 res = qy_exc_rec.id;
+    probe_end(old);
+    return res;
+}
+
+// E4 / E5 on the static block: dma = the word a DMA reads at the DTCM address, norm / load = the CPU's read without and with load mode.
+static void tcm_run45(u32 *dma, u32 *norm, u32 *load)
+{
+    u32 out[4] = { 0, 0, 0, 0 };
+    u32 blk = (u32)(uintptr_t)qy_tcm_blk;
+    u32 m = 0x02800000u | (blk & 0x3FFFFFu);
+    u32 u = 0x02400000u | (blk & 0x3FFFFFu);
+    DC_FlushRange(qy_tcm_blk, sizeof(qy_tcm_blk));
+    memset(qy_dma_dst, 0, sizeof(qy_dma_dst));
+    DC_FlushRange(qy_dma_dst, sizeof(qy_dma_dst));
+    qy9_tcm_e4(out, m, u, (u32)(uintptr_t)qy_dma_dst);
+    DC_InvalidateRange(qy_dma_dst, sizeof(qy_dma_dst));
+    *dma = qy_dma_dst[0];
+    DC_FlushRange(qy_tcm_blk, sizeof(qy_tcm_blk));
+    qy9_tcm_e5(out, m, u);
+    *norm = out[0];
+    *load = out[1];
+}
+
+u32 probe_tcm(u32 which, u32 p)
+{
+    u32 out[4] = { 0, 0, 0, 0 };
+    int old = enterCriticalSection();
+    u32 res = QY_HW_NONE;
+    DC_FlushAll();
+    switch (which)
+    {
+        case 0:
+            if (p == 1)
+            {
+                qy9_tcm_e2(out);
+                res = out[0] == 0xA5C3E10Fu ? 1 : 0;
+            }
+            break;
+        case 1:
+        {
+            u32 s[QS_WORDS];
+            qy9_cp15_get(s);
+            volatile u32 *q = (volatile u32 *)0x01004000;
+            u32 keep = *q;
+            *q = 0x1CE10001u;
+            if (p == 1)
+                qy9_set_itcm(0x0A);
+            u32 v = *q;
+            qy9_set_itcm(s[QS_ITCM]);
+            *q = keep;
+            res = v == 0x1CE10001u ? 1 : 0;
+            break;
+        }
+        default:
+        {
+            u32 dma, norm, load;
+            tcm_run45(&dma, &norm, &load);
+            if (which == 2)
+                res = p == 0 ? norm : dma;
+            else
+                res = p == 0 ? norm : load;
+            break;
+        }
+    }
+    DC_FlushAll();
+    leaveCriticalSection(old);
+    return res;
+}

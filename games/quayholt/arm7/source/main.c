@@ -88,7 +88,8 @@ static void sys_value_handler(u32 value, void *userdata)
     if ((value & CV_QY_TAG_MASK) == CV_QY_STEP)
     {
         uint32_t step = value & 0xFF;
-        fifoSendValue32(CV_FIFO_SYS, CV_QY_REPLY | step << 8 | (step7_run(step) & 0xFF));
+        uint32_t rr = step7_run(step) & 0xFF;
+        fifoSendValue32(CV_FIFO_SYS, CV_QY_REPLY | step << 8 | rr);
         return;
     }
     switch (value)

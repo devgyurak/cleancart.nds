@@ -13,6 +13,8 @@ typedef enum {
     SC_MENU,
     SC_REHEARSAL,
     SC_CREDITS,
+    SC_PIER,
+    SC_JOB,
 } QyScene;
 
 // Resets both engines to a known state (no effects, windows, scroll, OAM).
@@ -28,5 +30,7 @@ QyScene scene_room(void);
 QyScene scene_menu(void);
 QyScene scene_rehearsal(void);
 QyScene scene_credits(void);
+QyScene scene_pier(void);       // game/harbour.c
+QyScene scene_job(void);
 
 #endif // QY_SCENES_H
