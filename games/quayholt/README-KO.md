@@ -2,6 +2,8 @@
 
 [English](README.md)
 
+<p align="center"><img src="docs/images/title.png" width="256" alt="Title"> <img src="docs/images/pier.png" width="256" alt="A pier with its five jobs"> <img src="docs/images/job.png" width="256" alt="A balanced job with a crooked box"></p>
+
 닌텐도 DS용 오리지널 크레인 두 대 항구 퍼즐이자, 에뮬레이터 개발자를 위한 스스로 판정하는 테스트 ROM입니다.
 현재 상태: **항구 게임, 측정 하네스, 리허설, 판정이 갖춰졌습니다.** QA 실행은 30개 작업을 모두 풉니다. 타이틀 다듬기,
 크레딧, 실기 계획은 릴리스 전에 마무리합니다.
@@ -46,6 +48,8 @@ python3 tools/judge.py --profile melonds-1.1-software run.log
 
 `expected.json`은 항목과, 에뮬레이터별로 알려진 실패를 적습니다. melonDS 프로필은 인터프리터 기준이므로 melonDS의
 JIT를 끄고 실행하세요.
+
+*스크린샷: melonDS 1.1(headless, 소프트웨어 렌더러), 위 화면.*
 
 ## 실기
 
