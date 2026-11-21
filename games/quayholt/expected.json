@@ -43,6 +43,20 @@
       "item_id_text": "QYAL",
       "frames": 120,
       "note": "only the items of one pier"
+    },
+    "l2-pu": {
+      "rom": "quayholt-l2-pu.nds",
+      "item_id": 1431329105,
+      "item_id_text": "QYPU",
+      "frames": 120,
+      "note": "only the items of one pier"
+    },
+    "l2-tcm": {
+      "rom": "quayholt-l2-tcm.nds",
+      "item_id": 1129601361,
+      "item_id_text": "QYTC",
+      "frames": 120,
+      "note": "only the items of one pier"
     }
   },
   "sources": {
@@ -460,6 +474,354 @@
       }
     },
     {
+      "id": "cp15-ctrl-bits",
+      "title": "CP15 control register: bits 0, 2, 7 and 12-19 are writable, bits 3-6 always read 1",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        15
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Control Register",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "bkpt9-pabt",
+      "title": "BKPT takes the prefetch abort vector (0Ch) in abort mode with LR = BKPT + 4",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        16
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM Opcodes: Branch and Branch with Link (B, BL, BX, BLX, SWI, BKPT); gbatek:ARM CPU Exceptions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pu-priority",
+      "title": "Of overlapping protection regions the higher number wins",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        17
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Protection Unit (PU)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pu-background",
+      "title": "An access outside every region is a data abort with LR = instruction + 8",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        18
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Protection Unit (PU); gbatek:ARM CPU Exceptions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pu-user-ro",
+      "title": "Access permission 2: user mode may read, a user write is a data abort",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        19
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Protection Unit (PU)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pu-code-xn",
+      "title": "Instruction permission 0: a fetch from the region is a prefetch abort",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        20
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Protection Unit (PU); gbatek:ARM CPU Exceptions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "itcm-over-dtcm",
+      "title": "Overlapping ITCM and DTCM: the ITCM wins",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        21
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "dtcm-mirror",
+      "title": "A 32 KB virtual DTCM mirrors its 16 KB of memory",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        22
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "itcm-size",
+      "title": "With a 16 KB virtual ITCM the mirror at +4000h is no longer ITCM",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        23
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "tcm-dma-bus",
+      "title": "A DMA read of a DTCM address returns the main RAM behind it",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        24
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM); gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "dtcm-load-mode",
+      "title": "Control bit 17 (DTCM load mode): reads of the DTCM go to the bus behind, writes still reach it",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        25
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM); gbatek:ARM CP15 Control Register",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "itcm-load-mode",
+      "title": "Control bit 19 (ITCM load mode): reads of the ITCM region do not return the ITCM word",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        26
+      ],
+      "check": "eq",
+      "expect": 1,
+      "tolerance": 0,
+      "source": "unconfirmed",
+      "role": "target",
+      "level": 2,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM); gbatek:ARM CP15 Control Register",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
       "id": "pre-ldr-str-word",
       "title": "Aligned LDR/STR words round-trip (ARM9 and ARM7)",
       "boots": [
@@ -467,14 +829,18 @@
         "qa",
         "l2-loads",
         "l2-blocks",
-        "l2-alu"
+        "l2-alu",
+        "l2-pu",
+        "l2-tcm"
       ],
       "frame": {
         "rehearsal": 1,
         "qa": 1,
         "l2-loads": 1,
         "l2-blocks": 1,
-        "l2-alu": 1
+        "l2-alu": 1,
+        "l2-pu": 1,
+        "l2-tcm": 1
       },
       "values": [
         31
@@ -497,14 +863,18 @@
         "qa",
         "l2-loads",
         "l2-blocks",
-        "l2-alu"
+        "l2-alu",
+        "l2-pu",
+        "l2-tcm"
       ],
       "frame": {
         "rehearsal": 1,
         "qa": 1,
         "l2-loads": 1,
         "l2-blocks": 1,
-        "l2-alu": 1
+        "l2-alu": 1,
+        "l2-pu": 1,
+        "l2-tcm": 1
       },
       "values": [
         31
@@ -527,14 +897,18 @@
         "qa",
         "l2-loads",
         "l2-blocks",
-        "l2-alu"
+        "l2-alu",
+        "l2-pu",
+        "l2-tcm"
       ],
       "frame": {
         "rehearsal": 1,
         "qa": 1,
         "l2-loads": 1,
         "l2-blocks": 1,
-        "l2-alu": 1
+        "l2-alu": 1,
+        "l2-pu": 1,
+        "l2-tcm": 1
       },
       "values": [
         31
@@ -548,6 +922,126 @@
       "level": 1,
       "level_basis": "gbatek:DS Inter Process Communication",
       "model": null
+    },
+    {
+      "id": "pre-exc-swi",
+      "title": "The exception harness catches SWI and an undefined instruction with LR = instruction + 4",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 8,
+      "expect": 8,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM CPU Exceptions",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pre-pu-rw",
+      "title": "A read/write protection region gives no abort for a load and a store",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-pu"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-pu": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 16,
+      "expect": 16,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM CP15 Protection Unit (PU)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 8
+      }
+    },
+    {
+      "id": "pre-dtcm-rw",
+      "title": "The DTCM reads back what was written to it",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 32,
+      "expect": 32,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:ARM CP15 Tightly Coupled Memory (TCM)",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
+    },
+    {
+      "id": "pre-dma-copy",
+      "title": "A DMA channel copies main RAM to main RAM",
+      "boots": [
+        "rehearsal",
+        "qa",
+        "l2-tcm"
+      ],
+      "frame": {
+        "rehearsal": 1,
+        "qa": 1,
+        "l2-tcm": 1
+      },
+      "values": [
+        31
+      ],
+      "check": "mask",
+      "mask": 64,
+      "expect": 64,
+      "tolerance": 0,
+      "source": "GBATEK",
+      "role": "prerequisite",
+      "level": 1,
+      "level_basis": "gbatek:DS DMA Transfers",
+      "model": null,
+      "done": {
+        "value": 0,
+        "mask": 16
+      }
     },
     {
       "id": "rehearsal-done",
@@ -607,7 +1101,8 @@
         "thumb7-stmia-base-new",
         "stm-pc12",
         "alu7-rn-pc12",
-        "cp15-prev5-bit15"
+        "cp15-prev5-bit15",
+        "bkpt9-pabt"
       ],
       "na": []
     },
@@ -622,7 +1117,8 @@
         "thumb7-stmia-base-new",
         "stm-pc12",
         "alu7-rn-pc12",
-        "cp15-prev5-bit15"
+        "cp15-prev5-bit15",
+        "bkpt9-pabt"
       ],
       "na": []
     },
@@ -637,7 +1133,8 @@
         "thumb7-stmia-base-new",
         "stm-pc12",
         "alu7-rn-pc12",
-        "cp15-prev5-bit15"
+        "cp15-prev5-bit15",
+        "bkpt9-pabt"
       ],
       "na": []
     },
@@ -654,7 +1151,14 @@
         "thumb7-stmia-base-new",
         "stm-pc12",
         "alu7-rn-pc12",
-        "cp15-prev5-bit15"
+        "cp15-prev5-bit15",
+        "pu-priority",
+        "pu-background",
+        "pu-user-ro",
+        "pu-code-xn",
+        "dtcm-mirror",
+        "itcm-size",
+        "tcm-dma-bus"
       ],
       "na": []
     }

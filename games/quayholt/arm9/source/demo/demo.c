@@ -26,6 +26,8 @@ static const PierDemo pier_demos[] = {
     { "l2-loads", QD_LOADS, ID4('Q', 'Y', 'L', 'O') },
     { "l2-blocks", QD_BLOCKS, ID4('Q', 'Y', 'B', 'L') },
     { "l2-alu", QD_ALU, ID4('Q', 'Y', 'A', 'L') },
+    { "l2-pu", QD_PU, ID4('Q', 'Y', 'P', 'U') },
+    { "l2-tcm", QD_TCM, ID4('Q', 'Y', 'T', 'C') },
 };
 #define N_PIER_DEMOS ((int)(sizeof(pier_demos) / sizeof(pier_demos[0])))
 
@@ -44,10 +46,13 @@ static void pier_run(const char *name)
 static void l2_loads(const char *n) { pier_run(n); }
 static void l2_blocks(const char *n) { pier_run(n); }
 static void l2_alu(const char *n) { pier_run(n); }
+static void l2_pu(const char *n) { pier_run(n); }
+static void l2_tcm(const char *n) { pier_run(n); }
 
 // What the QA run's judge suite (core/qasuite.h) runs after the credits.
 const QaSuiteDemo demo_suite[] = {
     { "l2-loads", l2_loads }, { "l2-blocks", l2_blocks }, { "l2-alu", l2_alu },
+    { "l2-pu", l2_pu }, { "l2-tcm", l2_tcm },
 };
 const int demo_suite_count = (int)(sizeof(demo_suite) / sizeof(demo_suite[0]));
 

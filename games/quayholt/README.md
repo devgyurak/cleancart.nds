@@ -3,8 +3,8 @@
 [한국어](README-KO.md)
 
 An original two-crane harbour puzzle for the Nintendo DS, and a self-judging test ROM for emulator developers.
-Status: **measurement harness in place** (loads, blocks and tally piers, rehearsal, judge); the customs, locker
-and ledger-board piers and the harbour game itself follow.
+Status: **measurement harness in place** (loads, blocks, tally, customs and locker piers, rehearsal, judge); the
+ledger-board (cache) pier and the harbour game itself follow.
 
 Target level **L2**, area **ARM core edges**: ARM9 (v5TE) and ARM7 (v4T) instruction edges and the ARM9 CP15
 (protection unit, tightly coupled memory, caches). Each judged item runs one instruction or CP15 operation on fixed
@@ -18,9 +18,12 @@ test data and compares the raw result with a constant worked out by hand from GB
 | A loads | `ldrh7-odd`, `ldrsh7-odd`, `thumb7-ldrh-odd` |
 | B blocks | `stm7-base-new`, `ldm7-base-nowb`, `ldm9-base-wb`, `stm7-empty`, `thumb7-stmia-base-new`, `stm-pc12`, `ldm9-empty` (unconfirmed) |
 | C tally | `alu7-rn-pc12`, `qdadd9-dbl-sat`, `smla9-q-nosat`, `cp15-prev5-bit15` |
+| D customs | `cp15-ctrl-bits`, `bkpt9-pabt`, `pu-priority`, `pu-background`, `pu-user-ro`, `pu-code-xn` |
+| E locker | `itcm-over-dtcm`, `dtcm-mirror`, `itcm-size`, `tcm-dma-bus`, `dtcm-load-mode` (unconfirmed), `itcm-load-mode` (unconfirmed) |
 
-Prerequisites (L1): aligned LDR/STR words, plain LDM/STM in ARM and Thumb state, and an ARM7 that answers a
-measurement step over the FIFO. Unconfirmed items have no hardware evidence yet; they are informational until a
+Prerequisites (L1): aligned LDR/STR words, plain LDM/STM in ARM and Thumb state, an ARM7 that answers a
+measurement step over the FIFO, an exception harness that catches SWI and undefined instructions, a read/write
+protection region, a DTCM that reads back what was written, and a main-RAM DMA copy. Unconfirmed items have no hardware evidence yet; they are informational until a
 DS Lite run agrees ([docs/QA.md](docs/QA.md)).
 
 ## Build and judge
