@@ -57,7 +57,7 @@
 | 레벨 | 게임(영역) |
 |---|---|
 | L1 | Corvane(그래픽·시스템), Hushwell(소리·입출력), Paneveil(3D 지오메트리·텍스처) |
-| L2 | Lightenette (디스플레이 경계), Ledgerine (시스템 경계), Tonewick (소리·입출력 경계), Buoyane (3D 렌더링 경계) |
+| L2 | Lightenette (디스플레이 경계), Ledgerine (시스템 경계), Tonewick (소리·입출력 경계), Buoyane (3D 렌더링 경계), Quayholt (ARM 코어 경계) |
 | L3 | Elevane (디스플레이 타이밍·합성), Heddlemere (3D 엔진과 스캔라인 타이밍), Pendulane (CPU·버스·사운드 타이밍) |
 | L4 | `probes/`: 참고용만, 에뮬레이터별 프로필로 기록 |
 

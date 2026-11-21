@@ -50,13 +50,20 @@ GBATEK_SECTIONS = (
     'DS 3D I/O Map', 'DS Keypad', 'DS Maths', 'DS Memory Timings', 'DS Memory Control', 'DS Memory Control - VRAM', 'DS Power Control',
     'DS Power Management', 'DS Real-Time Clock', 'DS Serial Peripheral Interface Bus (SPI)', 'DS Sound Capture', 'DS Sound Channels', 'DS Sound Notes', 'DS Timers',
     'DS Touch Screen Controller', 'DS Video Capture and Main Memory Display Mode', 'DS Video Stuff', 'DS Video OBJs',
+    'ARM CPU Memory Alignments', 'ARM Opcodes: Memory: Block Data Transfer (LDM, STM)',
+    'THUMB Opcodes: Memory Multiple Load/Store (PUSH/POP and LDM/STM)',
+    'ARM Opcodes: Memory: Single Data Transfer (LDR, STR, PLD)', 'ARM Opcodes: Data Processing (ALU)',
+    'ARM Opcodes: Multiply and Multiply-Accumulate (MUL, MLA)', 'ARM Opcodes: Special ARM9 Instructions (CLZ, QADD/QSUB)',
+    'ARM Opcodes: Branch and Branch with Link (B, BL, BX, BLX, SWI, BKPT)', 'ARM CPU Exceptions',
+    'ARM CP15 Control Register', 'ARM CP15 Protection Unit (PU)', 'ARM CP15 Cache Control',
+    'ARM CP15 Tightly Coupled Memory (TCM)',
     'LCD Dimensions and Timings', 'LCD I/O BG Control', 'LCD I/O BG Rotation/Scaling',
     'LCD I/O Color Special Effects', 'LCD I/O Display Control', 'LCD I/O Mosaic Function',
     'LCD I/O Interrupts and Status', 'LCD I/O Window Feature', 'LCD OBJ - OAM Rotation/Scaling Parameters', 'LCD OBJ - Overview',
 )
 ROLES = ('target', 'prerequisite', 'relocate')
 GAMES_AFTER = ('probes',)
-KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'pendulane', 'buoyane', 'probes')
+KNOWN_TARGETS = ('corvane', 'hushwell', 'lightenette', 'elevane', 'paneveil', 'ledgerine', 'tonewick', 'heddlemere', 'pendulane', 'buoyane', 'quayholt', 'probes')
 
 READMES = (('README.md', 'en'), ('README-KO.md', 'ko'))
 

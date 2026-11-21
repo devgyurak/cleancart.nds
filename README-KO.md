@@ -52,6 +52,7 @@
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
 | [Pendulane](games/pendulane/) | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간 (진행 중; SPI, ARM7 메모리, 카트 gap, 사운드 시작 지연이 이어집니다). | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 8<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
 | [Buoyane](games/buoyane/) | 밤 항구 접근 게임: 작은 배를 몰며 불빛이 어떻게 보이는지 읽어 항구로 들어갑니다. 리허설 ROM과 확인 ROM 다섯 개로 스스로를 판정합니다.<br>검사 (L2, 3D 렌더링 가장자리): 폴리곤 규칙(1-dot 폴리곤, 깊이 Equal, far plane, 속성 래치), 텍스처 블렌딩(highlight, decal, 와이어프레임), fog·edge·안티앨리어싱 후처리. | 자동 (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 목표 20 · 전제 조건 11<!-- /cell --> | [README](games/buoyane/README-KO.md) · [에셋](games/buoyane/ASSETS-KO.md) |
+| [Quayholt](games/quayholt/) | 크레인 두 대 항구 퍼즐: 옛 증기 크레인과 새 전기 크레인으로 짐을 옮기며 같은 작업을 두 크레인이 다르게 처리하는 것을 봅니다. 리허설 ROM과 부두별 확인 ROM으로 스스로를 판정합니다.<br>검사 (L2, ARM 코어 가장자리): ARM7·ARM9 LDM/STM, 홀수 주소 반워드, PC 오프셋, 포화·곱셈 가장자리, ARM9 CP15 제어 레지스터(보호 유닛, TCM, 캐시). | 자동 (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 목표 14 · 전제 조건 5<!-- /cell --> | [README](games/quayholt/README-KO.md) · [에셋](games/quayholt/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -251,7 +252,7 @@
 
 </details>
 
-<details><summary><b>L2 경계</b> · Buoyane, Ledgerine, Lightenette, Tonewick (87 개)</summary>
+<details><summary><b>L2 경계</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (101 개)</summary>
 
 #### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
 
@@ -337,6 +338,25 @@
 - `2d-affine-pixels` · Captured pixels of a rotated affine BG match the GBATEK affine mapping of the map and tile data in VRAM (192 samples) · [expected.json](games/lightenette/expected.json)
 - `2d-obj-bitmap-pixels` · A bitmap sprite shows the texels of its 16bpp picture where bit 15 is set (blend effect off; alpha field 15 assumed opaque, which GBATEK does not spell out) · [expected.json](games/lightenette/expected.json)
 - `snd-wave-pan-right-exact` · Pan 126 (hard right) leaves the left mixer a swing of exactly 3: GBATEK reads two ways (fraction MSB as two's complement gives +1 / -2, as magnitude +1 / -1), the console reads the first, while the pan 0 reference is audible (swing above 16) · [expected.json](games/lightenette/expected.json)
+
+#### Quayholt · ARM core edges: ARM9/ARM7 instruction edges and the ARM9 CP15 (protection unit, TCM, caches)
+
+목표 14 · 전제 조건 5
+
+- `ldrh7-odd` · ARM7 LDRH [odd] reads the halfword at odd-1 and rotates it right by 8 · [expected.json](games/quayholt/expected.json)
+- `ldrsh7-odd` · ARM7 LDRSH [odd] acts like LDRSB [odd]: the byte at the address, sign-extended · [expected.json](games/quayholt/expected.json)
+- `thumb7-ldrh-odd` · ARM7 Thumb LDRH and LDRSH [odd] follow the same rules · [expected.json](games/quayholt/expected.json)
+- `stm7-base-new` · ARM7 STM Rb! with Rb in the list and not first stores the new base · [expected.json](games/quayholt/expected.json)
+- `ldm7-base-nowb` · ARM7 LDM Rb! with Rb in the list: no writeback, the loaded value stays · [expected.json](games/quayholt/expected.json)
+- `ldm9-base-wb` · ARM9 LDM Rb! writes back when Rb is alone or not last in the list; not when it is last · [expected.json](games/quayholt/expected.json)
+- `stm7-empty` · ARM7 empty-list STM (ARM and Thumb STMIA) stores R15 and moves the base by 40h · [expected.json](games/quayholt/expected.json)
+- `thumb7-stmia-base-new` · ARM7 Thumb STMIA with Rb in the list and not first stores the new base · [expected.json](games/quayholt/expected.json)
+- `stm-pc12` · STM {..PC} stores the address of the STM + 12 · [expected.json](games/quayholt/expected.json)
+- `ldm9-empty` · ARM9 empty-list LDM (ARM and Thumb) loads nothing and moves the base by 40h _(참고용)_ · [expected.json](games/quayholt/expected.json)
+- `alu7-rn-pc12` · ARM7 ALU with Rn = R15 and a register-specified shift reads PC + 12 · [expected.json](games/quayholt/expected.json)
+- `qdadd9-dbl-sat` · QDADD saturates Rn*2 first and sets Q even when the final sum is in range · [expected.json](games/quayholt/expected.json)
+- `smla9-q-nosat` · SMLAxy overflow sets Q without saturating; SMLALxy does not set Q · [expected.json](games/quayholt/expected.json)
+- `cp15-prev5-bit15` · CP15 control bit 15 set: an ARM9 PC load stays in ARM state · [expected.json](games/quayholt/expected.json)
 
 #### Tonewick · sound and I/O edges
 
