@@ -65,7 +65,9 @@ static void exc_begin(void)
     set_nibble(&ip, 2, 3);
     qy9_set_dperm(dp);
     qy9_set_iperm(ip);
-    volatile u32 *v = (volatile u32 *)0;
+    // The vector words are physical ITCM offset 0, reached through the mirror at 01000000h (region 4): a C pointer
+    // to address 0 is a null dereference the compiler may turn into a trap.
+    volatile u32 *v = (volatile u32 *)0x01000000;
     for (int i = 0; i < 16; i++)
     {
         st_vec[i] = v[i];
@@ -77,8 +79,9 @@ static void exc_begin(void)
 
 static void exc_end(void)
 {
+    qy9_cp15_set(hs);    // regions and permissions as the harness had them (a test may have replaced region 4, the vector words' mirror)
     qy9_set_ctrl(st[QS_CTRL] | (1u << 13));
-    volatile u32 *v = (volatile u32 *)0;
+    volatile u32 *v = (volatile u32 *)0x01000000;
     for (int i = 0; i < 16; i++)
         v[i] = st_vec[i];
     qy9_cp15_set(st);
@@ -139,7 +142,7 @@ void measure_pu(void)
         out[1] = r2;
         out[2] = want;
         raw9(QV_D1, out, 3);
-        qy_res[QV_D1] = (r1 == want && r2 == want) ? QY_GBATEK : QY_OTHER;
+        qy_res[QV_D1] = (r1 == want && r2 == want) ? QY_BOOK : QY_OTHER;
     }
 
     exc_begin();
@@ -162,7 +165,7 @@ void measure_pu(void)
     out[3] = 0;
     raw9(QV_D2, out, 4);
     if (qy_exc_rec.id == 3 && mode() == 0x17 && qy_exc_rec.lr == a + 4)
-        qy_res[QV_D2] = QY_GBATEK;
+        qy_res[QV_D2] = QY_BOOK;
     else if (qy_exc_rec.id == 1)
         qy_res[QV_D2] = QY_ALT2;
     else
@@ -199,7 +202,7 @@ void measure_pu(void)
         out[2] = out[3] = 0;
         raw9(QV_D3, out, 4);
         if (idA == 0 && idB == 4)
-            qy_res[QV_D3] = QY_GBATEK;
+            qy_res[QV_D3] = QY_BOOK;
         else if (idA == 4 && idB == 0)
             qy_res[QV_D3] = QY_ALT2;      // the lower region won
         else
@@ -214,7 +217,7 @@ void measure_pu(void)
     out[3] = 0;
     raw9(QV_D4, out, 4);
     if (qy_exc_rec.id == 4 && mode() == 0x17 && qy_exc_rec.lr == a + 8)
-        qy_res[QV_D4] = QY_GBATEK;
+        qy_res[QV_D4] = QY_BOOK;
     else if (qy_exc_rec.id == 0)
         qy_res[QV_D4] = QY_ALT2;          // no abort at all
     else
@@ -233,7 +236,7 @@ void measure_pu(void)
         out[3] = *(volatile u32 *)qy_win;
         raw9(QV_D5, out, 4);
         if (ud[0] == 0x77665544u && qy_exc_rec.id == 4 && qy_exc_rec.lr == a + 8 && out[3] == 0x77665544u)
-            qy_res[QV_D5] = QY_GBATEK;
+            qy_res[QV_D5] = QY_BOOK;
         else if (qy_exc_rec.id == 2)
             qy_res[QV_D5] = QY_ALT2;      // the write was not refused
         else
@@ -256,7 +259,7 @@ void measure_pu(void)
         out[3] = 0;
         raw9(QV_D6, out, 4);
         if (id == 3 && md == 0x17)
-            qy_res[QV_D6] = QY_GBATEK;
+            qy_res[QV_D6] = QY_BOOK;
         else if (id == 0)
             qy_res[QV_D6] = QY_ALT2;      // the code ran
         else
@@ -312,7 +315,7 @@ void measure_tcm(void)
     qy9_tcm_e1(out);
     raw9(QV_E1, out, 2);
     if (out[0] == 0xB1B2B3B4u && out[1] != 0xB1B2B3B4u)
-        qy_res[QV_E1] = QY_GBATEK;
+        qy_res[QV_E1] = QY_BOOK;
     else if (out[1] == 0xB1B2B3B4u)
         qy_res[QV_E1] = QY_ALT2;          // the DTCM won
     else
@@ -337,7 +340,7 @@ void measure_tcm(void)
         *p = keep;
         out[0] = v;
         raw9(QV_E3, out, 1);
-        qy_res[QV_E3] = (v == 0x1CE10001u) ? QY_ALT2 : QY_GBATEK;
+        qy_res[QV_E3] = (v == 0x1CE10001u) ? QY_ALT2 : QY_BOOK;
     }
 
     // E4: a DMA read of a DTCM address returns the main RAM behind it. A static 16 KB block of main RAM is
@@ -355,7 +358,7 @@ void measure_tcm(void)
         out[0] = qy_dma_dst[0];
         raw9(QV_E4, out, 1);
         if (out[0] == 0x4D41494Eu)
-            qy_res[QV_E4] = QY_GBATEK;    // the main RAM
+            qy_res[QV_E4] = QY_BOOK;    // the main RAM
         else if (out[0] == 0xD7D70001u)
             qy_res[QV_E4] = QY_ALT2;      // the DMA saw the DTCM
         else
@@ -367,7 +370,7 @@ void measure_tcm(void)
         qy9_tcm_e5(out, m, u);
         raw9(QV_E5, out, 2);
         if (out[0] == 0xD7D70001u && out[1] == 0x4D41494Eu)
-            qy_res[QV_E5] = QY_GBATEK;
+            qy_res[QV_E5] = QY_BOOK;
         else if (out[0] == 0xD7D70001u && out[1] == 0xD7D70001u)
             qy_res[QV_E5] = QY_ALT2;      // bit 17 ignored
         else
@@ -378,7 +381,7 @@ void measure_tcm(void)
     qy9_tcm_e6(out);
     raw9(QV_E6, out, 2);
     if (out[0] == 0xD7D70002u && out[1] != 0xD7D70002u)
-        qy_res[QV_E6] = QY_GBATEK;
+        qy_res[QV_E6] = QY_BOOK;
     else if (out[0] == 0xD7D70002u)
         qy_res[QV_E6] = QY_ALT2;          // bit 19 ignored
     else
@@ -392,6 +395,7 @@ void measure_tcm(void)
 // ---------------------------------------------------------------------------------------------------
 // Probes for the game's devices (see measure.h): the same stubs with the player's setup.
 
+// (The probes take the shared WRAM back to the ARM7 and do not take it again: no scene of the game has the ARM9 own it.)
 static u32 probe_begin(void)
 {
     int old = enterCriticalSection();

@@ -18,7 +18,7 @@ test data and compares the raw result with a constant worked out by hand from GB
 A dusk quay with two cranes: an old steam crane (the console's second processor) and a new electric one (the
 main processor). Six piers (loads, blocks, tally, customs, locker, ledger board) of five jobs each. A job names a
 device, the foreman's wanted chalk word and the cranes that may work it; you choose the crane (X) and the setup
-(left/right, L/R for big steps) and lift (A). The hook runs one real instruction (or one real system operation)
+(left/right, L/R for big steps) and lift (A). In piers A and B some jobs may be worked by either crane: only one of them gives the foreman's word, and the job starts on the wrong one. The hook runs one real instruction (or one real system operation)
 on the chosen processor and the game compares two answers: **the book** (the ROM's own model of the documented
 behaviour) and **the crane** (what the console really did). The book alone decides whether the job is balanced, so
 every job can be finished on any emulator; when the crane disagrees, the box is marked **crooked**.

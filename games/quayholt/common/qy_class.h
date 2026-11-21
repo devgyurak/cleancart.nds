@@ -14,14 +14,14 @@
 
 #include <stdint.h>
 
-#define QY_GBATEK 1u
+#define QY_BOOK   1u   // what the documentation (GBATEK) says
 #define QY_ALT2   2u
 #define QY_ALT3   3u
 #define QY_OTHER  0xFFu
 
 static inline uint32_t qy_class(uint32_t v, uint32_t gbatek, uint32_t alt2, uint32_t alt3)
 {
-    return v == gbatek ? QY_GBATEK : v == alt2 ? QY_ALT2 : v == alt3 ? QY_ALT3 : QY_OTHER;
+    return v == gbatek ? QY_BOOK : v == alt2 ? QY_ALT2 : v == alt3 ? QY_ALT3 : QY_OTHER;
 }
 
 #endif // QY_CLASS_H

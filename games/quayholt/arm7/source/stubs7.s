@@ -82,7 +82,7 @@ qy7_b4:
         ldr     r3, [r1]
         str     r3, [r6, #4]
         mvn     r3, #0
-        str     r3, [r1]                @ the Thumb run starts from a clean word again
+        str     r3, [r1]                @ (the Thumb run uses the buffer at +100h)
         add     r2, r1, #0x100
         adr     r3, 1f
         add     r3, r3, #1

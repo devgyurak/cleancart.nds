@@ -67,7 +67,7 @@ void measure_blocks(void)
     leaveCriticalSection(old);
     raw9(QV_B3, out, 4);
     if (out[0] == b + 8 && out[1] == 0xA0000002u && out[2] == b + 4)
-        qy_res[QV_B3] = QY_GBATEK;
+        qy_res[QV_B3] = QY_BOOK;
     else if (out[0] == 0xA0000001u)
         qy_res[QV_B3] = QY_ALT2;      // no writeback (the ARMv4 rule)
     else
@@ -76,7 +76,7 @@ void measure_blocks(void)
     qy_res[QV_B4] = step7(CV_QY_B4);
     qy_res[QV_B5] = step7(CV_QY_B5);
 
-    // B6: STM {..PC} stores the address of the STM + 12 on both CPUs (GBATEK); 2 = +8 on both, 3 = they differ.
+    // B6: STM {..PC} stores the address of the STM + 12 (ARM9: report melonDS#2312 from a console; ARM7: the ARM7TDMI's behaviour, not a GBATEK sentence); 2 = +8 on both, 3 = they differ.
     u32 r7 = step7(CV_QY_B6);
     fill(0, 0, 0, 0);
     old = enterCriticalSection();
@@ -93,7 +93,7 @@ void measure_blocks(void)
     leaveCriticalSection(old);
     raw9(QV_B7, out, 4);
     if (out[0] == b + 0x40 && out[1] == b + 0x100 + 0x40)
-        qy_res[QV_B7] = QY_GBATEK;
+        qy_res[QV_B7] = QY_BOOK;
     else if (out[0] == b && out[1] == b + 0x100)
         qy_res[QV_B7] = QY_ALT2;      // the empty list does nothing
     else
@@ -113,7 +113,7 @@ void measure_alu(void)
     qy9_c2(out);
     leaveCriticalSection(old);
     raw9(QV_C2, out, 4);
-    qy_res[QV_C2] = (out[0] == 0xFFFFFFFFu && out[1] == 1) ? QY_GBATEK : (out[0] == 0x80000000u ? QY_ALT2 : QY_OTHER);
+    qy_res[QV_C2] = (out[0] == 0xFFFFFFFFu && out[1] == 1) ? QY_BOOK : (out[0] == 0x80000000u ? QY_ALT2 : QY_OTHER);
 
     // C3: SMLABB wraps (3FFF0001h + 7FFFFFFFh = BFFF0000h) and sets Q; SMLALBB wraps 64 bits and leaves Q alone.
     old = enterCriticalSection();
@@ -121,7 +121,7 @@ void measure_alu(void)
     leaveCriticalSection(old);
     raw9(QV_C3, out, 4);
     if (out[0] == 0xBFFF0000u && out[1] == 1 && out[2] == 0x80000000u && out[3] == 0)
-        qy_res[QV_C3] = QY_GBATEK;
+        qy_res[QV_C3] = QY_BOOK;
     else if (out[0] == 0x7FFFFFFFu)
         qy_res[QV_C3] = QY_ALT2;      // saturated like QADD
     else if (out[0] == 0xBFFF0000u && out[3] == 1)

@@ -18,7 +18,9 @@ relocate the DTCM for a few microseconds with IRQs masked. They restore everythi
 differently from the emulators could hang there (a power cycle fixes it) or lose the SD log. So run the safe ROMs first:
 
 1. `quayholt-rehearsal.nds` is **not** the first: it includes D and E. Start with `quayholt-l2-loads.nds`, then
-   `l2-blocks`, `l2-alu`, `l2-cache` (all plain user-mode code).
+   `l2-alu`, `l2-cache` (plain user-mode code), and `l2-blocks` after them: its `ldm9-empty` makes the ARM9 execute an
+   empty-list LDM, and a console that reads R15 from an empty list would jump to the fill word and hang (a power cycle
+   fixes it; the other six items of the ROM are plain).
 2. Then `quayholt-l2-tcm.nds`, then `quayholt-l2-pu.nds` (the exception harness).
 3. Then the rehearsal and the auto QA run (`cleancart/quayholt/autoqa`), which also plays all 30 jobs and runs the
    judge suite. Wait for `suite end` in `suite-<stamp>.log` before powering off.
@@ -43,6 +45,8 @@ For each item whose hardware value matches the ROM's expectation change `source`
 (an `unconfirmed` item becomes a gating target). If the hardware disagrees the item is a finding: record the value and
 decide whether the ROM or the expectation is wrong; an item the emulators cannot be made to agree with moves to
 `probes/`. Add a profile `hw-ds-lite` (the failing items) to `known`.
+
+If an F1–F3 value looks odd on the console, suspect first that the replacement (pseudo-random) evicted the tested cache line between the fill and the read: the tests assume the line stays, which holds when the accesses in between hit.
 
 ## Steps
 

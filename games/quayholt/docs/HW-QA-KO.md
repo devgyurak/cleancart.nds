@@ -17,7 +17,9 @@ D, E 부두의 ARM9 측정(`l2-pu`, `l2-tcm`)은 IRQ를 막은 채 몇 마이크
 그래서 안전한 ROM부터 돌립니다:
 
 1. 리허설(`quayholt-rehearsal.nds`)은 D와 E를 포함하므로 **처음이 아닙니다**. `quayholt-l2-loads.nds`로 시작하고, 이어서
-   `l2-blocks`, `l2-alu`, `l2-cache`(모두 평범한 사용자 모드 코드)를 돌립니다.
+   `l2-alu`, `l2-cache`(평범한 사용자 모드 코드)를 돌리고 `l2-blocks`는 그 뒤에 돌립니다. 그 안의 `ldm9-empty`는 ARM9에서 빈 목록
+   LDM을 실행하는데, 콘솔이 빈 목록에서 R15를 읽으면 채움 값으로 뛰어서 멈출 수 있습니다(전원을 다시 켜면 됩니다. ROM의 나머지 여섯
+   항목은 평범합니다).
 2. 그다음 `quayholt-l2-tcm.nds`, 이어서 `quayholt-l2-pu.nds`(예외 하네스).
 3. 마지막으로 리허설과 자동 QA 실행(`cleancart/quayholt/autoqa`). 이 실행은 30개 작업도 모두 풀고 판정 스위트도 돌립니다.
    전원을 끄기 전에 `suite-<stamp>.log`에 `suite end`가 찍힐 때까지 기다립니다.
@@ -41,6 +43,8 @@ D, E 부두의 ARM9 측정(`l2-pu`, `l2-tcm`)은 IRQ를 막은 채 몇 마이크
 실기 값이 ROM의 기대와 같은 항목은 `expected.json`에서 `source`를 `hw:dslite-ntr`로 바꿉니다(`unconfirmed`는 gating target이
 됩니다). 실기가 다르면 발견입니다: 값을 적고 ROM과 기대 중 무엇이 틀렸는지 정합니다. 에뮬레이터를 맞출 수 없는 항목은
 `probes/`로 옮깁니다. `known`에 프로필 `hw-ds-lite`(실패 항목)를 더합니다.
+
+콘솔에서 F1~F3 값이 이상하면, 채우기와 읽기 사이에 (의사 난수) 교체가 시험하던 캐시 줄을 내쫓았는지 먼저 의심하세요. 시험은 줄이 남아 있다고 가정하며, 그 사이 접근이 히트이면 그렇습니다.
 
 ## 순서
 

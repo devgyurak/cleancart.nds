@@ -188,18 +188,19 @@ qy9_ic_inv_all:
 
 @ ---- exception vectors and handlers -----------------------------------------------------------------
 @ The handler records what it found, switches to system mode with IRQ and FIQ masked and jumps to
-@ qy_exc_resume. It uses only the banked SP and R12.
+@ qy_exc_resume. It uses only R12 and the banked LR (rewritten on every exception entry): the banked SPs
+@ of the exception modes are never touched, so the BIOS's own frames on them stay where they are.
         .macro QYH id
-        ldr     sp, =qy_exc_rec
-        str     lr, [sp, #4]
-        mrs     r12, spsr
-        str     r12, [sp, #8]
-        mrs     r12, cpsr
-        str     r12, [sp, #12]
-        mov     r12, #\id
-        str     r12, [sp]
-        ldr     r12, =qy_exc_resume
-        ldr     r12, [r12]
+        ldr     r12, =qy_exc_rec
+        str     lr, [r12, #4]
+        mrs     lr, spsr
+        str     lr, [r12, #8]
+        mrs     lr, cpsr
+        str     lr, [r12, #12]
+        mov     lr, #\id
+        str     lr, [r12]
+        ldr     lr, =qy_exc_resume
+        ldr     r12, [lr]
         msr     cpsr_c, #0xDF
         bx      r12
         .ltorg
