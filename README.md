@@ -52,7 +52,7 @@ A collection of homebrew games for emulator developers to develop against and ve
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere title screen"> | Punch-card loom puzzle in five chapters (40 orders): punch the cards of a four-row tapestry; the cloth is woven by per-line raster writes and the loom runs geometry commands whose cycle costs set the motor budget. It judges itself with a rehearsal ROM.<br>Tests (L3, 3D engine and scanline timing): line and frame length, the HBlank and VBlank flags, VCOUNT writes, geometry command cycle costs, FIFO stall and half-empty IRQ, polygon RAM swap line, texture quiet lines. | automatic (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 target 15 · prerequisite 11<!-- /cell --> | [README](games/heddlemere/README.md) · [QA checklist](games/heddlemere/docs/QA.md) · [Hardware QA](games/heddlemere/docs/HW-QA.md) · [Assets](games/heddlemere/ASSETS.md) |
 | [Pendulane](games/pendulane/) | Automaton-workshop puzzle: set the order of a device's stations so that its measured run time falls exactly on the pendulum's swing. It judges itself with a rehearsal ROM.<br>Tests (L3, CPU, bus and sound timing): hardware divide and square root busy times (in progress; SPI, ARM7 memory, cartridge gap and sound start timing follow). | automatic (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 target 16 · prerequisite 8<!-- /cell --> | [README](games/pendulane/README.md) · [QA checklist](games/pendulane/docs/QA.md) · [Hardware QA](games/pendulane/docs/HW-QA.md) · [Assets](games/pendulane/ASSETS.md) |
 | [Buoyane](games/buoyane/) | Night-harbour approach game: steer a small boat in by reading how the lights look. It judges itself with a rehearsal ROM and five check ROMs.<br>Tests (L2, 3D rendering edges): polygon rules (1-dot polygons, depth Equal, far plane, attribute latching), texture blending (highlight, decal, wireframe) and the fog, edge-marking and anti-aliasing post-pass. | automatic (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 target 20 · prerequisite 11<!-- /cell --> | [README](games/buoyane/README.md) · [Assets](games/buoyane/ASSETS.md) |
-| [Quayholt](games/quayholt/) | Two-crane harbour puzzle: shift cargo with an old steam crane and a new electric one and watch them handle the same job differently. It judges itself with a rehearsal ROM and per-pier check ROMs.<br>Tests (L2, ARM core edges): ARM7 and ARM9 load/store-multiple, odd-address halfword, PC-offset, saturating and multiply edges, and the ARM9 CP15 control register (protection unit, tightly coupled memory, caches). | automatic (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 target 26 · prerequisite 9<!-- /cell --> | [README](games/quayholt/README.md) · [Assets](games/quayholt/ASSETS.md) |
+| [Quayholt](games/quayholt/) | Two-crane harbour puzzle: shift cargo with an old steam crane and a new electric one and watch them handle the same job differently. It judges itself with a rehearsal ROM and per-pier check ROMs.<br>Tests (L2, ARM core edges): ARM7 and ARM9 load/store-multiple, odd-address halfword, PC-offset, saturating and multiply edges, and the ARM9 CP15 control register (protection unit, tightly coupled memory, caches). | automatic (`judge.py`, `expected.json`) | <!-- cell:quayholt -->L2 target 30 · prerequisite 10<!-- /cell --> | [README](games/quayholt/README.md) · [Assets](games/quayholt/ASSETS.md) |
 
 Each game lives in its own folder with its own build, docs and licence files.
 
@@ -253,7 +253,7 @@ target 30 · prerequisite 1
 
 </details>
 
-<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (113 target items)</summary>
+<details><summary><b>L2 Edge</b> · Buoyane, Ledgerine, Lightenette, Quayholt, Tonewick (117 target items)</summary>
 
 #### Buoyane · 3D rendering edges: polygon rules, texture blending and the fog/edge/anti-aliasing post-pass
 
@@ -342,7 +342,7 @@ target 19 · prerequisite 18
 
 #### Quayholt · ARM core edges: ARM9/ARM7 instruction edges and the ARM9 CP15 (protection unit, TCM, caches)
 
-target 26 · prerequisite 9
+target 30 · prerequisite 10
 
 - `ldrh7-odd` · ARM7 LDRH [odd] reads the halfword at odd-1 and rotates it right by 8 · [expected.json](games/quayholt/expected.json)
 - `ldrsh7-odd` · ARM7 LDRSH [odd] acts like LDRSB [odd]: the byte at the address, sign-extended · [expected.json](games/quayholt/expected.json)
@@ -370,6 +370,10 @@ target 26 · prerequisite 9
 - `tcm-dma-bus` · A DMA read of a DTCM address returns the main RAM behind it · [expected.json](games/quayholt/expected.json)
 - `dtcm-load-mode` · Control bit 17 (DTCM load mode): reads of the DTCM go to the bus behind, writes still reach it _(informational)_ · [expected.json](games/quayholt/expected.json)
 - `itcm-load-mode` · Control bit 19 (ITCM load mode): reads of the ITCM region do not return the ITCM word _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `dcache-dma-stale` · A DMA write behind a cached line leaves the cached (old) word visible to the CPU _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `dcache-wb-dirty` · A write to a cached line stays in the cache (write-back): a DMA read of the memory sees the old word _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `dcache-inval-drop` · Invalidating a dirty line without cleaning it drops the written word _(informational)_ · [expected.json](games/quayholt/expected.json)
+- `icache-stale` · Rewritten code keeps running in its old form until the instruction cache is invalidated _(informational)_ · [expected.json](games/quayholt/expected.json)
 
 #### Tonewick · sound and I/O edges
 

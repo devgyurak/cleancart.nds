@@ -24,4 +24,7 @@ void measure_pu(void);
 // Pier E: tightly coupled memory (DTCM / ITCM size, overlap, mirrors, DMA view, load modes).
 void measure_tcm(void);
 
+// Pier F: the data and instruction caches (write-back lines, DMA staleness, invalidate, instruction coherence).
+void measure_cache(void);
+
 #endif // QY_MEASURE_H

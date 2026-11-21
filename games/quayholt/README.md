@@ -3,8 +3,8 @@
 [한국어](README-KO.md)
 
 An original two-crane harbour puzzle for the Nintendo DS, and a self-judging test ROM for emulator developers.
-Status: **measurement harness in place** (loads, blocks, tally, customs and locker piers, rehearsal, judge); the
-ledger-board (cache) pier and the harbour game itself follow.
+Status: **measurement harness complete** (loads, blocks, tally, customs, locker and ledger-board piers, rehearsal, judge);
+the harbour game itself follows.
 
 Target level **L2**, area **ARM core edges**: ARM9 (v5TE) and ARM7 (v4T) instruction edges and the ARM9 CP15
 (protection unit, tightly coupled memory, caches). Each judged item runs one instruction or CP15 operation on fixed
@@ -20,10 +20,11 @@ test data and compares the raw result with a constant worked out by hand from GB
 | C tally | `alu7-rn-pc12`, `qdadd9-dbl-sat`, `smla9-q-nosat`, `cp15-prev5-bit15` |
 | D customs | `cp15-ctrl-bits`, `bkpt9-pabt`, `pu-priority`, `pu-background`, `pu-user-ro`, `pu-code-xn` |
 | E locker | `itcm-over-dtcm`, `dtcm-mirror`, `itcm-size`, `tcm-dma-bus`, `dtcm-load-mode` (unconfirmed), `itcm-load-mode` (unconfirmed) |
+| F ledger board | `dcache-dma-stale`, `dcache-wb-dirty`, `dcache-inval-drop`, `icache-stale` (all unconfirmed: cache behaviour has no hardware evidence yet) |
 
 Prerequisites (L1): aligned LDR/STR words, plain LDM/STM in ARM and Thumb state, an ARM7 that answers a
 measurement step over the FIFO, an exception harness that catches SWI and undefined instructions, a read/write
-protection region, a DTCM that reads back what was written, and a main-RAM DMA copy. Unconfirmed items have no hardware evidence yet; they are informational until a
+protection region, a DTCM that reads back what was written, a main-RAM DMA copy, and cache control bits that can be cleared and set. Unconfirmed items have no hardware evidence yet; they are informational until a
 DS Lite run agrees ([docs/QA.md](docs/QA.md)).
 
 ## Build and judge

@@ -33,10 +33,12 @@ void rehearsal_measure(u32 mask)
         measure_pu();
     if (mask & QD_TCM)
         measure_tcm();
+    if (mask & QD_CACHE)
+        measure_cache();
 }
 
 // Every pier the current build can measure; grows with the piers.
-#define QY_BUILT_PIERS (QD_LOADS | QD_BLOCKS | QD_ALU | QD_PU | QD_TCM)
+#define QY_BUILT_PIERS (QD_LOADS | QD_BLOCKS | QD_ALU | QD_PU | QD_TCM | QD_CACHE)
 
 static void show(void)
 {

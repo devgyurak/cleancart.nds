@@ -56,7 +56,7 @@ NITRO    := build/nitrofs
 STAMP    := $(GEN)/.stamp
 
 # Demo ROMs: the judge scene as its own ROM (names: arm9/source/demo/demo.c).
-DEMOS := rehearsal l2-loads l2-blocks l2-alu l2-pu l2-tcm
+DEMOS := rehearsal l2-loads l2-blocks l2-alu l2-pu l2-tcm l2-cache
 
 # Compiler flags shared by both CPUs.
 SAVE_DEF := $(if $(filter flash,$(SAVE)),2,$(if $(filter fram,$(SAVE)),3,1))
