@@ -4,7 +4,7 @@
 # Push a tag named <game>-v<version> (e.g. corvane-v0.1.0) to build that game's
 # folder in its pinned BlocksDS container (games/<game>/build.sh release) and upload
 # the ROMs as workflow artifacts. The research probes are not a game: tag
-# probes-v<version> builds probes/build.sh release (no rom folder, only demos and judge).
+# probes-v<version> builds probes/build.sh release (rom/ holds only the hardware-support copies of the probe ROMs, plus demos and judge).
 #   <tag>        build/release/rom   (main ROM, variants, licence texts, SHA256SUMS)
 #   <tag>-demos  build/release/demos (optional, same layout)
 #   <tag>-judge  build/release/judge (optional: emulator-test kit with the rehearsal
@@ -88,7 +88,7 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.tag.outputs.dir }}/build/release/rom/
-          # the probes have no main ROM, only demos and judge
+          # the probes have no main ROM: rom/ holds the hardware-support copies of the probe ROMs
           if-no-files-found: ${{ steps.tag.outputs.game == 'probes' && 'ignore' || 'error' }}
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

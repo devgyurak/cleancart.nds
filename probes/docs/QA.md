@@ -7,7 +7,7 @@ measured table) and what each ROM should show on screen.
 
 ## Rules shared by all probe ROMs
 
-- Build: `./build.sh DEMO=l4-<name>` gives `probes-l4-<name>.nds` (`./build.sh` for all 18; `./build.sh -j8 release` for the release folders).
+- Build: `./build.sh DEMO=l4-<name>` gives `probes-l4-<name>.nds` (`./build.sh` for all 19; `./build.sh -j8 release` for the release folders).
 - Screen: the probe name and results appear on a text BG console (3D probes use a BG1 console on the main screen).
 - Checkpoint: 120 frames after start the screen is complete and `CHECKPOINT` lines are printed. The same values are
   written to main RAM at `0x0237F000` (`u32 magic 'CVER'`, `u32 FNV-1a of the demo name`, `u32 frame`, `u32 values[13]`).
@@ -52,7 +52,8 @@ the only ones inspected by eye: the melonDS runs were compared by their result b
 | l4-acc-split-hdma | the same with an HBlank DMA from the capture bank into engine B's bitmap BG | latency, variant, split x, frames with holes | `1 6 56 0` (master GL/Compute `1 6 56 808`: 8 + 8 frames with holes, 2056 hole pixels) |
 | l4-vcount-write | console lines `WRITE <value> AT <line>: <n> LINES, RES <r>/16` (VCOUNT writes at 212, 205, 212 and 100 against a frame without a write, means of 8 frames with a dithered poll delay; the probe finishes as soon as it is done (frame 3), not at frame 120; a write at line 100 may tear the picture of that frame on a console) | lines of the four cases, then the signed residual x16 of each (0xFFFF when no whole line was added) and the frame length in values[4..8] | `11 4 3 51` (residual about 0 cycles) |
 | l4-tex-late | console lines `WRITE AT <line>: <n> NOT NEW` (a full-screen textured quad whose palette entry is rewritten at that line after the swap, interrupts off; one captured column) | lines that do not show the new colour for writes at 200, 213, 214, 216, then 192, 230, 250 in values[4..6] and 215 in values[8] | `0 0 0 192` |
-| l4-3d-fog-dot | console lines `FOG START`, `BORDER`, `AA LINES` (six captures of the 3D layer: fog boundary, FOG_SHIFT 11, screen-border edge marking, a queued 1-dot, anti-aliased lines, depth Equal one step from the base) | fog start, its two colours, FOG_SHIFT 11 bits, its colours | `0 7fe07fe0 7 7fe0001f` (values[4..7]: border `280003ff`... see the measured table) |
+| l4-3d-fog-dot | console lines `FOG START`, `BORDER`, `AA LINES` (six captures of the 3D layer: fog boundary, FOG_SHIFT 11, screen-border edge marking, a queued 1-dot, anti-aliased lines, depth Equal one step from the base; then one more capture, fog on the alpha only through a BG0 blend, `FOG ALPHA`) | fog start, its two colours, FOG_SHIFT 11 bits, its colours | `0 7fe07fe0 7 7fe0001f` (values[4..7]: border `280003ff`... see the measured table) |
+| l4-3d-zeq-slope | console lines `BAND <left>..<right>`, `DECAL HOLES <n>` (one capture of the 3D layer: Buoyane's depth scene, a z 3..9 slope drawn Equal over a flat base at z 6, and a decal slope over a slanted floor) | band left end, right end, decal holes | `69 98 0` hex (105, 152, 0; soft) |
 | l4-acc-rear-plane | the same two-pass scheme with the rear plane (stands for Elevane preset 2); the rear plane is set up first, then the opaque samples of the captured pass are counted (4096 = both halves) | latency, variant, split x, 0, opaque samples, left half, right half (values[4..6]) | `1 7 56 0`, `1000 800 800` (soft, DeSmuME); GL: `580 580 0` |
 
 ## Measured table (2026-11-12)
@@ -103,6 +104,10 @@ observation (what the emulators gave when the probe was written, or the value th
 | `dot-queued-cutoff` | l4-3d-fog-dot | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 1 |
 | `aa-line-pixels` | l4-3d-fog-dot | 12583104 | 12583104 | 0 | 12583104 | 12583104 | 0 | 12583104 | 0 |
 | `zeq-step-boundary` | l4-3d-fog-dot | 0 | 67109888 | 1024 | 67109888 | 67109888 | 1024 | 67109888 | 0 |
+| `fog-alpha-glitch` | l4-3d-fog-dot | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `zeq-slope-band-left` | l4-3d-zeq-slope | 101..107 | 105 | 32 | 105 | 105 | 32 | 105 | 118 |
+| `zeq-slope-band-right` | l4-3d-zeq-slope | 149..155 | 152 | 127 | 152 | 152 | 127 | 152 | 141 |
+| `zeq-slope-decal-holes` | l4-3d-zeq-slope | 0 | 0 | 1920 | 0 | 0 | 1920 | 0 | 2120 |
 
 What differs between the emulators:
 
@@ -119,6 +124,7 @@ What differs between the emulators:
   read 653 (`sys-dma-disp-pixels`) and 768 (`2d-display-pixels`) wrong samples of the main-memory display FIFO where 1.1 reads 0.
 - **All seven** keep the last OBJ group on a line of 120 sprites (`2d-obj-line-budget` 3: no emulator drops sprites at the
   per-line budget, and nobody has measured where a console does).
+- **Equal on slopes and the fog alpha glitch** (`l4-3d-zeq-slope` and `fog-alpha-glitch` of `l4-3d-fog-dot`, measured 2026-11-21, the scenes Buoyane's hardware runs measured; the console values are Buoyane's, not these ROMs'): melonDS software and GL compute, 1.1 and master, put the band at 105..152 with no decal holes, as in Buoyane; GL classic draws the band over 32..127 and leaves 1920 decal pixels out; DeSmuME gives 118..141 and 2120. No profile shows the fog alpha glitch (0 everywhere, like the console in Buoyane's scene). Buoyane's hardware observation: band 109..159, 960 holes, no glitch.
 - **VCOUNT writes** (`l4-vcount-write`, measured 2026-11-16, new probes for Heddlemere's review): every melonDS profile applies a write wherever it is made: 202 at line 212 repeats 11 lines, 202 at 205 four, 210 at 212 three, and 50 at line 100, outside the 202..212 range GBATEK allows, 51 lines (the model without a range). DeSmuME ignores all four writes (0 lines). **Texture palette written late** (`l4-tex-late`): melonDS (all profiles) shows a write made up to line 215 and loses one made from line 216 on completely (192 old lines), with no partial case in between; DeSmuME shows the new colour for every line, so it reads the palette after the last write we make.
 - Everything else (polygon counts, `BOX_TEST`/`POS_TEST`/`VEC_TEST` results, front/plan views, rear-plane latency 1) is the same
   on all melonDS profiles; the 3D-test values match DeSmuME too except `vec-z`. Frame latency is 1 everywhere since the

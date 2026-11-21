@@ -4,7 +4,7 @@
 
 에뮬레이터 개발자를 위한 연구용 probe 모음입니다. **실기에서 확인된 적 없는 동작**(레벨 L4,
 [../docs/LEVELS-KO.md](../docs/LEVELS-KO.md))을 에뮬레이터가 어떻게 처리하는지 보고하는 작은
-닌텐도 DS 데모 ROM 18개입니다. 게임이 아닙니다. 타이틀도, 크레딧도, QA 모드도 없고, 120프레임 동안
+닌텐도 DS 데모 ROM 19개입니다. 게임이 아닙니다. 타이틀도, 크레딧도, QA 모드도 없고, 120프레임 동안
 돌면서 결과 블록을 쓰고 화면을 그대로 유지하는 ROM뿐입니다.
 
 용도: 각 probe는 GBATEK에 없거나 틀리게 적힌 동작에 대해 에뮬레이터가 내는 값을 기록합니다(폴리곤 RAM 개수,
@@ -30,7 +30,8 @@
 | `probes-l4-acc-split-hdma` | `acc-split-hdma-holes` | HBlank DMA 합성의 구멍(melonDS#2618. Elevane에서는 L3 목표로 판정하고, 여기서는 master까지 기록) |
 | `probes-l4-acc-split-rear` | `rear-plane-latency` | 같은 화면 2패스의 rear plane 변형: rear plane을 설정하기 전에 잰 라우팅 지연(Elevane에서는 L2 전제 조건) |
 | `probes-l4-acc-rear-plane` | `rear-plane`, `rear-plane-full` | 패스의 캡처를 3D rear plane으로 되돌리는 방식(먼저 설정): 캡처된 패스의 불투명 픽셀(일부 / 4096 전부) |
-| `probes-l4-3d-fog-dot` | `fog-boundary-start`, `fog-shift-11`, `edge-screen-border`, `poly-right-edge-pixel`, `dot-queued-cutoff`, `aa-line-pixels`, `zeq-step-boundary` | GBATEK이 느슨하게 적은 fog·edge·1-dot 모서리(첫 fog 경계의 위치, FOG_SHIFT 11, 화면 경계의 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선 픽셀, 깊이 Equal 경계 단계). Buoyane(games/buoyane)에서 옮겨 온 것으로, Buoyane은 GBATEK이 정해 둔 것만 판정합니다 |
+| `probes-l4-3d-fog-dot` | `fog-boundary-start`, `fog-shift-11`, `edge-screen-border`, `poly-right-edge-pixel`, `dot-queued-cutoff`, `aa-line-pixels`, `zeq-step-boundary`, `fog-alpha-glitch` | GBATEK이 느슨하게 적은 fog·edge·1-dot 모서리(첫 fog 경계의 위치, FOG_SHIFT 11, 화면 경계의 edge marking, 큐에 쌓인 1-dot, 안티앨리어싱 선 픽셀, 깊이 Equal 경계 단계). Buoyane(games/buoyane)에서 옮겨 온 것으로, Buoyane은 GBATEK이 정해 둔 것만 판정합니다. `fog-alpha-glitch`는 알파에만 거는 fog를 BG0 블렌드 뒤에서 보는 항목입니다(Buoyane 실기에서는 글리치가 안 나타남) |
+| `probes-l4-3d-zeq-slope` | `zeq-slope-band-left`, `zeq-slope-band-right`, `zeq-slope-decal-holes` | 경사면의 깊이 Equal. Buoyane 실기가 잰 장면(같은 좌표, 같은 raw z)입니다. 평평한 바닥 위에 Equal로 그린 경사면 띠가 어디서 시작해 어디서 끝나는지, 기울어진 바닥 위 데칼 경사면에서 몇 픽셀이 테스트에 실패하는지 잽니다(실기에서는 띠가 에뮬레이터보다 4, 7픽셀 오른쪽이고 구멍이 960픽셀이었는데, 그 값은 Buoyane에서 잰 것이고 이 ROM으로 잰 것이 아닙니다) |
 | `probes-l4-2d-obj-line` | `2d-obj-line-budget` | 한 줄에 스프라이트 120개: 마지막 그룹이 버려지는가 |
 | `probes-l4-sys-dma-disp` | `sys-dma-disp-pixels` | 캡처 소스 B로 본 메인 메모리 디스플레이 FIFO |
 | `probes-l4-2d-display` | `2d-display-pixels` | 같은 것을 VRAM 디스플레이 프레임 뒤에 확인 |
@@ -60,7 +61,7 @@ Lightenette의 이음선 항목은 그 게임의 막(act)에서 나오는 값이
 ## 빌드와 사용
 
 ```sh
-./build.sh -j8 release          # build/release/demos(ROM 18개)와 build/release/judge(expected.json + judge.py)
+./build.sh -j8 release          # build/release/demos(ROM 19개), build/release/rom(같은 19개의 `*-hw-support.nds`, docs/HW-QA-KO.md 참조), build/release/judge(expected.json + judge.py)
 tools/melonds/mds.sh demos probes/build/release/demos > probes.log        # 헤드리스 melonDS (RENDERER=soft|gl|compute)
 RESULT_WORDS=16 tools/emu/emu.sh demos probes > probes.log                # 헤드리스 DeSmuME
 python3 probes/tools/judge.py probes.log                                 # 값 출력(참고용, 종료 코드 0)
