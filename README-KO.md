@@ -32,26 +32,50 @@
   실패한 항목으로 드러납니다.
 - **CI에서 그대로 사용.** `judge.py`가 종료 코드를 돌려주고, 렌더러별 known 프로필이 새로 생긴
   차이와 이미 알려진 차이를 구분해 줍니다. 판정하는 모든 항목에는 L1 기능부터 L4 연구까지 난이도 레벨이 있고, 게임마다 목표 레벨이 하나 있습니다
-  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick, L3 Elevane·Heddlemere·Pendulane, L4 [연구용 probe 모음](probes/)(게임이 아님).
+  ([docs/LEVELS-KO.md](docs/LEVELS-KO.md)): L1 Corvane·Hushwell·Paneveil, L2 Lightenette·Ledgerine·Tonewick·Buoyane, L3 Elevane·Heddlemere·Pendulane, L4 [연구용 probe 모음](probes/)(게임이 아님).
 - **콘솔에서 확인함.** 모든 게임을 DS Lite에서 돌렸습니다. 콘솔이 GBATEK과 달랐던 것, GBATEK이 맞고 에뮬레이터가
   달랐던 것은 [docs/HW-FINDINGS-KO.md](docs/HW-FINDINGS-KO.md)에 모았습니다.
+  범위(2026-11-23, `expected.json` 10개에서 센 값): 판정 항목 376개 중 GBATEK 근거 260개, ROM 자체 논리 80개,
+  DS Lite 실측값(`hw:dslite-ntr`) 17개, 서드파티 이슈 보고 3개, 미확정 16개(참고용, 그중 12개가 Elevane)입니다.
+  376개 중 22개는 `env` 항목이라 실기 런에서는 해당 없음입니다(20개는 세이브 칩이나 카트리지 접근, 2개는 테스트 하니스가 넣는 입력이 필요). Hushwell 16, Tonewick 3, Pendulane 3.
+  콘솔은 DS Lite(NTR) 1대와 R4 Plus(Wood) 카드 1종, 에뮬레이터는 melonDS 1.1과 DeSmuME(py-desmume 0.0.9)입니다.
+  다른 기종의 결과나 기대값에 대한 이의는 *Bug report or question* 이슈로 받습니다([CONTRIBUTING-KO.md](CONTRIBUTING-KO.md)).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
   또는 고지한 서드파티 런타임 라이브러리입니다. 테스트 스위트에서 뺄 것이 없습니다.
+
+Claude Code와 함께 만들었습니다. 기대값의 근거는 GBATEK 또는 DS Lite 실기 런이며, 모델이 정한 값이 아닙니다.
+
+## 에뮬레이터 테스트로 쓰기
+
+1. [Releases](https://github.com/devgyurak/cleancart.nds/releases)에서 `<game>-v<x.y.z>-judge.zip`을 받습니다. 한 버전의 리허설 ROM, `expected.json`, `judge.py`가 들어 있습니다.
+2. 리허설 ROM을 쓰는 에뮬레이터에서 헤드리스로 정해진 프레임 수만큼 실행하고, 메인 RAM(`0x0237F000`)의 결과 블록을 덤프합니다.
+3. 덤프를 로그 파일에 씁니다. `judge.py`는 `RESULT w0 w1 … w63`(16진 워드 64개) 또는 `PEEK 0237f000 b0 b1 …`(16진 바이트, 리틀 엔디언, 256개 이상) 한 줄을 읽고, 다른 줄은 무시합니다.
+4. `judge.py <log>`로 채점합니다. 게이팅 항목이 모두 OK면 종료 코드 0, 실패한 항목이 있으면 1, 쓸 만한 결과가 없으면 2입니다.
+5. `--profile NAME`을 주면 실패한 항목이 그 에뮬레이터의 known 차이와 정확히 같을 때만 0으로 끝납니다.
+
+```sh
+tools/melonds/mds.sh run games/lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log
+python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log
+```
+
+위 예시는 저장소 checkout에서 우리 헤드리스 melonDS 러너(`tools/melonds/mds.sh`)로 돌린 것입니다. 릴리스 키트로 쓸 때는 그 줄을 쓰는 에뮬레이터의 덤프로 바꾸고, 압축을 푼 폴더에서 `judge.py`를 실행하세요. Lightenette의 실행이며, ROM 이름, 프레임 수, 블록 크기는 게임마다 다르므로 각 게임의
+"에뮬레이터 테스트로 쓰기" 절을 따르세요(예: [Lightenette](games/lightenette/README-KO.md#에뮬레이터-테스트로-쓰기), [Pendulane](games/pendulane/README-KO.md#에뮬레이터-테스트로-쓰기)).
+Heddlemere의 리허설은 [README](games/heddlemere/README-KO.md)에 있습니다.
 
 ## 게임
 
 | 게임 | 설명과 시험하는 것 | 판정 | 레벨 | 문서 |
 |---|---|---|---|---|
-| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 표시 제어·상태(지오메트리·텍스처는 Paneveil 담당), DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
-| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
-| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 19 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
+| [Corvane](games/corvane/)<br><img src="games/corvane/docs/images/title.png" width="192" alt="Corvane 타이틀 화면"> | 다섯 전선을 돌파하는 3D 호버 슈팅. 위 화면은 3D 전장, 아래 화면은 레이더와 터치 락온.<br>시험(L1, 그래픽·시스템): 2D 엔진, 3D 표시 제어·상태(지오메트리·텍스처는 Paneveil 담당), DMA, 타이머, 인터럽트, IPC, BIOS·수학, 디스플레이 캡처. | 자동, 데모 49개 전부(`judge.py`, `expected.json`) | <!-- cell:corvane -->L1 목표 93 · 전제 조건 0<!-- /cell --> | [README](games/corvane/README-KO.md) · [QA 체크리스트](games/corvane/docs/QA-KO.md) · [실기 QA](games/corvane/docs/HW-QA-KO.md) · [에셋](games/corvane/ASSETS-KO.md) |
+| [Hushwell](games/hushwell/)<br><img src="games/hushwell/docs/images/title.png" width="192" alt="Hushwell 타이틀 화면"> | 우물 위에 지은 요양원의 1인칭 서바이벌 호러. 위 화면은 손전등 시점, 아래 화면은 손으로 그린 지도와 녹음기, 그리고 소리로 사냥하는 그것.<br>시험(L1, 소리·입출력): ARM7 사운드 채널, PSG 파형 녹음, 사운드 캡처·스트리밍, 키·터치 입력, 카트·세이브 칩, RTC, 펌웨어 설정, 덮개. | 자동: 데모 ROM 66개 중 소리·입출력 19개(나머지는 Corvane 영역)와 QA 실행(`judge.py`, `expected.json`) | <!-- cell:hushwell -->L1 목표 41 · 전제 조건 4<!-- /cell --> | [README](games/hushwell/README-KO.md) · [QA 체크리스트](games/hushwell/docs/QA-KO.md) · [실기 QA](games/hushwell/docs/HW-QA-KO.md) · [에셋](games/hushwell/ASSETS-KO.md) |
+| [Lightenette](games/lightenette/)<br><img src="games/lightenette/docs/images/title.png" width="192" alt="Lightenette 타이틀 화면"> | 5막으로 된 등불과 마리오네트 퍼즐 액션. ROM이 자기 화면의 픽셀 수를 세어 스스로 판정합니다.<br>시험: 디스플레이 캡처, 반투명 OBJ 블렌딩, 마스터 밝기, 3D 텍스처 좌표, 에지 마킹, 선 폴리곤. | 자동(`judge.py`, `expected.json`) | <!-- cell:lightenette -->L2 목표 19 · 전제 조건 18<!-- /cell --> | [README](games/lightenette/README-KO.md) · [QA 체크리스트](games/lightenette/docs/QA-KO.md) · [실기 QA](games/lightenette/docs/HW-QA-KO.md) · [에셋](games/lightenette/ASSETS-KO.md) |
 | [Elevane](games/elevane/)<br><img src="games/elevane/docs/images/title.png" width="192" alt="Elevane 타이틀 화면"> | 다섯 장(주문서 40개)의 복셀 실루엣 퍼즐. 두 화면 모두 디스플레이 캡처로 3D이며, 리허설 ROM으로 스스로 판정합니다.<br>시험: 양쪽 화면의 3D 디스플레이 캡처, HBlank DMA 합성, 뒷면(rear plane), 지오메트리·폴리곤 한계. | 자동(`judge.py`, `expected.json`) | <!-- cell:elevane -->L3 목표 3 · 전제 조건 17<!-- /cell --> | [README](games/elevane/README-KO.md) · [QA 점검표](games/elevane/docs/QA-KO.md) · [실기 QA](games/elevane/docs/HW-QA-KO.md) · [에셋](games/elevane/ASSETS-KO.md) |
 | [Paneveil](games/paneveil/)<br><img src="games/paneveil/docs/images/title.png" width="192" alt="Paneveil 타이틀 화면"> | 다섯 장(창 주문서 30개)의 스테인드글라스 공방 퍼즐. 주문서대로 창의 유리·문양·장미창을 맞춘 뒤 가마에 굽습니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L1, 3D 지오메트리·텍스처): 행렬 스택, 행렬 load/multiply, 지오메트리 명령, 폴리곤 속성, 텍스처 속성·좌표. | 자동(`judge.py`, `expected.json`) | <!-- cell:paneveil -->L1 목표 30 · 전제 조건 1<!-- /cell --> | [README](games/paneveil/README-KO.md) · [QA 점검표](games/paneveil/docs/QA-KO.md) · [실기 QA](games/paneveil/docs/HW-QA-KO.md) · [에셋](games/paneveil/ASSETS-KO.md) |
-| [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 31 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
+| [Ledgerine](games/ledgerine/)<br><img src="games/ledgerine/docs/images/title.png" width="192" alt="Ledgerine 타이틀 화면"> | 방 여섯 개의 기계실 장부 퍼즐. 압착기, 기송관, 시계벽, 벨트, 금고, 규칙서의 다이얼을 맞추고 레버를 당기면 실제 하드웨어 장치가 돌아가 그 결과가 장부에 적힙니다. 리허설 ROM으로 스스로 판정합니다.<br>시험(L2, 시스템 경계): 수학 장치, IPC FIFO, 타이머, DMA, WRAM·VRAM 제어, BIOS의 예외·경계값·에러 경로. | 자동(`judge.py`, `expected.json`) | <!-- cell:ledgerine -->L2 목표 31 · 전제 조건 11<!-- /cell --> | [README](games/ledgerine/README-KO.md) · [QA 점검표](games/ledgerine/docs/QA-KO.md) · [실기 QA](games/ledgerine/docs/HW-QA-KO.md) · [에셋](games/ledgerine/ASSETS-KO.md) |
 | [Tonewick](games/tonewick/)<br><img src="games/tonewick/docs/images/title.png" width="192" alt="Tonewick 타이틀 화면"> | 네 지역의 청음 퍼즐(신호선 12개): 오실로스코프로 감청소의 끊긴 신호선을 고칩니다. 신호선 하나는 사운드 블록의 레지스터 필드 하나이고, ROM은 캡처 유닛으로 자기 소리를 직접 듣습니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L2, 소리·입출력 경계): 사운드 채널과 캡처 유닛의 경계값·문서화된 버그, 그리고 RTC, 전원관리, 세이브 칩, 펌웨어 사용자 설정. | 자동 (`judge.py`, `expected.json`) | <!-- cell:tonewick -->L2 목표 17 · 전제 조건 10<!-- /cell --> | [README](games/tonewick/README-KO.md) · [QA 점검표](games/tonewick/docs/QA-KO.md) · [실기 QA](games/tonewick/docs/HW-QA-KO.md) · [에셋](games/tonewick/ASSETS-KO.md) |
 | [Heddlemere](games/heddlemere/)<br><img src="games/heddlemere/docs/images/title.png" width="192" alt="Heddlemere 타이틀 화면"> | 다섯 장(주문서 40개)의 펀치카드 베틀 퍼즐: 네 줄짜리 태피스트리의 카드를 뚫습니다. 천은 라인별 래스터 쓰기로 짜이고, 베틀은 지오메트리 명령을 돌리며 그 사이클 비용이 모터 예산을 정합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, 3D 엔진과 스캔라인 타이밍): 라인·프레임 길이, HBlank·VBlank 플래그, VCOUNT 쓰기, 지오메트리 명령 사이클 비용, FIFO 정지와 절반 비움 IRQ, 폴리곤 RAM 교체 라인, 텍스처 조용한 라인. | 자동 (`judge.py`, `expected.json`) | <!-- cell:heddlemere -->L3 목표 15 · 전제 조건 11<!-- /cell --> | [README](games/heddlemere/README-KO.md) · [QA 점검표](games/heddlemere/docs/QA-KO.md) · [실기 QA](games/heddlemere/docs/HW-QA-KO.md) · [에셋](games/heddlemere/ASSETS-KO.md) |
-| [Pendulane](games/pendulane/) | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간 (진행 중; SPI, ARM7 메모리, 카트 gap, 사운드 시작 지연이 이어집니다). | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 8<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
-| [Buoyane](games/buoyane/) | 밤 항구 접근 게임: 작은 배를 몰며 불빛이 어떻게 보이는지 읽어 항구로 들어갑니다. 리허설 ROM과 확인 ROM 다섯 개로 스스로를 판정합니다.<br>검사 (L2, 3D 렌더링 가장자리): 폴리곤 규칙(1-dot 폴리곤, 깊이 Equal, far plane, 속성 래치), 텍스처 블렌딩(highlight, decal, 와이어프레임), fog·edge·안티앨리어싱 후처리. | 자동 (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 목표 20 · 전제 조건 11<!-- /cell --> | [README](games/buoyane/README-KO.md) · [에셋](games/buoyane/ASSETS-KO.md) |
+| [Pendulane](games/pendulane/)<br><img src="games/pendulane/docs/images/title.png" width="192" alt="Pendulane 타이틀 화면"> | 자동인형 공방 퍼즐: 장치의 역 순서를 골라, 실제로 잰 실행 시간이 진자의 흔들림에 정확히 떨어지게 합니다. 리허설 ROM으로 스스로를 판정합니다.<br>검사 (L3, CPU·버스·사운드 타이밍): 하드웨어 나눗셈·제곱근 busy 시간, 펌웨어 SPI 바이트 시간, ARM7 메모리 타이밍, 슬롯 1 카트리지 gap, 사운드 채널 busy·시작 타이밍. | 자동 (`judge.py`, `expected.json`) | <!-- cell:pendulane -->L3 목표 16 · 전제 조건 8<!-- /cell --> | [README](games/pendulane/README-KO.md) · [QA 점검표](games/pendulane/docs/QA-KO.md) · [실기 QA](games/pendulane/docs/HW-QA-KO.md) · [에셋](games/pendulane/ASSETS-KO.md) |
+| [Buoyane](games/buoyane/)<br><img src="games/buoyane/docs/images/title.png" width="192" alt="Buoyane 타이틀 화면"> | 밤 항구 접근 게임: 작은 배를 몰며 불빛이 어떻게 보이는지 읽어 항구로 들어갑니다. 리허설 ROM과 확인 ROM 다섯 개로 스스로를 판정합니다.<br>검사 (L2, 3D 렌더링 가장자리): 폴리곤 규칙(1-dot 폴리곤, 깊이 Equal, far plane, 속성 래치), 텍스처 블렌딩(highlight, decal, 와이어프레임), fog·edge·안티앨리어싱 후처리. | 자동 (`judge.py`, `expected.json`) | <!-- cell:buoyane -->L2 목표 20 · 전제 조건 11<!-- /cell --> | [README](games/buoyane/README-KO.md) · [QA 점검표](games/buoyane/docs/QA-KO.md) · [실기 QA](games/buoyane/docs/HW-QA-KO.md) · [에셋](games/buoyane/ASSETS-KO.md) |
 
 게임마다 폴더가 따로 있고, 빌드·문서·라이선스 파일도 각 폴더 안에 있습니다.
 
@@ -64,7 +88,7 @@
 
 ## 레벨별 게임
 
-게임마다 목표 레벨이 하나 있습니다. 목표 항목이 판정을 정하고, 낮은 항목은 전제 조건이며, 높은 항목은 그 레벨을 맡은 게임으로 옮기기 전까지 `relocate`로 표시합니다([docs/LEVELS-KO.md](docs/LEVELS-KO.md)).
+게임마다 목표 레벨이 하나 있습니다. 목표 항목이 판정을 정하고, 낮은 항목은 전제 조건입니다. 목표 레벨보다 높은 항목은 그 레벨을 맡은 게임의 몫이며, 자리를 못 정한 항목은 남기지 않습니다. 자세한 규칙은 [docs/LEVELS-KO.md](docs/LEVELS-KO.md)에 있습니다.
 이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
 
 <!-- levels:begin -->
@@ -509,6 +533,7 @@ git push origin corvane-v0.1.0
 |---|---|
 | `corvane-v0.1.0.zip` | `corvane.nds`, 세이브 칩 변형, `SHA256SUMS`, 라이선스 원문과 고지 |
 | `corvane-v0.1.0-demos.zip` | 기능 데모 ROM 전부, `SHA256SUMS`, 라이선스 원문과 고지 |
+| `corvane-v0.1.0-judge.zip` | 에뮬레이터 테스트 키트: 리허설 ROM 등 판정용 ROM, `expected.json`, `judge.py`, 라이선스 원문과 고지(Corvane 것은 ROM이 없고, `expected.json`과 `judge.py`가 `-demos.zip`의 데모를 채점) |
 | `SHA256SUMS` | zip 파일들의 체크섬 |
 
 버전에 접미사가 붙으면(`corvane-v0.2.0-rc.1`) 프리릴리스가 됩니다. 같은 파일이
