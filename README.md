@@ -37,7 +37,7 @@ A collection of homebrew games for emulator developers to develop against and ve
   emulator did not, it is listed in [docs/HW-FINDINGS.md](docs/HW-FINDINGS.md).
   Scope, counted from the ten `expected.json` files on 2026-11-23: 376 judged items, of which 260 rest on GBATEK, 80 on the
   ROM's own logic, 17 on values measured on a DS Lite (`hw:dslite-ntr`), 3 on a third-party issue report and 16 are unconfirmed
-  (informational; 12 of them are Elevane's). 22 more are `env` items, n/a on a flashcart (Hushwell 16, Tonewick 3, Pendulane 3).
+  (informational; 12 of them are Elevane's). 22 of the 376 are `env` items, n/a in a console run (20 need a save chip or cartridge access, 2 need input the test harness injects): Hushwell 16, Tonewick 3, Pendulane 3.
   The console is one DS Lite (NTR) with one R4 Plus (Wood) card; the emulators are melonDS 1.1 and DeSmuME (py-desmume 0.0.9).
   Results from other models, or a disagreement with an expected value, are welcome as a *Bug report or question* issue
   ([CONTRIBUTING.md](CONTRIBUTING.md)).

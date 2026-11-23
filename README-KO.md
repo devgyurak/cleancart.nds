@@ -37,7 +37,7 @@
   달랐던 것은 [docs/HW-FINDINGS-KO.md](docs/HW-FINDINGS-KO.md)에 모았습니다.
   범위(2026-11-23, `expected.json` 10개에서 센 값): 판정 항목 376개 중 GBATEK 근거 260개, ROM 자체 논리 80개,
   DS Lite 실측값(`hw:dslite-ntr`) 17개, 서드파티 이슈 보고 3개, 미확정 16개(참고용, 그중 12개가 Elevane)입니다.
-  플래시카트에서는 해당 없는 `env` 항목 22개가 따로 있습니다(Hushwell 16, Tonewick 3, Pendulane 3).
+  376개 중 22개는 `env` 항목이라 실기 런에서는 해당 없음입니다(20개는 세이브 칩이나 카트리지 접근, 2개는 테스트 하니스가 넣는 입력이 필요). Hushwell 16, Tonewick 3, Pendulane 3.
   콘솔은 DS Lite(NTR) 1대와 R4 Plus(Wood) 카드 1종, 에뮬레이터는 melonDS 1.1과 DeSmuME(py-desmume 0.0.9)입니다.
   다른 기종의 결과나 기대값에 대한 이의는 *Bug report or question* 이슈로 받습니다([CONTRIBUTING-KO.md](CONTRIBUTING-KO.md)).
 - **라이선스가 깨끗함.** ROM 안의 모든 것이 직접 작성한 코드, 이 저장소의 코드로 생성한 에셋,
