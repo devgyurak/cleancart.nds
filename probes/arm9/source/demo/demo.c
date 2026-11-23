@@ -2197,7 +2197,489 @@ static void d_3d_zeq_slope(void)
     finish(l, r, holes, 0);
 }
 
+// ---------------------------------------------------------------------------
+// Polygon and vertex RAM limits (written for this collection, no other source).
+// GBATEK gives RAM_COUNT (4000604h polygons 0..2048, 4000606h vertices 0..6144) and says nothing about a
+// list that does not fit. A DS Lite read 2979 polygons after 2980 triangles (Lightenette l2-3d-limits, read
+// without waiting for the geometry engine), so the counter is not held at 2048 there. Three ROMs, one per
+// primitive: separate triangles reach both limits at the same polygon (2048 x 3 = 6144), a triangle strip
+// reaches the polygon limit first (64 vertices per 62 triangles), separate quads the vertex limit (1536 x 4).
+//
+// Sweep: 65535 polygons in one list, one at a time. After each one the geometry engine is idle and both
+// counters are read. A counter "tracks" (it rose by what was sent), "sticks" (it did not move) or does
+// something else; an event is a change between these, and every "something else" read.
+// Draw: a second list of 2852 polygons, one per 4x4 cell, counters read, then swapped and captured: the cells
+// that show the polygon colour are the polygons the console kept.
+//   values[0..3]  first four events of the polygon counter: polygons sent | counter << 16
+//   values[4..7]  first four events of the vertex counter
+//   values[8]     polygon events (0..15) | vertex events (0..15) << 4 | flags << 8
+//                 | polygons sent when DISP3DCNT bit 13 was first seen set (0 = not before the swap) << 16
+//                 flags: 1 idle wait timed out, 2 counters not 0 at the start, 4 capture finished,
+//                 8 overflow flag set after the sweep, 16 overflow flag set after the draw list,
+//                 32 RDLINES underflow (DISP3DCNT bit 12) after the drawn frame
+//   values[9]     sweep end: polygon counter | vertex counter << 16
+//   values[10]    sweep: highest polygon counter | highest vertex counter << 16
+//   values[11]    draw list: polygon counter | vertex counter << 16
+//   values[12]    cells drawn | index of the first cell not drawn << 16 (2852 = none)
+
+#define RL_COLS  62      // a 4-pixel margin all round: no vertex on a clip plane
+#define RL_ROWS  46
+#define RL_CELLS (RL_COLS * RL_ROWS)
+#define RL_SWEEP 65535u
+#define RL_EVENTS 4
+#define RL_CLEAR RGB15(0, 0, 10)
+#define RL_FILL  RGB15(6, 9, 6)   // dim, the console is printed over it
+
+enum { RL_TRI, RL_STRIP, RL_QUAD };
+
+typedef struct {
+    u32 events;
+    u32 ev[RL_EVENTS];
+    u16 last, max;
+    int cls;
+} RlTrack;
+
+static bool rl_timeout;
+
+// Geometry engine idle and its FIFO empty. Bounded: a platform without these bits must not hang the probe
+// (after one timeout the waits are skipped and flag 1 says so).
+static void rl_idle_wait(void)
+{
+    u32 n = 0;
+    while (!rl_timeout && (GFX_STATUS & (3u << 26)) != (1u << 26))
+        if (++n > 4000000u)
+            rl_timeout = true;
+}
+
+static void rl_v(int x, int y)
+{
+    glVertex3v16(x * 16, y * 16, 0);
+}
+
+// Sends what completes polygon i and returns the number of vertices sent.
+static int rl_emit(int kind, u32 i)
+{
+    int c = i % RL_COLS, y = 4 + (int)(i / RL_COLS % RL_ROWS) * 4, x = 4 + c * 4;
+    if (kind == RL_TRI)
+    {
+        glBegin(GL_TRIANGLES);
+        rl_v(x, y);
+        rl_v(x, y + 4);
+        rl_v(x + 4, y);
+        return 3;
+    }
+    if (kind == RL_QUAD)
+    {
+        glBegin(GL_QUADS);
+        rl_v(x, y);
+        rl_v(x, y + 4);
+        rl_v(x + 4, y + 4);
+        rl_v(x + 4, y);
+        return 4;
+    }
+    // One strip per row, two triangles per 8x4 block: vertex k is at x 4 + 8 * (k / 2), top for even k.
+    int n = 1, k = c + 2;
+    if (c == 0)
+    {
+        glBegin(GL_TRIANGLE_STRIP);
+        rl_v(4, y);
+        rl_v(4, y + 4);
+        n = 3;
+    }
+    rl_v(4 + 8 * (k / 2), y + (k & 1 ? 4 : 0));
+    return n;
+}
+
+// A pixel strictly inside polygon i (not on any of its edges, whatever the fill rule).
+static bool rl_drawn(int kind, u32 i)
+{
+    int c = i % RL_COLS, y = 4 + (int)(i / RL_COLS) * 4, x = 4 + c * 4;
+    if (kind == RL_STRIP && (c & 1))
+        return fd_at(x + 2, y + 2) == RL_FILL;   // lower right half of the block that starts at x - 4
+    return fd_at(x + 1, y + 1) == RL_FILL;
+}
+
+static void rl_track(RlTrack *t, u32 sent, u16 now, int expect)
+{
+    int d = (s16)(u16)(now - t->last);
+    int cls = d == expect ? 0 : d == 0 ? 1 : 2;
+    if (cls != t->cls || cls == 2)
+    {
+        if (t->events < RL_EVENTS)
+            t->ev[t->events] = sent | (u32)now << 16;
+        t->events++;
+    }
+    t->cls = cls;
+    t->last = now;
+    if (now > t->max)
+        t->max = now;
+}
+
+static void rl_list_begin(void)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrix4x4(&fd_px);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    GFX_TEX_FORMAT = 0;
+    glPolyFmt(POLY_ALPHA(31) | POLY_CULL_NONE | POLY_ID(1));
+    GFX_COLOR = RL_FILL;
+}
+
+static void rl_events_print(const char *what, const RlTrack *t)
+{
+    con_printf("%s END %u MAX %u EVENTS %lu\n", what, t->last, t->max, (unsigned long)t->events);
+    for (u32 i = 0; i < t->events && i < RL_EVENTS; i++)
+        con_printf("%s%5lu:%5lu", i & 1 ? "  " : " ", (unsigned long)(t->ev[i] & 0xFFFF),
+                   (unsigned long)(t->ev[i] >> 16));
+    if (t->events)
+        con_printf("\n");
+}
+
+static void rl_demo(int kind, const char *title)
+{
+    con_3d(VL_TERRAIN);
+    vram_set(VB_D, 0, 0);
+    demo_title(title);
+    REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while measuring
+    rl_timeout = false;
+    fd_setup(0, RL_CLEAR);
+    // The boot leaves a SwapBuffers pending: let it pass, then start both lists from an empty one.
+    vsync();
+    g3_flush(false);
+    vsync();
+    vsync();
+    GFX_CONTROL = GFX_CONTROL | 3u << 12;   // acknowledge
+
+    rl_list_begin();
+    rl_idle_wait();
+    RlTrack tp = { 0 }, tv = { 0 };
+    tp.last = GFX_POLYGON_RAM_USAGE;
+    tv.last = GFX_VERTEX_RAM_USAGE;
+    u32 flags = (tp.last || tv.last) ? 2 : 0;
+    u32 over_at = 0;
+    for (u32 sent = 1; sent <= RL_SWEEP; sent++)
+    {
+        int nv = rl_emit(kind, sent - 1);
+        rl_idle_wait();
+        rl_track(&tp, sent, GFX_POLYGON_RAM_USAGE, 1);
+        rl_track(&tv, sent, GFX_VERTEX_RAM_USAGE, nv);
+        if (!over_at && (GFX_CONTROL & (1u << 13)))
+            over_at = sent;
+    }
+    if (GFX_CONTROL & (1u << 13))
+        flags |= 8;
+    g3_flush(false);
+    vsync();
+    vsync();
+    GFX_CONTROL = GFX_CONTROL | 3u << 12;
+
+    rl_list_begin();
+    for (u32 i = 0; i < RL_CELLS; i++)
+        rl_emit(kind, i);
+    rl_idle_wait();
+    u32 draw_p = GFX_POLYGON_RAM_USAGE, draw_v = GFX_VERTEX_RAM_USAGE;
+    if (GFX_CONTROL & (1u << 13))
+        flags |= 16;
+    g3_flush(false);
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)FD_CAP)[i] = 0x55555555;
+    vsync();
+    vsync();
+    GFX_CONTROL = GFX_CONTROL | 1u << 12;
+    REG_DISPCAPCNT = (1u << 31) | (1u << 24) | (3 << 16) | (3 << 20);   // the 3D layer only, to bank D
+    for (int f = 0; f < 4 && (REG_DISPCAPCNT & (1u << 31)); f++)
+        vsync();
+    if (!(REG_DISPCAPCNT & (1u << 31)))
+        flags |= 4;
+    if (GFX_CONTROL & (1u << 12))
+        flags |= 32;
+    REG_DISPCAPCNT = 0;
+    u32 drawn = 0, first_gap = RL_CELLS;
+    for (u32 i = 0; i < RL_CELLS; i++)
+    {
+        if (rl_drawn(kind, i))
+            drawn++;
+        else if (first_gap == RL_CELLS)
+            first_gap = i;
+    }
+    if (rl_timeout)
+        flags |= 1;
+
+    REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
+    volatile CvResult *r = CV_RESULT;
+    for (int i = 0; i < RL_EVENTS; i++)
+        r->values[4 + i] = tv.ev[i];
+    r->values[8] = (tp.events > 15 ? 15 : tp.events) | (tv.events > 15 ? 15 : tv.events) << 4 | flags << 8
+                   | over_at << 16;
+    r->values[9] = tp.last | (u32)tv.last << 16;
+    r->values[10] = tp.max | (u32)tv.max << 16;
+    r->values[11] = draw_p | draw_v << 16;
+    r->values[12] = drawn | first_gap << 16;
+    con_printf("SWEEP %lu, SENT:COUNTER\n", (unsigned long)RL_SWEEP);
+    rl_events_print("POLY", &tp);
+    rl_events_print("VERT", &tv);
+    con_printf("OVERFLOW FLAG AT %lu\n", (unsigned long)over_at);
+    con_printf("DRAW %d: POLY %lu VERT %lu\n", RL_CELLS, (unsigned long)draw_p, (unsigned long)draw_v);
+    con_printf("DRAWN %lu FIRST GAP %lu\n", (unsigned long)drawn, (unsigned long)first_gap);
+    con_printf("FLAGS %02lX\n", (unsigned long)flags);
+    finish(tp.ev[0], tp.ev[1], tp.ev[2], tp.ev[3]);
+}
+
+// Mixed lists: which limit drops the polygon. On a DS Lite the three ROMs above drew 2047 separate
+// triangles, 2048 strip triangles and 1536 quads; the 2048th separate triangle is the one polygon that fills
+// both RAMs at once (2048 polygons, 6144 vertices). Six draw lists of 2852 polygons, each with one limit at a
+// time (the numbers are what "a list holds 2048 polygons and 6144 vertices" gives):
+//   A  triangles                                  both full at polygon 2048 (the first ROM again)
+//   B  300 quads, then triangles                  vertices exactly full at polygon 1948
+//   C  62 strip triangles, then triangles         polygons full at 2048 with 6022 vertices
+//   D  1054 strip triangles, then quads           polygons full at 2048 with 5064 vertices
+//   E  1488 quads, then strip triangles           vertices exactly full at polygon 1674
+//   F  62 strip, 1864 triangles, then quads       both full at polygon 2048, and that polygon is a quad
+//   values[2c]     list c: cells drawn | index of the first cell not drawn << 16
+//   values[2c+1]   list c: polygons sent when DISP3DCNT bit 13 was first seen set (0 = never)
+//                  | vertex counter at that read << 16
+//   values[12]     flags: 1 idle wait timed out, 2 << c capture of list c finished, 128 counters not 0 at a start
+
+#define RL_LISTS 6
+
+typedef struct {
+    u8 kind;
+    u16 count;
+} RlSeg;
+
+static const RlSeg rl_mix[RL_LISTS][4] = {
+    { { RL_TRI, RL_CELLS } },
+    { { RL_QUAD, 300 }, { RL_TRI, RL_CELLS } },
+    { { RL_STRIP, 62 }, { RL_TRI, RL_CELLS } },
+    { { RL_STRIP, 1054 }, { RL_QUAD, RL_CELLS } },
+    { { RL_QUAD, 1488 }, { RL_STRIP, RL_CELLS } },
+    { { RL_STRIP, 62 }, { RL_TRI, 1864 }, { RL_QUAD, RL_CELLS } },
+};
+
+// A strip segment starts on a row start (62 cells per row); the last segment covers the rest of the cells.
+static int rl_seg_kind(const RlSeg *s, u32 i)
+{
+    while (i >= s->count)
+    {
+        i -= s->count;
+        s++;
+    }
+    return s->kind;
+}
+
+// One draw list of 2852 polygons, one at a time, then swapped and captured. Returns whether the capture
+// finished; *start is set when the counters were not 0 before the list.
+static bool rl_list_run(const RlSeg *segs, u32 *drawn, u32 *first_gap, u32 *over_at, u32 *over_v, bool *start)
+{
+    g3_flush(false);   // start from an empty list
+    vsync();
+    vsync();
+    GFX_CONTROL = GFX_CONTROL | 3u << 12;
+    rl_list_begin();
+    rl_idle_wait();
+    if (GFX_POLYGON_RAM_USAGE || GFX_VERTEX_RAM_USAGE)
+        *start = true;
+    *over_at = *over_v = 0;
+    for (u32 i = 0; i < RL_CELLS; i++)
+    {
+        rl_emit(rl_seg_kind(segs, i), i);
+        rl_idle_wait();
+        if (!*over_at && (GFX_CONTROL & (1u << 13)))
+        {
+            *over_at = i + 1;
+            *over_v = GFX_VERTEX_RAM_USAGE;
+        }
+    }
+    g3_flush(false);
+    for (int i = 0; i < 256 * 192 / 2; i++)
+        ((vu32 *)FD_CAP)[i] = 0x55555555;
+    vsync();
+    vsync();
+    REG_DISPCAPCNT = (1u << 31) | (1u << 24) | (3 << 16) | (3 << 20);   // the 3D layer only, to bank D
+    for (int f = 0; f < 4 && (REG_DISPCAPCNT & (1u << 31)); f++)
+        vsync();
+    bool done = !(REG_DISPCAPCNT & (1u << 31));
+    REG_DISPCAPCNT = 0;
+    *drawn = 0;
+    *first_gap = RL_CELLS;
+    for (u32 i = 0; i < RL_CELLS; i++)
+    {
+        if (rl_drawn(rl_seg_kind(segs, i), i))
+            (*drawn)++;
+        else if (*first_gap == RL_CELLS)
+            *first_gap = i;
+    }
+    return done;
+}
+
+static void d_3d_ram_mix(void)
+{
+    con_3d(VL_TERRAIN);
+    vram_set(VB_D, 0, 0);
+    demo_title("3D-RAM-MIX");
+    REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while measuring
+    rl_timeout = false;
+    fd_setup(0, RL_CLEAR);
+    vsync();   // the SwapBuffers the boot left pending
+    u32 v[13] = { 0 }, flags = 0;
+    for (int c = 0; c < RL_LISTS; c++)
+    {
+        u32 drawn, first_gap, over_at, over_v;
+        bool start = false;
+        if (rl_list_run(rl_mix[c], &drawn, &first_gap, &over_at, &over_v, &start))
+            flags |= 2u << c;
+        if (start)
+            flags |= 128;
+        v[2 * c] = drawn | first_gap << 16;
+        v[2 * c + 1] = over_at | over_v << 16;
+    }
+    if (rl_timeout)
+        flags |= 1;
+    v[12] = flags;
+
+    REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
+    volatile CvResult *r = CV_RESULT;
+    for (int i = 4; i < 13; i++)
+        r->values[i] = v[i];
+    con_printf("LIST DRAWN  GAP FLAG@ VERT\n");
+    for (int c = 0; c < RL_LISTS; c++)
+        con_printf("  %c  %5lu %4lu %5lu %4lu\n", 'A' + c, (unsigned long)(v[2 * c] & 0xFFFF),
+                   (unsigned long)(v[2 * c] >> 16), (unsigned long)(v[2 * c + 1] & 0xFFFF),
+                   (unsigned long)(v[2 * c + 1] >> 16));
+    con_printf("FLAGS %02lX\n", (unsigned long)flags);
+    finish(v[0], v[1], v[2], v[3]);
+}
+
+// A check of one reading of the DS Lite numbers of the ROMs above (a guess, written down so that it can
+// fail): a polygon takes 2 + its vertex count units (triangle 5, quad 6, shared strip vertices counted
+// again) and a list holds 10238 or 10239 units, next to the 6144 vertices. Nine draw lists that this guess
+// did not see; "used" is the units before the polygon that decides:
+//   a  1054 strip, 4 quads, triangles     a triangle at used 10234   2047 if the list holds 10239, else 2046
+//   b  1054 strip, 3 quads, triangles     a triangle at used 10233   2047
+//   c  1054 strip, 4 triangles, quads     a quad at used 10234       1882
+//   d  1054 strip, 5 triangles, quads     a quad at used 10233       1883 if the list holds 10239, else 1882
+//   e  496 strip, quads                   far from 2048 polygons     1789
+//   f  317 quads, 489 triangles, strip    the units end at the 1st triangle of a strip row   1984
+//   g  312 quads, 494 triangles, strip    at the 2nd triangle of a row                       1985
+//   h  307 quads, 499 triangles, strip    at the 3rd                                         1986
+//   i  806 quads, strip                   at the 27th                                        1886
+// (the strip ROM drew one triangle more than the guess gives: f..i show whether that belongs to strips)
+//   values[c]    list c: index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first
+//                seen set << 12 | cells drawn after that first cell (0..255) << 24
+//   values[12]   flags: 1 idle wait timed out, 2 counters not 0 at a start, 16 << c capture of list c finished
+
+#define RL_FITS 9
+
+static const RlSeg rl_fit[RL_FITS][4] = {
+    { { RL_STRIP, 1054 }, { RL_QUAD, 4 }, { RL_TRI, RL_CELLS } },
+    { { RL_STRIP, 1054 }, { RL_QUAD, 3 }, { RL_TRI, RL_CELLS } },
+    { { RL_STRIP, 1054 }, { RL_TRI, 4 }, { RL_QUAD, RL_CELLS } },
+    { { RL_STRIP, 1054 }, { RL_TRI, 5 }, { RL_QUAD, RL_CELLS } },
+    { { RL_STRIP, 496 }, { RL_QUAD, RL_CELLS } },
+    { { RL_QUAD, 317 }, { RL_TRI, 489 }, { RL_STRIP, RL_CELLS } },
+    { { RL_QUAD, 312 }, { RL_TRI, 494 }, { RL_STRIP, RL_CELLS } },
+    { { RL_QUAD, 307 }, { RL_TRI, 499 }, { RL_STRIP, RL_CELLS } },
+    { { RL_QUAD, 806 }, { RL_STRIP, RL_CELLS } },
+};
+
+// The same guess after the DS Lite run of the nine lists (eight as written, list c drew 1883): the list holds
+// 10240 units, a separate polygon and the first triangle of a strip are taken only while 6 units are free, a
+// continuing strip triangle while 5 are; bit 13 is set when a polygon is refused or the units reach 10240.
+// Seven lists this second guess did not see, with what it gives (first cell not drawn, flag):
+//   j  744 strip, quads                         1830, 1831
+//   k  1488 strip, quads                        1954, 1955
+//   l  310 strip, quads                         1758, 1759 (6112 vertices used: the vertex limit is 8 quads away)
+//   m  1054 strip, 3 triangles, quads           1882, 1883 (a quad at used 10235)
+//   n  300 quads, 506 triangles, strip          1988, 1988 (a continuing strip triangle at used 10235, far from
+//                                               polygon 2048; drawn, and the flag on it)
+//   o  1984 strip, 4 quads, 58 triangles, strip 2047, 2048 (the first triangle of a strip row at used 10234)
+//   p  1984 strip, 5 quads, 57 triangles, strip the first triangle of a strip row at used 10235. Nothing measured
+//                                               says how a strip row starts: 2046, 2047 and one cell after it
+//                                               (the row's second triangle) if the first is refused like a separate
+//                                               triangle; 2047, 2047 if a strip triangle only ever needs 5
+// The DS Lite run: j..o as written; p gave 2046, 2047 and no cell after it, so after a refused strip triangle
+// the rest of that strip is refused too (docs/HW-QA.md).
+// The words are those of l4-3d-ram-fit.
+
+#define RL_FITS2 7
+
+static const RlSeg rl_fit2[RL_FITS2][4] = {
+    { { RL_STRIP, 744 }, { RL_QUAD, RL_CELLS } },
+    { { RL_STRIP, 1488 }, { RL_QUAD, RL_CELLS } },
+    { { RL_STRIP, 310 }, { RL_QUAD, RL_CELLS } },
+    { { RL_STRIP, 1054 }, { RL_TRI, 3 }, { RL_QUAD, RL_CELLS } },
+    { { RL_QUAD, 300 }, { RL_TRI, 506 }, { RL_STRIP, RL_CELLS } },
+    { { RL_STRIP, 1984 }, { RL_QUAD, 4 }, { RL_TRI, 58 }, { RL_STRIP, RL_CELLS } },
+    { { RL_STRIP, 1984 }, { RL_QUAD, 5 }, { RL_TRI, 57 }, { RL_STRIP, RL_CELLS } },
+};
+
+static void rl_fit_demo(const RlSeg (*lists)[4], int count, char first, const char *title)
+{
+    con_3d(VL_TERRAIN);
+    vram_set(VB_D, 0, 0);
+    demo_title(title);
+    REG_DISPCNT &= ~DISPLAY_BG1_ACTIVE;   // the console stays off while measuring
+    rl_timeout = false;
+    fd_setup(0, RL_CLEAR);
+    vsync();   // the SwapBuffers the boot left pending
+    u32 v[13] = { 0 }, flags = 0;
+    for (int c = 0; c < count; c++)
+    {
+        u32 drawn, first_gap, over_at, over_v;
+        bool start = false;
+        if (rl_list_run(lists[c], &drawn, &first_gap, &over_at, &over_v, &start))
+            flags |= 16u << c;
+        if (start)
+            flags |= 2;
+        u32 after = drawn - first_gap;
+        v[c] = first_gap | over_at << 12 | (after > 255 ? 255 : after) << 24;
+    }
+    if (rl_timeout)
+        flags |= 1;
+    v[12] = flags;
+
+    REG_DISPCNT |= DISPLAY_BG1_ACTIVE;
+    volatile CvResult *r = CV_RESULT;
+    for (int i = 4; i < 13; i++)
+        r->values[i] = v[i];
+    con_printf("LIST  GAP FLAG@ AFTER\n");
+    for (int c = 0; c < count; c++)
+        con_printf("  %c  %4lu %5lu %3lu\n", first + c, (unsigned long)(v[c] & 0xFFF),
+                   (unsigned long)(v[c] >> 12 & 0xFFF), (unsigned long)(v[c] >> 24));
+    con_printf("FLAGS %04lX\n", (unsigned long)flags);
+    finish(v[0], v[1], v[2], v[3]);
+}
+
+static void d_3d_ram_fit(void)
+{
+    rl_fit_demo(rl_fit, RL_FITS, 'a', "3D-RAM-FIT");
+}
+
+static void d_3d_ram_fit2(void)
+{
+    rl_fit_demo(rl_fit2, RL_FITS2, 'j', "3D-RAM-FIT2");
+}
+
+static void d_3d_ram_tri(void)
+{
+    rl_demo(RL_TRI, "3D-RAM-TRI");
+}
+
+static void d_3d_ram_strip(void)
+{
+    rl_demo(RL_STRIP, "3D-RAM-STRIP");
+}
+
+static void d_3d_ram_quad(void)
+{
+    rl_demo(RL_QUAD, "3D-RAM-QUAD");
+}
+
 static const DemoEntry demos[] = {
+    { "l4-3d-ram-tri", d_3d_ram_tri },       { "l4-3d-ram-strip", d_3d_ram_strip },
+    { "l4-3d-ram-quad", d_3d_ram_quad },     { "l4-3d-ram-mix", d_3d_ram_mix },
+    { "l4-3d-ram-fit", d_3d_ram_fit },       { "l4-3d-ram-fit2", d_3d_ram_fit2 },
     { "l4-sys-dma-gfx", d_sys_dma_gfx },     { "l4-sys-dma-disp", d_sys_dma_disp },
     { "l4-2d-obj-line", d_2d_obj_line },     { "l4-2d-display", d_2d_display },
     { "l4-3d-fifo", d_3d_fifo },             { "l4-3d-matrix", d_3d_matrix },

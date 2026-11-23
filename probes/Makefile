@@ -36,7 +36,8 @@ DEMOS := \
   l4-sys-dma-gfx l4-sys-dma-disp l4-2d-obj-line l4-2d-display \
   l4-3d-fifo l4-3d-matrix l4-3d-light l4-3d-clip l4-3d-poly l4-3d-test \
   l4-acc-stage l4-acc-dual l4-acc-split-rear l4-acc-split-hdma l4-acc-rear-plane \
-  l4-vcount-write l4-tex-late l4-3d-fog-dot l4-3d-zeq-slope
+  l4-vcount-write l4-tex-late l4-3d-fog-dot l4-3d-zeq-slope \
+  l4-3d-ram-tri l4-3d-ram-strip l4-3d-ram-quad l4-3d-ram-mix l4-3d-ram-fit l4-3d-ram-fit2
 
 VARIANT  := probes-$(DEMO)
 ROM      := $(VARIANT).nds

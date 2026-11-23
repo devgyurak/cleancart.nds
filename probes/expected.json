@@ -3,7 +3,7 @@
  "schema": 3,
  "target_level": 4,
  "area": "research probes",
- "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is demo code run under an l4- name (acc-dual and acc-split-* from the Elevane l3 demos, the others from Corvane, l4-acc-rear-plane, l4-vcount-write and l4-tex-late written for this collection); it writes a result block at 0x0237F000 at frame 120 (magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value of the item (the value the emulators gave when the probe was written, or the value the behaviour is expected to have); they are never a hardware value and the per-emulator record under `known` is what the judge compares.",
+ "about": "Probe results of the L4 research collection (probes/): behaviours nobody has confirmed on hardware (docs/LEVELS.md). Each probe ROM is demo code run under an l4- name (acc-dual and acc-split-* from the Elevane l3 demos, the others from Corvane, l4-acc-rear-plane, l4-vcount-write, l4-tex-late and the six l4-3d-ram-* probes written for this collection); it writes a result block at 0x0237F000 at frame 120 (ten probes, the l4-3d-ram-* probes among them, finish earlier, as soon as their measurement is done: probes/docs/QA.md; magic CVER, FNV-1a of the demo name, frame, values[13]). The items are informational: they never fail a run. `known.<profile>.observed` records what each emulator gave per item; tools/judge.py --profile exits 1 when an emulator no longer matches its record (a change is news). The `expect`/`min`/`max` fields are the reference value of the item (the value the emulators gave when the probe was written, or the value the behaviour is expected to have); they are never a hardware value and the per-emulator record under `known` is what the judge compares.",
  "block": {
   "address": "0x0237F000",
   "magic": 1380275779
@@ -12,7 +12,7 @@
   "unconfirmed": "no hardware value yet; informational only, never fails the run (with --profile the recorded observation is compared)"
  },
  "checks": {
-  "eq": "values[i] == expect",
+  "eq": "values[i] == expect (an item with several indexes records all of them under `known`; the reference is compared with the first)",
   "range": "min <= values[i] <= max",
   "mask": "(values[i] & mask) == expect",
   "same": "all values equal (two or more indexes)",
@@ -40,7 +40,13 @@
   "l4-vcount-write": 1005781691,
   "l4-tex-late": 3160160016,
   "l4-3d-fog-dot": 3992592172,
-  "l4-3d-zeq-slope": 131802604
+  "l4-3d-zeq-slope": 131802604,
+  "l4-3d-ram-tri": 388544858,
+  "l4-3d-ram-strip": 2502194237,
+  "l4-3d-ram-quad": 303772586,
+  "l4-3d-ram-mix": 3488130157,
+  "l4-3d-ram-fit": 2630045600,
+  "l4-3d-ram-fit2": 1500922582
  },
  "items": [
   {
@@ -386,7 +392,7 @@
   {
    "id": "vcw-212-residual",
    "demo": "l4-vcount-write",
-   "title": "Cycles left over after those whole lines: signed mean over 8 frames, x16 (the poll delay is dithered like Heddlemere's judge); 0xFFFF when no whole line was added. Heddlemere no longer judges this",
+   "title": "Cycles left over after those whole lines: signed mean over 8 frames, x16 (the poll delay is dithered like Heddlemere's judge); 0xFFFF when no whole line was added. Heddlemere no longer judges this. Measured again 2026-11-24: the melonDS value moved from -6 to -20 on all six profiles when six probes were added to demo.c although this probe's code did not change (d_vcount_write moved by 0x1f8 in the ROM; the build before them, 84ef084, still gave the old value on melonDS 1.1 software): the emulator value depends on where the code sits in the ROM",
    "values": [
     4
    ],
@@ -626,7 +632,7 @@
   {
    "id": "dot-queued-cutoff",
    "demo": "l4-3d-fog-dot",
-   "title": "A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn",
+   "title": "A far 1-dot queued behind 24 matrix multiplies while DISP_1DOT_DEPTH is raised to 7FFF: 1 = drawn. Measured again 2026-11-24: the melonDS value moved from 1 to 0 on software and GL compute, 1.1 and master (GL classic gave 0 before and after, DeSmuME 1) when six probes were added to demo.c although this probe's code did not change (d_3d_fog_dot moved by 0xcf0 in the ROM; the build before them, 84ef084, still gave the old value on melonDS 1.1 software): the emulator value depends on where the code sits in the ROM",
    "values": [
     5
    ],
@@ -723,6 +729,632 @@
    "role": "target",
    "level": 4,
    "level_basis": "none"
+  },
+  {
+   "id": "ram-tri-poly-events",
+   "demo": "l4-3d-ram-tri",
+   "title": "Separate triangles, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the polygon counter (4000604h), each polygons sent | counter << 16, 0 = no further event (an event: the counter stops rising by 1 per polygon, starts again, or does something else; the reference is the first word). GBATEK gives 0..2048 and says nothing about a list that does not fit. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 4096:0, 4097:1, 8192:0, 8193:1 (every polygon sent is counted and the counter wraps 4095 -> 0); melonDS: one event, 2049:2048 (held there)",
+   "values": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "check": "eq",
+   "expect": 134219777,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-tri-vert-events",
+   "demo": "l4-3d-ram-tri",
+   "title": "Separate triangles, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the vertex counter (4000606h), each polygons sent | counter << 16, 0 = no further event (the counter should rise by the vertices sent, 3 per triangle; the reference is the first word). GBATEK gives 0..6144. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2731:1, 2732:4, 5462:2, 5463:5 (every vertex sent is counted and the counter wraps 8191 -> 0); melonDS: one event, 2049:6144 (held there)",
+   "values": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "check": "eq",
+   "expect": 402655233,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-tri-flag",
+   "demo": "l4-3d-ram-tri",
+   "title": "Separate triangles, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter events (0..15) | vertex counter events (0..15) << 4 | flags << 8 | polygons sent when DISP3DCNT bit 13 (polygon/vertex RAM overflow) was first seen set << 16 (0 = not in the sweep). Flags: 1 idle wait timed out, 2 counters not 0 at the start, 4 capture finished, 8 bit 13 set after the sweep, 16 bit 13 set after the draw list, 32 DISP3DCNT bit 12 set after the drawn frame. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 0x08001cff (15 or more events each, the same flags, bit 13 at polygon 2048); melonDS: 0x08011c11 (1 and 1 events, flags 4 + 8 + 16, bit 13 at polygon 2049)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 134290449,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-tri-sweep-counters",
+   "demo": "l4-3d-ram-tri",
+   "title": "Separate triangles, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter | vertex counter << 16 at the end of the sweep, then the highest value each counter had, packed the same way (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): end 4095 | 8189 << 16 (65535 polygons and 196605 vertices, modulo 4096 and 8192), maximum 4095 | 8191 << 16; melonDS: 2048 | 6144 << 16, twice",
+   "values": [
+    9,
+    10
+   ],
+   "check": "eq",
+   "expect": 402655232,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-tri-draw",
+   "demo": "l4-3d-ram-tri",
+   "title": "Separate triangles, a second list of 2852 polygons, one per 4x4 cell, swapped and captured: cells drawn | index of the first cell not drawn << 16 (2852 = none), then polygon counter | vertex counter << 16 read before the swap (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2047 | 2047 << 16 (the 2048th triangle, the one that fills both RAMs, is not drawn), counters 2852 | 364 << 16 (8556 vertices modulo 8192); melonDS: 2048 | 2048 << 16 (the first 2048 triangles), counters 2048 | 6144 << 16; DeSmuME draws all 2852",
+   "values": [
+    12,
+    11
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-strip-poly-events",
+   "demo": "l4-3d-ram-strip",
+   "title": "Triangle strips, one per row of 62 triangles, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the polygon counter (4000604h), each polygons sent | counter << 16, 0 = no further event (an event: the counter stops rising by 1 per polygon, starts again, or does something else; the reference is the first word). GBATEK gives 0..2048 and says nothing about a list that does not fit. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 4096:0, 4097:1, 8192:0, 8193:1 (every polygon sent is counted and the counter wraps 4095 -> 0); melonDS: one event, 2049:2048 (held there)",
+   "values": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "check": "eq",
+   "expect": 134219777,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-strip-vert-events",
+   "demo": "l4-3d-ram-strip",
+   "title": "Triangle strips, one per row of 62 triangles, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the vertex counter (4000606h), each polygons sent | counter << 16, 0 = no further event (the counter should rise by the vertices sent, 3 for the first triangle of a strip, 1 for the others; the reference is the first word). GBATEK gives 0..6144. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 7936:0, 7937:3, 15872:0, 15873:3 (every vertex sent is counted and the counter wraps 8191 -> 0); melonDS: one event, 2049:2116 (held there)",
+   "values": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "check": "eq",
+   "expect": 138676225,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-strip-flag",
+   "demo": "l4-3d-ram-strip",
+   "title": "Triangle strips, one per row of 62 triangles, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter events (0..15) | vertex counter events (0..15) << 4 | flags << 8 | polygons sent when DISP3DCNT bit 13 (polygon/vertex RAM overflow) was first seen set << 16 (0 = not in the sweep). Flags: 1 idle wait timed out, 2 counters not 0 at the start, 4 capture finished, 8 bit 13 set after the sweep, 16 bit 13 set after the draw list, 32 DISP3DCNT bit 12 set after the drawn frame. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 0x08001cff (15 or more events each, the same flags, bit 13 at polygon 2048); melonDS: 0x08011c11 (1 and 1 events, flags 4 + 8 + 16, bit 13 at polygon 2049)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 134290449,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-strip-sweep-counters",
+   "demo": "l4-3d-ram-strip",
+   "title": "Triangle strips, one per row of 62 triangles, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter | vertex counter << 16 at the end of the sweep, then the highest value each counter had, packed the same way (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): end 4095 | 2115 << 16 (65535 polygons and 67651 vertices, modulo 4096 and 8192), maximum 4095 | 8191 << 16; melonDS: 2048 | 2116 << 16, twice",
+   "values": [
+    9,
+    10
+   ],
+   "check": "eq",
+   "expect": 138676224,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-strip-draw",
+   "demo": "l4-3d-ram-strip",
+   "title": "Triangle strips, one per row of 62 triangles, a second list of 2852 polygons, one per 4x4 cell, swapped and captured: cells drawn | index of the first cell not drawn << 16 (2852 = none), then polygon counter | vertex counter << 16 read before the swap (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2048 | 2048 << 16 (the same 2048 triangles), counters 2852 | 2944 << 16; melonDS: 2048 | 2048 << 16 (the first 2048 triangles), counters 2048 | 2116 << 16; DeSmuME draws all 2852",
+   "values": [
+    12,
+    11
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-quad-poly-events",
+   "demo": "l4-3d-ram-quad",
+   "title": "Separate quads, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the polygon counter (4000604h), each polygons sent | counter << 16, 0 = no further event (an event: the counter stops rising by 1 per polygon, starts again, or does something else; the reference is the first word). GBATEK gives 0..2048 and says nothing about a list that does not fit. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 4096:0, 4097:1, 8192:0, 8193:1 (every polygon sent is counted and the counter wraps 4095 -> 0); melonDS: one event, 1537:1536 (held there)",
+   "values": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "check": "eq",
+   "expect": 100664833,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-quad-vert-events",
+   "demo": "l4-3d-ram-quad",
+   "title": "Separate quads, 65535 polygons in one list, RAM_COUNT read after each one: the first four events of the vertex counter (4000606h), each polygons sent | counter << 16, 0 = no further event (the counter should rise by the vertices sent, 4 per quad; the reference is the first word). GBATEK gives 0..6144. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2048:0, 2049:4, 4096:0, 4097:4 (every vertex sent is counted and the counter wraps 8191 -> 0); melonDS: one event, 1537:6144 (held there)",
+   "values": [
+    4,
+    5,
+    6,
+    7
+   ],
+   "check": "eq",
+   "expect": 402654721,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-quad-flag",
+   "demo": "l4-3d-ram-quad",
+   "title": "Separate quads, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter events (0..15) | vertex counter events (0..15) << 4 | flags << 8 | polygons sent when DISP3DCNT bit 13 (polygon/vertex RAM overflow) was first seen set << 16 (0 = not in the sweep). Flags: 1 idle wait timed out, 2 counters not 0 at the start, 4 capture finished, 8 bit 13 set after the sweep, 16 bit 13 set after the draw list, 32 DISP3DCNT bit 12 set after the drawn frame. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 0x06011cff (15 or more events each, the same flags, bit 13 at polygon 1537); melonDS: 0x06011c11 (1 and 1 events, flags 4 + 8 + 16, bit 13 at polygon 1537)",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 100736017,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-quad-sweep-counters",
+   "demo": "l4-3d-ram-quad",
+   "title": "Separate quads, 65535 polygons in one list, RAM_COUNT read after each one: polygon counter | vertex counter << 16 at the end of the sweep, then the highest value each counter had, packed the same way (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): end 4095 | 8188 << 16 (65535 polygons and 262140 vertices, modulo 4096 and 8192), maximum 4095 | 8188 << 16; melonDS: 1536 | 6144 << 16, twice",
+   "values": [
+    9,
+    10
+   ],
+   "check": "eq",
+   "expect": 402654720,
+   "na_when": [
+    10,
+    0
+   ],
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-quad-draw",
+   "demo": "l4-3d-ram-quad",
+   "title": "Separate quads, a second list of 2852 polygons, one per 4x4 cell, swapped and captured: cells drawn | index of the first cell not drawn << 16 (2852 = none), then polygon counter | vertex counter << 16 read before the swap (the reference is the first word). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 1536 | 1536 << 16 (the same 1536 quads), counters 2852 | 3216 << 16 (11408 vertices modulo 8192); melonDS: 1536 | 1536 << 16 (the first 1536 quads), counters 1536 | 6144 << 16; DeSmuME draws all 2852",
+   "values": [
+    12,
+    11
+   ],
+   "check": "eq",
+   "expect": 100664832,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-a",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list A of 2852 polygons, one per 4x4 cell (triangles): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives both RAMs full at polygon 2048. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2047 drawn, bit 13 at 2048 (6144); melonDS: 2048 drawn, bit 13 at 2049 (6144); the number in brackets is the vertex counter",
+   "values": [
+    0,
+    1
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-b",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list B of 2852 polygons, one per 4x4 cell (300 quads, then triangles): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives the vertices exactly full at polygon 1948. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 1948 drawn, bit 13 at 1949 (6147); melonDS: 1948 drawn, bit 13 at 1949 (6144); the number in brackets is the vertex counter",
+   "values": [
+    2,
+    3
+   ],
+   "check": "eq",
+   "expect": 127666076,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-c",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list C of 2852 polygons, one per 4x4 cell (62 strip triangles, then triangles): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives the polygons full at 2048 with 6022 vertices. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2047 drawn, bit 13 at 2048 (6022); melonDS: 2048 drawn, bit 13 at 2049 (6022); the number in brackets is the vertex counter",
+   "values": [
+    4,
+    5
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-d",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list D of 2852 polygons, one per 4x4 cell (1054 strip triangles, then quads): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives the polygons full at 2048 with 5064 vertices. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 1882 drawn, bit 13 at 1883 (4404); melonDS: 2048 drawn, bit 13 at 2049 (5064); the number in brackets is the vertex counter",
+   "values": [
+    6,
+    7
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-e",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list E of 2852 polygons, one per 4x4 cell (1488 quads, then strip triangles): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives the vertices exactly full at polygon 1674. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 1674 drawn, bit 13 at 1675 (6147); melonDS: 1672 drawn, bit 13 at 1673 (6142); the number in brackets is the vertex counter",
+   "values": [
+    8,
+    9
+   ],
+   "check": "eq",
+   "expect": 109577864,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-f",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw list F of 2852 polygons, one per 4x4 cell (62 strip triangles, 1864 triangles, then quads): cells drawn | index of the first cell not drawn << 16, then polygons sent when DISP3DCNT bit 13 was first seen set (0 = never) | vertex counter at that read << 16 (the reference is the first word). \"A list holds 2048 polygons and 6144 vertices\" gives both RAMs full at polygon 2048, which is a quad. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 2027 drawn, bit 13 at 2028 (6064); melonDS: 2048 drawn, bit 13 at 2049 (6144); the number in brackets is the vertex counter",
+   "values": [
+    10,
+    11
+   ],
+   "check": "eq",
+   "expect": 134219776,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-mix-flags",
+   "demo": "l4-3d-ram-mix",
+   "title": "Mixed draw lists A..F: flags, 1 idle wait timed out, 2 << c capture of list c finished (A is 0), 128 counters not 0 at the start of a list. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 0x7e (the six captures finished, nothing else); melonDS: 0x7e",
+   "values": [
+    12
+   ],
+   "check": "eq",
+   "expect": 126,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-a",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list a of 2852 polygons, one per 4x4 cell (1054 strip triangles, 4 quads, then triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 2047, bit 13 at 2048, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-b",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list b of 2852 polygons, one per 4x4 cell (1054 strip triangles, 3 quads, then triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 2047, bit 13 at 2048, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-c",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list c of 2852 polygons, one per 4x4 cell (1054 strip triangles, 4 triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1883, bit 13 at 1883, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-d",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list d of 2852 polygons, one per 4x4 cell (1054 strip triangles, 5 triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1883, bit 13 at 1884, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-e",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list e of 2852 polygons, one per 4x4 cell (496 strip triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1789, bit 13 at 1790, no cell after it; melonDS: 1904, 1905, none",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 7804784,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-f",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list f of 2852 polygons, one per 4x4 cell (317 quads, 489 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1984, bit 13 at 1985, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-g",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list g of 2852 polygons, one per 4x4 cell (312 quads, 494 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1985, bit 13 at 1986, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-h",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list h of 2852 polygons, one per 4x4 cell (307 quads, 499 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1986, bit 13 at 1987, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    7
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-i",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw list i of 2852 polygons, one per 4x4 cell (806 quads, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): first cell not drawn 1886, bit 13 at 1887, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    8
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit-flags",
+   "demo": "l4-3d-ram-fit",
+   "title": "Draw lists a..i: flags, 1 idle wait timed out, 2 counters not 0 at the start of a list, 16 << c capture of list c finished (a is 0). Observed on a DS Lite (probes/docs/HW-QA.md, two runs of an earlier build of this ROM): 0x1ff0 (every capture finished, nothing else); melonDS: 0x1ff0",
+   "values": [
+    12
+   ],
+   "check": "eq",
+   "expect": 8176,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-j",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list j of 2852 polygons, one per 4x4 cell (744 strip triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 1830, bit 13 at 1831, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    0
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-k",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list k of 2852 polygons, one per 4x4 cell (1488 strip triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 1954, bit 13 at 1955, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    1
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-l",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list l of 2852 polygons, one per 4x4 cell (310 strip triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 1758, bit 13 at 1759, no cell after it; melonDS: 1766, 1767, none",
+   "values": [
+    2
+   ],
+   "check": "eq",
+   "expect": 7239398,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-m",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list m of 2852 polygons, one per 4x4 cell (1054 strip triangles, 3 triangles, then quads): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 1882, bit 13 at 1883, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    3
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-n",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list n of 2852 polygons, one per 4x4 cell (300 quads, 506 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 1988, bit 13 at 1988, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    4
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-o",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list o of 2852 polygons, one per 4x4 cell (1984 strip triangles, 4 quads, 58 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 2047, bit 13 at 2048, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    5
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-p",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw list p of 2852 polygons, one per 4x4 cell (1984 strip triangles, 5 quads, 57 triangles, then strip triangles): index of the first cell not drawn | polygons sent when DISP3DCNT bit 13 was first seen set << 12 | cells drawn after that first cell (0..255) << 24. Observed on a DS Lite (probes/docs/HW-QA.md, two runs): first cell not drawn 2046, bit 13 at 2047, no cell after it; melonDS: 2048, 2049, none",
+   "values": [
+    6
+   ],
+   "check": "eq",
+   "expect": 8394752,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
+  },
+  {
+   "id": "ram-fit2-flags",
+   "demo": "l4-3d-ram-fit2",
+   "title": "Draw lists j..p: flags, 1 idle wait timed out, 2 counters not 0 at the start of a list, 16 << c capture of list c finished (j is 0). Observed on a DS Lite (probes/docs/HW-QA.md, two runs): 0x7f0 (every capture finished, nothing else); melonDS: 0x7f0",
+   "values": [
+    12
+   ],
+   "check": "eq",
+   "expect": 2032,
+   "source": "unconfirmed",
+   "role": "target",
+   "level": 4,
+   "level_basis": "none"
   }
  ],
  "known": {
@@ -778,7 +1410,7 @@
      1179648
     ],
     "dot-queued-cutoff": [
-     1
+     0
     ],
     "edge-screen-border": [
      67044351
@@ -794,6 +1426,156 @@
     ],
     "poly-right-edge-pixel": [
      1
+    ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
     ],
     "rear-plane": [
      4096
@@ -847,7 +1629,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -935,6 +1717,156 @@
     "poly-right-edge-pixel": [
      1
     ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
+    ],
     "rear-plane": [
      1408
     ],
@@ -987,7 +1919,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -1058,7 +1990,7 @@
      1179648
     ],
     "dot-queued-cutoff": [
-     1
+     0
     ],
     "edge-screen-border": [
      67044351
@@ -1074,6 +2006,156 @@
     ],
     "poly-right-edge-pixel": [
      1
+    ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
     ],
     "rear-plane": [
      1408
@@ -1127,7 +2209,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -1198,7 +2280,7 @@
      1179648
     ],
     "dot-queued-cutoff": [
-     1
+     0
     ],
     "edge-screen-border": [
      67044351
@@ -1214,6 +2296,156 @@
     ],
     "poly-right-edge-pixel": [
      1
+    ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
     ],
     "rear-plane": [
      4096
@@ -1267,7 +2499,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -1355,6 +2587,156 @@
     "poly-right-edge-pixel": [
      1
     ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
+    ],
     "rear-plane": [
      1408
     ],
@@ -1407,7 +2789,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -1478,7 +2860,7 @@
      1179648
     ],
     "dot-queued-cutoff": [
-     1
+     0
     ],
     "edge-screen-border": [
      67044351
@@ -1494,6 +2876,156 @@
     ],
     "poly-right-edge-pixel": [
      1
+    ],
+    "ram-fit-a": [
+     8394752
+    ],
+    "ram-fit-b": [
+     8394752
+    ],
+    "ram-fit-c": [
+     8394752
+    ],
+    "ram-fit-d": [
+     8394752
+    ],
+    "ram-fit-e": [
+     7804784
+    ],
+    "ram-fit-f": [
+     8394752
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     8394752
+    ],
+    "ram-fit-h": [
+     8394752
+    ],
+    "ram-fit-i": [
+     8394752
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     8394752
+    ],
+    "ram-fit2-k": [
+     8394752
+    ],
+    "ram-fit2-l": [
+     7239398
+    ],
+    "ram-fit2-m": [
+     8394752
+    ],
+    "ram-fit2-n": [
+     8394752
+    ],
+    "ram-fit2-o": [
+     8394752
+    ],
+    "ram-fit2-p": [
+     8394752
+    ],
+    "ram-mix-a": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-b": [
+     127666076,
+     402655133
+    ],
+    "ram-mix-c": [
+     134219776,
+     394659841
+    ],
+    "ram-mix-d": [
+     134219776,
+     331876353
+    ],
+    "ram-mix-e": [
+     109577864,
+     402523785
+    ],
+    "ram-mix-f": [
+     134219776,
+     402655233
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     100664832,
+     402654720
+    ],
+    "ram-quad-flag": [
+     100736017
+    ],
+    "ram-quad-poly-events": [
+     100664833,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     402654720,
+     402654720
+    ],
+    "ram-quad-vert-events": [
+     402654721,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     134219776,
+     138676224
+    ],
+    "ram-strip-flag": [
+     134290449
+    ],
+    "ram-strip-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     138676224,
+     138676224
+    ],
+    "ram-strip-vert-events": [
+     138676225,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     134219776,
+     402655232
+    ],
+    "ram-tri-flag": [
+     134290449
+    ],
+    "ram-tri-poly-events": [
+     134219777,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     402655232,
+     402655232
+    ],
+    "ram-tri-vert-events": [
+     402655233,
+     0,
+     0,
+     0
     ],
     "rear-plane": [
      1408
@@ -1547,7 +3079,7 @@
      11
     ],
     "vcw-212-residual": [
-     4294967290
+     4294967276
     ],
     "vcw-outside-lines": [
      51
@@ -1635,6 +3167,156 @@
     "poly-right-edge-pixel": [
      1
     ],
+    "ram-fit-a": [
+     2852
+    ],
+    "ram-fit-b": [
+     2852
+    ],
+    "ram-fit-c": [
+     2852
+    ],
+    "ram-fit-d": [
+     2852
+    ],
+    "ram-fit-e": [
+     2852
+    ],
+    "ram-fit-f": [
+     2852
+    ],
+    "ram-fit-flags": [
+     8176
+    ],
+    "ram-fit-g": [
+     2852
+    ],
+    "ram-fit-h": [
+     2852
+    ],
+    "ram-fit-i": [
+     2852
+    ],
+    "ram-fit2-flags": [
+     2032
+    ],
+    "ram-fit2-j": [
+     2852
+    ],
+    "ram-fit2-k": [
+     2852
+    ],
+    "ram-fit2-l": [
+     2852
+    ],
+    "ram-fit2-m": [
+     2852
+    ],
+    "ram-fit2-n": [
+     2852
+    ],
+    "ram-fit2-o": [
+     2852
+    ],
+    "ram-fit2-p": [
+     2852
+    ],
+    "ram-mix-a": [
+     186911524,
+     0
+    ],
+    "ram-mix-b": [
+     186911524,
+     0
+    ],
+    "ram-mix-c": [
+     186911524,
+     0
+    ],
+    "ram-mix-d": [
+     186911524,
+     0
+    ],
+    "ram-mix-e": [
+     186911524,
+     0
+    ],
+    "ram-mix-f": [
+     186911524,
+     0
+    ],
+    "ram-mix-flags": [
+     126
+    ],
+    "ram-quad-draw": [
+     186911524,
+     0
+    ],
+    "ram-quad-flag": [
+     1041
+    ],
+    "ram-quad-poly-events": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "ram-quad-sweep-counters": [
+     0,
+     0
+    ],
+    "ram-quad-vert-events": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-draw": [
+     186911524,
+     0
+    ],
+    "ram-strip-flag": [
+     1041
+    ],
+    "ram-strip-poly-events": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "ram-strip-sweep-counters": [
+     0,
+     0
+    ],
+    "ram-strip-vert-events": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-draw": [
+     186911524,
+     0
+    ],
+    "ram-tri-flag": [
+     1041
+    ],
+    "ram-tri-poly-events": [
+     1,
+     0,
+     0,
+     0
+    ],
+    "ram-tri-sweep-counters": [
+     0,
+     0
+    ],
+    "ram-tri-vert-events": [
+     1,
+     0,
+     0,
+     0
+    ],
     "rear-plane": [
      4096
     ],
@@ -1707,5 +3389,5 @@
    }
   }
  },
- "known_note": "Measured 2026-11-12 on the release probe ROMs (./build.sh -j8 release), fresh logs on every profile. Every value is what that emulator gave, none is a hardware value; items with a mask record the masked value. melonDS master 4ce2188 was run with MELONDS_COMMIT=4ce2188 tools/melonds/mds.sh demos. Real hardware has not been measured."
+ "known_note": "Measured 2026-11-24 on the release probe ROMs (./build.sh -j8 release), all 25 probes on every profile, fresh logs. Against the record of 2026-11-12 (l4-vcount-write and l4-tex-late 2026-11-16, l4-3d-zeq-slope and fog-alpha-glitch 2026-11-21): the 40 ram-* items of the six l4-3d-ram-* probes are new; of the 45 older items 43 are unchanged on every profile and two moved on melonDS, vcw-212-residual (-6 to -20 on all six melonDS profiles) and dot-queued-cutoff (1 to 0 on software and GL compute, 1.1 and master). The code of those two probes did not change: adding the six probes to demo.c moved their functions in the ROM (d_vcount_write by 0x1f8, d_3d_fog_dot by 0xcf0), and the build before them (84ef084) still gave the old values on melonDS 1.1 software, so these two emulator values depend on where the code sits in the ROM. DeSmuME is unchanged. Every value is what that emulator gave, none is a hardware value; items with a mask record the masked value. melonDS master 4ce2188 was run with MELONDS_COMMIT=4ce2188 tools/melonds/mds.sh demos. Real hardware: the six l4-3d-ram-* probes ran on a DS Lite, five of them as earlier builds (probes/docs/HW-QA.md; the values are quoted in the item titles and are not a profile here); nothing else has been measured on a console."
 }
