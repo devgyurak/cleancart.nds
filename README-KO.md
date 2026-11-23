@@ -48,16 +48,17 @@ Claude Code와 함께 만들었습니다. 기대값의 근거는 GBATEK 또는 D
 ## 에뮬레이터 테스트로 쓰기
 
 1. [Releases](https://github.com/devgyurak/cleancart.nds/releases)에서 `<game>-v<x.y.z>-judge.zip`을 받습니다. 한 버전의 리허설 ROM, `expected.json`, `judge.py`가 들어 있습니다.
-2. 리허설 ROM을 헤드리스로 정해진 프레임 수만큼 실행하고, 메인 RAM(`0x0237F000`)의 결과 블록을 덤프합니다.
-3. `judge.py`로 채점합니다. 게이팅 항목이 모두 OK면 종료 코드 0, 실패한 항목이 있으면 1, 쓸 만한 결과가 없으면 2입니다.
-4. `--profile NAME`을 주면 실패한 항목이 그 에뮬레이터의 known 차이와 정확히 같을 때만 0으로 끝납니다.
+2. 리허설 ROM을 쓰는 에뮬레이터에서 헤드리스로 정해진 프레임 수만큼 실행하고, 메인 RAM(`0x0237F000`)의 결과 블록을 덤프합니다.
+3. 덤프를 로그 파일에 씁니다. `judge.py`는 `RESULT w0 w1 … w63`(16진 워드 64개) 또는 `PEEK 0237f000 b0 b1 …`(16진 바이트, 리틀 엔디언, 256개 이상) 한 줄을 읽고, 다른 줄은 무시합니다.
+4. `judge.py <log>`로 채점합니다. 게이팅 항목이 모두 OK면 종료 코드 0, 실패한 항목이 있으면 1, 쓸 만한 결과가 없으면 2입니다.
+5. `--profile NAME`을 주면 실패한 항목이 그 에뮬레이터의 known 차이와 정확히 같을 때만 0으로 끝납니다.
 
 ```sh
 tools/melonds/mds.sh run games/lightenette/lightenette-rehearsal.nds 1800 out/mds/reh "" 1799 > reh.log
 python3 games/lightenette/tools/judge.py --profile melonds-1.1-software reh.log
 ```
 
-위는 Lightenette의 실행입니다. ROM 이름, 프레임 수, 블록 크기는 게임마다 다르므로 각 게임의
+위 예시는 저장소 checkout에서 우리 헤드리스 melonDS 러너(`tools/melonds/mds.sh`)로 돌린 것입니다. 릴리스 키트로 쓸 때는 그 줄을 쓰는 에뮬레이터의 덤프로 바꾸고, 압축을 푼 폴더에서 `judge.py`를 실행하세요. Lightenette의 실행이며, ROM 이름, 프레임 수, 블록 크기는 게임마다 다르므로 각 게임의
 "에뮬레이터 테스트로 쓰기" 절을 따르세요(예: [Lightenette](games/lightenette/README-KO.md#에뮬레이터-테스트로-쓰기), [Pendulane](games/pendulane/README-KO.md#에뮬레이터-테스트로-쓰기)).
 Heddlemere의 리허설은 [README](games/heddlemere/README-KO.md)에 있습니다.
 
@@ -87,7 +88,7 @@ Heddlemere의 리허설은 [README](games/heddlemere/README-KO.md)에 있습니�
 
 ## 레벨별 게임
 
-게임마다 목표 레벨이 하나 있습니다. 목표 항목이 판정을 정하고, 낮은 항목은 전제 조건입니다(목표 레벨보다 높은 항목은 그 레벨을 맡은 게임의 몫이며, 자리를 못 정한 항목은 남기지 않습니다)([docs/LEVELS-KO.md](docs/LEVELS-KO.md)).
+게임마다 목표 레벨이 하나 있습니다. 목표 항목이 판정을 정하고, 낮은 항목은 전제 조건입니다. 목표 레벨보다 높은 항목은 그 레벨을 맡은 게임의 몫이며, 자리를 못 정한 항목은 남기지 않습니다. 자세한 규칙은 [docs/LEVELS-KO.md](docs/LEVELS-KO.md)에 있습니다.
 이 목록은 `scripts/mklevels.py`가 각 게임의 `expected.json`에서 생성합니다. 항목 설명은 `expected.json`의 영어 그대로입니다.
 
 <!-- levels:begin -->
